@@ -1,0 +1,18 @@
+{
+  "manifest_version": 2,
+
+  "name": "LEAP Theremin",
+  "description": "A LEAP theremin operated with two hands.",
+  "version": "1.0",
+
+  "background": {
+    "page": "theremin.html"
+  },
+
+  "options_page": "options.html",
+  "permissions": [
+    "storage"
+  ],
+
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+}
