@@ -1,49 +1,7 @@
-// lower quality, higher performance settings for Audiolet.
-// the library wasn't made for this sort of tone generation!
-var AUDIO_SAMPLE_RATE = 4096;
-var AUDIO_CHANNELS = 1;
-var AUDIO_BUFFER_SIZE = 2048;
-
 var MIN_FREQ = 30;
 
-var Synth = function(audiolet, frequency) {
-  AudioletGroup.apply(this, [audiolet, 0, 1]);
-  this.wave = new Sine(this.audiolet, frequency);
-  this.modulator = new Square(this.audiolet, 2 * frequency);
-  this.modulatorMulAdd = new MulAdd(this.audiolet, frequency / 2, frequency);
-
-  this.modulator.connect(this.modulatorMulAdd);
-  this.modulatorMulAdd.connect(this.wave);
-  this.gain = new Gain(this.audiolet);
-
-  this.wave.connect(this.gain);
-  this.gain.connect(this.outputs[0]);
-
-  this.setGain = function(amp) {
-    this.gain.gain.setValue(amp);
-  }
-
-  this.setFreq = function(freq) {
-    this.wave.frequency.setValue(freq);
-    this.modulator.frequency.setValue(freq*2);
-    this.modulatorMulAdd.mul.setValue(freq/2);
-    this.modulatorMulAdd.add.setValue(freq);
-  }
-
-  this.setGain(0);
-};
-extend(Synth, AudioletGroup);
-
-var AudioletApp = function() {
-  this.audiolet = new Audiolet(
-    AUDIO_SAMPLE_RATE,
-    AUDIO_CHANNELS,
-    AUDIO_BUFFER_SIZE
-  );
-  this.synth = new Synth(this.audiolet, MIN_FREQ);
-  this.synth.connect(this.audiolet.output);
-};
-var audio = new AudioletApp();
+var toneGen = new ToneGenerator("sine");
+toneGen.setGain(0);
 
 function handleFrame(frameInstance) {
   // TODO: use interactionBox instead of hard-coding absolutes
@@ -51,7 +9,7 @@ function handleFrame(frameInstance) {
   var numHands = hands.length;
 
   if (numHands <= 1) {
-    audio.synth.setGain(0);
+    toneGen.setGain(0);
     return;
   }
 
@@ -67,8 +25,8 @@ function handleFrame(frameInstance) {
   var gain = Math.max(0, (500 - leftHand.palm_position.y) / 100);
   var freq = Math.max(MIN_FREQ, MIN_FREQ + (350 - rightHand.palm_position.z) / 8);
 
-  audio.synth.setGain(gain);
-  audio.synth.setFreq(freq);
+  toneGen.setGain(gain);
+  toneGen.setFreq(freq);
 }
 
 chrome.storage.sync.get({
@@ -93,6 +51,7 @@ chrome.storage.sync.get({
       type: 'leap_motion/Frame',
       throttle_rate: Math.round(1000/rate)
     }));
+    toneGen.start();
   };
 
   socket.onmessage = function(ev) {
