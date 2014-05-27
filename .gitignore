@@ -1,0 +1,5 @@
+# Chrome Extension parts and pieces
+*.pem
+*.pub
+*.eid
+*.crx

@@ -1,0 +1,38 @@
+#!/bin/bash
+# vim:set ai sts=4 ts=4 sw=4 expandtab filetype=sh:
+
+MY_DIR="$( dirname "${0}" )"
+EXT_DIR="extensions"
+
+if [ "${MY_DIR}" == "." ]; then
+    MY_DIR="${PWD}"
+fi
+
+# excluding sigs+keys just in case - but they actually live outside the "extensions" dir
+for ext_dir in `find "${MY_DIR}/${EXT_DIR}" -mindepth 1 -maxdepth 1 -regextype posix-egrep -type d \! -iregex "${MY_DIR}/${EXT_DIR}/(sigs|keys)"`; do
+
+    echo "FOUND ${ext_dir}"
+    extension="$( basename "${ext_dir}" )"
+
+    if [ ! -f "${MY_DIR}/keys/${extension}.pem" ]; then
+        echo "NO KEY ${MY_DIR}/keys/${extension}.pem"
+        openssl genrsa -out "${MY_DIR}/keys/${extension}.pem" 4096
+    fi
+    if [ ! -f "${MY_DIR}/${extension}.pub" ]; then
+        openssl rsa -pubout -outform DER < "${MY_DIR}/keys/${extension}.pem" > "${MY_DIR}/${extension}.pub"
+    fi
+    if [ ! -f "${MY_DIR}/${extension}.eid" ]; then
+        sha256sum < "${MY_DIR}/${extension}.pub" | head -c32 | tr '0-9a-f' 'a-p' > "${MY_DIR}/${extension}.eid"
+    fi
+
+    pushd "${EXT_DIR}"
+    "${MY_DIR}/crxmake" "${extension}" "${MY_DIR}/keys/${extension}.pem"
+    popd
+done
+
+#<?xml version='1.0' encoding='UTF-8'?>
+#<gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'>
+#  <app appid='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'>
+#    <updatecheck codebase='http://myhost.com/mytestextension/mte_v2.crx' version='2.0' />
+#  </app>
+#</gupdate>
