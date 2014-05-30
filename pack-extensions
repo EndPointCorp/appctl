@@ -18,11 +18,11 @@ for ext_dir in `find "${MY_DIR}/${EXT_DIR}" -mindepth 1 -maxdepth 1 -regextype p
         echo "NO KEY ${MY_DIR}/keys/${extension}.pem"
         openssl genrsa -out "${MY_DIR}/keys/${extension}.pem" 4096
     fi
-    if [ ! -f "${MY_DIR}/${extension}.pub" ]; then
-        openssl rsa -pubout -outform DER < "${MY_DIR}/keys/${extension}.pem" > "${MY_DIR}/${extension}.pub"
+    if [ ! -f "${ext_dir}.pub" ]; then
+        openssl rsa -pubout -outform DER < "${MY_DIR}/keys/${extension}.pem" > "${ext_dir}.pub"
     fi
-    if [ ! -f "${MY_DIR}/${extension}.eid" ]; then
-        sha256sum < "${MY_DIR}/${extension}.pub" | head -c32 | tr '0-9a-f' 'a-p' > "${MY_DIR}/${extension}.eid"
+    if [ ! -f "${ext_dir}.eid" ]; then
+        sha256sum < "${ext_dir}.pub" | head -c32 | tr '0-9a-f' 'a-p' > "${ext_dir}.eid"
     fi
 
     pushd "${EXT_DIR}"

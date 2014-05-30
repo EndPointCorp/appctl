@@ -1,0 +1,25 @@
+├── crxmake
+├── extensions           - PLACE EXTENSION DIRECTORIES HERE
+│   ├── sigs             - DIRECTORY FOR TEMPORARY FILES
+│   ├── <extensionA>
+│   ├──  ...             - PACKAGED EXTENSION FILES (.crx,.pub,eid) ARE DROPPED ALONG-SIDE
+│   └── <extensionZ>
+├── keys
+│   ├── README
+│   ├── <extensionA.pem> - KEYS ARE NOT COMMITED TO GIT
+│   ├──  ...
+│   └── <extensionZ.pem>
+├── managed_policy_example
+│   ├── <policy_exampleA.json>
+│   ├──  ...
+│   └── <policy_exampleZ.json>
+├── pack-extensions      - USE THIS TO RE-PACKAGE ALL EXTENSIONS
+└── README               - THIS README
+
+Packaged Extension Files:
+
+* In "<repo>/extensions/", see the following result files:
+  * <extension>.pub - the public key portion of the extension-specific keypair
+  * <extension>.eid - the extension-specific Application ID which is derived from the public key.
+  * <extension>.crx - the extension itself, installable in Chrome/Chromium.
+
