@@ -1,5 +1,5 @@
-├── crxmake
 ├── extensions           - PLACE EXTENSION DIRECTORIES HERE
+│   ├── crxmake          - TOOL FOR PACKING CRX FILES
 │   ├── sigs             - DIRECTORY FOR TEMPORARY FILES
 │   ├── <extensionA>
 │   ├──  ...             - PACKAGED EXTENSION FILES (.crx,.pub,eid) ARE DROPPED ALONG-SIDE
