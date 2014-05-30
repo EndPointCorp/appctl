@@ -25,7 +25,7 @@ for ext_dir in `find "${MY_DIR}/${EXT_DIR}" -mindepth 1 -maxdepth 1 -regextype p
         sha256sum < "${ext_dir}.pub" | head -c32 | tr '0-9a-f' 'a-p' > "${ext_dir}.eid"
     fi
 
-    pushd "${EXT_DIR}"
+    pushd "${MY_DIR}/${EXT_DIR}"
         ./crxmake "${extension}" "${MY_DIR}/keys/${extension}.pem"
     popd
 done
