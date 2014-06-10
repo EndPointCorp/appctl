@@ -1,7 +1,7 @@
 // Saves options to chrome.storage
 function save_options() {
   var wsUrl = document.getElementById('wsUrl').value;
-  var rate  = Number(document.getElementById('rate').value);
+  var rate = Number(document.getElementById('rate').value);
   var socketDebug = document.getElementById('socketDebug').checked;
 
   chrome.storage.sync.set({

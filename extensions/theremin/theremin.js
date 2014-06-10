@@ -1,7 +1,15 @@
 var MIN_FREQ = 30;
 
-var toneGen = new ToneGenerator("sine");
+var toneGen = new ToneGenerator('sine');
 toneGen.setGain(0);
+
+function yToGain(y) {
+  return Math.max(0, (500 - y) / 100);
+}
+
+function zToFreq(z) {
+  return Math.max(MIN_FREQ, MIN_FREQ + (350 - z) / 8);
+}
 
 function handleFrame(frameInstance) {
   // TODO: use interactionBox instead of hard-coding absolutes
@@ -22,8 +30,8 @@ function handleFrame(frameInstance) {
     rightHand = hands[0];
   }
 
-  var gain = Math.max(0, (500 - leftHand.palm_position.y) / 100);
-  var freq = Math.max(MIN_FREQ, MIN_FREQ + (350 - rightHand.palm_position.z) / 8);
+  var gain = yToGain(leftHand.palm_position.y);
+  var freq = zToFreq(rightHand.palm_position.z);
 
   toneGen.setGain(gain);
   toneGen.setFreq(freq);
@@ -49,7 +57,7 @@ chrome.storage.sync.get({
       op: 'subscribe',
       topic: '/leap_motion/frame',
       type: 'leap_motion/Frame',
-      throttle_rate: Math.round(1000/rate)
+      throttle_rate: Math.round(1000 / rate)
     }));
     toneGen.start();
   };

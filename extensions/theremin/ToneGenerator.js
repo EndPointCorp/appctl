@@ -2,12 +2,13 @@
  * A tone generator with any number of oscillators.
  *
  * @example
- * var tone = new ToneGenerator("sine", "sawtooth");
+ * var tone = new ToneGenerator('sine', 'sawtooth');
  * tone.setGain(0.2);
  * tone.setFreq(250);
  * tone.start();
  * setTimeout(tone.stop, 1000);
  *
+ * @constructor
  * @param {...string} type - Oscillator type supported by Web Audio API.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode}
  *
@@ -21,7 +22,7 @@ function ToneGenerator() {
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     context = new AudioContext();
   }
-  catch(e) {
+  catch (e) {
     console.error('Web Audio API is not supported in this browser.');
     throw e;
   }
@@ -48,7 +49,7 @@ function ToneGenerator() {
     var oscNode = context.createOscillator();
     var oscType = arguments[i];
     if (!isString(oscType)) {
-      throw "Oscillator type must be a string."
+      throw 'Oscillator type must be a string.';
     }
     oscNode.type = oscType;
     oscNode.frequency.value = 440;
@@ -64,7 +65,7 @@ function ToneGenerator() {
    */
   function setGain(gain) {
     if (!isNumber(gain)) {
-      throw "Gain must be a number.";
+      throw 'Gain must be a number.';
     }
     gainNode.gain.value = gain;
   }
@@ -76,7 +77,7 @@ function ToneGenerator() {
    */
   function setFreq(freq) {
     if (!isNumber(freq)) {
-      throw "Frequency must be a number.";
+      throw 'Frequency must be a number.';
     }
     for (var i = 0; i < numOscillators; i++) {
       oscillators[i].frequency.value = freq;
@@ -106,5 +107,5 @@ function ToneGenerator() {
     setFreq: setFreq,
     start: start,
     stop: stop
-  }
+  };
 }
