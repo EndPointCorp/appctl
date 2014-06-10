@@ -4,3 +4,6 @@
 *.eid
 *.crx
 *-upd.xml
+
+# Other cruft
+*.swp
