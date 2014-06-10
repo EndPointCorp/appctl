@@ -1,0 +1,21 @@
+#!/bin/bash
+# vim:set ai sts=4 ts=4 sw=4 expandtab filetype=sh:
+
+MY_DIR="$( dirname "${0}" )"
+EXT_DIR="extensions"
+LINT_TOOL="gjslint"
+CUSTOM_JSDOC_TAGS="example"
+
+if [ "${MY_DIR}" == "." ]; then
+    MY_DIR="${PWD}"
+fi
+
+# run closure linter if available
+LINT_ABSPATH=`which ${LINT_TOOL}`
+if [ $? -eq 0 ]; then
+    ${LINT_ABSPATH} --custom_jsdoc_tags "${CUSTOM_JSDOC_TAGS}" \
+        -r "${MY_DIR}/${EXT_DIR}"
+else
+    echo "${LINT_TOOL} not found." >&2
+    exit 1
+fi
