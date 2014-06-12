@@ -34,7 +34,7 @@ for ext_dir in `find "${MY_DIR}/${EXT_DIR}" -mindepth 1 -maxdepth 1 -regextype p
     fi
 
     pushd "${MY_DIR}/${EXT_DIR}"
-        ./crxmake "${extension}" "${MY_DIR}/keys/${extension}.pem"
+        ./crxmake "${extension}" "../keys/${extension}.pem"
     popd
 
     cat << UPD_EOF > "${MY_DIR}/${EXT_DIR}/${extension}-upd.xml"
