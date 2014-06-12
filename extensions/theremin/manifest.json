@@ -14,5 +14,8 @@
     "storage"
   ],
 
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+
+  "update_url": "http://lg-head/extensions/theremin-upd.xml"
+
 }
