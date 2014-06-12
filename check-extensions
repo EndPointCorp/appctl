@@ -10,6 +10,8 @@ if [ "${MY_DIR}" == "." ]; then
     MY_DIR="${PWD}"
 fi
 
+echo "= Recursive JS Lint check:"
+
 # run closure linter if available
 LINT_ABSPATH=`which ${LINT_TOOL}`
 if [ $? -eq 0 ]; then
@@ -19,3 +21,14 @@ else
     echo "${LINT_TOOL} not found." >&2
     exit 1
 fi
+
+echo "= Manifest files check:"
+
+# use python to validate extension manifest files
+MANIFEST_FILES=`find "${MY_DIR}/${EXT_DIR}/" -name "manifest.json"`
+for manifest in ${MANIFEST_FILES}; do
+    { echo -n "Extension: $( dirname ${manifest} ), Version: ";
+    python -c 'import sys,json;response=json.loads(sys.stdin.read()); print response["version"]' < "${manifest}" ; } && \
+    echo "Manifest ok: ${manifest}" || \
+    echo "Failed to parse: ${manifest}"
+done
