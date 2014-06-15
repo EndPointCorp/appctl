@@ -13,7 +13,7 @@
 │   ├── <policy_exampleA.json>
 │   ├──  ...
 │   └── <policy_exampleZ.json>
-├── check-extensions     - USE THIS TO LINT ALL EXTENSIONS
+├── check-extensions     - USE THIS TO VERIFY ALL EXTENSIONS
 ├── pack-extensions      - USE THIS TO RE-PACKAGE ALL EXTENSIONS
 ├── publish-extensions   - USE THIS TO PUBLISH ALL EXTENSIONS
 └── README               - THIS README
