@@ -1,0 +1,20 @@
+{
+  "manifest_version": 2,
+
+  "name": "Render Statistics",
+  "description": "Add rendering statistics to the active tab.",
+  "version": "1.0",
+
+  "background": {
+    "page": "render_statistics.html"
+  },
+
+  "permissions": [
+    "http://*/",
+    "https://*/",
+    "tabs",
+    "activeTab"
+  ],
+
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+}
