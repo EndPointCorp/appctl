@@ -1,9 +1,14 @@
 /**
  * Frame rate counter based on requestAnimationFrame.
  *
+ * <p>
  * Uses StatsD helpers to report results back to the extension.
  *
+ * <p>
+ * This code is intended to be injected into a tab by an extension.
+ *
  * @namespace
+ * @author Matt Vollrath <matt@endpoint.com>
  */
 var RenderStatistics = RenderStatistics || (function() {
   /**
@@ -118,8 +123,9 @@ var RenderStatistics = RenderStatistics || (function() {
     }
 
     /**
-     * Start collecting statistics.
+     * Starts collecting statistics.
      * @public
+     * @instance
      * @memberof RenderStatistics
      */
     function start() {
@@ -134,8 +140,9 @@ var RenderStatistics = RenderStatistics || (function() {
     }
 
     /**
-     * Stop collecting statistics.
+     * Stops collecting statistics.
      * @public
+     * @instance
      * @memberof RenderStatistics
      */
     function stop() {
@@ -151,13 +158,21 @@ var RenderStatistics = RenderStatistics || (function() {
     };
   }
 
-  return {
-    getInstance: function() {
-      if (!instance) {
-        instance = init();
-      }
-
-      return instance;
+  /**
+   * Gets the singleton instance.
+   * @public
+   * @memberof RenderStatistics
+   * @return {RenderStatistics} The instance.
+   */
+  var getInstance = function() {
+    if (!instance) {
+      instance = init();
     }
+
+    return instance;
+  };
+
+  return {
+    getInstance: getInstance
   };
 })();

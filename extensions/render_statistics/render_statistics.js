@@ -1,11 +1,14 @@
 /**
  * An App for collecting render statistics from any active tab.
+ * @static
+ * @namespace
+ * @author Matt Vollrath <matt@endpoint.com>
  */
-var App = (function() {
+var RenderStatisticsApp = (function() {
   /**
    * The extension id of the statistics sink.
    */
-  var SINK_ID = 'cdaemcghkkjlfpjhcaclpkngfpanmpbl';
+  var SINK_ID = 'gpdloooncmepbcfklhgbjiodfnamgjdj';
 
   /**
    * Validates a tab as something we want to track rendering on.

@@ -10,7 +10,7 @@
  *
  * @constructor
  * @param {...string} type - Oscillator type supported by Web Audio API.
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode}
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode
  *
  * @author Matt Vollrath <matt@endpoint.com>
  */
