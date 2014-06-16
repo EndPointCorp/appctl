@@ -20,5 +20,7 @@
       "bind": "*",
       "send": "*"
     }
-  }
+  },
+
+  "update_url": "http://lg-head/extensions/statistics_sink-upd.xml"
 }
