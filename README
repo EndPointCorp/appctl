@@ -14,6 +14,7 @@
 │   ├──  ...
 │   └── <policy_exampleZ.json>
 ├── check-extensions     - USE THIS TO VERIFY ALL EXTENSIONS
+├── doc-extensions       - USE THIS TO JSDOC ALL EXTENSIONS
 ├── pack-extensions      - USE THIS TO RE-PACKAGE ALL EXTENSIONS
 ├── publish-extensions   - USE THIS TO PUBLISH ALL EXTENSIONS
 └── README               - THIS README

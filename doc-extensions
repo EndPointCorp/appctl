@@ -1,0 +1,23 @@
+#!/bin/bash
+# vim:set ai sts=4 ts=4 sw=4 expandtab filetype=sh:
+
+MY_DIR="$( dirname "${0}" )"
+EXT_DIR="extensions"
+JSDOC_TOOL="jsdoc"
+
+if [ "${MY_DIR}" == "." ]; then
+    MY_DIR="${PWD}"
+fi
+
+OUT_DIR="${MY_DIR}/docs"
+
+echo "= Building JSDoc:"
+
+# run jsdoc tool if available
+JSDOC_ABSPATH=`which ${JSDOC_TOOL}`
+if [ $? -eq 0 ]; then
+    ${JSDOC_ABSPATH} -d="${OUT_DIR}" -r "${MY_DIR}/${EXT_DIR}"
+else
+    echo "${JSDOC_TOOL} not found." >&2
+    exit 1
+fi

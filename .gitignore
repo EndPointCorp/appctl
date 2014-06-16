@@ -5,5 +5,8 @@
 *.crx
 *-upd.xml
 
+# Generated documentation
+docs/
+
 # Other cruft
 *.swp
