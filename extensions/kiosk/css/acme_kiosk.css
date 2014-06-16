@@ -1,0 +1,77 @@
+/* Styles for ACME Kiosk. */
+
+/*
+ * Disable all links on the page and change them to be the
+ * color of the page incase we forget to hide them.
+ */
+a, a:link, a:visited, a:active {
+  pointer-events: none;
+  color: #666;
+}
+/*
+ * Reenable the expand results link.
+ */
+a.gsst_a {
+  pointer-events: all;
+}
+
+/*
+ * Debug text area.
+ */
+.acme-slinky-debug {
+  position: 'fixed';
+  bottom: '0px';
+  left: '0px';
+  height: '10%';
+  width: '100%';
+  z-index: '99999';
+  background-color: 'rgba(242, 242, 242, 1.0)';
+}
+
+/*
+ * Add a zoom out to earth button.
+ */
+.acme-zoom-out-earth {
+  border: 1px red solid;
+  height: 100px;
+  width: 100px;
+  left: 3px;
+  top: 16px;
+  position: relative;
+  cursor: pointer;
+}
+
+/*
+ * Clean up css on the kiosk.
+ */
+#vasquette,
+#mylocation,
+#gear,
+#fineprint,
+#minimap,
+#butterbar,
+#cards .cards-card,
+.widget-runway-expand-pegman-container,
+.widget-minimap-shim-button,
+.widget-minimap-shim,
+.widget-runway-expand-pegman.runway-pegman-hidden,
+.cards-entity-right,
+.widget-runway-expand-pegman,
+button.widget-play-button.widget-play-left,
+button.widget-play-button.widget-play-right,
+/* Hide the button divider if it is the 2nd or greater. */
+.widget-play-button-divider ~ .widget-play-button-divider {
+  display: none !important;
+}
+
+#titlecard, .app-vertical-widget-holder { zoom: 200%; }
+.widget-play-widget { bottom: 10px; zoom: 200%; }
+
+.widget-runway-wide-primary-card.widget-runway-satellite-card-enabled.widget-runway-tray-wrapper,
+.widget-runway-tray-wrapper {
+  left: 106px !important;
+}
+.cards-entity-background { width: 100% }
+.app-vertical-widget-holder { bottom: 21px; }
+.widget-runway-thumbstrip-background { top: -13px; }
+.omnibox-cards-context-mode #omnibox { padding-bottom: 0px; }

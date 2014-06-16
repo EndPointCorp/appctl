@@ -1,0 +1,42 @@
+{
+  "manifest_version": 2,
+  "name": "Slinky Dog Large Display",
+  "version": "1.0",
+  "description": "Slinky Dog specific add-ons for Tactile for the Large Display - handles things such as ROS messages and showing the hand",
+  "background": {
+    "page": "background/background.html",
+    "content_security_policy": "script-src 'self' https://www.google.com/*; object-src 'self' https://www.google.com/*"
+  },
+  "permissions": [
+    "<all_urls>",
+    "tabs",
+    "webRequest",
+    "webNavigation",
+    "management"
+  ],
+  "web_accessible_resources": [
+    "models/*.json"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*.corp.google.com:8499/*",
+        "*://*.google.com/maps/*"
+      ],
+      "all_frames": true,
+      "js": [
+        "libs/eventemitter2.min.js",
+        "libs/roslib.min.js",
+        "libs/three.min.js",
+        "libs/TweenMax.js",
+        "contentjs/camera_buffer.js",
+        "contentjs/handoverlay.js",
+        "contentjs/slinkyRosDisplay.js",
+        "contentjs/texture_src.js"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+      "contentjs/inject.js"
+  ]
+}
