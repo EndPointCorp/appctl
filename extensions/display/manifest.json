@@ -33,6 +33,9 @@
         "contentjs/handoverlay.js",
         "contentjs/slinkyRosDisplay.js",
         "contentjs/texture_src.js"
+      ],
+      "css": [
+        "css/acme_display.css"
       ]
     }
   ],
