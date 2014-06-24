@@ -1,8 +1,8 @@
 // Only load once and keep everything private.
-var acme = acme || {};
+var acmeExt = acmeExt || {};
 
 /** The api for interfacing with acme tactile. */
-acme.messageAPI = acme.messageAPI || (function() {
+acmeExt.messageAPI = acmeExt.messageAPI || (function() {
   console.log('Loading ACME Kiosk API.');
 
   var MessageAPI = function() {
@@ -13,8 +13,8 @@ acme.messageAPI = acme.messageAPI || (function() {
    */
   MessageAPI.prototype.handleEvent = function(e) {
     var request = e.detail, context = this;
-    console.log('acme.MessageAPI');
-    console.log(request);
+//     console.log('acme.MessageAPI');
+//     console.log(request);
 
     if (request.context && acme.hasOwnProperty(request.context)) {
       context = acme[request.context];
@@ -49,3 +49,27 @@ acme.messageAPI = acme.messageAPI || (function() {
       messageAPI.handleEvent.bind(messageAPI), true);
   return messageAPI;
 })();
+
+acmeExt.selectPOIButton = function() {
+  fp = document.querySelector('#acme-famous-places');
+  poi = document.querySelector('#acme-points-of-interest');
+  fp.style.cssText = 'display: none !important;';
+  poi.style.cssText = '';
+
+  fpb = document.querySelector('#acme-famous-places-button');
+  poib = document.querySelector('#acme-poi-button');
+  poib.classList.add('acme-button-selected');
+  fpb.classList.remove('acme-button-selected');
+};
+
+acmeExt.selectFamousPlacesButton = function() {
+  fp = document.querySelector('#acme-famous-places');
+  poi = document.querySelector('#acme-points-of-interest');
+  fp.style.cssText = '';
+  poi.style.cssText = 'display: none !important;';
+
+  fpb = document.querySelector('#acme-famous-places-button');
+  poib = document.querySelector('#acme-poi-button');
+  poib.classList.remove('acme-button-selected');
+  fpb.classList.add('acme-button-selected');
+};

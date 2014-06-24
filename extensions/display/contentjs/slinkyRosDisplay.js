@@ -25,6 +25,24 @@ acme.Util.injectScript = function(filePath) {
 acme.Util.injectScript('contentjs/inject.js');
 
 /**
+ * @constructor
+ * @param {number} lat Latitude in degrees N, (-90, 90).
+ * @param {number} lon Longitude in degrees E, [-180, 180).
+ * @param {number} alt Altitude (meters).
+ * @param {number} heading Heading in degrees, [0-360).
+ * @param {number} tilt Tilt in degrees, [0 == down, 90 == horizon).
+ * @param {number} roll Roll (unused).
+ */
+Pose = function(lat, lon, alt, heading, tilt, roll) {
+  this.lat = lat || 0.0;
+  this.lon = lon || 0.0;
+  this.alt = alt || 0.0;
+  this.heading = heading || 0.0;
+  this.tilt = tilt || 0.0;
+  this.roll = roll || 0.0;
+};
+
+/**
  * Send a custom event to the page.
  *
  * @param {Object.<{context: string, method: string, args: Array}>} request
@@ -73,7 +91,6 @@ acme.Display.prototype.setLargeDisplayMode = function() {
 
 /** The ACME Display object. */
 acme.display = new acme.Display();
-var cameraBuffer = new CameraBuffer(acme.display);
 
 /**
  * Keep this in sync with core:tactile.acme.InputSupport_
@@ -86,7 +103,6 @@ var InputSupport_ = {
   NO_ZOOM: 2,
   NO_ZOOM_NO_PAN: 3
 };
-
 
 var dumpUpdateToScreen = function(message) {
   var stringifiedMessage = JSON.stringify(message);
@@ -106,17 +122,35 @@ var dumpUpdateToScreen = function(message) {
   debugArea.textContent = stringifiedMessage;
 };
 
+var publishDisplayCurrentPose = function(pose) {
+  var slinkyPose = new ROSLIB.Message({
+    current_pose: {
+      position: {
+        x: pose.lon,
+        y: pose.lat,
+        z: pose.alt
+      },
+      orientation: {
+        x: pose.tilt,
+        y: pose.roll,
+        z: pose.heading,
+        w: 0
+      }
+    }
+  });
 
-var ignoreCameraUpdates = false;
+  if (handOverlay) {
+    handOverlay.setCurrentCameraPose(pose);
+  }
+  slinkyDisplayCurrentPoseTopic.publish(slinkyPose);
+};
 
 var cameraUpdateHandler = function(cameraEvent) {
   // Lazy set the large display mode after we get our first
   // stable camera update.
   acme.display.initOnce();
 
-  if (!ignoreCameraUpdates) {
-    cameraBuffer.processCameraUpdate(cameraEvent.detail);
-  }
+  publishDisplayCurrentPose(cameraEvent.detail);
 };
 
 /**
@@ -155,43 +189,36 @@ var slinkyRosDisplay = new ROSLIB.Ros({
 });
 
 // Globe View Topic listens and publishes camera updates.
-var globeViewTopic = new ROSLIB.Topic({
+var navigatorListener = new ROSLIB.Topic({
   ros: slinkyRosDisplay,
-  name: '/globe/view',
-  messageType: 'geometry_msgs/PoseStamped',
-  throttle_rate: 30
+  name: '/slinky_nav/display_goto_pose',
+  messageType: 'geometry_msgs/PoseStamped'
 });
 
-var globeViewSubscriber = function(message) {
-  dumpUpdateToScreen(message);
-  var pose = new Pose(message.pose.position.y,
-                      message.pose.position.x,
-                      message.pose.position.z,
-                      message.pose.orientation.z,
-                      message.pose.orientation.x,
-                      message.pose.orientation.y);
-  cameraBuffer.requestWarpToCameraPose(pose);
-};
-globeViewTopic.subscribe(globeViewSubscriber);
+var slinkyDisplayCurrentPoseTopic = new ROSLIB.Topic({
+  ros: slinkyRosDisplay,
+  name: '/slinky_display/current_pose',
+  messageType: 'slinky_nav/SlinkyPose'
+});
+
+navigatorListener.subscribe(function(rosPoseStamped) {
+  var pose = new Pose(rosPoseStamped.pose.position.y,  // lat
+                      rosPoseStamped.pose.position.x,  // lon
+                      rosPoseStamped.pose.position.z,  // alt
+                      rosPoseStamped.pose.orientation.z,  // heading
+                      rosPoseStamped.pose.orientation.x,  // tilt
+                      rosPoseStamped.pose.orientation.y);  // roll
+  acme.display.moveCamera(pose, false);
+});
 
 
 var runwayContentTopic = new ROSLIB.Topic({
   ros: slinkyRosDisplay,
-  name: '/globe/runway',
+  name: '/slinky_kiosk/runway',
   // TODO(daden): quick hack to get the string across, we should create our own
   // ROS message for passing this data across in the future.
   messageType: 'std_msgs/String'
 });
-
-
-var runwayHandler = function(clicked, customData, runwayImageType) {
-  if (clicked && runwayImageType == InputSupport_.DISABLED) {
-    ignoreCameraUpdates = true;
-  } else {
-    ignoreCameraUpdates = false;
-  }
-};
-
 
 var runwayContentSubscriber = function(message) {
   console.log(message);
@@ -203,26 +230,14 @@ var runwayContentSubscriber = function(message) {
   if (startsWith(data, runwayContentEvents.CLICK)) {
     var customDataStr = data.slice(
         runwayContentEvents.CLICK.length, data.length);
-    var dataObj = JSON.parse(customDataStr);
-    var wireVersion = dataObj[0];
-    var customData;
-    if (wireVersion == 1) {
-      customData = dataObj[1];
-      var runwayImageType = dataObj[2];
-      runwayHandler(true, customData, runwayImageType);
-    } else {
-      // TODO(paulby) remove this else block once tactile push happens.
-      customData = dataObj;
-      // For the time being assume we are doing a helicopter tour.
-      runwayHandler(true, customData, true);
-    }
+    var customData = JSON.parse(customDataStr);
+    var sceneContentArray = customData[1];
 
     acme.Util.sendCustomEvent({
         method: 'launchRunwayContent',
-        args: [customData]
+        args: [sceneContentArray]
     });
   } else if (startsWith(data, runwayContentEvents.EXIT)) {
-    runwayHandler(false, null, InputSupport_.NONE);
     acme.Util.sendCustomEvent({
         method: 'exitTitleCard'
     });
@@ -238,6 +253,7 @@ var leapListener = new ROSLIB.Topic({
   messageType: 'leap_motion/Frame',
   throttle_rate: 30
 });
+
 // TODO(daden): detect if webGL is available before trying
 // to load the hand.  If webGL isn't available this code crashes.
 // Init the hand last so if it fails to load it doesn't crash.

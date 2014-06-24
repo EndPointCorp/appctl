@@ -1,6 +1,9 @@
 /**
  *
- * @fileoverview Description of this file.
+ * @fileoverview HandOverlay provides a 3D overlay on which representations
+ * of the users hands are rendered. Currently we limit the visualization to a
+ * single hand, mostly to avoid issues with reflections causing ghost hands on
+ * the leap.
  *
  */
 
@@ -228,6 +231,8 @@ Hand.prototype.createRings_ = function(handOrigin) {
   this.fadeInAnimation;
   this.fadeOutAnimation;
 
+  this.currentCameraPose;
+
   //TweenMax.to(this.centerDot.scale, 2, {x:0, y:0, repeat:-1, yoyo:true});
   //TweenMax.to(this.topCallout.rotation, 5, {y:3.141 * 2, repeat:-1});
 }
@@ -266,8 +271,10 @@ Hand.prototype.setupParticles_ = function(leapInteractionBox) {
     var scaleX = sceneWidth / leapInteractionBox.width;
     var scaleY = sceneHeight / leapInteractionBox.height;
 
-    this.interactionMinY = leapInteractionBox.center.y - leapInteractionBox.height / 2;
-    this.interactionMaxY = leapInteractionBox.center.y + leapInteractionBox.height / 2;
+    this.interactionMinY =
+        leapInteractionBox.center.y - leapInteractionBox.height / 2;
+    this.interactionMaxY =
+        leapInteractionBox.center.y + leapInteractionBox.height / 2;
 
     var scale = Math.min(scaleX, scaleY);
 
@@ -359,16 +366,22 @@ Hand.prototype.setVisible = function(visible) {
   } else {
     this.fadeOutAnimation.restart();
   }
-
 }
 
-Hand.prototype.animateParticles_ = function() {
+/**
+ * Set the current camera pose. The pose is used to orient the hand to
+ * the surface of the earth. We don't map exactly to the curve of the earth.
+ */
+Hand.prototype.setCurrentCameraPose = function(pose) {
+  this.currentCameraPose = pose;
+}
+
+
+Hand.prototype.animate_ = function() {
   var currentTimeMs = Date.now();
   if (currentTimeMs - this.lastEventTimeMs > 300) {
     this.setVisible(false);
   }
-
-  var pose = cameraBuffer.lastRequested.pose;
 
   this.topCalloutPanel.updateMatrixWorld(false);
   var hudPos = new THREE.Vector3();
@@ -393,10 +406,11 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs) {
   var palmRoll = -leapData.palm_normal.roll;
   var palmYaw = leapData.direction.yaw;
 
-  var pose = cameraBuffer.lastRequested.pose;
-
   this.handOrigin.position.set(palmpos.x, palmpos.y, palmpos.z);
-  this.handOrigin.rotation.set(toRadians_(90 - pose.tilt),0, 0);
+  if (this.currentCameraPose) {
+    this.handOrigin.rotation.set(
+        toRadians_(90 - this.currentCameraPose.tilt),0, 0);
+  }
   this.handOrigin.scale.set(40, 40, 40);
   this.handOrigin.updateMatrixWorld(false);
 
@@ -415,9 +429,6 @@ var HandOverlay = function() {
 
   /** @type {THREE.Camera} */
   this.camera;
-
-  /** @type {THREE.Geometry} */
-  this.particles_;
 
   /** @type {Array.<Hand|null>} */
   this.hands_ = new Array();
@@ -442,6 +453,19 @@ var HandOverlay = function() {
   this.currentHand = -1;
 };
 
+
+HandOverlay.prototype.setCurrentCameraPose = function(pose) {
+  var hand = this.hands_[this.currentHand];
+
+  if (!hand) {
+    return;
+  }
+  hand.setCurrentCameraPose(pose);
+}
+
+/**
+ * Inject the GL shaders into the page.
+ */
 HandOverlay.prototype.injectShaders = function() {
 
   // Particle Shaders.
@@ -508,6 +532,10 @@ HandOverlay.prototype.injectShaders = function() {
   document.body.appendChild(handFragmentScript);
 }
 
+
+/**
+ * Initialize the 3D canvas and renderer.
+ */
 HandOverlay.prototype.init3js = function() {
 
   this.scene = new THREE.Scene();
@@ -530,17 +558,12 @@ HandOverlay.prototype.init3js = function() {
     document.body.appendChild(handCanvas);
   }
 
-  var gl = handCanvas.getContext('webgl',
-                            {premultipliedAlpha: false});
+  var gl = handCanvas.getContext('webgl', {premultipliedAlpha: false});
 
   this.renderer = new THREE.WebGLRenderer({canvas: handCanvas, alpha: true});
   this.renderer.setSize(WIDTH, HEIGHT);
 
-  if (window.location.href == 'http://www.chromevox.com') {
-    this.renderer.setClearColor(new THREE.Color(0x000000), 0);
-  } else {
-    this.renderer.setClearColor(new THREE.Color(0xffffff), 0);
-  }
+  this.renderer.setClearColor(new THREE.Color(0xffffff), 0);
 
   this.camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 200);
   this.camera.position.set(0, 0, 6);
@@ -617,17 +640,15 @@ HandOverlay.prototype.processLeapMessage = function(leapMessage) {
   var leapInteractionBox = leapMessage.interaction_box;
 
   for(var i = 0; i < leapMessage.hands.length; i++) {
-    /** @type {{
-     *   palm_position:Object,
-     *   pointables:Array.<{tip_position: Object}>
-     * }}
-     */
     var handData = leapMessage.hands[i];
-
     handOverlay.processHandMoved(handData, leapInteractionBox);
   }
 }
 
+/**
+ * Handle geoLocationEvents, this is the geo location of the center of the
+ * hand.
+ */
 HandOverlay.prototype.processHandGeoLocationEvent = function(pose) {
   if (this.currentHand == -1) {
     return;
@@ -695,6 +716,10 @@ HandOverlay.prototype.processHandMoved = function(
   hand.setPositionFromLeap(leapData, timeMs);
 }
 
+/**
+ * Animate the handOverlay. Called by the browser renderer.
+ * @private
+ */
 HandOverlay.prototype.animate_ = function() {
   var self = this;
   function f() {
@@ -713,7 +738,7 @@ HandOverlay.prototype.animate_ = function() {
       if (hand.visible) {
         // Animate. If the hand is no longer receiving events then this call
         // will set it to invisible.
-        hand.animateParticles_();
+        hand.animate_();
       } else if (timeMs - hand.lastEventTimeMs < 750) {
         // Delete hands which are not visible and have received no events
         // for 10 seconds.

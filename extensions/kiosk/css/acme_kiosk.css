@@ -41,6 +41,51 @@ a.gsst_a {
   cursor: pointer;
 }
 
+.acme-famous-places {
+  opacity: 1;
+  top: 0px;
+  z-index: 6;
+  height: 100px;
+  position: absolute;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  -webkit-transition-property: opacity,left;
+  transition-property: opacity,left;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
+  display: inline-block !important;
+  width: 100%;
+}
+
+.acme-famous-places-button {
+  height: 50px;
+  width: 150px;
+  bottom: 35px;
+  position: relative;
+  background-color: gray;
+  color: lightgray;
+  border-top-right-radius: 10px;
+  left: -8px;
+  z-index: -1;
+  cursor: pointer;
+}
+
+.acme-poi-button {
+  height: 50px;
+  width: 150px;
+  bottom: 35px;
+  position: relative;
+  background-color: gray;
+  color: whitesmoke;
+  border-top-right-radius: 10px;
+  cursor: pointer;
+}
+
+.acme-button-selected {
+  background-color: black;
+}
+
 /*
  * Clean up css on the kiosk.
  */

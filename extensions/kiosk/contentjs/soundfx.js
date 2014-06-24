@@ -1,4 +1,3 @@
-
 /**
  * Deal with loading and playing audio clips in response to requested movements.
  */
@@ -6,78 +5,102 @@
 /**
  * Container for single sound effect, able to isolate a section and/or loop.
  * TODO(arshan): Should we support end < begin by looping past the end?
- * TODO(arshan): What is the floor for duration_ms?
+ * TODO(arshan): What is the floor for durationMs?
  * NOTE: see the sox output for the wav clips at the bottom of file.
  * @constructor
+ * @param {string} src_file
+ * @param {int} begin
+ * @param {int} end
+ * @param {bool} loop
  */
 SoundEffect = function(src_file, begin, end, loop) {
 
-    this.start_ms = begin;
-    this.duration_ms = end - begin;
+  this.startMs = begin;
+  this.durationMs = end - begin;
 
-    // Prepare the audio resource.
-    this.audio = new Audio(src_file);
-    this.audio.preload = "auto";
-    this.loop = loop;
-    // this.audio.volume = 1.0;
-    this.event_thread = 0;
-    this.playing = false;
+  // Prepare the audio resource.
+  this.audio = new Audio(src_file);
+  this.audio.preload = 'auto';
+  this.audio.loop = loop;
+  this.loop = false;
+  this.event_thread = 0;
+  this.playing = false;
 
-    // support crossfade
-    this.xfade = 0;
-    this.xratio = 0;
-    this.xincr  = 0.05;
-    this.xstep  = 100;
-    this.crossfading = false;
-    this.xthread = 0;
+  // support crossfade
+  this.xfade = 0;
+  this.xratio = 0;
+  this.xincr = 0.05;
+  this.xstep = 100;
+  this.crossfading = false;
+  // Keep track of the event thread for the cross fading.
+  this.xthread = 0;
 };
 
+/**
+ * Change the volume of the clip.
+ * @param {float} float_val
+ */
 SoundEffect.prototype.setVolume = function(float_val) {
-    float_val = Math.max(0, Math.min(1, float_val)); 
-    this.audio.volume = float_val;
+  float_val = Math.max(0, Math.min(1, float_val));
+  this.audio.volume = float_val;
 };
 
-// support to crossfade the thread to a different audio clip.
-SoundEffect.prototype.crossfadeTo = function(fx, incr, step, offset){
-    if(typeof(offset)==='undefined') offset = 0; 
+/**
+ * Support to crossfade the soundeffect to a different audio clip.
+ * Moves from one to the other symetrically over time.
+ * @param {SoundEffect} fx The effect to fade to.
+ * @param {float} incr How much to slide from one to the other.
+ * @param {int} step The duration of time in ms to take per step.
+ * @param {int} offset How long to wait in ms before starting.
+ */
+SoundEffect.prototype.crossfadeTo = function(fx, incr, step, offset) {
+  if (typeof(offset) === 'undefined') offset = 0;
 
-    this.xfade = fx;
-    this.xratio = 0;
-    this.xincr = incr;
-    this.xstep = step;
+  this.xfade = fx;
+  this.xratio = 0;
+  this.xincr = incr;
+  this.xstep = step;
 
-    fx.stop();
-    fx.setVolume(0);
-    fx.start();
-    
-    // crossfade maybe janky to any loop that is too short a clip ... 
-    // since the clip will be over 
-    this.crossfading = true;
-    var that = this;
-    this.xthread = setTimeout(function() {
-	that._xfade();	
-    }, offset);
+  fx.stop();
+  fx.setVolume(0);
+  fx.start();
+
+  // Crossfade maybe janky to any loop that is too short a clip
+  // since the clip will be over.
+  this.crossfading = true;
+  var self = this;
+  this.xthread = setTimeout(function() {
+    self._xfade();
+  }, offset);
 };
 
-SoundEffect.prototype._xfade = function () {
-    var that = this;
-    this.xthread = setTimeout( function () {
-        that.xratio += that.xincr;
-        that.setVolume(1-that.xratio);
-        that.xfade.setVolume(that.xratio); 	
-	if (that.xratio < 1.0) that._xfade();
-	else { // the crossfade is done
-   	  that.stop();
-	  that.setVolume(1);
-          that.crossfading = false;
-        }
-    },  this.xstep);
+/**
+ * Internal call for crossfading.
+ * @private
+ */
+SoundEffect.prototype.xfade_ = function() {
+  var self = this;
+  this.xthread = setTimeout(function() {
+    self.xratio += self.xincr;
+    self.setVolume(1 - self.xratio);
+    self.xfade.setVolume(self.xratio);
+    if (self.xratio < 1.0) {
+      self.xfade_();
+    }
+    else {
+      // The crossfade is done.
+      self.stop();
+      self.setVolume(1);
+      self.crossfading = false;
+    }
+  }, this.xstep);
 };
 
-
-// If a looping effect this will play indefinitely, otherwise it will naturally stop
-// at the end time.
-SoundEffect.prototype.start = function() {  
+/**
+ * If a looping effect this will play indefinitely, otherwise it will
+ * naturally stop at the end time.
+ */
+SoundEffect.prototype.start = function() {
   // If clip is looping just let it keep playing.
   // Should this behaviour hold true for non-loop clips?
   if (this.playing) return;
@@ -85,16 +108,23 @@ SoundEffect.prototype.start = function() {
   this._start();
 };
 
-SoundEffect.prototype._start = function() {
-  this.audio.currentTime = this.start_ms/1000;
-  var that = this;
-  this.event_thread = setTimeout( function(){
-       that.loop? that._start(): that.stop();
-  }, this.duration_ms);
+/**
+ * Internal call for running the clip.
+ * @private
+ */
+SoundEffect.prototype.start_ = function() {
+  if (this.audio.readyState == 0) return; // Consider an error
+  this.audio.currentTime = this.startMs / 1000;
+  var self = this;
+  this.event_thread = setTimeout(function() {
+    self.loop ? self.start_() : self.stop();
+  }, this.durationMs);
   this.audio.play();
 };
 
-// Premptive stop of the audio clip.
+/**
+ * Premptive stop of the audio clip.
+ */
 SoundEffect.prototype.stop = function() {
   this.audio.pause();
   this.playing = false;
@@ -103,160 +133,91 @@ SoundEffect.prototype.stop = function() {
   clearTimeout(this.event_thread);
 };
 
-// TODO: move this to a math utility
-// circular buffer that gives average of all existing values 
-CircularBuffer = function(size) {
-    this.buffer = new Array(size);
-    this.size = size;
-    this.start = this.end = 0;
-    this.sum = 0;
-    for (var x = 0; x < size; x++) {
-	this.buffer[x] = 0;
-    }
-    this._incr = function(value) {
-	return (value+1) % this.size;
-    }
+// Keep track of the state of the user.
+var UserState = {
+  IDLE:0,
+  STARTING:1,
+  FLYING:2,
+  STOPPING:3,
+  BOOST:4
 };
 
-// Consider moving this to the ComputedVelocity class ... 
-CircularBuffer.prototype.getSum = function() {
-    return this.sum;
-};
-
-CircularBuffer.prototype.addValue = function(val) {
-    // Keep track of the sum of values, consider moving this to computed_v?
-    this.sum -= this.buffer[this.end];
-    this.buffer[this.end] = val;
-    this.sum += val;
-    
-    this.end = this._incr(this.end);
-    
-    if (this.start == this.end) {
-	this.start = this._incr(this.start);
-    }
-};
-
-CircularBuffer.prototype.getValue = function() {
-  result = this.buffer[this.start];
-  this.start = this._incr(this.start);
-  return result;
-};
-
-CircularBuffer.prototype.length = function() {
-  if (this.start < this.end) {
-    return this.end - this.start;
-  }
-  else {
-    return (this.size - this.start) + this.end;
-  }
-};
-
-ComputedVelocity = function(size) {
-  this.buffer = new CircularBuffer(size);
-};
-
-ComputedVelocity.prototype.addValue = function(val) {
-  return this.buffer.addValue(val);  
-};
-
-ComputedVelocity.prototype.getValue = function() {
-  return this.buffer.getSum()/this.buffer.length();
-};
-
-/**
- * @constructor
- */
 SoundFX = function() {
-
   this.lastVelocity = 0;
-
-  this.computed_v = new ComputedVelocity(8);
-
-  // Keep track of the state of the user.
-  this.IDLE = 0;
-  this.STARTING = 1;
-  this.FLYING = 2;
-  this.STOPPING = 3;
-  this.state = this.IDLE; 
+  this.state = UserState.IDLE;
 
   // Preload the sound clips.
   // TODO(arshan): Better to load these out of a config file?
-  this.largestart = new SoundEffect(chrome.extension.getURL('sounds/largestart.wav'), 
-				    0, 1217, false);
-  this.largeidle = new SoundEffect(chrome.extension.getURL('sounds/largeidle.wav'), 
-				   0,  27282, true);
- 
-  this.smallstart = new SoundEffect(chrome.extension.getURL('sounds/smallstart.wav'), 
-				0,  2000, false); 
-  this.smallidle = new SoundEffect(chrome.extension.getURL('sounds/smallidle.wav'), 
-				0,  14003, true);
-  this.cutoff = new SoundEffect(chrome.extension.getURL('sounds/cutoff.wav'), 
-				0,  1994, false);
+  this.largestart = new SoundEffect(
+    chrome.extension.getURL('sounds/largestart.wav'),
+                            0, 1217, false);
+  this.largeidle = new SoundEffect(
+    chrome.extension.getURL('sounds/largeidle.wav'),
+                            0, 27282, true);
+  this.smallstart = new SoundEffect(
+    chrome.extension.getURL('sounds/smallstart.wav'),
+                            0, 2000, false);
+  this.smallidle = new SoundEffect(
+    chrome.extension.getURL('sounds/smallidle.wav'),
+                             0, 14003, true);
+  this.cutoff = new SoundEffect(
+    chrome.extension.getURL('sounds/cutoff.wav'),
+                             0, 1994, false);
 
-  // Global (always on) sounds
-  this.smallidle.start();
 };
 
+/**
+ * Respond to the normalized joystick twist message, with sound if appropriate.
+ * @param {Object} twist The ROS twist msg object.
+ */
 SoundFX.prototype.handlePoseChange = function(twist) {
 
-    // Check boundary conditions.
-    // TODO(arshan): Where can we get the altitude for the ground collision?
-    // TODO(arshan): Also need the raw altitude values for change in atmosphere.
-    x = twist.linear.x;
-    y = twist.linear.y;
-    z = twist.linear.z;
-    v_mag = Math.sqrt(z*z + Math.sqrt(x*x+y*y));
-    
-    this.computed_v.addValue(v_mag);
-    
-    // histerisis if needed ...
-    // val = this.computed_v.getValue();
-    val = v_mag;
+  // Check boundary conditions.
+  // TODO(arshan): Where can we get the altitude for the ground collision?
+  // TODO(arshan): Also need the raw altitude values for change in atmosphere.
+  x = twist.linear.x;
+  y = twist.linear.y;
+  z = twist.linear.z;
+  val = Math.sqrt(z * z + Math.sqrt(x * x + y * y));
 
-    // dumpUpdateToScreen("avg: " + val + "; [" + v_mag + "] " + x + "x" + y  + "x" + z );
-
-    // Now play the corresponding sound effects.
-    // TODO: add timing of state change to debounce.
-    switch ( this.state ) {
-    case this.IDLE:
-	if ( val > .3 ) {
-	    this.largestart.start();
-	    this.state = this.STARTING;
-	}
-      break;
-    case this.STARTING:
-	if ( val > .2 ) {
-	    this.largestart.crossfadeTo(this.largeidle, .05, 100, 300);
-	    this.state = this.FLYING;
-	}
-      break;
-    case this.FLYING:
-        if ( val < .1 ) {
-
-	    this.state = this.STOPPING;
-	}
-      break;
-    case this.STOPPING:
-	if (val < .05) {
-	    this.largeidle.crossfadeTo(this.cutoff, .05, 100, 0);	    
-	    this.state = this.IDLE;
-	}
-      break;
+  // Now play the corresponding sound effects.
+  // TODO: add timing of state change to debounce.
+  switch (this.state) {
+  case UserState.IDLE:
+    if (val > .3) {
+      this.smallstart.start();
+      this.smallidle.start();
+      this.state = UserState.STARTING;
     }
-
-    if (this.state == this.FLYING && val < .2) {
-	this.cutoff.start();
+    break;
+  case UserState.BOOST:
+    if (val > .2) {
+      this.largestart.crossfadeTo(this.largeidle, .05, 100, 300);
+      this.state = UserState.FLYING;
     }
-
-    if (this.state == 1 && val < .01) {
-        this.largestart.stop();
-	this.largeidle.stop();
-	this.state = 0;
+    break;
+  case UserState.STARTING:
+    if (val > .5) {
+      this.smallstart.crossfadeTo(this.largestart, .1, 100, 0);
+      this.state = UserState.BOOST;
     }
-    
-    // Record values for next round.
-    this.lastVelocity = val;
-
+    else if (val > .2) {
+      this.smallstart.crossfadeTo(this.largeidle, .05, 100, 200);
+      this.state = UserState.FLYING;
+    }
+    break;
+  case UserState.FLYING:
+    if (val < .1) {
+      this.state = UserState.STOPPING;
+    }
+    break;
+  case UserState.STOPPING:
+    if (val < .05) {
+      this.largeidle.crossfadeTo(this.cutoff, .05, 100, 0);
+      this.state = UserState.IDLE;
+    }
+    break;
+  }
 };
 
 /*

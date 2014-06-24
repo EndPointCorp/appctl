@@ -15,7 +15,7 @@
     "management"
   ],
   "web_accessible_resources": [
-    "models/*.json"
+    "models/*.json", "contentjs/inject.js"
   ],
   "content_scripts": [
     {
@@ -29,7 +29,6 @@
         "libs/roslib.min.js",
         "libs/three.min.js",
         "libs/TweenMax.js",
-        "contentjs/camera_buffer.js",
         "contentjs/handoverlay.js",
         "contentjs/slinkyRosDisplay.js",
         "contentjs/texture_src.js"
@@ -38,8 +37,5 @@
         "css/acme_display.css"
       ]
     }
-  ],
-  "web_accessible_resources": [
-      "contentjs/inject.js"
   ]
 }

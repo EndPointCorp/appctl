@@ -20,8 +20,8 @@ acme.messageAPI = acme.messageAPI || (function() {
    */
   MessageAPI.prototype.handleEvent = function(e) {
     var request = e.detail, context = this;
-    console.log('acme.MessageAPI');
-    console.log(request);
+//     console.log('acme.MessageAPI');
+//     console.log(request);
 
     if (request.context && acme.hasOwnProperty(request.context)) {
       context = acme[request.context];

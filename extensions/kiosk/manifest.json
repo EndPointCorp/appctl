@@ -15,7 +15,7 @@
     "management"
   ],
   "web_accessible_resources": [
-    "models/*.json", "sounds/*.wav"
+    "models/*.json", "sounds/*.wav", "contentjs/inject.js"
   ],
   "content_scripts": [
     {
@@ -27,17 +27,12 @@
       "js": [
         "libs/eventemitter2.min.js",
         "libs/roslib.min.js",
-        "contentjs/camera_buffer.js",
-        "contentjs/joystick_nav.js",
-      	"contentjs/soundfx.js",
+        "contentjs/soundfx.js",
         "contentjs/slinkyRosKiosk.js"
       ],
       "css": [
         "css/acme_kiosk.css"
       ]
     }
-  ],
-  "web_accessible_resources": [
-    "contentjs/inject.js"
   ]
 }
