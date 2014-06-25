@@ -185,7 +185,7 @@ window.addEventListener('acmeCameraCallback', cameraUpdateHandler, true);
 /** Add ROS Subscriptions.  These are almost last to prevent exception from
  * killing the event listeners when ROS is down. */
 var slinkyRosDisplay = new ROSLIB.Ros({
-  url: 'ws://miso.mtv:9090'
+  url: 'ws://master:9090'
 });
 
 // Globe View Topic listens and publishes camera updates.
@@ -201,14 +201,20 @@ var slinkyDisplayCurrentPoseTopic = new ROSLIB.Topic({
   messageType: 'slinky_nav/SlinkyPose'
 });
 
+// Controls whether or not we listen to moveto events.  When on a tour
+// we should not listen to moveto events.
+var ignoreCameraUpdates = false;
+
 navigatorListener.subscribe(function(rosPoseStamped) {
-  var pose = new Pose(rosPoseStamped.pose.position.y,  // lat
-                      rosPoseStamped.pose.position.x,  // lon
-                      rosPoseStamped.pose.position.z,  // alt
-                      rosPoseStamped.pose.orientation.z,  // heading
-                      rosPoseStamped.pose.orientation.x,  // tilt
-                      rosPoseStamped.pose.orientation.y);  // roll
-  acme.display.moveCamera(pose, false);
+  if (!ignoreCameraUpdates) {
+    var pose = new Pose(rosPoseStamped.pose.position.y,  // lat
+                        rosPoseStamped.pose.position.x,  // lon
+                        rosPoseStamped.pose.position.z,  // alt
+                        rosPoseStamped.pose.orientation.z,  // heading
+                        rosPoseStamped.pose.orientation.x,  // tilt
+                        rosPoseStamped.pose.orientation.y);  // roll
+    acme.display.moveCamera(pose, false);
+  }
 });
 
 
@@ -232,12 +238,20 @@ var runwayContentSubscriber = function(message) {
         runwayContentEvents.CLICK.length, data.length);
     var customData = JSON.parse(customDataStr);
     var sceneContentArray = customData[1];
+    var runwayImageType = customData[2];
+
+    // Check to see if this is the type of runway element that should
+    // not use the pose information coming from anywhere.
+    if (runwayImageType == InputSupport_.DISABLED) {
+      ignoreCameraUpdates = true;
+    }
 
     acme.Util.sendCustomEvent({
         method: 'launchRunwayContent',
         args: [sceneContentArray]
     });
   } else if (startsWith(data, runwayContentEvents.EXIT)) {
+    ignoreCameraUpdates = false;
     acme.Util.sendCustomEvent({
         method: 'exitTitleCard'
     });
