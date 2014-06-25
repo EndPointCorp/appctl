@@ -54,7 +54,7 @@ SoundEffect.prototype.setVolume = function(float_val) {
  * @param {int} offset How long to wait in ms before starting.
  */
 SoundEffect.prototype.crossfadeTo = function(fx, incr, step, offset) {
-  if (typeof(offset) === 'undefined') offset = 0;
+  if (typeof offset === 'undefined') offset = 0;
 
   this.xfade = fx;
   this.xratio = 0;
@@ -70,7 +70,7 @@ SoundEffect.prototype.crossfadeTo = function(fx, incr, step, offset) {
   this.crossfading = true;
   var self = this;
   this.xthread = setTimeout(function() {
-    self._xfade();
+    self.xfade_();
   }, offset);
 };
 
@@ -105,7 +105,7 @@ SoundEffect.prototype.start = function() {
   // Should this behaviour hold true for non-loop clips?
   if (this.playing) return;
   this.playing = true;
-  this._start();
+  this.start_();
 };
 
 /**

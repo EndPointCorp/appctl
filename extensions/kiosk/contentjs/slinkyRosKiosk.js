@@ -294,6 +294,13 @@ var slinkyRosKiosk = new ROSLIB.Ros({
   url: 'ws://master:9090'
 });
 
+var joystickTopic = new ROSLIB.Topic({
+  ros: slinkyRosKiosk,
+  name: '/joystick/twist',
+  messageType: 'geometry_msgs/Twist',
+  throttle_rate: 30
+});
+
 var navigatorListener = new ROSLIB.Topic({
   ros: slinkyRosKiosk,
   name: '/slinky_nav/kiosk_goto_pose',
@@ -498,6 +505,9 @@ var runwayContentExitHandler = function(e) {
   });
   runwayContentTopic.publish(runwayMsg);
 };
+
+var soundFX = new SoundFX();
+joystickTopic.subscribe(soundFX.handlePoseChange.bind(soundFX));
 
 window.addEventListener('acmeCameraUpdate', cameraUpdateHandler, true);
 window.addEventListener('acmeStableCameraUpdate', cameraUpdateHandler, true);
