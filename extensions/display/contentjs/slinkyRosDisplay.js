@@ -246,6 +246,11 @@ var runwayContentSubscriber = function(message) {
       ignoreCameraUpdates = true;
     }
 
+    // this indicates planet zoom which will not provide an exit event
+    if (sceneContentArray && sceneContentArray[0] == 3) {
+      ignoreCameraUpdates = false;
+    }
+
     acme.Util.sendCustomEvent({
         method: 'launchRunwayContent',
         args: [sceneContentArray]

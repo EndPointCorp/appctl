@@ -73,3 +73,17 @@ acmeExt.selectFamousPlacesButton = function() {
   poib.classList.remove('acme-button-selected');
   fpb.classList.add('acme-button-selected');
 };
+
+acmeExt.launchFamousPlacesContent = function(array) {
+  acme.launchRunwayContent(array);
+  var wireProtocol = 1;
+  //TODO(kiel): when other types are introduced besides Earth Tours, implement the appropriate type handlers.
+  var inputType = 1; // 1 means disabled
+  var contentClickedEvent = new CustomEvent('acmeContentClicked', {
+    'detail': {'customData': [wireProtocol, array, inputType]},
+    'canBubble': false,
+    'cancelable': false
+  });
+
+  document.dispatchEvent(contentClickedEvent);
+};

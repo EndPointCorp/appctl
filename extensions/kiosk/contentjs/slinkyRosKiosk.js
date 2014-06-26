@@ -236,7 +236,7 @@ acme.Kiosk.prototype.addFamousPlacesRunwayContent = function() {
 acme.Kiosk.RUNWAY_CARD_TEMPLATE =
     '<span class="widget-runway-card-view-pane widget-runway-card-view-pane-visible widget-runway-card-view-pane-foreground">' +
     '  <li class="widget-runway-card">' +
-    '    <button aria-label="{{title}}" class="widget-runway-card-button" onclick="javascript:acme.launchRunwayContent({{array}});">' +
+    '    <button aria-label="{{title}}" class="widget-runway-card-button" onclick="javascript:acmeExt.launchFamousPlacesContent({{array}});">' +
     '      <div class="widget-runway-card-background-flicker-hack-clip">' +
     '        <div class="widget-runway-card-background-flicker-hack-wrapper">' +
     '          <img src="{{imgUrl}}" class="widget-runway-card-background-flicker-hack">' +
