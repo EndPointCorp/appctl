@@ -3,24 +3,29 @@
 
   "name": "Onboard",
   "description": "This extension shows the onboard keyboard when textboxes and textareas gain or lose focus.",
-  "version": "1.1",
+  "version": "1.2",
+
+  "background": {
+    "page": "onboard_websocket.html"
+  },
 
   "content_scripts": [{
-    "matches": ["*://*/*"],
+    "matches": ["*://*.google.com/maps/*"],
     "js": [
       "apply.js"
       ],
-    "all_frames": true,
-    "run_at": "document_end"
+    "all_frames": true
   }],
 
   "permissions": [
+    "<all_urls>",
+    "tabs",
+    "webRequest",
+    "webNavigation",
+    "management"
   ],
 
-  "browser_action": {
-      "default_icon": "onboard.png",
-      "default_popup": "popup.html"
-  },
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
 
   "update_url": "http://lg-head/extensions/onboard-upd.xml"
 }

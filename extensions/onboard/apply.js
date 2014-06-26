@@ -1,16 +1,17 @@
 /*
  * Onboard on-screen keyboard integration
  */
-var ws = new WebSocket('ws://localhost:9999/websocket');
+
+var port = chrome.extension.connect();
 
 function showOnboard() {
   console.log('Showing Onboard keyboard');
-  ws.send(JSON.stringify({'action': 'showKeyboard'}));
+  port.postMessage(true);
 }
 
 function hideOnboard() {
   console.log('Hiding Onboard keyboard');
-  ws.send(JSON.stringify({'action': 'hideKeyboard'}));
+  port.postMessage(false);
 }
 
 function addCallbacks() {
@@ -25,6 +26,7 @@ function addCallbacks() {
     setTimeout(addCallbacks, 500);
     return;
   }
+
   var tx = document.querySelectorAll('textarea');
   var size = 0;
   if (tx) size = tx.length;
