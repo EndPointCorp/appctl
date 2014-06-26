@@ -28,6 +28,7 @@
         "libs/eventemitter2.min.js",
         "libs/roslib.min.js",
         "contentjs/soundfx.js",
+        "contentjs/ambient.js",
         "contentjs/slinkyRosKiosk.js"
       ],
       "css": [

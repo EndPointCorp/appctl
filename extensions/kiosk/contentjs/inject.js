@@ -75,6 +75,7 @@ acmeExt.selectFamousPlacesButton = function() {
 };
 
 acmeExt.launchFamousPlacesContent = function(array) {
+  console.log(array);
   acme.launchRunwayContent(array);
   var wireProtocol = 1;
   //TODO(kiel): when other types are introduced besides Earth Tours, implement the appropriate type handlers.
@@ -87,3 +88,7 @@ acmeExt.launchFamousPlacesContent = function(array) {
 
   document.dispatchEvent(contentClickedEvent);
 };
+
+window.addEventListener('acmeLaunchFamousPlacesContent', function(ev) {
+  acmeExt.launchFamousPlacesContent(ev.detail);
+}, true);
