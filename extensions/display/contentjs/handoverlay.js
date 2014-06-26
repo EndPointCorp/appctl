@@ -68,7 +68,7 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
 
   this.fadeInAnimation;
 
-  this.setupParticles_(leapInteractionBox);
+  this.setupGeometry_(leapInteractionBox);
 
   this.hudDiv = document.createElement('div');
   this.hudDiv.id = 'slinkyhud' + handId;
@@ -116,11 +116,6 @@ Hand.prototype.createRings_ = function(handOrigin) {
   // TODO reuse these textures for every hand.
   // Load textures from base64 images to avoid cross domain issue. See
   // http://tp69.wordpress.com/2013/06/17/cors-bypass/
-  var xRayOpacityTexture = new THREE.Texture(black_to_white_exp);
-  xRayOpacityTexture.wrapS = THREE.ClampToEdgeWrapping;
-  xRayOpacityTexture.wrapT = THREE.ClampToEdgeWrapping;
-  xRayOpacityTexture.needsUpdate = true;
-
   var xRayColorTexture = new THREE.Texture(light_blue);
   xRayColorTexture.wrapS = THREE.ClampToEdgeWrapping;
   xRayColorTexture.wrapT = THREE.ClampToEdgeWrapping;
@@ -128,8 +123,8 @@ Hand.prototype.createRings_ = function(handOrigin) {
 
   // uniforms
   this.centerCircleGeomUniforms = {
-     xRayDirection: { type: "v3", value: new THREE.Vector3(0, 0, 1).normalize() },
-     opacityTexture: { type: "t", value: xRayOpacityTexture },
+     xRayDirection: {
+       type: "v3", value: new THREE.Vector3(0, 0, 1).normalize() },
      colorTexture: { type: "t", value: xRayColorTexture },
      alpha: { type: "f", value: 0.1 },
      fade: { type: "f", value: 0.0 }
@@ -148,8 +143,8 @@ Hand.prototype.createRings_ = function(handOrigin) {
 
   // uniforms
   this.ring0GeomUniforms = {
-     xRayDirection: { type: "v3", value: new THREE.Vector3(0, 0, 1).normalize() },
-     opacityTexture: { type: "t", value: xRayOpacityTexture },
+     xRayDirection: {
+       type: "v3", value: new THREE.Vector3(0, 0, 1).normalize() },
      colorTexture: { type: "t", value: xRayColorTexture },
      alpha: { type: "f", value: 0.35 },
      fade: { type: "f", value: 0.0 }
@@ -168,8 +163,8 @@ Hand.prototype.createRings_ = function(handOrigin) {
 
     // uniforms
   this.dotUniforms = {
-     xRayDirection: { type: "v3", value: new THREE.Vector3(0, 0, 1).normalize() },
-     opacityTexture: { type: "t", value: xRayOpacityTexture },
+     xRayDirection: {
+       type: "v3", value: new THREE.Vector3(0, 0, 1).normalize() },
      colorTexture: { type: "t", value: xRayColorTexture },
      alpha: { type: "f", value: 0.3 },
      fade: { type: "f", value: 0.0 }
@@ -188,8 +183,8 @@ Hand.prototype.createRings_ = function(handOrigin) {
 
   // uniforms
   this.geomUniforms = {
-     xRayDirection: { type: "v3", value: new THREE.Vector3(0, 0, 1).normalize() },
-     opacityTexture: { type: "t", value: xRayOpacityTexture },
+     xRayDirection: {
+       type: "v3", value: new THREE.Vector3(0, 0, 1).normalize() },
      colorTexture: { type: "t", value: xRayColorTexture },
      alpha: { type: "f", value: 0.4 },
      fade: { type: "f", value: 0.0 }
@@ -228,16 +223,13 @@ Hand.prototype.createRings_ = function(handOrigin) {
   this.topCallout.add(this.topCalloutPanel);
   this.handOrigin.add(this.topCallout);
 
+  this.handOpacity = 0.0;
+
   this.fadeInAnimation;
   this.fadeOutAnimation;
-
-  this.currentCameraPose;
-
-  //TweenMax.to(this.centerDot.scale, 2, {x:0, y:0, repeat:-1, yoyo:true});
-  //TweenMax.to(this.topCallout.rotation, 5, {y:3.141 * 2, repeat:-1});
 }
 
-Hand.prototype.setupParticles_ = function(leapInteractionBox) {
+Hand.prototype.setupGeometry_ = function(leapInteractionBox) {
   this.createRings_(this.handOrigin);
 
   var WIDTH = window.innerWidth,
@@ -352,7 +344,7 @@ Hand.prototype.setVisible = function(visible) {
         this.hudDiv.style.opacity],
         1,
         {
-          startAt:{value:1.0},
+          startAt:{value:this.handOpacity},
           value:0.0,
           onStart:self.fadeInOutAnimationOnStart.bind(self),
           onComplete:self.fadeInOutAnimationComplete.bind(self),
@@ -366,14 +358,6 @@ Hand.prototype.setVisible = function(visible) {
   } else {
     this.fadeOutAnimation.restart();
   }
-}
-
-/**
- * Set the current camera pose. The pose is used to orient the hand to
- * the surface of the earth. We don't map exactly to the curve of the earth.
- */
-Hand.prototype.setCurrentCameraPose = function(pose) {
-  this.currentCameraPose = pose;
 }
 
 
@@ -398,7 +382,8 @@ function toRadians_(deg) {
   return deg * Math.PI / 180;
 }
 
-Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs) {
+Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
+    currentCameraPose) {
   this.lastEventTimeMs = currentTimeMs;
 
   var palmpos = leapData.stabilized_palm_position;
@@ -406,12 +391,39 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs) {
   var palmRoll = -leapData.palm_normal.roll;
   var palmYaw = leapData.direction.yaw;
 
-  this.handOrigin.position.set(palmpos.x, palmpos.y, palmpos.z);
-  if (this.currentCameraPose) {
-    this.handOrigin.rotation.set(
-        toRadians_(90 - this.currentCameraPose.tilt),0, 0);
+  var START_FADE = 150;  // Distance from plane where the fade starts
+  var FADE_DISTANCE = 10;  // Distance taken to go from opaque to transparent.
+
+  var ray = new THREE.Raycaster(
+      new THREE.Vector3(palmpos.x, palmpos.y, palmpos.z),
+      new THREE.Vector3(0, -1, 0));
+  var intersects = ray.intersectObject(this.handOverlay_.handFadePlane);
+  if (intersects[0] && intersects[0].distance < START_FADE) {
+
+    var distance = intersects[0].distance;
+    var startFadeOut = START_FADE;
+    var endFadeOut = START_FADE - FADE_DISTANCE;
+    if (distance < endFadeOut) {
+      this.handOpacity = 0.0;
+    } else {
+      this.handOpacity =
+          Math.abs((distance - endFadeOut) / (startFadeOut - endFadeOut));
+    }
+    this.centerCircleGeomUniforms.fade.value = this.handOpacity;
+    this.geomUniforms.fade.value = this.handOpacity;
+    this.ring0GeomUniforms.fade.value = this.handOpacity;
+    this.dotUniforms.fade.value = this.handOpacity;
+    this.hudDiv.style.opacity = this.handOpacity;
+    this.fadeInOutAnimationOnUpdate();  // Inform shaders of data change.
   }
-  this.handOrigin.scale.set(40, 40, 40);
+
+
+  this.handOrigin.position.set(palmpos.x, palmpos.y, palmpos.z);
+  if (currentCameraPose) {
+    this.handOrigin.rotation.set(
+        toRadians_(90 - currentCameraPose.tilt),0, 0);
+  }
+  this.handOrigin.scale.set(20, 20, 20);
   this.handOrigin.updateMatrixWorld(false);
 
   this.ring2.rotation.set(0, -palmYaw, 0);
@@ -436,6 +448,9 @@ var HandOverlay = function() {
   /** @type {THREE.Mesh} */
   this.handPlane;
 
+  /** Plane at which hand will start to fade out. */
+  this.handFadePlane;
+
   /** Geometry used for every finger */
   this.fingerGeom;
 
@@ -455,13 +470,9 @@ var HandOverlay = function() {
 
 
 HandOverlay.prototype.setCurrentCameraPose = function(pose) {
-  var hand = this.hands_[this.currentHand];
-
-  if (!hand) {
-    return;
-  }
-  hand.setCurrentCameraPose(pose);
+  this.currentCameraPose = pose;
 }
+
 
 /**
  * Inject the GL shaders into the page.
@@ -504,7 +515,6 @@ HandOverlay.prototype.injectShaders = function() {
     'uniform vec3 xRayDirection;' +
     'uniform float alpha;' +
     'uniform float fade;' +
-    'uniform sampler2D opacityTexture;' +
     'uniform sampler2D colorTexture;' +
     'varying vec4 vColor;' +
 
@@ -513,7 +523,6 @@ HandOverlay.prototype.injectShaders = function() {
     '    float dotP = (dot(xRayDirection, mvNormal) + 1.0) / 2.0;' +
     '    vec2 uv = vec2(0.5, dotP);' +
     '    vColor.rgb = texture2D(colorTexture, uv).rgb;' +
-//    '    vColor.a = texture2D(opacityTexture, uv).r * alpha * fade;' +
     '    vColor.a = alpha * fade;' +
     '    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );' +
     '    gl_Position = projectionMatrix * mvPosition;' +
@@ -580,18 +589,29 @@ HandOverlay.prototype.init3js = function() {
   });
 
   this.handPlane = new THREE.Mesh(
-      new THREE.PlaneGeometry( 2000, 2000 ),
+      new THREE.PlaneGeometry(2000, 2000),
       new THREE.MeshBasicMaterial({
         color: 0x000000,
-        opacity: 0.25,
-        transparent: true,
         wireframe: true }
   ) );
   this.handPlane.lookAt( this.camera.position );
   this.handPlane.visible = false;
-  this.handPlane.position = new THREE.Vector3(0, 0, 3);
+  this.handPlane.position = new THREE.Vector3(0, 0, 0);
   this.scene.add(this.handPlane);
 
+  this.handFadePlane = new THREE.Mesh(
+      new THREE.PlaneGeometry(2000, 2000),
+      new THREE.MeshBasicMaterial({
+        color: 0xff0000,
+        wireframe: false }
+  ) );
+  this.handFadePlane.lookAt( this.camera.position );
+  this.handFadePlane.visible = false;
+  this.handFadePlane.position = new THREE.Vector3(0, 1, 0);
+  this.handFadePlane.rotation.x = toRadians_(-75);
+  this.scene.add(this.handFadePlane);
+
+  // Load the geometry for various parts of the hand.
   var loader0 = new THREE.JSONLoader();
   loader0.load( chrome.extension.getURL('models/ring_0.json'),
     function(geometry){
@@ -713,7 +733,7 @@ HandOverlay.prototype.processHandMoved = function(
   var timeMs = Date.now();
   hand.lastEventTimeMs = timeMs;
 
-  hand.setPositionFromLeap(leapData, timeMs);
+  hand.setPositionFromLeap(leapData, timeMs, this.currentCameraPose);
 }
 
 /**
