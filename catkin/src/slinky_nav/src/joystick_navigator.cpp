@@ -147,7 +147,7 @@ void JoystickNavigator::ProcessJoy(const geometry_msgs::Twist& normalized_joy) {
             pose_maximums_.position.y);
 
   ending_pose.position.x =
-      fmod((starting_pose.position.x + (delta_lon * alt_scale)) + 180, 360) -
+      fmod((starting_pose.position.x + (delta_lon * alt_scale)) + 540, 360) -
       180;
   ending_pose.position.x =
       Clamp(ending_pose.position.x,
