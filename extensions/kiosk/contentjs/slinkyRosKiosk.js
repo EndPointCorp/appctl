@@ -475,6 +475,13 @@ var runwayContentClickHandler = function(e) {
   console.log('runwayContentClickedHandler');
   runwayActionRestrictions = customData[2];
 
+  // Check to see if this is a planet action.  If so, remove the nav
+  // restriction.
+  if (customData[1] && customData[1][0] == 3) {
+    // Its a planet shift.  Allow the nav.
+    runwayActionRestrictions = InputSupport_.NONE;
+  }
+
   // TODO(daden): Create a method on the large display extension.
   //window.location.href = 'javascript:' +
   //    'acme.launchRunwayContent(' + customData + ');';
