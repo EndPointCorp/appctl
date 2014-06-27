@@ -89,7 +89,7 @@ acme.Kiosk.prototype.addZoomOutToEarthButton = function() {
   if (runway != null) {
     runway.appendChild(button);
   } else {
-    setTimeout(this.addZoomOutToEarthButton, 100);
+    setTimeout(this.addZoomOutToEarthButton.bind(this), 100);
     return;
   }
 };
