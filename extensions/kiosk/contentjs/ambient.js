@@ -1,6 +1,6 @@
 var Ambient = function() {
   this.OCCUPANCY_TIMEOUT = 5000; // milliseconds
-  this.JOYSTICK_GUTTER = 0.1;
+  this.JOYSTICK_GUTTER = 0.001;
   this.CONTENT_TIMEOUT = 30000; // milliseconds
   this.isOccupied = false;
   this.lastOccupancy = Date.now();
@@ -11,7 +11,7 @@ Ambient.prototype.runContent = function() {
   if (this.isOccupied) return;
 
   var contentArray = acme.fpContent[this.placeIndex];
-  //window.dispatchEvent(new CustomEvent('acmeLaunchFamousPlacesContent', {detail: contentArray}));
+  window.dispatchEvent(new CustomEvent('acmeLaunchFamousPlacesContent', {detail: contentArray}));
   this.placeIndex++;
   if (this.placeIndex >= acme.fpContent.length) {
     this.placeIndex = 0;
@@ -30,17 +30,18 @@ Ambient.prototype.handlePresenceMessage = function(msg) {
 
 Ambient.prototype.handleJoystickMessage = function(msg) {
   var presence = false;
-  var values = [
-    msg.linear.x, msg.linear.y, msg.linear.z,
-    msg.angular.x, msg.angular.y, msg.angular.z
-  ];
-  var len = values.length;
-  for (var i=0; i < len; i++) {
-    if (Math.abs(values[i]) > this.JOYSTICK_GUTTER) {
-      presence = true;
-      break;
-    }
+
+  if (
+    Math.abs(msg.linear.x) > this.JOYSTICK_GUTTER ||
+    Math.abs(msg.linear.y) > this.JOYSTICK_GUTTER ||
+    Math.abs(msg.linear.z) > this.JOYSTICK_GUTTER ||
+    Math.abs(msg.angular.x) > this.JOYSTICK_GUTTER ||
+    Math.abs(msg.angular.y) > this.JOYSTICK_GUTTER ||
+    Math.abs(msg.angular.z) > this.JOYSTICK_GUTTER
+  ) {
+    presence = true;
   }
+
   this._presenceUpdate(presence);
 }
 
@@ -66,5 +67,5 @@ Ambient.prototype._startAmbientMode = function() {
 Ambient.prototype._stopAmbientMode = function() {
   console.debug('stopping ambient mode');
   this.isOccupied = true;
-  document.dispatchEvent(new CustomEvent('acmeZoomOutToEarth'));
+  document.dispatchEvent(new CustomEvent('acmeGotoDefaultState'));
 }

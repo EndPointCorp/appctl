@@ -44,6 +44,10 @@ acmeExt.messageAPI = acmeExt.messageAPI || (function() {
     acme.addCustomRunwayContent(content);
   };
 
+  MessageAPI.prototype.exitTitleCard = function() {
+    acme.exitTitleCard();
+  }
+
   var messageAPI = new MessageAPI();
   document.addEventListener('acme-kiosk',
       messageAPI.handleEvent.bind(messageAPI), true);
