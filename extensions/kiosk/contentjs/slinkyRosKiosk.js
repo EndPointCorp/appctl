@@ -534,11 +534,6 @@ window.addEventListener('acmeContentClicked', runwayContentClickHandler, true);
 window.addEventListener('acmeContentOnExit', runwayContentExitHandler, true);
 
 var zoomOutToEarth = function() {
-  var runwayMsg = new ROSLIB.Message({
-    data: 'exit!!'
-  });
-  runwayContentTopic.publish(runwayMsg);
-
   acme.kiosk.moveCamera(Pose.SPACE_POSE, true);
 };
 // document.dispatchEvent(new CustomEvent('acmeZoomOutToEarth'))
