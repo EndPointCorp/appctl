@@ -1,5 +1,5 @@
 var Ambient = function() {
-  this.OCCUPANCY_TIMEOUT = 5000; // milliseconds
+  this.OCCUPANCY_TIMEOUT = 20000; // milliseconds
   this.JOYSTICK_GUTTER = 0.001;
   this.CONTENT_TIMEOUT = 30000; // milliseconds
   this.isOccupied = false;
