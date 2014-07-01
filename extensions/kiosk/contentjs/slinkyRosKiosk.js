@@ -539,18 +539,9 @@ var zoomOutToEarth = function() {
 // document.dispatchEvent(new CustomEvent('acmeZoomOutToEarth'))
 window.addEventListener('acmeZoomOutToEarth', zoomOutToEarth, true);
 
-var gotoDefaultState = function() {
-  // TODO(mv): make this less redundant versus runwayContentExitHandler
+var exitContent = function() {
   acme.kiosk.sendCustomEvent_({
     method: 'exitTitleCard'
   });
-
-  runwayActionRestrictions = InputSupport_.NONE;
-  var runwayMsg = new ROSLIB.Message({
-    data: 'exit!!'
-  });
-  runwayContentTopic.publish(runwayMsg);
-
-  zoomOutToEarth();
 }
-window.addEventListener('acmeGotoDefaultState', gotoDefaultState, true);
+window.addEventListener('acmeExitContent', exitContent, true);

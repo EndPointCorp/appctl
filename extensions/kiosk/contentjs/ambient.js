@@ -7,11 +7,15 @@ var Ambient = function() {
   this.placeIndex = 0;
 }
 
+Ambient.prototype._dispatch = function(ev) {
+  window.dispatchEvent(ev);
+}
+
 Ambient.prototype.runContent = function() {
   if (this.isOccupied) return;
 
   var contentArray = acme.fpContent[this.placeIndex];
-  window.dispatchEvent(new CustomEvent('acmeLaunchFamousPlacesContent', {detail: contentArray}));
+  this._dispatch(new CustomEvent('acmeLaunchFamousPlacesContent', {detail: contentArray}));
   this.placeIndex++;
   if (this.placeIndex >= acme.fpContent.length) {
     this.placeIndex = 0;
@@ -67,5 +71,5 @@ Ambient.prototype._startAmbientMode = function() {
 Ambient.prototype._stopAmbientMode = function() {
   console.debug('stopping ambient mode');
   this.isOccupied = true;
-  document.dispatchEvent(new CustomEvent('acmeGotoDefaultState'));
+  this._dispatch(new CustomEvent('acmeExitContent'));
 }
