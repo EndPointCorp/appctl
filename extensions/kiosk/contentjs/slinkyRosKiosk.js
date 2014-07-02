@@ -564,6 +564,7 @@ var selectFamousPlaces = function() {
 window.addEventListener('acmeSelectFamousPlaces', selectFamousPlaces, true);
 
 // prevent browser from picking up touch gestures
-window.addEventListener('touchmove', function(e) {
+var preventDefaultHandler = function(e) {
   e.preventDefault();
-}, false);
+}
+window.addEventListener('touchmove', preventDefaultHandler, false);
