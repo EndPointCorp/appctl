@@ -5,6 +5,8 @@ var Ambient = function() {
   this.isOccupied = false;
   this.lastOccupancy = Date.now();
   this.placeIndex = 0;
+  window.addEventListener('touchstart', this.handleTouch.bind(this), true);
+  window.addEventListener('mousedown', this.handleTouch.bind(this), true);
 }
 
 Ambient.prototype._dispatch = function(ev) {
@@ -48,6 +50,10 @@ Ambient.prototype.handleJoystickMessage = function(msg) {
   }
 
   this._presenceUpdate(presence);
+}
+
+Ambient.prototype.handleTouch = function() {
+  this._presenceUpdate(true);
 }
 
 Ambient.prototype._presenceUpdate = function(presence) {
