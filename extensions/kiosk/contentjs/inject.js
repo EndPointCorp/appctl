@@ -48,6 +48,14 @@ acmeExt.messageAPI = acmeExt.messageAPI || (function() {
     acme.exitTitleCard();
   }
 
+  MessageAPI.prototype.selectFamousPlacesButton = function() {
+    acmeExt.selectFamousPlacesButton();
+  }
+
+  MessageAPI.prototype.launchFamousPlacesContent = function(place) {
+    acmeExt.launchFamousPlacesContent(place);
+  }
+
   var messageAPI = new MessageAPI();
   document.addEventListener('acme-kiosk',
       messageAPI.handleEvent.bind(messageAPI), true);
@@ -92,7 +100,3 @@ acmeExt.launchFamousPlacesContent = function(array) {
 
   document.dispatchEvent(contentClickedEvent);
 };
-
-window.addEventListener('acmeLaunchFamousPlacesContent', function(ev) {
-  acmeExt.launchFamousPlacesContent(ev.detail);
-}, true);

@@ -15,6 +15,7 @@ Ambient.prototype.runContent = function() {
   if (this.isOccupied) return;
 
   var contentArray = acme.fpContent[this.placeIndex];
+  this._dispatch(new CustomEvent('acmeSelectFamousPlaces'));
   this._dispatch(new CustomEvent('acmeLaunchFamousPlacesContent', {detail: contentArray}));
   this.placeIndex++;
   if (this.placeIndex >= acme.fpContent.length) {

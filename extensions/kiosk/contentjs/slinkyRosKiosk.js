@@ -545,3 +545,20 @@ var exitContent = function() {
   });
 }
 window.addEventListener('acmeExitContent', exitContent, true);
+
+var launchFamousPlacesContent = function(e) {
+  var place = e.detail;
+
+  acme.kiosk.sendCustomEvent_({
+    method: 'launchFamousPlacesContent',
+    args: [place]
+  });
+}
+window.addEventListener('acmeLaunchFamousPlacesContent', launchFamousPlacesContent, true);
+
+var selectFamousPlaces = function() {
+  acme.kiosk.sendCustomEvent_({
+    method: 'selectFamousPlacesButton'
+  });
+}
+window.addEventListener('acmeSelectFamousPlaces', selectFamousPlaces, true);
