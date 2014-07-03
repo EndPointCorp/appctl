@@ -38,6 +38,7 @@ void CameraBuffer::RequestPose(const geometry_msgs::Pose& pose) {
 void CameraBuffer::SendLastRequestedPose(void) {
   geometry_msgs::PoseStamped pose_msg;
   pose_msg.pose = last_requested_pose_;
+  pose_msg.header.stamp = ros::Time::now();
 
 #ifdef DEBUG
   ROS_INFO(
