@@ -520,7 +520,7 @@ var runwayContentExitHandler = function(e) {
 };
 
 var soundFX = new SoundFX();
-joystickTopic.subscribe(soundFX.handlePoseChange.bind(soundFX));
+navigatorListener.subscribe(soundFX.handlePoseChange.bind(soundFX));
 
 var ambient = new Ambient();
 proximityPresenceTopic.subscribe(ambient.handlePresenceMessage.bind(ambient));

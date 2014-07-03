@@ -2,6 +2,8 @@
  * Deal with loading and playing audio clips in response to requested movements.
  */
 
+var EARTH_RADIUS = 6371000; // meters
+
 /**
  * Container for single sound effect, able to isolate a section and/or loop.
  * TODO(arshan): Should we support end < begin by looping past the end?
@@ -143,7 +145,9 @@ var UserState = {
 };
 
 SoundFX = function() {
-  this.lastVelocity = 0;
+  this.lastPose = null;
+  this.lastUpdateTime = 0;
+  this.lastSeq = 0;
   this.state = UserState.IDLE;
 
   // Preload the sound clips.
@@ -167,21 +171,58 @@ SoundFX = function() {
 };
 
 /**
- * Respond to the normalized joystick twist message, with sound if appropriate.
- * @param {Object} twist The ROS twist msg object.
+ * Respond to the incoming pose message, with sound if appropriate.
+ * @param {Object} stampedPose The slinky stamped pose msg object.
  */
-SoundFX.prototype.handlePoseChange = function(twist) {
+SoundFX.prototype.handlePoseChange = function(stampedPose) {
 
-  // Check boundary conditions.
-  // TODO(arshan): Where can we get the altitude for the ground collision?
-  // TODO(arshan): Also need the raw altitude values for change in atmosphere.
-  x = twist.linear.x;
-  y = twist.linear.y;
-  z = twist.linear.z;
-  val = Math.sqrt(z * z + Math.sqrt(x * x + y * y));
+  // skip duplicates
+  // TODO(mv): figure out why there are duplicates
+  var seq = stampedPose.header.seq;
+  if (seq == this.lastSeq)
+    return;
+  this.lastSeq = seq;
+
+  var now = stampedPose.header.stamp.secs + stampedPose.header.stamp.nsecs / 1000000000;
+  var dt = now - this.lastUpdateTime;
+  this.lastUpdateTime = now;
+
+  function toRadians(n) {
+    return n * Math.PI / 180.0;
+  }
+
+  var pose = stampedPose.pose;
+  var lastPose = this.lastPose || stampedPose.pose;
+  var distanceToEarthCenter = pose.position.z + EARTH_RADIUS;
+
+  // convert to radians for trig functions
+  var lat = toRadians(pose.position.y);
+  var lastLat = toRadians(lastPose.position.y);
+  var dLat = toRadians(pose.position.y - lastPose.position.y);
+  var dLng = toRadians(pose.position.x - lastPose.position.x);
+
+  // altitude change in meters
+  var dAlt = Math.abs(pose.position.z - lastPose.position.z);
+
+  this.lastPose = pose;
+
+  // equirectangular approximation -- performance > accuracy
+  var x = dLng * Math.cos((lat + lastLat) / 2);
+  var y = dLat;
+  var dLateral = Math.sqrt(x * x + y * y) * distanceToEarthCenter;
+
+  var speed = (dLateral + dAlt) / dt; // m/s, theoretically
+  var val = Math.sqrt(speed / 1000000);
 
   // Now play the corresponding sound effects.
-  // TODO: add timing of state change to debounce.
+  this.update(val);
+};
+
+/**
+ * Plays appropriate sound effects for the incoming speed.
+ * @param {Number} val The rate of movement around the globe.
+ */
+SoundFX.prototype.update = function(val) {
   switch (this.state) {
   case UserState.IDLE:
     if (val > .3) {
