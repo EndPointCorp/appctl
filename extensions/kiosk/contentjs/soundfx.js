@@ -3,6 +3,10 @@
  */
 
 var EARTH_RADIUS = 6371000; // meters
+// real atmosphere would taper off from 11km to 120km ASL
+// tweak these values for effect
+var ATMOSPHERE_THINNING = 18000;  // meters
+var ATMOSPHERE_CEILING = 120000; // meters
 
 /**
  * Container for single sound effect, able to isolate a section and/or loop.
@@ -135,20 +139,10 @@ SoundEffect.prototype.stop = function() {
   clearTimeout(this.event_thread);
 };
 
-// Keep track of the state of the user.
-var UserState = {
-  IDLE:0,
-  STARTING:1,
-  FLYING:2,
-  STOPPING:3,
-  BOOST:4
-};
-
 SoundFX = function() {
   this.lastPose = null;
   this.lastUpdateTime = 0;
   this.lastSeq = 0;
-  this.state = UserState.IDLE;
 
   // Preload the sound clips.
   // TODO(arshan): Better to load these out of a config file?
@@ -168,6 +162,7 @@ SoundFX = function() {
     chrome.extension.getURL('sounds/cutoff.wav'),
                              0, 1994, false);
 
+  this.largeidle.setVolume(0);
 };
 
 /**
@@ -214,6 +209,20 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
   var speed = (dLateral + dAlt) / dt; // m/s, theoretically
   var val = Math.sqrt(speed / 1000000);
 
+  // atmospheric component
+  var atmosphereCoeff;
+  if (pose.position.z < ATMOSPHERE_THINNING) {
+    atmosphereCoeff = 1;
+  } else if (pose.position.z < ATMOSPHERE_CEILING) {
+    // TODO(mv): apply mathematics
+    atmosphereCoeff = Math.abs(
+      1 + (ATMOSPHERE_THINNING / ATMOSPHERE_CEILING) -
+      (pose.position.z / (ATMOSPHERE_CEILING - ATMOSPHERE_THINNING)));
+  } else {
+    atmosphereCoeff = 0;
+  }
+  val *= atmosphereCoeff;
+
   // Now play the corresponding sound effects.
   this.update(val);
 };
@@ -223,41 +232,9 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
  * @param {Number} val The rate of movement around the globe.
  */
 SoundFX.prototype.update = function(val) {
-  switch (this.state) {
-  case UserState.IDLE:
-    if (val > .3) {
-      this.smallstart.start();
-      this.smallidle.start();
-      this.state = UserState.STARTING;
-    }
-    break;
-  case UserState.BOOST:
-    if (val > .2) {
-      this.largestart.crossfadeTo(this.largeidle, .05, 100, 300);
-      this.state = UserState.FLYING;
-    }
-    break;
-  case UserState.STARTING:
-    if (val > .5) {
-      this.smallstart.crossfadeTo(this.largestart, .1, 100, 0);
-      this.state = UserState.BOOST;
-    }
-    else if (val > .2) {
-      this.smallstart.crossfadeTo(this.largeidle, .05, 100, 200);
-      this.state = UserState.FLYING;
-    }
-    break;
-  case UserState.FLYING:
-    if (val < .1) {
-      this.state = UserState.STOPPING;
-    }
-    break;
-  case UserState.STOPPING:
-    if (val < .05) {
-      this.largeidle.crossfadeTo(this.cutoff, .05, 100, 0);
-      this.state = UserState.IDLE;
-    }
-    break;
+  this.largeidle.setVolume(val);
+  if (!this.largeidle.playing) {
+    this.largeidle.start();
   }
 };
 
