@@ -123,7 +123,9 @@ SoundEffect.prototype.start_ = function() {
   this.audio.currentTime = this.startMs / 1000;
   var self = this;
   this.event_thread = setTimeout(function() {
-    self.loop ? self.start_() : self.stop();
+    if (!self.loop) {
+      self.stop();
+    }
   }, this.durationMs);
   this.audio.play();
 };
