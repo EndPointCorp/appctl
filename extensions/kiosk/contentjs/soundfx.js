@@ -3,7 +3,7 @@
  */
 
 var EARTH_RADIUS = 6371000; // meters from center
-var ATMOSPHERE_CEILING = 120000; // meters from surface
+var EARTH_ATMOSPHERE_CEILING = 120000; // meters from surface
 var ATMOSPHERE_FALLOFF = 6; // exponential falloff rate for atmospheric density
 var SILENCE_TIMEOUT = 200; // ms, silence after no movement for this amount of time
 
@@ -212,11 +212,11 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
 
   // atmospheric component
   var atmosphereCoeff = 0;
-  if (pose.position.z < ATMOSPHERE_CEILING) {
-    // TODO(mv): apply mathematics
-    var linearAtmosphere = Math.abs(pose.position.z - ATMOSPHERE_CEILING);
+  if (pose.position.z < EARTH_ATMOSPHERE_CEILING) {
+    // TODO(mv): reduce O
+    var linearAtmosphere = Math.abs(pose.position.z - EARTH_ATMOSPHERE_CEILING);
     atmosphereCoeff = Math.pow(linearAtmosphere, ATMOSPHERE_FALLOFF) /
-      Math.pow(ATMOSPHERE_CEILING, ATMOSPHERE_FALLOFF);
+      Math.pow(EARTH_ATMOSPHERE_CEILING, ATMOSPHERE_FALLOFF);
   }
   val *= atmosphereCoeff;
 
