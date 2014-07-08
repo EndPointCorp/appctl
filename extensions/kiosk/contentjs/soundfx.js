@@ -2,11 +2,9 @@
  * Deal with loading and playing audio clips in response to requested movements.
  */
 
-var EARTH_RADIUS = 6371000; // meters
-// real atmosphere would taper off from 11km to 120km ASL
-// tweak these values for effect vs. atmosphere visuals
-var ATMOSPHERE_THINNING = 11000;  // meters
-var ATMOSPHERE_CEILING = 150000; // meters
+var EARTH_RADIUS = 6371000; // meters from center
+var ATMOSPHERE_CEILING = 120000; // meters from surface
+var ATMOSPHERE_FALLOFF = 6; // exponential falloff rate for atmospheric density
 
 /**
  * Container for single sound effect, able to isolate a section and/or loop.
@@ -211,17 +209,12 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
   var val = Math.sqrt(speed / 100000);
 
   // atmospheric component
-  var atmosphereCoeff;
-  if (pose.position.z < ATMOSPHERE_THINNING) {
-    atmosphereCoeff = 1;
-  } else if (pose.position.z < ATMOSPHERE_CEILING) {
+  var atmosphereCoeff = 0;
+  if (pose.position.z < ATMOSPHERE_CEILING) {
     // TODO(mv): apply mathematics
-    atmosphereCoeff = Math.abs(
-      1 + ATMOSPHERE_THINNING / ATMOSPHERE_CEILING -
-      pose.position.z / (ATMOSPHERE_CEILING - ATMOSPHERE_THINNING)
-    );
-  } else {
-    atmosphereCoeff = 0;
+    var linearAtmosphere = Math.abs(pose.position.z - ATMOSPHERE_CEILING);
+    atmosphereCoeff = Math.pow(linearAtmosphere, ATMOSPHERE_FALLOFF) /
+      Math.pow(ATMOSPHERE_CEILING, ATMOSPHERE_FALLOFF);
   }
   val *= atmosphereCoeff;
 
