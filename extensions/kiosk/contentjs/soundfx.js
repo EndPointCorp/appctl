@@ -5,6 +5,7 @@
 var EARTH_RADIUS = 6371000; // meters from center
 var ATMOSPHERE_CEILING = 120000; // meters from surface
 var ATMOSPHERE_FALLOFF = 6; // exponential falloff rate for atmospheric density
+var SILENCE_TIMEOUT = 200; // ms, silence after no movement for this amount of time
 
 /**
  * Container for single sound effect, able to isolate a section and/or loop.
@@ -143,6 +144,7 @@ SoundFX = function() {
   this.lastPose = null;
   this.lastUpdateTime = 0;
   this.lastSeq = 0;
+  this.silenceTimer = null;
 
   // Preload the sound clips.
   // TODO(arshan): Better to load these out of a config file?
@@ -229,14 +231,28 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
 SoundFX.prototype.update = function(val) {
   this.largeidle.setVolume(val);
 
-  if (val > 0 && !this.largeidle.playing) {
-    console.log('start');
-    this.largeidle.start();
+  if (val > 0) {
+    clearTimeout(this.silenceTimer);
+    var self = this;
+    this.silenceTimer = setTimeout(function() {
+      self.silence();
+    }, SILENCE_TIMEOUT);
+
+    if (!this.largeidle.playing) {
+      this.largeidle.start();
+    }
   } else if (val <= 0 && this.largeidle.playing) {
-    console.log('stop');
+    clearTimeout(this.silenceTimer);
     this.largeidle.stop();
   }
 };
+
+/**
+ * Ends sound effects.
+ */
+SoundFX.prototype.silence = function() {
+  this.update(0);
+}
 
 /*
 Just for informations sake, and possibly fingerprinting, the sox output
