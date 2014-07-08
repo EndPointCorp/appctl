@@ -4,9 +4,9 @@
 
 var EARTH_RADIUS = 6371000; // meters
 // real atmosphere would taper off from 11km to 120km ASL
-// tweak these values for effect
-var ATMOSPHERE_THINNING = 18000;  // meters
-var ATMOSPHERE_CEILING = 120000; // meters
+// tweak these values for effect vs. atmosphere visuals
+var ATMOSPHERE_THINNING = 11000;  // meters
+var ATMOSPHERE_CEILING = 150000; // meters
 
 /**
  * Container for single sound effect, able to isolate a section and/or loop.
@@ -162,7 +162,6 @@ SoundFX = function() {
     chrome.extension.getURL('sounds/cutoff.wav'),
                              0, 1994, false);
 
-  this.largeidle.setVolume(0);
 };
 
 /**
@@ -207,7 +206,7 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
   var dLateral = Math.sqrt(x * x + y * y) * distanceToEarthCenter;
 
   var speed = (dLateral + dAlt) / dt; // m/s, theoretically
-  var val = Math.sqrt(speed / 1000000);
+  var val = Math.sqrt(speed / 100000);
 
   // atmospheric component
   var atmosphereCoeff;
@@ -216,8 +215,9 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
   } else if (pose.position.z < ATMOSPHERE_CEILING) {
     // TODO(mv): apply mathematics
     atmosphereCoeff = Math.abs(
-      1 + (ATMOSPHERE_THINNING / ATMOSPHERE_CEILING) -
-      (pose.position.z / (ATMOSPHERE_CEILING - ATMOSPHERE_THINNING)));
+      1 + ATMOSPHERE_THINNING / ATMOSPHERE_CEILING -
+      pose.position.z / (ATMOSPHERE_CEILING - ATMOSPHERE_THINNING)
+    );
   } else {
     atmosphereCoeff = 0;
   }
@@ -233,8 +233,13 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
  */
 SoundFX.prototype.update = function(val) {
   this.largeidle.setVolume(val);
-  if (!this.largeidle.playing) {
+
+  if (val > 0 && !this.largeidle.playing) {
+    console.log('start');
     this.largeidle.start();
+  } else if (val <= 0 && this.largeidle.playing) {
+    console.log('stop');
+    this.largeidle.stop();
   }
 };
 
