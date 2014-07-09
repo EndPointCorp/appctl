@@ -68,6 +68,15 @@ Pose.SPACE_POSE = {
 };
 
 /**
+ * Planet values.
+ */
+Planet = {
+  EARTH: 1,
+  MOON: 2,
+  MARS: 3
+};
+
+/**
  * Lazy set the large display mode after we get our first stable camera update.
  * @constructor
  */
@@ -484,6 +493,8 @@ var runwayContentClickHandler = function(e) {
   // Check to see if this is a planet action.  If so, remove the nav
   // restriction.
   if (customData[1] && customData[1][0] == 3) {
+    // disable sound on the moon
+    soundFX.enabled = (customData[1][7] != Planet.MOON);
     // Its a planet shift.  Allow the nav.
     runwayActionRestrictions = InputSupport_.NONE;
   }

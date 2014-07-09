@@ -145,6 +145,7 @@ SoundFX = function() {
   this.lastUpdateTime = 0;
   this.lastSeq = 0;
   this.silenceTimer = null;
+  this.enabled = true;
 
   // Preload the sound clips.
   // TODO(arshan): Better to load these out of a config file?
@@ -182,6 +183,8 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
   var now = stampedPose.header.stamp.secs + stampedPose.header.stamp.nsecs / 1000000000;
   var dt = now - this.lastUpdateTime;
   this.lastUpdateTime = now;
+
+  if (!this.enabled) return;
 
   function toRadians(n) {
     return n * Math.PI / 180.0;
