@@ -26,7 +26,9 @@ var dumpUpdateToScreen = function(message) {
 };
 
 /**
- * @param {THREE.Scene} scene_
+ * @param {THREE.Scene} handOverlay
+ * @param {object} leapInteractionBox
+ * @param {number} handId
  * @constructor
  */
 var Hand = function(handOverlay, leapInteractionBox, handId) {
@@ -78,7 +80,7 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
   this.hudDiv.style.zIndex = '99999';
   this.hudDiv.style.color = '#e3efff';
   this.hudDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.0)';
-}
+};
 
 /**
  * Given a world coordinate return a screen coordinate.
@@ -86,10 +88,10 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
 Hand.prototype.toScreenCoords = function(worldPos) {
     var vector = this.projector.projectVector(worldPos.clone(),
         this.handOverlay_.camera);
-    vector.x = (vector.x + 1)/2 * window.innerWidth;
-    vector.y = -(vector.y - 1)/2 * window.innerHeight;
+    vector.x = (vector.x + 1) / 2 * window.innerWidth;
+    vector.y = -(vector.y - 1) / 2 * window.innerHeight;
     return vector;
-}
+};
 
 Hand.prototype.updateHudPosition = function(worldPos) {
   var screenPos = this.toScreenCoords(worldPos);
@@ -124,14 +126,14 @@ Hand.prototype.createRings_ = function(handOrigin) {
   // uniforms
   this.centerCircleGeomUniforms = {
      xRayDirection: {
-       type: "v3", value: new THREE.Vector3(0, 0, 1).normalize() },
-     colorTexture: { type: "t", value: xRayColorTexture },
-     alpha: { type: "f", value: 0.1 },
-     fade: { type: "f", value: 0.0 }
+       type: 'v3', value: new THREE.Vector3(0, 0, 1).normalize() },
+     colorTexture: { type: 't', value: xRayColorTexture },
+     alpha: { type: 'f', value: 0.1 },
+     fade: { type: 'f', value: 0.0 }
   };
 
   // particle system material
-  var centerCircleShader = new THREE.ShaderMaterial( {
+  var centerCircleShader = new THREE.ShaderMaterial({
 
       uniforms: this.centerCircleGeomUniforms,
       attributes: handAttributes,
@@ -144,15 +146,15 @@ Hand.prototype.createRings_ = function(handOrigin) {
   // uniforms
   this.ring0GeomUniforms = {
      xRayDirection: {
-       type: "v3", value: new THREE.Vector3(0, 0, 1).normalize() },
-     colorTexture: { type: "t", value: xRayColorTexture },
-     alpha: { type: "f", value: 0.35 },
-     fade: { type: "f", value: 0.0 }
+       type: 'v3', value: new THREE.Vector3(0, 0, 1).normalize() },
+     colorTexture: { type: 't', value: xRayColorTexture },
+     alpha: { type: 'f', value: 0.35 },
+     fade: { type: 'f', value: 0.0 }
   };
 
 
   // particle system material
-  var ring0Shader = new THREE.ShaderMaterial( {
+  var ring0Shader = new THREE.ShaderMaterial({
 
       uniforms: this.ring0GeomUniforms,
       attributes: handAttributes,
@@ -164,14 +166,14 @@ Hand.prototype.createRings_ = function(handOrigin) {
     // uniforms
   this.dotUniforms = {
      xRayDirection: {
-       type: "v3", value: new THREE.Vector3(0, 0, 1).normalize() },
-     colorTexture: { type: "t", value: xRayColorTexture },
-     alpha: { type: "f", value: 0.3 },
-     fade: { type: "f", value: 0.0 }
+       type: 'v3', value: new THREE.Vector3(0, 0, 1).normalize() },
+     colorTexture: { type: 't', value: xRayColorTexture },
+     alpha: { type: 'f', value: 0.3 },
+     fade: { type: 'f', value: 0.0 }
   };
 
   // particle system material
-  var dotShader = new THREE.ShaderMaterial( {
+  var dotShader = new THREE.ShaderMaterial({
 
       uniforms: this.dotUniforms,
       attributes: handAttributes,
@@ -184,14 +186,14 @@ Hand.prototype.createRings_ = function(handOrigin) {
   // uniforms
   this.geomUniforms = {
      xRayDirection: {
-       type: "v3", value: new THREE.Vector3(0, 0, 1).normalize() },
-     colorTexture: { type: "t", value: xRayColorTexture },
-     alpha: { type: "f", value: 0.4 },
-     fade: { type: "f", value: 0.0 }
+       type: 'v3', value: new THREE.Vector3(0, 0, 1).normalize() },
+     colorTexture: { type: 't', value: xRayColorTexture },
+     alpha: { type: 'f', value: 0.4 },
+     fade: { type: 'f', value: 0.0 }
   };
 
   // particle system material
-  var handShader = new THREE.ShaderMaterial( {
+  var handShader = new THREE.ShaderMaterial({
 
       uniforms: this.geomUniforms,
       attributes: handAttributes,
@@ -218,7 +220,8 @@ Hand.prototype.createRings_ = function(handOrigin) {
   this.centerDot.name = 'centerCircleDot';
   this.handOrigin.add(this.centerDot);
 
-  this.topCallout = new THREE.Mesh(this.handOverlay_.topCalloutGeom, handShader);
+  this.topCallout = new THREE.Mesh(
+      this.handOverlay_.topCalloutGeom, handShader);
   this.topCallout.name = 'topCallout';
   this.topCallout.add(this.topCalloutPanel);
   this.handOrigin.add(this.topCallout);
@@ -227,7 +230,7 @@ Hand.prototype.createRings_ = function(handOrigin) {
 
   this.fadeInAnimation;
   this.fadeOutAnimation;
-}
+};
 
 Hand.prototype.setupGeometry_ = function(leapInteractionBox) {
   this.createRings_(this.handOrigin);
@@ -240,7 +243,7 @@ Hand.prototype.setupGeometry_ = function(leapInteractionBox) {
   // TODO(paulby) plane intersections should we assume we always get
   // the same (and valid) interaction box from the leap.
 
-  var vector = new THREE.Vector3( -1, -1, 1);
+  var vector = new THREE.Vector3(-1, -1, 1);
   this.projector.unprojectVector(vector, camera);
   var ray = new THREE.Raycaster(camera.position,
       vector.sub(camera.position).normalize());
@@ -273,38 +276,38 @@ Hand.prototype.setupGeometry_ = function(leapInteractionBox) {
     // Map the leap physical coordinate system to gl
     var handCoordSystem = new THREE.Matrix4();
     handCoordSystem.setPosition(new THREE.Vector3(
-        0, -sceneHeight / 2 - (this.interactionMinY * scaleY) ,0));
+        0, -sceneHeight / 2 - (this.interactionMinY * scaleY) , 0));
     handCoordSystem.scale(new THREE.Vector3(scaleX, scaleY, scale));
   }
 
   this.leapOrigin.applyMatrix(handCoordSystem);
   this.leapOrigin.updateMatrixWorld(false);
   this.leapOrigin.add(this.handOrigin);
-}
+};
 
 /**
  * Called by Tween fade[In|Out]Animation on completion.
  */
 Hand.prototype.fadeInOutAnimationComplete = function() {
   if (!this.visible) {
-    this.handOverlay_.scene.remove(this.leapOrigin)
+    this.handOverlay_.scene.remove(this.leapOrigin);
     document.body.removeChild(this.hudDiv);
   }
-}
+};
 
 Hand.prototype.fadeInOutAnimationOnStart = function() {
   if (this.visible) {
     this.handOverlay_.scene.add(this.leapOrigin);
     document.body.appendChild(this.hudDiv);
   }
-}
+};
 
 Hand.prototype.fadeInOutAnimationOnUpdate = function() {
   this.centerCircleGeomUniforms.fade.needsUpdate = true;
   this.geomUniforms.fade.needsUpdate = true;
   this.ring0GeomUniforms.fade.needsUpdate = true;
   this.dotUniforms.fade.needsUpdate = true;
-}
+};
 
 Hand.prototype.setVisible = function(visible) {
   if (this.visible === visible) {
@@ -326,12 +329,12 @@ Hand.prototype.setVisible = function(visible) {
         this.hudDiv.style.opacity],
         1,
         {
-          startAt:{value:0.0},
-          value:1.0,
-          onStart:self.fadeInOutAnimationOnStart.bind(self),
-          onComplete:self.fadeInOutAnimationComplete.bind(self),
-          onUpdate:self.fadeInOutAnimationOnUpdate.bind(self),
-          paused:true
+          startAt: {value: 0.0},
+          value: 1.0,
+          onStart: self.fadeInOutAnimationOnStart.bind(self),
+          onComplete: self.fadeInOutAnimationComplete.bind(self),
+          onUpdate: self.fadeInOutAnimationOnUpdate.bind(self),
+          paused: true
         });
   }
 
@@ -344,12 +347,12 @@ Hand.prototype.setVisible = function(visible) {
         this.hudDiv.style.opacity],
         1,
         {
-          startAt:{value:this.handOpacity},
-          value:0.0,
-          onStart:self.fadeInOutAnimationOnStart.bind(self),
-          onComplete:self.fadeInOutAnimationComplete.bind(self),
-          onUpdate:self.fadeInOutAnimationOnUpdate.bind(self),
-          paused:true
+          startAt: {value: this.handOpacity},
+          value: 0.0,
+          onStart: self.fadeInOutAnimationOnStart.bind(self),
+          onComplete: self.fadeInOutAnimationComplete.bind(self),
+          onUpdate: self.fadeInOutAnimationOnUpdate.bind(self),
+          paused: true
         });
   }
 
@@ -358,7 +361,7 @@ Hand.prototype.setVisible = function(visible) {
   } else {
     this.fadeOutAnimation.restart();
   }
-}
+};
 
 
 Hand.prototype.animate_ = function() {
@@ -376,7 +379,7 @@ Hand.prototype.animate_ = function() {
   // processHandGeoLocationEvent
   getPointInfo(screenPos.x, screenPos.y);
   this.updateHudPosition(hudPos);
-}
+};
 
 function toRadians_(deg) {
   return deg * Math.PI / 180;
@@ -421,13 +424,13 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
   this.handOrigin.position.set(palmpos.x, palmpos.y, palmpos.z);
   if (currentCameraPose) {
     this.handOrigin.rotation.set(
-        toRadians_(90 - currentCameraPose.tilt),0, 0);
+        toRadians_(90 - currentCameraPose.tilt), 0, 0);
   }
   this.handOrigin.scale.set(20, 20, 20);
   this.handOrigin.updateMatrixWorld(false);
 
   this.ring2.rotation.set(0, -palmYaw, 0);
-}
+};
 
 /**
  * @constructor
@@ -471,7 +474,7 @@ var HandOverlay = function() {
 
 HandOverlay.prototype.setCurrentCameraPose = function(pose) {
   this.currentCameraPose = pose;
-}
+};
 
 
 /**
@@ -539,7 +542,7 @@ HandOverlay.prototype.injectShaders = function() {
     '    gl_FragColor = vec4( vColor );' +
     '}';
   document.body.appendChild(handFragmentScript);
-}
+};
 
 
 /**
@@ -554,7 +557,7 @@ HandOverlay.prototype.init3js = function() {
   var handCanvas = document.getElementById('handCanvas');
 
   if (!handCanvas) {
-    handCanvas = document.createElement("canvas");
+    handCanvas = document.createElement('canvas');
     handCanvas.id = 'handCanvas';
     handCanvas.style.position = 'fixed';
     handCanvas.style.bottom = '0px';
@@ -593,8 +596,8 @@ HandOverlay.prototype.init3js = function() {
       new THREE.MeshBasicMaterial({
         color: 0x000000,
         wireframe: true }
-  ) );
-  this.handPlane.lookAt( this.camera.position );
+  ));
+  this.handPlane.lookAt(this.camera.position);
   this.handPlane.visible = false;
   this.handPlane.position = new THREE.Vector3(0, 0, 0);
   this.scene.add(this.handPlane);
@@ -604,8 +607,8 @@ HandOverlay.prototype.init3js = function() {
       new THREE.MeshBasicMaterial({
         color: 0xff0000,
         wireframe: false }
-  ) );
-  this.handFadePlane.lookAt( this.camera.position );
+  ));
+  this.handFadePlane.lookAt(this.camera.position);
   this.handFadePlane.visible = false;
   this.handFadePlane.position = new THREE.Vector3(0, 1, 0);
   this.handFadePlane.rotation.x = toRadians_(-75);
@@ -613,38 +616,38 @@ HandOverlay.prototype.init3js = function() {
 
   // Load the geometry for various parts of the hand.
   var loader0 = new THREE.JSONLoader();
-  loader0.load( chrome.extension.getURL('models/ring_0.json'),
-    function(geometry){
+  loader0.load(chrome.extension.getURL('models/ring_0.json'),
+    function(geometry) {
        self.ring0Geom = geometry;
     });
 
   var loader1 = new THREE.JSONLoader();
-  loader1.load( chrome.extension.getURL('models/ring_1.json'),
-    function(geometry){
+  loader1.load(chrome.extension.getURL('models/ring_1.json'),
+    function(geometry) {
        self.ring1Geom = geometry;
     });
 
   var loader2 = new THREE.JSONLoader();
-  loader2.load( chrome.extension.getURL('models/ring_2.json'),
-    function(geometry){
+  loader2.load(chrome.extension.getURL('models/ring_2.json'),
+    function(geometry) {
        self.ring2Geom = geometry;
     });
 
   var loader3 = new THREE.JSONLoader();
-  loader3.load( chrome.extension.getURL('models/center_circle_flat.json'),
-    function(geometry){
+  loader3.load(chrome.extension.getURL('models/center_circle_flat.json'),
+    function(geometry) {
        self.centerCircleFlatGeom = geometry;
     });
 
   var loader4 = new THREE.JSONLoader();
-  loader4.load( chrome.extension.getURL('models/center_dot.json'),
-    function(geometry){
+  loader4.load(chrome.extension.getURL('models/center_dot.json'),
+    function(geometry) {
        self.centerDotGeom = geometry;
     });
 
   var loader5 = new THREE.JSONLoader();
-  loader5.load( chrome.extension.getURL('models/top_callout.json'),
-    function(geometry){
+  loader5.load(chrome.extension.getURL('models/top_callout.json'),
+    function(geometry) {
        self.topCalloutGeom = geometry;
     });
 
@@ -659,11 +662,11 @@ HandOverlay.prototype.processLeapMessage = function(leapMessage) {
   }
   var leapInteractionBox = leapMessage.interaction_box;
 
-  for(var i = 0; i < leapMessage.hands.length; i++) {
+  for (var i = 0; i < leapMessage.hands.length; i++) {
     var handData = leapMessage.hands[i];
     handOverlay.processHandMoved(handData, leapInteractionBox);
   }
-}
+};
 
 /**
  * Handle geoLocationEvents, this is the geo location of the center of the
@@ -681,7 +684,7 @@ HandOverlay.prototype.processHandGeoLocationEvent = function(pose) {
   }
 
   hand.updateHudMessage(pose);
-}
+};
 
 /**
   * Called when the leap motion has new hand data.
@@ -734,7 +737,7 @@ HandOverlay.prototype.processHandMoved = function(
   hand.lastEventTimeMs = timeMs;
 
   hand.setPositionFromLeap(leapData, timeMs, this.currentCameraPose);
-}
+};
 
 /**
  * Animate the handOverlay. Called by the browser renderer.
@@ -752,7 +755,7 @@ HandOverlay.prototype.animate_ = function() {
 
   var timeMs = Date.now();
 
-  for(var key in this.hands_) {
+  for (var key in this.hands_) {
     if (this.hands_.hasOwnProperty(key)) {
       var hand = this.hands_[key];
       if (hand.visible) {
@@ -769,5 +772,5 @@ HandOverlay.prototype.animate_ = function() {
     }
   }
   this.renderer.render(this.scene, this.camera);
-}
+};
 

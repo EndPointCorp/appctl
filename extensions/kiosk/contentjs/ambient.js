@@ -7,33 +7,34 @@ var Ambient = function() {
   this.placeIndex = 0;
   window.addEventListener('touchstart', this.handleTouch.bind(this), true);
   window.addEventListener('mousedown', this.handleTouch.bind(this), true);
-}
+};
 
 Ambient.prototype._dispatch = function(ev) {
   window.dispatchEvent(ev);
-}
+};
 
 Ambient.prototype.runContent = function() {
   if (this.isOccupied) return;
 
   var contentArray = acme.fpContent[this.placeIndex];
   this._dispatch(new CustomEvent('acmeSelectFamousPlaces'));
-  this._dispatch(new CustomEvent('acmeLaunchFamousPlacesContent', {detail: contentArray}));
+  this._dispatch(new CustomEvent(
+    'acmeLaunchFamousPlacesContent', {detail: contentArray}));
   this.placeIndex++;
   if (this.placeIndex >= acme.fpContent.length) {
     this.placeIndex = 0;
   }
 
   this._scheduleNextContent();
-}
+};
 
 Ambient.prototype._scheduleNextContent = function() {
   setTimeout(this.runContent.bind(this), this.CONTENT_TIMEOUT);
-}
+};
 
 Ambient.prototype.handlePresenceMessage = function(msg) {
   this._presenceUpdate(msg.data);
-}
+};
 
 Ambient.prototype.handleJoystickMessage = function(msg) {
   var presence = false;
@@ -50,11 +51,11 @@ Ambient.prototype.handleJoystickMessage = function(msg) {
   }
 
   this._presenceUpdate(presence);
-}
+};
 
 Ambient.prototype.handleTouch = function() {
   this._presenceUpdate(true);
-}
+};
 
 Ambient.prototype._presenceUpdate = function(presence) {
   var now = Date.now();
@@ -64,19 +65,21 @@ Ambient.prototype._presenceUpdate = function(presence) {
     if (!this.isOccupied) {
       this._stopAmbientMode();
     }
-  } else if (this.isOccupied && !presence && (now - this.lastOccupancy) > this.OCCUPANCY_TIMEOUT) {
+  } else if (this.isOccupied &&
+      !presence &&
+      (now - this.lastOccupancy) > this.OCCUPANCY_TIMEOUT) {
     this._startAmbientMode();
   }
-}
+};
 
 Ambient.prototype._startAmbientMode = function() {
   console.debug('starting ambient mode');
   this.isOccupied = false;
   this.runContent();
-}
+};
 
 Ambient.prototype._stopAmbientMode = function() {
   console.debug('stopping ambient mode');
   this.isOccupied = true;
   this._dispatch(new CustomEvent('acmeExitContent'));
-}
+};
