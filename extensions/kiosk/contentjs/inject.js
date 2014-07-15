@@ -46,15 +46,15 @@ acmeExt.messageAPI = acmeExt.messageAPI || (function() {
 
   MessageAPI.prototype.exitTitleCard = function() {
     acme.exitTitleCard();
-  }
+  };
 
   MessageAPI.prototype.selectFamousPlacesButton = function() {
     acmeExt.selectFamousPlacesButton();
-  }
+  };
 
   MessageAPI.prototype.launchFamousPlacesContent = function(place) {
     acmeExt.launchFamousPlacesContent(place);
-  }
+  };
 
   var messageAPI = new MessageAPI();
   document.addEventListener('acme-kiosk',
@@ -90,7 +90,8 @@ acmeExt.launchFamousPlacesContent = function(array) {
   console.log(array);
   acme.launchRunwayContent(array);
   var wireProtocol = 1;
-  //TODO(kiel): when other types are introduced besides Earth Tours, implement the appropriate type handlers.
+  //TODO(kiel): when other types are introduced besides Earth Tours, implement
+  //  the appropriate type handlers.
   var inputType = 1; // 1 means disabled
   var contentClickedEvent = new CustomEvent('acmeContentClicked', {
     'detail': {'customData': [wireProtocol, array, inputType]},

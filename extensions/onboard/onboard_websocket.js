@@ -3,14 +3,22 @@ var OnboardApp = (function() {
 
   ws.onopen = function() {
     console.log('Advertising onboard topic');
-    ws.send(JSON.stringify({'op':'advertise','topic':'onboard/visibility','type':'std_msgs/Bool'}));
-  }
+    ws.send(JSON.stringify(
+      {'op': 'advertise',
+        'topic': 'onboard/visibility',
+        'type': 'std_msgs/Bool'}
+    ));
+  };
 
   chrome.runtime.onConnect.addListener(function(port) {
     console.log('connected', port);
     port.onMessage.addListener(function(msg) {
       console.log('got msg', msg, 'from', port);
-      ws.send(JSON.stringify({'op':'publish','topic':'onboard/visibility','msg':{'data':msg}}));
+      ws.send(JSON.stringify(
+        {'op': 'publish',
+          'topic': 'onboard/visibility',
+          'msg': {'data': msg}}
+      ));
     });
   });
 })();
