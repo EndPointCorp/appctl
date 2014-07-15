@@ -213,11 +213,90 @@ acme.Kiosk.prototype.createFamousPlacesRunway = function() {
 };
 
 acme.fpContent = [
-  [4, ['0x132f61b6638ccc9f:0x9559ad432c2467a0', 0, null, null, 'Arch of Constantine', 848.10455, 18, '//g0.gstatic.com/heli/image/0x132f61b6638ccc9f_0x9559ad432c2467a0.jpg', [null, null, null, null, null, '', []], 'Via di San Gregorio, Rome, Italy', null, null, [], ''], null, null, ['0x132f61b6638ccc9f:0x9559ad432c2467a0', 0, 18, 'Arch of Constantine', 'Via di San Gregorio, Rome, Italy', 848.10455, ['//g0.gstatic.com/heli/image/0x132f61b6638ccc9f_0x9559ad432c2467a0.jpg', 'Arch of Constantine'], null, [[3, 12.490644464962784, 41.889732371812144], [0, 90, 0], null, 75], '_0-jU9bTJsWJjAKrt4DAAQ', '0CAwQzCcoBg', null, null, null, null, [[['0x132f61b6638ccc9f:0x9559ad432c2467a0']], [['0x132f61b6638ccc9f:0x9559ad432c2467a0']]], null, ['Via di San Gregorio, Rome, Italy']]],
-  [4, ['0x60196290556df7cf:0x8d5003885b877511', 0, null, null, 'Mt. Fuji', 864.9559, 18, '//g0.gstatic.com/heli/image/0x60196290556df7cf_0x8d5003885b877511.jpg', [null, null, null, null, null, '', []], 'Fujiyama', null, null, [], ''], null, null, ['0x60196290556df7cf:0x8d5003885b877511', 0, 18, 'Mt. Fuji', 'Fujiyama', 864.9559, ['//g0.gstatic.com/heli/image/0x60196290556df7cf_0x8d5003885b877511.jpg', 'Mt. Fuji'], null, [[3, 138.72778318005282, 35.36055376635301], [0, 90, 0], null, 75], '0lijU5a5C8WJjAKrt4DAAQ', '0CCcQzCcoFQ', null, null, null, null, [[['0x60196290556df7cf:0x8d5003885b877511']], [['0x60196290556df7cf:0x8d5003885b877511']]], null, ['Fujiyama']]],
-  //[4,['0x8747e1e59ab82d8d:0xb32b17af1d5c42d',0,null,null,'Moab',881.25494,18,'//g0.gstatic.com/heli/image/0x8747e1e59ab82d8d_0xb32b17af1d5c42d.jpg',[null,null,null,null,null,'',[]],null,null,null,[],''],null,null,['0x8747e1e59ab82d8d:0xb32b17af1d5c42d',0,18,'Moab',null,881.25494,['//g0.gstatic.com/heli/image/0x8747e1e59ab82d8d_0xb32b17af1d5c42d.jpg','Moab'],null,[[3,-109.54984286927848,38.573314645206366],[0,90,0],null,75],'SF6jU_zcLMWJjAKrt4DAAQ','0CAcQzCcoAw',null,null,null,null,[[['0x8747e1e59ab82d8d:0xb32b17af1d5c42d']],[['0x8747e1e59ab82d8d:0xb32b17af1d5c42d']]]]],
-  [4, ['0xd0cbf7d62978dd3:0xc3bed493e3ac6bbd', 0, null, null, 'Rock of Gibraltar', 853.2115, 18, '//g0.gstatic.com/heli/image/0xd0cbf7d62978dd3_0xc3bed493e3ac6bbd.jpg', [null, null, null, null, null, '', []], null, null, null, [], ''], null, null, ['0xd0cbf7d62978dd3:0xc3bed493e3ac6bbd', 0, 18, 'Rock of Gibraltar', null, 853.2115, ['//g0.gstatic.com/heli/image/0xd0cbf7d62978dd3_0xc3bed493e3ac6bbd.jpg', 'Rock of Gibraltar'], null, [[3, -5.343499215592419, 36.144107820079036], [0, 90, 0], null, 75], 'lFmjU9SyA8WJjAKrt4DAAQ', '0CBcQzCcoCw', null, null, null, null, [[['0xd0cbf7ddd3b0ff7:0x10c2257a5c95e67']], [['0xd0cbf7ddd3b0ff7:0x10c2257a5c95e67']]]]],
-  [4, ['0x478f336499c0d2f1:0x1d00ff8937290620', 0, null, null, 'Matterhorn', 861.6677, 18, '//g0.gstatic.com/heli/image/0x478f336499c0d2f1_0x1d00ff8937290620.jpg', [null, null, null, null, null, '', []], null, null, null, [], ''], null, null, ['0x478f336499c0d2f1:0x1d00ff8937290620', 0, 18, 'Matterhorn', null, 861.6677, ['//g0.gstatic.com/heli/image/0x478f336499c0d2f1_0x1d00ff8937290620.jpg', 'Matterhorn'], null, [[3, 7.658448685050038, 45.97643282175824], [0, 90, 0], null, 75], 'RWGjU47GAcWJjAKrt4DAAQ', '0CBMQzCcoBw', null, null, null, null, [[['0x478f3368cbb9ecd9:0x9826458cace55849']], [['0x478f3368cbb9ecd9:0x9826458cace55849']]]]]
+  [4, ['0x132f61b6638ccc9f:0x9559ad432c2467a0', 0, null, null,
+    'Arch of Constantine', 848.10455, 18,
+    '//g0.gstatic.com/heli/image/0x132f61b6638ccc9f_0x9559ad432c2467a0.jpg', [
+        null, null, null, null, null, '', []
+    ], 'Via di San Gregorio, Rome, Italy', null, null, [], ''
+  ], null, null, ['0x132f61b6638ccc9f:0x9559ad432c2467a0', 0, 18,
+    'Arch of Constantine', 'Via di San Gregorio, Rome, Italy', 848.10455, [
+        '//g0.gstatic.com/heli/image/0x132f61b6638ccc9f_0x9559ad432c2467a0.jpg',
+        'Arch of Constantine'
+    ], null, [
+      [3, 12.490644464962784, 41.889732371812144],
+      [0, 90, 0], null, 75
+    ], '_0-jU9bTJsWJjAKrt4DAAQ', '0CAwQzCcoBg', null, null, null, null, [
+      [
+        ['0x132f61b6638ccc9f:0x9559ad432c2467a0']
+      ],
+      [
+        ['0x132f61b6638ccc9f:0x9559ad432c2467a0']
+      ]
+    ], null, ['Via di San Gregorio, Rome, Italy']
+  ]],
+  [4, ['0x60196290556df7cf:0x8d5003885b877511', 0, null, null, 'Mt. Fuji',
+    864.9559, 18,
+    '//g0.gstatic.com/heli/image/0x60196290556df7cf_0x8d5003885b877511.jpg', [
+        null, null, null, null, null, '', []
+    ], 'Fujiyama', null, null, [], ''
+  ], null, null, ['0x60196290556df7cf:0x8d5003885b877511', 0, 18,
+    'Mt. Fuji', 'Fujiyama', 864.9559, [
+      '//g0.gstatic.com/heli/image/0x60196290556df7cf_0x8d5003885b877511.jpg',
+      'Mt. Fuji'
+    ], null, [
+      [3, 138.72778318005282, 35.36055376635301],
+      [0, 90, 0], null, 75
+    ], '0lijU5a5C8WJjAKrt4DAAQ', '0CCcQzCcoFQ', null, null, null, null, [
+      [
+        ['0x60196290556df7cf:0x8d5003885b877511']
+      ],
+      [
+        ['0x60196290556df7cf:0x8d5003885b877511']
+      ]
+    ], null, ['Fujiyama']
+  ]],
+  [4, ['0xd0cbf7d62978dd3:0xc3bed493e3ac6bbd', 0, null, null,
+    'Rock of Gibraltar', 853.2115, 18,
+    '//g0.gstatic.com/heli/image/0xd0cbf7d62978dd3_0xc3bed493e3ac6bbd.jpg', [
+        null, null, null, null, null, '', []
+    ], null, null, null, [], ''
+  ], null, null, ['0xd0cbf7d62978dd3:0xc3bed493e3ac6bbd', 0, 18,
+    'Rock of Gibraltar', null, 853.2115, [
+      '//g0.gstatic.com/heli/image/0xd0cbf7d62978dd3_0xc3bed493e3ac6bbd.jpg',
+      'Rock of Gibraltar'
+    ], null, [
+      [3, -5.343499215592419, 36.144107820079036],
+      [0, 90, 0], null, 75
+    ], 'lFmjU9SyA8WJjAKrt4DAAQ', '0CBcQzCcoCw', null, null, null, null, [
+      [
+        ['0xd0cbf7ddd3b0ff7:0x10c2257a5c95e67']
+      ],
+      [
+        ['0xd0cbf7ddd3b0ff7:0x10c2257a5c95e67']
+      ]
+    ]
+  ]],
+  [4, ['0x478f336499c0d2f1:0x1d00ff8937290620', 0, null, null, 'Matterhorn',
+    861.6677, 18,
+    '//g0.gstatic.com/heli/image/0x478f336499c0d2f1_0x1d00ff8937290620.jpg', [
+        null, null, null, null, null, '', []
+    ], null, null, null, [], ''
+  ], null, null, ['0x478f336499c0d2f1:0x1d00ff8937290620', 0, 18,
+    'Matterhorn', null, 861.6677, [
+      '//g0.gstatic.com/heli/image/0x478f336499c0d2f1_0x1d00ff8937290620.jpg',
+      'Matterhorn'
+    ], null, [
+      [3, 7.658448685050038, 45.97643282175824],
+      [0, 90, 0], null, 75
+    ], 'RWGjU47GAcWJjAKrt4DAAQ', '0CBMQzCcoBw', null, null, null, null, [
+      [
+        ['0x478f3368cbb9ecd9:0x9826458cace55849']
+      ],
+      [
+        ['0x478f3368cbb9ecd9:0x9826458cace55849']
+      ]
+    ]
+  ]]
 ];
 
 /**
@@ -543,7 +622,7 @@ var exitContent = function() {
   acme.kiosk.sendCustomEvent_({
     method: 'exitTitleCard'
   });
-}
+};
 window.addEventListener('acmeExitContent', exitContent, true);
 
 var launchFamousPlacesContent = function(e) {
@@ -553,18 +632,20 @@ var launchFamousPlacesContent = function(e) {
     method: 'launchFamousPlacesContent',
     args: [place]
   });
-}
-window.addEventListener('acmeLaunchFamousPlacesContent', launchFamousPlacesContent, true);
+};
+window.addEventListener(
+  'acmeLaunchFamousPlacesContent', launchFamousPlacesContent, true
+);
 
 var selectFamousPlaces = function() {
   acme.kiosk.sendCustomEvent_({
     method: 'selectFamousPlacesButton'
   });
-}
+};
 window.addEventListener('acmeSelectFamousPlaces', selectFamousPlaces, true);
 
 // prevent browser from picking up touch gestures
 var preventDefaultHandler = function(e) {
   e.preventDefault();
-}
+};
 window.addEventListener('touchmove', preventDefaultHandler, false);

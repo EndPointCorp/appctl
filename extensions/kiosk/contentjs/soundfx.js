@@ -135,11 +135,11 @@ SoundEffect.prototype.stop = function() {
 
 // Keep track of the state of the user.
 var UserState = {
-  IDLE:0,
-  STARTING:1,
-  FLYING:2,
-  STOPPING:3,
-  BOOST:4
+  IDLE: 0,
+  STARTING: 1,
+  FLYING: 2,
+  STOPPING: 3,
+  BOOST: 4
 };
 
 SoundFX = function() {
