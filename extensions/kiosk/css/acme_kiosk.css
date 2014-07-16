@@ -90,12 +90,13 @@ a.gsst_a {
  * Clean up css on the kiosk.
  */
 #butterbar,
-#cards .cards-card,
 #fineprint,
 #gear,
+#hovercard,
 #minimap,
 #mylocation,
 #vasquette,
+.cards-card[role="navigation"],
 .cards-entity-right,
 .widget-minimap-shim,
 .widget-minimap-shim-button,
