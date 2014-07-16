@@ -115,7 +115,9 @@ button.widget-play-button.widget-play-right,
   display: none !important;
 }
 
-#titlecard, .app-vertical-widget-holder { zoom: 200%; }
+#searchbox,
+#titlecard,
+.app-vertical-widget-holder { zoom: 200%; }
 .widget-play-widget { bottom: 10px; zoom: 200%; }
 
 .widget-runway-wide-primary-card.widget-runway-satellite-card-enabled.widget-runway-tray-wrapper,
