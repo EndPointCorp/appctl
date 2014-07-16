@@ -25,8 +25,8 @@
       ],
       "all_frames": true,
       "js": [
-        "_libs/eventemitter2.min.js",
-        "_libs/roslib.min.js",
+        "libs/eventemitter2.min.js",
+        "libs/roslib.min.js",
         "contentjs/soundfx.js",
         "contentjs/ambient.js",
         "contentjs/slinkyRosKiosk.js"

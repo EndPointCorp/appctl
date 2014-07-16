@@ -3,7 +3,6 @@
 
 MY_DIR="$( dirname "${0}" )"
 EXT_DIR="extensions"
-CONF_FILE="${MY_DIR}/jsdoc.conf.json"
 JSDOC_TOOL="jsdoc"
 
 if [ "${MY_DIR}" == "." ]; then
@@ -17,7 +16,7 @@ echo "= Building JSDoc:"
 # run jsdoc tool if available
 JSDOC_ABSPATH=`which ${JSDOC_TOOL}`
 if [ $? -eq 0 ]; then
-    ${JSDOC_ABSPATH} -d "${OUT_DIR}" -c ${CONF_FILE}
+    ${JSDOC_ABSPATH} -d "${OUT_DIR}" -r "${MY_DIR}/${EXT_DIR}"
 else
     echo "${JSDOC_TOOL} not found." >&2
     exit 1

@@ -50,7 +50,7 @@ Ambient.prototype._scheduleNextContent = function() {
 
 /**
  * Handles an incoming proximity message.
- * @param {object} msg The incoming presence message from ROS.
+ * @param {ROS::std_msgs/Bool} msg The incoming presence message from ROS.
  */
 Ambient.prototype.handlePresenceMessage = function(msg) {
   this._presenceUpdate(msg.data);
@@ -58,7 +58,7 @@ Ambient.prototype.handlePresenceMessage = function(msg) {
 
 /**
  * Handles an incoming joystick message.
- * @param {object} msg The incoming pose message from ROS.
+ * @param {ROS::geometry_msgs/Pose} msg The incoming pose message from ROS.
  */
 Ambient.prototype.handleJoystickMessage = function(msg) {
   var presence = false;

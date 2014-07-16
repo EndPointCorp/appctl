@@ -61,7 +61,7 @@ acme.Util.sendCustomEvent = function(request) {
  * @constructor
  */
 acme.Display = function() {
-  /** @type {boolean} */
+  /** @type [boolean] */
   this.hasInitialized = false;
 };
 
