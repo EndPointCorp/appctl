@@ -25,10 +25,10 @@
       ],
       "all_frames": true,
       "js": [
-        "libs/eventemitter2.min.js",
-        "libs/roslib.min.js",
-        "libs/three.min.js",
-        "libs/TweenMax.js",
+        "_libs/eventemitter2.min.js",
+        "_libs/roslib.min.js",
+        "_libs/three.min.js",
+        "_libs/TweenMax.js",
         "contentjs/handoverlay.js",
         "contentjs/slinkyRosDisplay.js",
         "contentjs/texture_src.js"
