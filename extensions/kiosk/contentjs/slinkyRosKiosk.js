@@ -429,7 +429,7 @@ var dumpUpdateToScreen = function(message) {
 
 var runwayActionRestrictions = InputSupport_.NONE;
 
-navigatorListener.subscribe(function(rosPoseStamped) {
+var handleRosPoseChange = function(rosPoseStamped) {
   var pose = new Pose(rosPoseStamped.pose.position.y,  // lat
                       rosPoseStamped.pose.position.x,  // lon
                       rosPoseStamped.pose.position.z,  // alt
@@ -437,7 +437,7 @@ navigatorListener.subscribe(function(rosPoseStamped) {
                       rosPoseStamped.pose.orientation.x,  // tilt
                       rosPoseStamped.pose.orientation.y);  // roll
   acme.kiosk.moveCamera(pose, false);
-});
+};
 
 var publishKioskCurrentPose = function(pose) {
   // In normal navigation mode, we tell the navigator that it can use the
@@ -610,7 +610,10 @@ var runwayContentExitHandler = function(e) {
 };
 
 var soundFX = new SoundFX();
-navigatorListener.subscribe(soundFX.handlePoseChange.bind(soundFX));
+navigatorListener.subscribe(function(rosPoseStamped) {
+  soundFX.handlePoseChange(rosPoseStamped);
+  handleRosPoseChange(rosPoseStamped);
+});
 
 var ambient = new Ambient();
 proximityPresenceTopic.subscribe(ambient.handlePresenceMessage.bind(ambient));
