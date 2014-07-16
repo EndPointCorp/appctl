@@ -1,3 +1,8 @@
+.widget-titlecard-spotlightcontainer,
+.widget-titlecard-spotlight-divider {
+  display: none !important;
+}
+
 #titlecard div[role="navigation"] button[class="widget-titlecard-exitcontainer"] {
   display: none;
 }
