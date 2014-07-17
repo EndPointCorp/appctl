@@ -7,6 +7,8 @@
  *
  */
 
+var EARTH_RADIUS = 6371; // kilometers
+
 var dumpUpdateToScreen = function(message) {
   var stringifiedMessage = JSON.stringify(message);
   var debugArea = document.getElementById('slinkydebug');
@@ -486,6 +488,24 @@ var HandOverlay = function() {
 
 HandOverlay.prototype.setCurrentCameraPose = function(pose) {
   this.currentCameraPose = pose;
+
+  // move the virtual globe on top of the Tactile globe
+  // alitude is converted to km
+  var distanceToEarthCenter = -(pose.alt / 1000 + EARTH_RADIUS);
+  var tilt = pose.tilt;
+  var y = Math.sin(toRadians_(tilt)) * distanceToEarthCenter;
+  var z = Math.cos(toRadians_(tilt)) * distanceToEarthCenter;
+  this.globeSphere.position.set(0, y, z);
+
+  // fix camera fov for zoom level to match Tactile
+  if (pose.alt > 17500000) {
+    this.camera.fov = 60;
+  } else if (pose.alt < 9500000) {
+    this.camera.fov = 35;
+  } else {
+    this.camera.fov = 35 + 25 * ((pose.alt - 9500000) / (17500000 - 9500000));
+  }
+  this.camera.updateProjectionMatrix();
 };
 
 
@@ -589,7 +609,7 @@ HandOverlay.prototype.init3js = function() {
 
   this.renderer.setClearColor(new THREE.Color(0xffffff), 0);
 
-  this.camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 200);
+  this.camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, EARTH_RADIUS * 10);
   this.camera.position.set(0, 0, 6);
   this.scene.add(this.camera);
 
@@ -625,6 +645,18 @@ HandOverlay.prototype.init3js = function() {
   this.handFadePlane.position = new THREE.Vector3(0, 1, 0);
   this.handFadePlane.rotation.x = toRadians_(-75);
   this.scene.add(this.handFadePlane);
+
+  this.globeSphere = new THREE.Mesh(
+    new THREE.SphereGeometry(EARTH_RADIUS, 128, 128, 0, Math.PI),
+    new THREE.MeshBasicMaterial({
+      color: 0x000000,
+      wireframe: true
+    })
+  );
+  this.globeSphere.lookAt(this.camera.position);
+  this.globeSphere.visible = false;
+  this.globeSphere.position = new THREE.Vector3(0, 0, EARTH_RADIUS * 5);
+  this.scene.add(this.globeSphere);
 
   // Load the geometry for various parts of the hand.
   var loader0 = new THREE.JSONLoader();
