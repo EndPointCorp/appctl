@@ -29,7 +29,7 @@ class GeodataLayer():
       dtype=np.float32
     )
 
-    self.rad = 4
+    #self.rad = 4
     #self.weights = np.zeros((self.rad*2,self.rad*2))
     #yog,xog = np.ogrid[
     #  -self.rad:self.rad,
@@ -45,6 +45,7 @@ class GeodataLayer():
   def query(self, req):
     lat = req.point.latitude
     lng = req.point.longitude
+    rad = int(round(req.radius * self.cellsize))
 
     # translate lat/lng to floating row/col
     x = int(round((lng - self.xllcorner) / self.cellsize))
@@ -58,7 +59,7 @@ class GeodataLayer():
     y = self.nrows - y
 
     # make a subarray centered around the point
-    sub = self.data[y-self.rad:y+self.rad, x-self.rad:x+self.rad]
+    sub = self.data[y-rad:y+rad, x-rad:x+rad]
     val = sub.sum()
 
     return val

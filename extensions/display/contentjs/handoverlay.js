@@ -111,6 +111,7 @@ Hand.prototype.updateHudMessage = function(pose) {
     detail: {
       latitude: handPose.lat,
       longitude: handPose.lon,
+      radius: 150,
       callback: function(result) {
         self.hudDiv.innerHTML = 'Alt: ' + handPose.alt.toFixed(3) +
           'm<p>Lat: ' + Math.abs(handPose.lat).toFixed(3) + '&deg; ' + northing +

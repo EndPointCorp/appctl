@@ -279,7 +279,8 @@ window.addEventListener('acmePopulationQuery', function(ev) {
       latitude: ev.detail.latitude,
       longitude: ev.detail.longitude,
       altitude: 0
-    }
+    },
+    radius: ev.detail.radius
   }, ev.detail.callback);
 }, true);
 
