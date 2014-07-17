@@ -3,6 +3,7 @@
 from geodata.srv import GeodataQuery
 import rospy
 import math
+import numpy as np
 
 DATA_HEADER_SIZE = 6
 
@@ -23,7 +24,19 @@ class GeodataLayer():
     self.nodata_value = float(GeodataLayer.read_param('NODATA_value', params))
 
     # load data points into 2d array of floats
-    self.data = map(lambda l: map(float, l.split()), lines[DATA_HEADER_SIZE:])
+    self.data = np.array(
+      map(lambda l: l.split(), lines[DATA_HEADER_SIZE:]),
+      dtype=np.float32
+    )
+
+    self.rad = 4
+    #self.weights = np.zeros((self.rad*2,self.rad*2))
+    #yog,xog = np.ogrid[
+    #  -self.rad:self.rad,
+    #  -self.rad:self.rad
+    #]
+    #self.mask = xog*xog + yog*yog <= self.rad * self.rad
+    #self.weights[self.mask] = 1
 
   @staticmethod
   def read_param(key, params):
@@ -34,29 +47,19 @@ class GeodataLayer():
     lng = req.point.longitude
 
     # translate lat/lng to floating row/col
-    x = (lng - self.xllcorner) / self.cellsize
-    y = (lat - self.yllcorner) / self.cellsize
+    x = int(round((lng - self.xllcorner) / self.cellsize))
+    y = int(round((lat - self.yllcorner) / self.cellsize))
 
-    # wrap longitude with the assumption that the data is 360
-    x = x % self.ncols
+    # check latitude bounds
+    if y >= self.nrows - self.rad or y <= self.rad:
+      return self.nodata_value
 
-    # linear average of all surrounding data points
-    x_ratio = math.fmod(x, 1.0)
-    x_low = int(math.floor(x) % self.ncols)
-    x_high = int(math.ceil(x) % self.ncols)
-    y_ratio = math.fmod(y, 1.0)
-    y_low = int(math.floor(y))
-    y_high = int(math.ceil(y))
+    # invert latitude
+    y = self.nrows - y
 
-    if y_low >= 0 and y_high < self.nrows:
-      val = (
-              self.data[y_low][x_low] * y_ratio * x_ratio + \
-              self.data[y_high][x_low] / y_ratio * x_ratio + \
-              self.data[y_low][x_high] * y_ratio / x_ratio + \
-              self.data[y_high][x_high] / y_ratio / x_ratio
-            ) / 4
-    else:
-      val = self.nodata_value
+    # make a subarray centered around the point
+    sub = self.data[y-self.rad:y+self.rad, x-self.rad:x+self.rad]
+    val = sub.sum()
 
     return val
 
