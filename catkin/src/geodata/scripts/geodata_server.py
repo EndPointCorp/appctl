@@ -52,7 +52,7 @@ class GeodataLayer():
     y = int(round((lat - self.yllcorner) / self.cellsize))
 
     # check latitude bounds
-    if y >= self.nrows - self.rad or y <= self.rad:
+    if y >= self.nrows - rad or y <= rad:
       return self.nodata_value
 
     # invert latitude
