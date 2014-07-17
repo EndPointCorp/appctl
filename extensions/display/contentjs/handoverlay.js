@@ -105,9 +105,20 @@ Hand.prototype.updateHudMessage = function(pose) {
   var northing = handPose.lat >= 0 ? 'N' : 'S';
   var easting = handPose.lon >= 0 ? 'E' : 'W';
 
-  this.hudDiv.innerHTML = 'Alt:' + handPose.alt.toFixed(3) +
-      'm<p>Lat:' + Math.abs(handPose.lat).toFixed(3) + '&deg; ' + northing +
-      '<p>Lng:' + Math.abs(handPose.lon).toFixed(3) + '&deg; ' + easting;
+  var self = this;
+
+  window.dispatchEvent(new CustomEvent('acmePopulationQuery', {
+    detail: {
+      latitude: handPose.lat,
+      longitude: handPose.lon,
+      callback: function(result) {
+        self.hudDiv.innerHTML = 'Alt: ' + handPose.alt.toFixed(3) +
+          'm<p>Lat: ' + Math.abs(handPose.lat).toFixed(3) + '&deg; ' + northing +
+          '<p>Lng: ' + Math.abs(handPose.lon).toFixed(3) + '&deg; ' + easting +
+          '<p>Pop: ' + Number(result.value - result.value % 100);
+      }
+    }
+  }));
 };
 
 Hand.prototype.createRings_ = function(handOrigin) {

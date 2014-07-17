@@ -266,6 +266,23 @@ var runwayContentSubscriber = function(message) {
 };
 runwayContentTopic.subscribe(runwayContentSubscriber);
 
+var populationService = new ROSLIB.Service({
+  ros: slinkyRosDisplay,
+  name: '/geodata/population',
+  serviceType: 'geodata/GeodataQuery'
+});
+
+window.addEventListener('acmePopulationQuery', function(ev) {
+  populationService.callService({
+    layer: 'population',
+    point: {
+      latitude: ev.detail.latitude,
+      longitude: ev.detail.longitude,
+      altitude: 0
+    }
+  }, ev.detail.callback);
+}, true);
+
 var leapListener = new ROSLIB.Topic({
   ros: slinkyRosDisplay,
   name: '/leap_motion/frame',
