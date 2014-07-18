@@ -29,14 +29,14 @@ var onboardSpacenavListener = new ROSLIB.Topic({
   throttle_rate: 250
 });
 
-onboardSpacenavListener.subscribe(function(msg){
+onboardSpacenavListener.subscribe(function(msg) {
 
-  if (   msg.linear.x == 0
-      && msg.linear.y == 0
-      && msg.linear.z == 0
-      && msg.angular.x == 0
-      && msg.angular.y == 0
-      && msg.angular.z == 0) {
+  if (msg.linear.x == 0 &&
+      msg.linear.y == 0 &&
+      msg.linear.z == 0 &&
+      msg.angular.x == 0 &&
+      msg.angular.y == 0 &&
+      msg.angular.z == 0) {
 
         return;
   }

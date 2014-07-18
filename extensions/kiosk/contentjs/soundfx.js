@@ -180,7 +180,8 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
     return;
   this.lastSeq = seq;
 
-  var now = stampedPose.header.stamp.secs + stampedPose.header.stamp.nsecs / 1000000000;
+  var now = stampedPose.header.stamp.secs +
+            stampedPose.header.stamp.nsecs / 1000000000;
   var dt = now - this.lastUpdateTime;
   this.lastUpdateTime = now;
 
@@ -255,7 +256,7 @@ SoundFX.prototype.update = function(val) {
  */
 SoundFX.prototype.silence = function() {
   this.update(0);
-}
+};
 
 /*
 Just for informations sake, and possibly fingerprinting, the sox output
