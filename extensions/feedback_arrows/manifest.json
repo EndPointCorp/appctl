@@ -3,12 +3,13 @@
 
   "name": "Feedback Arrows",
   "description": "This extension shows feedback arrows while using spacenav",
-  "version": "0.1",
+  "version": "1.0",
   "background": {
     "page": "feedback_arrows_threejs.html"
   },
   "content_scripts": [{
     "matches": ["*://*.google.com/maps/*"],
+    
     "js": [
       "lib/three.min.js",
       "lib/OBJloader.js",	
