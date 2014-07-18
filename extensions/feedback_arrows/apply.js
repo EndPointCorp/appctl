@@ -27,12 +27,14 @@ var counter = 0;
 var sendEachNoMessage = 10;
 feedbackArrowsSpacenavListener.subscribe(function(msg){
 
-  if (   msg.linear.x == 0
+  if (
+	  msg.linear.x == 0
       && msg.linear.y == 0
       && msg.linear.z == 0
       && msg.angular.x == 0
       && msg.angular.y == 0
-      && msg.angular.z == 0) {
+      && msg.angular.z == 0
+      ) {
 
         counter = 0;
         return;
@@ -64,7 +66,7 @@ animate();
 /*** Initialize ***/
 function init() {
   // This <div> will host the canvas for our scene.
-  container = document.createElement( 'div' );
+  container = document.getElementById('feedback_arrows');
   document.body.appendChild( container );
 
   // You can adjust the cameras distance and set the FOV to something
