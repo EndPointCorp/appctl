@@ -79,6 +79,7 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
   this.hudDiv.style.position = 'absolute';
   this.hudDiv.style.height = 'auto';
   this.hudDiv.style.width = 'auto';
+  this.hudDiv.style.whiteSpace = 'nowrap';
   this.hudDiv.style.zIndex = '99999';
   this.hudDiv.style.color = '#e3efff';
   this.hudDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.0)';
