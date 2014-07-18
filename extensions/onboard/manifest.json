@@ -2,16 +2,14 @@
   "manifest_version": 2,
 
   "name": "Onboard",
-  "description": "This extension shows the onboard keyboard when textboxes and textareas gain or lose focus.",
+  "description": "This extension shows and hides the onboard keyboard.",
   "version": "1.2",
-
-  "background": {
-    "page": "onboard_websocket.html"
-  },
 
   "content_scripts": [{
     "matches": ["*://*.google.com/maps/*"],
     "js": [
+      "lib/eventemitter2.min.js",
+      "lib/roslib.min.js",
       "apply.js"
       ],
     "all_frames": true
