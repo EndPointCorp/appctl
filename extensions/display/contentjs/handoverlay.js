@@ -515,14 +515,18 @@ HandOverlay.prototype.setCurrentCameraPose = function(pose) {
   this.globeSphere.lookAt(this.camera.position);
 
   // fix camera fov for zoom level to match Tactile
-  if (pose.alt > 17500000) {
-    this.camera.fov = 60;
-  } else if (pose.alt < 9500000) {
-    this.camera.fov = 35;
-  } else {
-    this.camera.fov = 35 + 25 * ((pose.alt - 9500000) / (17500000 - 9500000));
+  // 60 at super high altitude, transitioning down to 35 from 17500km to 9500km
+  // TODO(mv): make the transition match Tactile's curve more closely
+  var fov = 60;
+  if (pose.alt < 9500000) {
+    fov = 35;
+  } else if (pose.alt < 17500000) {
+    fov = 35 + 25 * ((pose.alt - 9500000) / (17500000 - 9500000));
   }
-  this.camera.updateProjectionMatrix();
+  if (fov != this.camera.fov) {
+    this.camera.fov = fov;
+    this.camera.updateProjectionMatrix();
+  }
 };
 
 
