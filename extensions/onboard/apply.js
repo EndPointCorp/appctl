@@ -28,15 +28,34 @@ var onboardSpacenavListener = new ROSLIB.Topic({
   messageType: 'geometry_msgs/Twist'
 });
 
+// Spavenav sends so huge number of messages, that they are stacked in
+// the onboard dbus queue. The result is that when user uses spacenav
+// for a while, and then taps the search field, then onboard doesn't
+// show, because it still consumes all the hideOnboard messaged.
+// That's why I'm going to send the first message, and then send each
+// 100th message. The counter will be cleared when the spacenav is not touched.
+var counter = 0;
+var sendEachNoMessage = 100;
 onboardSpacenavListener.subscribe(function(msg){
-   if (   msg.linear.x == 0
-       && msg.linear.y == 0
-       && msg.linear.z == 0
-       && msg.angular.x == 0
-       && msg.angular.y == 0
-       && msg.angular.z == 0) { return; }
 
-   hideOnboard();
+  if (   msg.linear.x == 0
+      && msg.linear.y == 0
+      && msg.linear.z == 0
+      && msg.angular.x == 0
+      && msg.angular.y == 0
+      && msg.angular.z == 0) {
+
+        counter = 0;
+        return;
+   }
+
+  if (counter % sendEachNoMessage == 0) {
+     counter = 1;
+     hideOnboard();
+  } else {
+    counter += 1;
+  }
+  console.log("Counter " + counter);
 });
 
 
