@@ -10,3 +10,7 @@ docs/
 
 # Other cruft
 *.swp
+
+# Eclipse
+.project
+.settings
