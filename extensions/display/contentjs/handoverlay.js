@@ -436,7 +436,7 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     this.handOrigin.position.set(this.hudPos.x, this.hudPos.y, this.hudPos.z);
     if (currentCameraPose) {
       this.handOrigin.rotation.set(
-          toRadians_(90 - currentCameraPose.tilt / 4) - interNormal.y,
+          toRadians_(90 - currentCameraPose.tilt) - interNormal.y,
           0,
           -interNormal.x
       );
@@ -512,6 +512,7 @@ HandOverlay.prototype.setCurrentCameraPose = function(pose) {
   var y = Math.sin(toRadians_(tilt)) * distanceToEarthCenter;
   var z = Math.cos(toRadians_(tilt)) * distanceToEarthCenter;
   this.globeSphere.position.set(0, y, z);
+  this.globeSphere.lookAt(this.camera.position);
 
   // fix camera fov for zoom level to match Tactile
   if (pose.alt > 17500000) {
