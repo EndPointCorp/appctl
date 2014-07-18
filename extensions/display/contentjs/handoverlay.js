@@ -651,7 +651,7 @@ HandOverlay.prototype.init3js = function() {
   this.scene.add(this.handPlane);
 
   this.globeSphere = new THREE.Mesh(
-    new THREE.SphereGeometry(EARTH_RADIUS, 128, 128, 0, Math.PI),
+    new THREE.SphereGeometry(EARTH_RADIUS, 256, 256, 0, Math.PI),
     new THREE.MeshBasicMaterial({
       color: 0x000000,
       wireframe: true
