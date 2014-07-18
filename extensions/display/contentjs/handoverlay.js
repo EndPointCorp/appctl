@@ -62,8 +62,9 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
   this.centerDot;
   this.topCallout;
   this.topCalloutPanel = new THREE.Object3D();
-  this.topCalloutPanel.position.x = 0.8;
+  this.topCalloutPanel.position.x = 0.85;
   this.topCalloutPanel.position.y = 0.7;
+  this.calloutPos = new THREE.Vector3();
 
   this.centerCircleGeomUniforms;
   this.geomUniforms;
@@ -214,7 +215,8 @@ Hand.prototype.createRings_ = function(handOrigin) {
       attributes: handAttributes,
       vertexShader: document.getElementById('handvertexshader').textContent,
       fragmentShader: document.getElementById('handfragmentshader').textContent,
-      transparent: true
+      transparent: true,
+      depthTest: false
   });
 
   this.ring0 = new THREE.Mesh(this.handOverlay_.ring0Geom, ring0Shader);
@@ -235,11 +237,19 @@ Hand.prototype.createRings_ = function(handOrigin) {
   this.centerDot.name = 'centerCircleDot';
   this.handOrigin.add(this.centerDot);
 
+  this.topCalloutPanel = new THREE.Mesh(
+      new THREE.SphereGeometry(8, 8), handShader);
+  this.topCalloutPanel.scale.set(0.01, 0.01, 0.01);
+  this.topCalloutPanel.position.x = 0.8;
+  this.topCalloutPanel.position.y = 0.7;
+  this.topCalloutPanel.visible = false;
+
   this.topCallout = new THREE.Mesh(
       this.handOverlay_.topCalloutGeom, handShader);
   this.topCallout.name = 'topCallout';
   this.topCallout.add(this.topCalloutPanel);
-  this.handOrigin.add(this.topCallout);
+  this.topCallout.visible = true;
+  this.topCallout.rotation.set(0, 0, 0);
 
   this.handOpacity = 0.0;
 
@@ -308,6 +318,7 @@ Hand.prototype.setupGeometry_ = function(leapInteractionBox) {
 Hand.prototype.fadeInOutAnimationComplete = function() {
   if (!this.visible) {
     this.handOverlay_.scene.remove(this.handOrigin);
+    this.handOverlay_.scene.remove(this.topCallout);
     document.body.removeChild(this.hudDiv);
   }
 };
@@ -315,6 +326,7 @@ Hand.prototype.fadeInOutAnimationComplete = function() {
 Hand.prototype.fadeInOutAnimationOnStart = function() {
   if (this.visible) {
     this.handOverlay_.scene.add(this.handOrigin);
+    this.handOverlay_.scene.add(this.topCallout);
     document.body.appendChild(this.hudDiv);
   }
 };
@@ -387,15 +399,15 @@ Hand.prototype.animate_ = function() {
     this.setVisible(false);
   }
 
-  this.topCalloutPanel.updateMatrixWorld(false);
-
   if (this.hudPos) {
     var screenPos = this.toScreenCoords(this.hudPos);
 
     // Requests new geo data for location. Returned async to
     // processHandGeoLocationEvent
     getPointInfo(screenPos.x, screenPos.y);
-    this.updateHudPosition(this.hudPos);
+
+    // move the HUD data to the proper spot
+    this.updateHudPosition(this.calloutPos);
   }
 };
 
@@ -435,6 +447,8 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     var interNormal = intersects[0].face.normal;
 
     this.handOrigin.position.set(this.hudPos.x, this.hudPos.y, this.hudPos.z);
+    this.topCallout.position.set(this.hudPos.x, this.hudPos.y, this.hudPos.z);
+
     if (currentCameraPose) {
       this.handOrigin.rotation.set(
           toRadians_(90 - currentCameraPose.tilt) - interNormal.y,
@@ -445,15 +459,20 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
 
     // use more responsive un-stabilized palm position for z
     var distanceMod = distance / 12;
-    var scale = distanceMod + (leapData.palm_position.z / 300) * distanceMod;
+    var ringScale = distanceMod + (leapData.palm_position.z / 300) * distanceMod;
+    var calloutScale = distanceMod * 1.5;
 
-    this.handOrigin.scale.set(scale, scale, scale);
+    this.handOrigin.scale.set(ringScale, ringScale, ringScale);
+    this.topCallout.scale.set(calloutScale, calloutScale, calloutScale);
     this.handOrigin.updateMatrixWorld(false);
 
     this.ring2.rotation.set(0, -palmYaw, 0);
 
     this.ring0.geometry.computeBoundingSphere();
-    this.dataRadius = this.ring1.geometry.boundingSphere.radius * scale;
+    this.dataRadius = this.ring1.geometry.boundingSphere.radius * ringScale;
+
+    this.topCallout.updateMatrixWorld(false);
+    this.calloutPos.setFromMatrixPosition(this.topCalloutPanel.matrixWorld);
   }
 
   /*
