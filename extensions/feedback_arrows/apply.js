@@ -135,6 +135,7 @@ function init() {
   renderer = new THREE.WebGLRenderer();
   renderer.setSize( window.innerWidth, window.innerHeight );
   container.appendChild( renderer.domElement );
+  console.log('Loading Feedback arrows Extension: FINISHED');
 }
 
 /*** The Loop ***/
