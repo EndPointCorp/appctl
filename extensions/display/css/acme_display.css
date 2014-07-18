@@ -2,6 +2,10 @@
  * CSS rules for the mirrored display
  */
 
+body {
+  overflow: hidden;
+}
+
 /* zoom the titlecard */
 #titlecard { zoom: 250%; }
 

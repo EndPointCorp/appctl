@@ -45,7 +45,7 @@ class GeodataLayer():
   def query(self, req):
     lat = req.point.latitude
     lng = req.point.longitude
-    rad = int(round(req.radius * self.cellsize))
+    rad = max(0, int(round(req.radius * 4 * self.cellsize)))
 
     # translate lat/lng to floating row/col
     x = int(round((lng - self.xllcorner) / self.cellsize))
@@ -59,8 +59,11 @@ class GeodataLayer():
     y = self.nrows - y
 
     # make a subarray centered around the point
-    sub = self.data[y-rad:y+rad, x-rad:x+rad]
-    val = sub.sum()
+    if rad > 0:
+      sub = self.data[y-rad:y+rad, x-rad:x+rad]
+      val = sub.sum()
+    else:
+      val = self.data[y, x]
 
     return val
 

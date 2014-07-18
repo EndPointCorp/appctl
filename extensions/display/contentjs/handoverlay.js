@@ -113,7 +113,7 @@ Hand.prototype.updateHudMessage = function(pose) {
     detail: {
       latitude: handPose.lat,
       longitude: handPose.lon,
-      radius: 150,
+      radius: this.dataRadius,
       callback: function(result) {
         self.hudDiv.innerHTML = 'Alt: ' + handPose.alt.toFixed(3) +
           'm<p>Lat: ' + Math.abs(handPose.lat).toFixed(3) + '&deg; ' + northing +
@@ -257,6 +257,7 @@ Hand.prototype.setupGeometry_ = function(leapInteractionBox) {
   // TODO(paulby) plane intersections should we assume we always get
   // the same (and valid) interaction box from the leap.
 
+  /*
   var vector = new THREE.Vector3(-1, -1, 1);
   this.projector.unprojectVector(vector, camera);
   var ray = new THREE.Raycaster(camera.position,
@@ -297,6 +298,7 @@ Hand.prototype.setupGeometry_ = function(leapInteractionBox) {
   this.leapOrigin.applyMatrix(handCoordSystem);
   this.leapOrigin.updateMatrixWorld(false);
   this.leapOrigin.add(this.handOrigin);
+  */
 };
 
 /**
@@ -304,14 +306,14 @@ Hand.prototype.setupGeometry_ = function(leapInteractionBox) {
  */
 Hand.prototype.fadeInOutAnimationComplete = function() {
   if (!this.visible) {
-    this.handOverlay_.scene.remove(this.leapOrigin);
+    this.handOverlay_.scene.remove(this.handOrigin);
     document.body.removeChild(this.hudDiv);
   }
 };
 
 Hand.prototype.fadeInOutAnimationOnStart = function() {
   if (this.visible) {
-    this.handOverlay_.scene.add(this.leapOrigin);
+    this.handOverlay_.scene.add(this.handOrigin);
     document.body.appendChild(this.hudDiv);
   }
 };
@@ -385,14 +387,15 @@ Hand.prototype.animate_ = function() {
   }
 
   this.topCalloutPanel.updateMatrixWorld(false);
-  var hudPos = new THREE.Vector3();
-  hudPos.setFromMatrixPosition(this.topCalloutPanel.matrixWorld);
-  var screenPos = this.toScreenCoords(hudPos);
 
-  // Requests new geo data for location. Returned async to
-  // processHandGeoLocationEvent
-  getPointInfo(screenPos.x, screenPos.y);
-  this.updateHudPosition(hudPos);
+  if (this.hudPos) {
+    var screenPos = this.toScreenCoords(this.hudPos);
+
+    // Requests new geo data for location. Returned async to
+    // processHandGeoLocationEvent
+    getPointInfo(screenPos.x, screenPos.y);
+    this.updateHudPosition(this.hudPos);
+  }
 };
 
 function toRadians_(deg) {
@@ -408,42 +411,58 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
   var palmRoll = -leapData.palm_normal.roll;
   var palmYaw = leapData.direction.yaw;
 
-  var START_FADE = 150;  // Distance from plane where the fade starts
-  var FADE_DISTANCE = 10;  // Distance taken to go from opaque to transparent.
+  var camera = this.handOverlay_.camera;
 
-  var ray = new THREE.Raycaster(
-      new THREE.Vector3(palmpos.x, palmpos.y, palmpos.z),
-      new THREE.Vector3(0, -1, 0));
-  var intersects = ray.intersectObject(this.handOverlay_.handFadePlane);
-  if (intersects[0] && intersects[0].distance < START_FADE) {
+  var leapVector = new THREE.Vector3(
+    (palmpos.x / 100),
+    ((palmpos.y / 100) - 2.0),
+    1.0
+  );
 
+  var ray = this.projector.pickingRay(leapVector, camera);
+
+  var intersects = ray.intersectObject(this.handOverlay_.globeSphere);
+
+  if (intersects.length == 0) {
+    this.setVisible(false);
+    this.handOpacity = 0.0;
+    this.hudPos = null;
+  } else {
+    this.setVisible(true);
+    this.hudPos = intersects[0].point;
     var distance = intersects[0].distance;
-    var startFadeOut = START_FADE;
-    var endFadeOut = START_FADE - FADE_DISTANCE;
-    if (distance < endFadeOut) {
-      this.handOpacity = 0.0;
-    } else {
-      this.handOpacity =
-          Math.abs((distance - endFadeOut) / (startFadeOut - endFadeOut));
+    var interNormal = intersects[0].face.normal;
+
+    this.handOrigin.position.set(this.hudPos.x, this.hudPos.y, this.hudPos.z);
+    if (currentCameraPose) {
+      this.handOrigin.rotation.set(
+          toRadians_(90 - currentCameraPose.tilt / 4) - interNormal.y,
+          0,
+          -interNormal.x
+      );
     }
-    this.centerCircleGeomUniforms.fade.value = this.handOpacity;
-    this.geomUniforms.fade.value = this.handOpacity;
-    this.ring0GeomUniforms.fade.value = this.handOpacity;
-    this.dotUniforms.fade.value = this.handOpacity;
-    this.hudDiv.style.opacity = this.handOpacity;
-    this.fadeInOutAnimationOnUpdate();  // Inform shaders of data change.
+
+    // use more responsive un-stabilized palm position for z
+    var distanceMod = distance / 12;
+    var scale = distanceMod + (leapData.palm_position.z / 300) * distanceMod;
+
+    this.handOrigin.scale.set(scale, scale, scale);
+    this.handOrigin.updateMatrixWorld(false);
+
+    this.ring2.rotation.set(0, -palmYaw, 0);
+
+    this.ring0.geometry.computeBoundingSphere();
+    this.dataRadius = this.ring1.geometry.boundingSphere.radius * scale;
   }
 
-
-  this.handOrigin.position.set(palmpos.x, palmpos.y, palmpos.z);
-  if (currentCameraPose) {
-    this.handOrigin.rotation.set(
-        toRadians_(90 - currentCameraPose.tilt), 0, 0);
-  }
-  this.handOrigin.scale.set(20, 20, 20);
-  this.handOrigin.updateMatrixWorld(false);
-
-  this.ring2.rotation.set(0, -palmYaw, 0);
+  /*
+  this.centerCircleGeomUniforms.fade.value = this.handOpacity;
+  this.geomUniforms.fade.value = this.handOpacity;
+  this.ring0GeomUniforms.fade.value = this.handOpacity;
+  this.dotUniforms.fade.value = this.handOpacity;
+  this.hudDiv.style.opacity = this.handOpacity;
+  this.fadeInOutAnimationOnUpdate();  // Inform shaders of data change.
+  */
 };
 
 /**
@@ -464,9 +483,6 @@ var HandOverlay = function() {
 
   /** @type {THREE.Mesh} */
   this.handPlane;
-
-  /** Plane at which hand will start to fade out. */
-  this.handFadePlane;
 
   /** Geometry used for every finger */
   this.fingerGeom;
@@ -633,18 +649,6 @@ HandOverlay.prototype.init3js = function() {
   this.handPlane.visible = false;
   this.handPlane.position = new THREE.Vector3(0, 0, 0);
   this.scene.add(this.handPlane);
-
-  this.handFadePlane = new THREE.Mesh(
-      new THREE.PlaneGeometry(2000, 2000),
-      new THREE.MeshBasicMaterial({
-        color: 0xff0000,
-        wireframe: false }
-  ));
-  this.handFadePlane.lookAt(this.camera.position);
-  this.handFadePlane.visible = false;
-  this.handFadePlane.position = new THREE.Vector3(0, 1, 0);
-  this.handFadePlane.rotation.x = toRadians_(-75);
-  this.scene.add(this.handFadePlane);
 
   this.globeSphere = new THREE.Mesh(
     new THREE.SphereGeometry(EARTH_RADIUS, 128, 128, 0, Math.PI),
