@@ -11,7 +11,7 @@
     "matches": ["*://*.google.com/maps/*"],
     "js": [
       "lib/three.min.js",
-      "lib/OBJloader.js",	
+      "lib/OBJLoader.js",	
       "lib/eventemitter2.min.js",
       "lib/roslib.min.js",
       "apply.js"
