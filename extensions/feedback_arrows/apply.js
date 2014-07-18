@@ -66,9 +66,11 @@ animate();
 /*** Initialize ***/
 function init() {
   // This <div> will host the canvas for our scene.
-  container = document.createElement( 'feedback_arrows' );
+  container = document.createElement( 'div' );
+  container.id = 'feedback_arrows';
+  
   document.body.appendChild(container);
-
+  
   // You can adjust the cameras distance and set the FOV to something
   // different than 45°. The last two values set the clippling plane.
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
