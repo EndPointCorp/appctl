@@ -33,7 +33,7 @@ var onboardSpacenavListener = new ROSLIB.Topic({
 // for a while, and then taps the search field, then onboard doesn't
 // show, because it still consumes all the hideOnboard messaged.
 // That's why I'm going to send the first message, and then send each
-// 100th message. The counter will be cleard when the spacenav is not touched.
+// 100th message. The counter will be cleared when the spacenav is not touched.
 var counter = 0;
 var sendEachNoMessage = 100;
 onboardSpacenavListener.subscribe(function(msg){
