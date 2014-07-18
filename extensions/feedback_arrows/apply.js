@@ -58,20 +58,16 @@ var mouseX = 0, mouseY = 0;
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
 
-document.addEventListener('DOMContentLoaded', function(){
-	console.log('Loading Feedback arrows Extension: Initializing three.js');
-	init();
-	console.log('Loading Feedback arrows Extension: Starting animation');
-	animate();
-});
-
-
+console.log('Loading Feedback arrows Extension: Initializing three.js');
+init();
+console.log('Loading Feedback arrows Extension: Starting animation');
+animate();
 
 /*** Initialize ***/
 function init() {
   // This <div> will host the canvas for our scene.
-  container = document.getElementById('feedback_arrows');
-  document.body.appendChild( container );
+  container = document.createElement( 'feedback_arrows' );
+  document.body.appendChild(container);
 
   // You can adjust the cameras distance and set the FOV to something
   // different than 45°. The last two values set the clippling plane.
