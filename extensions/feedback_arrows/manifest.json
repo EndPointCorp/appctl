@@ -31,5 +31,5 @@
 
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
 
-  "update_url": "http://lg-head/extensions/onboard-upd.xml"
+  "update_url": "http://lg-head/extensions/feedback_arrows-upd.xml"
 }
