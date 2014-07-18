@@ -68,6 +68,15 @@ Pose.SPACE_POSE = {
 };
 
 /**
+ * Planet values.
+ */
+Planet = {
+  EARTH: 1,
+  MOON: 2,
+  MARS: 3
+};
+
+/**
  * Lazy set the large display mode after we get our first stable camera update.
  * @constructor
  */
@@ -423,7 +432,7 @@ var dumpUpdateToScreen = function(message) {
 
 var runwayActionRestrictions = InputSupport_.NONE;
 
-navigatorListener.subscribe(function(rosPoseStamped) {
+var handleRosPoseChange = function(rosPoseStamped) {
   var pose = new Pose(rosPoseStamped.pose.position.y,  // lat
                       rosPoseStamped.pose.position.x,  // lon
                       rosPoseStamped.pose.position.z,  // alt
@@ -431,7 +440,7 @@ navigatorListener.subscribe(function(rosPoseStamped) {
                       rosPoseStamped.pose.orientation.x,  // tilt
                       rosPoseStamped.pose.orientation.y);  // roll
   acme.kiosk.moveCamera(pose, false);
-});
+};
 
 var publishKioskCurrentPose = function(pose) {
   // In normal navigation mode, we tell the navigator that it can use the
@@ -566,6 +575,8 @@ var runwayContentClickHandler = function(e) {
   // Check to see if this is a planet action.  If so, remove the nav
   // restriction.
   if (customData[1] && customData[1][0] == 3) {
+    // disable sound on the moon
+    soundFX.enabled = (customData[1][7] != Planet.MOON);
     // Its a planet shift.  Allow the nav.
     runwayActionRestrictions = InputSupport_.NONE;
   }
@@ -602,7 +613,10 @@ var runwayContentExitHandler = function(e) {
 };
 
 var soundFX = new SoundFX();
-joystickTopic.subscribe(soundFX.handlePoseChange.bind(soundFX));
+navigatorListener.subscribe(function(rosPoseStamped) {
+  soundFX.handlePoseChange(rosPoseStamped);
+  handleRosPoseChange(rosPoseStamped);
+});
 
 var ambient = new Ambient();
 proximityPresenceTopic.subscribe(ambient.handlePresenceMessage.bind(ambient));
