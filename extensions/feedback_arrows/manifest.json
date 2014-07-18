@@ -9,7 +9,6 @@
   },
   "content_scripts": [{
     "matches": ["*://*.google.com/maps/*"],
-    
     "js": [
       "lib/three.min.js",
       "lib/OBJloader.js",	
@@ -19,7 +18,9 @@
       ],
     "all_frames": true
   }],
-
+ "web_accessible_resources": [
+    "*.obj", "*.gif"
+  ],
   "permissions": [
     "<all_urls>",
     "tabs",
