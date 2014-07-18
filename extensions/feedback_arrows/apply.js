@@ -103,6 +103,7 @@ function init() {
   loader.load( 'arrows_texture.gif', function ( image ) {
     texture.image = image;
     texture.needsUpdate = true;
+    console.log('Loading Feedback arrows Extension: texturing object');
     // I wanted a nearest neighbour filtering for my low-poly character,
     // so that every pixel is crips and sharp. You can delete this lines
     // if have a larger texture and want a smooth linear filter.
@@ -119,7 +120,9 @@ function init() {
     var object = event;
     object.traverse( function ( child ) {
       if ( child instanceof THREE.Mesh ) {
+    	 console.log('Loading Feedback arrows Extension: loading object');
         child.material.map = texture;
+        
       }
     } );
 
