@@ -16,7 +16,10 @@
       "lib/roslib.min.js",
       "apply.js"
       ],
-    "all_frames": true
+    "all_frames": true,
+    "css": [
+        "css/feedback_arrows.css"
+      ]
   }],
  "web_accessible_resources": [
     "*.obj", "*.gif"
