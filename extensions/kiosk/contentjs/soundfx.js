@@ -2,6 +2,11 @@
  * Deal with loading and playing audio clips in response to requested movements.
  */
 
+var EARTH_RADIUS = 6371000; // meters from center
+var EARTH_ATMOSPHERE_CEILING = 120000; // meters from surface
+var ATMOSPHERE_FALLOFF = 6; // exponential falloff rate for atmospheric density
+var SILENCE_TIMEOUT = 200; // ms, silence after no movement for this amount of time
+
 /**
  * Container for single sound effect, able to isolate a section and/or loop.
  * TODO(arshan): Should we support end < begin by looping past the end?
@@ -117,7 +122,9 @@ SoundEffect.prototype.start_ = function() {
   this.audio.currentTime = this.startMs / 1000;
   var self = this;
   this.event_thread = setTimeout(function() {
-    self.loop ? self.start_() : self.stop();
+    if (!self.loop) {
+      self.stop();
+    }
   }, this.durationMs);
   this.audio.play();
 };
@@ -133,18 +140,12 @@ SoundEffect.prototype.stop = function() {
   clearTimeout(this.event_thread);
 };
 
-// Keep track of the state of the user.
-var UserState = {
-  IDLE: 0,
-  STARTING: 1,
-  FLYING: 2,
-  STOPPING: 3,
-  BOOST: 4
-};
-
 SoundFX = function() {
-  this.lastVelocity = 0;
-  this.state = UserState.IDLE;
+  this.lastPose = null;
+  this.lastUpdateTime = 0;
+  this.lastSeq = 0;
+  this.silenceTimer = null;
+  this.enabled = true;
 
   // Preload the sound clips.
   // TODO(arshan): Better to load these out of a config file?
@@ -167,58 +168,94 @@ SoundFX = function() {
 };
 
 /**
- * Respond to the normalized joystick twist message, with sound if appropriate.
- * @param {Object} twist The ROS twist msg object.
+ * Respond to the incoming pose message, with sound if appropriate.
+ * @param {Object} stampedPose The slinky stamped pose msg object.
  */
-SoundFX.prototype.handlePoseChange = function(twist) {
+SoundFX.prototype.handlePoseChange = function(stampedPose) {
 
-  // Check boundary conditions.
-  // TODO(arshan): Where can we get the altitude for the ground collision?
-  // TODO(arshan): Also need the raw altitude values for change in atmosphere.
-  x = twist.linear.x;
-  y = twist.linear.y;
-  z = twist.linear.z;
-  val = Math.sqrt(z * z + Math.sqrt(x * x + y * y));
+  // skip duplicates
+  // TODO(mv): figure out why there are duplicates
+  var seq = stampedPose.header.seq;
+  if (seq == this.lastSeq)
+    return;
+  this.lastSeq = seq;
+
+  var now = stampedPose.header.stamp.secs + stampedPose.header.stamp.nsecs / 1000000000;
+  var dt = now - this.lastUpdateTime;
+  this.lastUpdateTime = now;
+
+  if (!this.enabled) return;
+
+  function toRadians(n) {
+    return n * Math.PI / 180.0;
+  }
+
+  var pose = stampedPose.pose;
+  var lastPose = this.lastPose || stampedPose.pose;
+  var distanceToEarthCenter = pose.position.z + EARTH_RADIUS;
+
+  // convert to radians for trig functions
+  var lat = toRadians(pose.position.y);
+  var lastLat = toRadians(lastPose.position.y);
+  var dLat = toRadians(pose.position.y - lastPose.position.y);
+  var dLng = toRadians(pose.position.x - lastPose.position.x);
+
+  // altitude change in meters
+  var dAlt = Math.abs(pose.position.z - lastPose.position.z);
+
+  this.lastPose = pose;
+
+  // equirectangular approximation -- performance > accuracy
+  var x = dLng * Math.cos((lat + lastLat) / 2);
+  var y = dLat;
+  var dLateral = Math.sqrt(x * x + y * y) * distanceToEarthCenter;
+
+  var speed = (dLateral + dAlt) / dt; // m/s, theoretically
+  var val = Math.sqrt(speed / 100000);
+
+  // atmospheric component
+  var atmosphereCoeff = 0;
+  if (pose.position.z < EARTH_ATMOSPHERE_CEILING) {
+    // TODO(mv): reduce O
+    var linearAtmosphere = Math.abs(pose.position.z - EARTH_ATMOSPHERE_CEILING);
+    atmosphereCoeff = Math.pow(linearAtmosphere, ATMOSPHERE_FALLOFF) /
+      Math.pow(EARTH_ATMOSPHERE_CEILING, ATMOSPHERE_FALLOFF);
+  }
+  val *= atmosphereCoeff;
 
   // Now play the corresponding sound effects.
-  // TODO: add timing of state change to debounce.
-  switch (this.state) {
-  case UserState.IDLE:
-    if (val > .3) {
-      this.smallstart.start();
-      this.smallidle.start();
-      this.state = UserState.STARTING;
+  this.update(val);
+};
+
+/**
+ * Plays appropriate sound effects for the incoming speed.
+ * @param {Number} val The rate of movement around the globe.
+ */
+SoundFX.prototype.update = function(val) {
+  this.largeidle.setVolume(val);
+
+  if (val > 0) {
+    clearTimeout(this.silenceTimer);
+    var self = this;
+    this.silenceTimer = setTimeout(function() {
+      self.silence();
+    }, SILENCE_TIMEOUT);
+
+    if (!this.largeidle.playing) {
+      this.largeidle.start();
     }
-    break;
-  case UserState.BOOST:
-    if (val > .2) {
-      this.largestart.crossfadeTo(this.largeidle, .05, 100, 300);
-      this.state = UserState.FLYING;
-    }
-    break;
-  case UserState.STARTING:
-    if (val > .5) {
-      this.smallstart.crossfadeTo(this.largestart, .1, 100, 0);
-      this.state = UserState.BOOST;
-    }
-    else if (val > .2) {
-      this.smallstart.crossfadeTo(this.largeidle, .05, 100, 200);
-      this.state = UserState.FLYING;
-    }
-    break;
-  case UserState.FLYING:
-    if (val < .1) {
-      this.state = UserState.STOPPING;
-    }
-    break;
-  case UserState.STOPPING:
-    if (val < .05) {
-      this.largeidle.crossfadeTo(this.cutoff, .05, 100, 0);
-      this.state = UserState.IDLE;
-    }
-    break;
+  } else if (val <= 0 && this.largeidle.playing) {
+    clearTimeout(this.silenceTimer);
+    this.largeidle.stop();
   }
 };
+
+/**
+ * Ends sound effects.
+ */
+SoundFX.prototype.silence = function() {
+  this.update(0);
+}
 
 /*
 Just for informations sake, and possibly fingerprinting, the sox output
