@@ -134,7 +134,7 @@ function init() {
 
   // We set the renderer to the size of the window and
   // append a canvas to our HTML page.
-  renderer = new THREE.WebGLRenderer();
+  renderer = new THREE.WebGLRenderer({ alpha: true });
   renderer.setSize( window.innerWidth, window.innerHeight );
   container.appendChild( renderer.domElement );
   console.log('Loading Feedback arrows Extension: FINISHED');
