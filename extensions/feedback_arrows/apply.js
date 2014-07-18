@@ -7,15 +7,15 @@
 console.log('Loading Feedback arrows Extension: creating WS socket');
 
 //Let's connect directly to websocket<->ROS bridge
-var onboardRos = new ROSLIB.Ros({
+var spacenavROS = new ROSLIB.Ros({
   url: 'ws://master:9090'
 });
 
 console.log('Loading Feedback arrows Extension: initializing ROS');
 
 // Define topic object
-var onboardSpacenavListener = new ROSLIB.Topic({
-  ros: onboardRos,
+var feedbackArrowsSpacenavListener = new ROSLIB.Topic({
+  ros: spacenavROS,
   name: 'spacenav/twist',
   messageType: 'geometry_msgs/Twist'
 });
@@ -25,7 +25,7 @@ var onboardSpacenavListener = new ROSLIB.Topic({
 console.log('Loading Feedback arrows Extension: subscribing to spacenav topic');
 var counter = 0;
 var sendEachNoMessage = 10;
-onboardSpacenavListener.subscribe(function(msg){
+feedbackArrowsSpacenavListener.subscribe(function(msg){
 
   if (   msg.linear.x == 0
       && msg.linear.y == 0
@@ -40,7 +40,7 @@ onboardSpacenavListener.subscribe(function(msg){
 
   if (counter % sendEachNoMessage == 0) {
      counter = 1;
-     hideOnboard();
+     console.log("Feedback arrows Extension: catched message");
   } else {
     counter += 1;
   }
