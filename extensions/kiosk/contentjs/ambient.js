@@ -1,3 +1,7 @@
+/**
+ * Ambient mode state.
+ * @constructor
+ */
 var Ambient = function() {
   this.OCCUPANCY_TIMEOUT = 20000; // milliseconds
   this.JOYSTICK_GUTTER = 0.001;
@@ -5,14 +9,23 @@ var Ambient = function() {
   this.isOccupied = false;
   this.lastOccupancy = Date.now();
   this.placeIndex = 0;
+
+  // add listeners for mouse and touchscreen interaction
   window.addEventListener('touchstart', this.handleTouch.bind(this), true);
   window.addEventListener('mousedown', this.handleTouch.bind(this), true);
 };
 
+/**
+ * Dispatches a global event.
+ * @param {Event} ev The event to be dispatched
+ */
 Ambient.prototype._dispatch = function(ev) {
   window.dispatchEvent(ev);
 };
 
+/**
+ * Launches the next Famous Places content if the system is still idle.
+ */
 Ambient.prototype.runContent = function() {
   if (this.isOccupied) return;
 
@@ -28,14 +41,25 @@ Ambient.prototype.runContent = function() {
   this._scheduleNextContent();
 };
 
+/**
+ * Schedules the next run of content.
+ */
 Ambient.prototype._scheduleNextContent = function() {
   setTimeout(this.runContent.bind(this), this.CONTENT_TIMEOUT);
 };
 
+/**
+ * Handles an incoming proximity message.
+ * @param {ROS::std_msgs/Bool} msg The incoming presence message from ROS.
+ */
 Ambient.prototype.handlePresenceMessage = function(msg) {
   this._presenceUpdate(msg.data);
 };
 
+/**
+ * Handles an incoming joystick message.
+ * @param {ROS::geometry_msgs/Pose} msg The incoming pose message from ROS.
+ */
 Ambient.prototype.handleJoystickMessage = function(msg) {
   var presence = false;
 
@@ -53,10 +77,17 @@ Ambient.prototype.handleJoystickMessage = function(msg) {
   this._presenceUpdate(presence);
 };
 
+/**
+ * Handles a touch interaction.
+ */
 Ambient.prototype.handleTouch = function() {
   this._presenceUpdate(true);
 };
 
+/**
+ * Updates system idle tracking with a positive or negative sample.
+ * @param {Boolean} presence A presence sample.
+ */
 Ambient.prototype._presenceUpdate = function(presence) {
   var now = Date.now();
 
@@ -72,12 +103,18 @@ Ambient.prototype._presenceUpdate = function(presence) {
   }
 };
 
+/**
+ * Starts ambient mode, immediately.
+ */
 Ambient.prototype._startAmbientMode = function() {
   console.debug('starting ambient mode');
   this.isOccupied = false;
   this.runContent();
 };
 
+/**
+ * Stops ambient mode, immediately.
+ */
 Ambient.prototype._stopAmbientMode = function() {
   console.debug('stopping ambient mode');
   this.isOccupied = true;

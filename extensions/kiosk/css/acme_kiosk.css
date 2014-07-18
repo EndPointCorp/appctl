@@ -89,19 +89,26 @@ a.gsst_a {
 /*
  * Clean up css on the kiosk.
  */
-#vasquette,
-#mylocation,
-#gear,
-#fineprint,
-#minimap,
 #butterbar,
-#cards .cards-card,
-.widget-runway-expand-pegman-container,
-.widget-minimap-shim-button,
-.widget-minimap-shim,
-.widget-runway-expand-pegman.runway-pegman-hidden,
+#fineprint,
+#gear,
+#hovercard,
+#minimap,
+#mylocation,
+#vasquette,
+.cards-card[role="navigation"],
 .cards-entity-right,
+.widget-compass-tooltip,
+.widget-minimap-shim,
+.widget-minimap-shim-button,
 .widget-runway-expand-pegman,
+.widget-runway-expand-pegman-container,
+.widget-runway-expand-pegman.runway-pegman-hidden,
+.widget-tilt-tooltip,
+.widget-titlecard-spotlightcontainer,
+.widget-titlecard-spotlight-divider,
+.widget-zoom-tooltip,
+button.widget-runway-satellite-card,
 button.widget-play-button.widget-play-left,
 button.widget-play-button.widget-play-right,
 /* Hide the button divider if it is the 2nd or greater. */
@@ -109,7 +116,9 @@ button.widget-play-button.widget-play-right,
   display: none !important;
 }
 
-#titlecard, .app-vertical-widget-holder { zoom: 200%; }
+#searchbox,
+#titlecard,
+.app-vertical-widget-holder { zoom: 200%; }
 .widget-play-widget { bottom: 10px; zoom: 200%; }
 
 .widget-runway-wide-primary-card.widget-runway-satellite-card-enabled.widget-runway-tray-wrapper,

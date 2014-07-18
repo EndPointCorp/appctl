@@ -1,22 +1,79 @@
 /*
- * Onboard on-screen keyboard integration
+ * Onboard on-screen keyboard integration.
+ * Shows onboard when tapped the search field.
+ * Hides onboard when tapped anywhere else, or spacenav is moved.
  */
 
-var port = chrome.extension.connect();
+var onboardRos = new ROSLIB.Ros({
+  url: 'ws://master:9090'
+});
+
+// This topic object is used for publishing the show and hide messages.
+var onboardPublisher = new ROSLIB.Topic({
+  ros: onboardRos,
+  name: 'onboard/visibility',
+  messageType: 'std_msgs/Bool'
+});
+
+// Messages to be sent by onboardPublisher, they show and hide onboard.
+var onboardShowMsg = new ROSLIB.Message({data: true});
+var onboardHideMsg = new ROSLIB.Message({data: false});
+
+// We need to hide the keyboard when spacenavigator is touched
+// for that we need to listen to the spacenav/twist
+// and react when there is something else than zero anywhere.
+var onboardSpacenavListener = new ROSLIB.Topic({
+  ros: onboardRos,
+  name: 'spacenav/twist',
+  messageType: 'geometry_msgs/Twist'
+});
+
+// Spavenav sends so huge number of messages, that they are stacked in
+// the onboard dbus queue. The result is that when user uses spacenav
+// for a while, and then taps the search field, then onboard doesn't
+// show, because it still consumes all the hideOnboard messaged.
+// That's why I'm going to send the first message, and then send each
+// 100th message. The counter will be cleared when the spacenav is not touched.
+var counter = 0;
+var sendEachNoMessage = 100;
+onboardSpacenavListener.subscribe(function(msg){
+
+  if (   msg.linear.x == 0
+      && msg.linear.y == 0
+      && msg.linear.z == 0
+      && msg.angular.x == 0
+      && msg.angular.y == 0
+      && msg.angular.z == 0) {
+
+        counter = 0;
+        return;
+   }
+
+  if (counter % sendEachNoMessage == 0) {
+     counter = 1;
+     hideOnboard();
+  } else {
+    counter += 1;
+  }
+  console.log("Counter " + counter);
+});
+
 
 function showOnboard() {
   console.log('Showing Onboard keyboard');
-  port.postMessage(true);
+  onboardPublisher.publish(onboardShowMsg);
 }
 
 function hideOnboard() {
   console.log('Hiding Onboard keyboard');
-  port.postMessage(false);
+  onboardPublisher.publish(onboardHideMsg);
 }
 
+// Adds callbacks to the search field.
+// onclick - shows keyboard
+// onblur  - hides keyboard
 function addCallbacks() {
   console.log('adding callbacks');
-  console.log(document.readyState);
 
   /* This is needed because Chrome tries loading this plugin when
    * DOM is not ready yet, `even with run_at: document_end`
@@ -27,30 +84,12 @@ function addCallbacks() {
     return;
   }
 
-  var tx = document.querySelectorAll('textarea');
-  var size = 0;
-  if (tx) size = tx.length;
-  console.log('got ' + size + ' textarea elements');
-  for (var i = 0; i < tx.length; i++) {
+  var tx = document.querySelector('#searchboxinput');
+  if (tx) {
     console.log('adding onboard event');
-    tx[i].addEventListener('focus', showOnboard);
-    tx[i].addEventListener('blur', hideOnboard);
+    tx.addEventListener('click', showOnboard);
+    tx.addEventListener('blur', hideOnboard);
   }
-  /*
-   * At this moment here is every input changed.
-   * It should be changed to input[type=text] after
-   * changing the input type for the lgcms
-   */
-  tx = document.querySelectorAll('input');
-  size = 0;
-  if (tx) size = tx.length;
-  console.log('got ' + tx.length + ' input elements');
-  for (var i = 0; i < tx.length; i++) {
-    console.log('adding onboard event');
-    tx[i].addEventListener('focus', showOnboard);
-    tx[i].addEventListener('blur', hideOnboard);
-  }
-
 }
 
 console.log('Loading Onboard Extension');

@@ -212,6 +212,9 @@ acme.Kiosk.prototype.createFamousPlacesRunway = function() {
   this.addFamousPlacesRunwayContent();
 };
 
+/**
+ * Hard-coded famous places content.
+ */
 acme.fpContent = [
   [4, ['0x132f61b6638ccc9f:0x9559ad432c2467a0', 0, null, null,
     'Arch of Constantine', 848.10455, 18,

@@ -1,3 +1,24 @@
+/*
+ * CSS rules for the mirrored display
+ */
+
+/* zoom the titlecard */
+#titlecard { zoom: 250%; }
+
+/*
+ * move the titlecard away from the left edge/corner
+ * and round it out so it looks like it belongs there
+ */
+.widget-titlecard {
+  top: 21px !important;
+  left: 21px !important;
+  border-radius: 3px !important;
+}
+
+/* hide a bunch of the titlecard elements */
+#titlecard div[class="widget-titlecard-divider"],
+#titlecard div[class="widget-titlecard-spotlightcontainer"],
+#titlecard div[class="widget-titlecard-spotlight-divider"],
 #titlecard div[role="navigation"] button[class="widget-titlecard-exitcontainer"] {
   display: none;
 }

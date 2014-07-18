@@ -62,6 +62,9 @@ acmeExt.messageAPI = acmeExt.messageAPI || (function() {
   return messageAPI;
 })();
 
+/**
+ * Handles user selecting the POI tab.
+ */
 acmeExt.selectPOIButton = function() {
   fp = document.querySelector('#acme-famous-places');
   poi = document.querySelector('#acme-points-of-interest');
@@ -74,6 +77,9 @@ acmeExt.selectPOIButton = function() {
   fpb.classList.remove('acme-button-selected');
 };
 
+/**
+ * Handles user selecting the Famous Places tab.
+ */
 acmeExt.selectFamousPlacesButton = function() {
   fp = document.querySelector('#acme-famous-places');
   poi = document.querySelector('#acme-points-of-interest');
@@ -86,6 +92,10 @@ acmeExt.selectFamousPlacesButton = function() {
   fpb.classList.add('acme-button-selected');
 };
 
+/**
+ * Handles user selection of Famous Places content.
+ * @param {Array} array Famous Places content, lifted from Tactile.
+ */
 acmeExt.launchFamousPlacesContent = function(array) {
   console.log(array);
   acme.launchRunwayContent(array);
