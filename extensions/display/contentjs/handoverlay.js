@@ -61,6 +61,7 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
   this.centerCircleFlat;
   this.centerDot;
   this.topCallout;
+  this.compassRose;
   this.topCalloutPanel = new THREE.Object3D();
   this.topCalloutPanel.position.x = 0.85;
   this.topCalloutPanel.position.y = 0.7;
@@ -124,6 +125,23 @@ Hand.prototype.updateHudMessage = function(pose) {
       }
     }
   }));
+};
+
+Hand.prototype.updateHudCompass = function(pose) {
+  var handPose = pose.detail;
+
+  // rotate compass rose by rotating its parent
+  // TODO(mv): inaccurate when going across poles, prime meridian from camera
+  var currentCameraPose = this.handOverlay_.currentCameraPose;
+  var cameraHdg = currentCameraPose.heading;
+  var cameraLon = currentCameraPose.lon;
+  var handLon = handPose.lon;
+  var handLat = handPose.lat;
+  this.centerDot.rotation.set(
+    0,
+    toRadians_(cameraHdg - (cameraLon - handLon) * (handLat / 90)),
+    0
+  );
 };
 
 Hand.prototype.createRings_ = function(handOrigin) {
@@ -250,6 +268,15 @@ Hand.prototype.createRings_ = function(handOrigin) {
   this.topCallout.add(this.topCalloutPanel);
   this.topCallout.visible = true;
   this.topCallout.rotation.set(0, 0, 0);
+
+  this.compassRose = new THREE.Mesh(
+    this.handOverlay_.compassRoseGeom,
+    handShader
+  );
+  this.compassRose.name = 'compassRose';
+  this.compassRose.position.set(0, 0, -1.25);
+  this.compassRose.rotation.set(1.5, 0, 0);
+  this.centerDot.add(this.compassRose);
 
   this.handOpacity = 0.0;
 
@@ -517,6 +544,7 @@ var HandOverlay = function() {
   this.centerCircleFlatGeom;
   this.centerDotGeom;
   this.topCalloutGeom;
+  this.compassRoseGeom;
 
   this.currentHand = -1;
 };
@@ -724,10 +752,43 @@ HandOverlay.prototype.init3js = function() {
        self.topCalloutGeom = geometry;
     });
 
+  this.compassRoseGeom = this.createGeometry_(3, 0.1, 0xFF0000);
+
   this.injectShaders();
   initialized_ = true;
   self.animate_();
 };
+
+/**
+ * Creates geometry with n sides.
+ * @see http://jsfiddle.net/Elephanter/mUah5/
+ */
+HandOverlay.prototype.createGeometry_ = function(n, circumradius, color) {
+
+  var geometry = new THREE.Geometry(),
+    vertices = [],
+    faces = [],
+    x;
+
+  // Generate the vertices of the n-gon.
+  for (x = 1; x <= n; x++) {
+    geometry.vertices.push(new THREE.Vector3(
+      circumradius * Math.sin((Math.PI / n) + (x * ((2 * Math.PI)/ n))),
+      circumradius * Math.cos((Math.PI / n) + (x * ((2 * Math.PI)/ n))),
+      0
+    ));
+    geometry.colors.push(color);
+  }
+
+  // Generate the faces of the n-gon.
+  for (x = 0; x < n-2; x++) {
+    geometry.faces.push(new THREE.Face3(0, x + 1, x + 2));
+  }
+
+  geometry.computeBoundingSphere();
+
+  return geometry;
+}
 
 HandOverlay.prototype.processLeapMessage = function(leapMessage) {
   if (!initialized_) {
@@ -757,6 +818,7 @@ HandOverlay.prototype.processHandGeoLocationEvent = function(pose) {
   }
 
   hand.updateHudMessage(pose);
+  hand.updateHudCompass(pose);
 };
 
 /**
