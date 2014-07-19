@@ -275,7 +275,7 @@ Hand.prototype.createRings_ = function(handOrigin) {
   );
   this.compassRose.name = 'compassRose';
   this.compassRose.position.set(0, 0, -1.25);
-  this.compassRose.rotation.set(1.5, 0, 0);
+  this.compassRose.rotation.set(Math.PI / 2, 0, 0);
   this.centerDot.add(this.compassRose);
 
   this.handOpacity = 0.0;
