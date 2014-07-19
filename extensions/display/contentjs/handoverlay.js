@@ -61,11 +61,12 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
   this.centerCircleFlat;
   this.centerDot;
   this.topCallout;
+  this.popCallout;
   this.compassRose;
   this.topCalloutPanel = new THREE.Object3D();
-  this.topCalloutPanel.position.x = 0.85;
-  this.topCalloutPanel.position.y = 0.7;
-  this.calloutPos = new THREE.Vector3();
+  this.popCalloutPanel = new THREE.Object3D();
+  this.topCalloutPos = new THREE.Vector3();
+  this.popCalloutPos = new THREE.Vector3();
 
   this.centerCircleGeomUniforms;
   this.geomUniforms;
@@ -85,6 +86,16 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
   this.hudDiv.style.zIndex = '99999';
   this.hudDiv.style.color = '#e3efff';
   this.hudDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.0)';
+
+  this.popDiv = document.createElement('div');
+  this.popDiv.id = 'slinkypop' + handId;
+  this.popDiv.style.position = 'absolute';
+  this.popDiv.style.height = 'auto';
+  this.popDiv.style.width = 'auto';
+  this.popDiv.style.whiteSpace = 'nowrap';
+  this.popDiv.style.zIndex = '99999';
+  this.popDiv.style.color = '#e3efff';
+  this.popDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.0)';
 };
 
 /**
@@ -98,10 +109,10 @@ Hand.prototype.toScreenCoords = function(worldPos) {
     return vector;
 };
 
-Hand.prototype.updateHudPosition = function(worldPos) {
+Hand.prototype.updateHudPosition = function(div, worldPos) {
   var screenPos = this.toScreenCoords(worldPos);
-  this.hudDiv.style.left = screenPos.x + 'px';
-  this.hudDiv.style.top = screenPos.y + 'px';
+  div.style.left = screenPos.x + 'px';
+  div.style.top = screenPos.y + 'px';
 };
 
 Hand.prototype.updateHudMessage = function(pose) {
@@ -109,6 +120,10 @@ Hand.prototype.updateHudMessage = function(pose) {
 
   var northing = handPose.lat >= 0 ? 'N' : 'S';
   var easting = handPose.lon >= 0 ? 'E' : 'W';
+
+  this.hudDiv.innerHTML = 'Alt: ' + handPose.alt.toFixed(3) +
+    'm<p>Lat: ' + Math.abs(handPose.lat).toFixed(3) + '&deg; ' + northing +
+    '<p>Lng: ' + Math.abs(handPose.lon).toFixed(3) + '&deg; ' + easting;
 
   var self = this;
 
@@ -118,10 +133,7 @@ Hand.prototype.updateHudMessage = function(pose) {
       longitude: handPose.lon,
       radius: this.dataRadius,
       callback: function(result) {
-        self.hudDiv.innerHTML = 'Alt: ' + handPose.alt.toFixed(3) +
-          'm<p>Lat: ' + Math.abs(handPose.lat).toFixed(3) + '&deg; ' + northing +
-          '<p>Lng: ' + Math.abs(handPose.lon).toFixed(3) + '&deg; ' + easting +
-          '<p>Pop: ' + Number(result.value - result.value % 100);
+        self.popDiv.innerHTML = '<p>Pop: ' + Number(result.value - result.value % 100);
       }
     }
   }));
@@ -267,7 +279,26 @@ Hand.prototype.createRings_ = function(handOrigin) {
   this.topCallout.name = 'topCallout';
   this.topCallout.add(this.topCalloutPanel);
   this.topCallout.visible = true;
-  this.topCallout.rotation.set(0, 0, 0);
+
+  this.popCalloutPanel = new THREE.Mesh(
+      new THREE.SphereGeometry(8, 8), 
+      new THREE.MeshBasicMaterial({
+        color: 0x00FF00,
+        wireframe: true }
+      )
+  );
+  this.popCalloutPanel.scale.set(0.01, 0.01, 0.01);
+  this.popCalloutPanel.position.x = 1.3;
+  this.popCalloutPanel.position.y = -0.1;
+  this.popCalloutPanel.visible = false;
+
+  this.popCallout = new THREE.Mesh(
+      this.handOverlay_.popCalloutGeom, 
+      handShader
+  );
+  this.popCallout.name = 'popCallout';
+  this.popCallout.add(this.popCalloutPanel);
+  this.popCallout.visible = true;
 
   this.compassRose = new THREE.Mesh(
     this.handOverlay_.compassRoseGeom,
@@ -346,7 +377,9 @@ Hand.prototype.fadeInOutAnimationComplete = function() {
   if (!this.visible) {
     this.handOverlay_.scene.remove(this.handOrigin);
     this.handOverlay_.scene.remove(this.topCallout);
+    this.handOverlay_.scene.remove(this.popCallout);
     document.body.removeChild(this.hudDiv);
+    document.body.removeChild(this.popDiv);
   }
 };
 
@@ -354,7 +387,9 @@ Hand.prototype.fadeInOutAnimationOnStart = function() {
   if (this.visible) {
     this.handOverlay_.scene.add(this.handOrigin);
     this.handOverlay_.scene.add(this.topCallout);
+    this.handOverlay_.scene.add(this.popCallout);
     document.body.appendChild(this.hudDiv);
+    document.body.appendChild(this.popDiv);
   }
 };
 
@@ -382,7 +417,8 @@ Hand.prototype.setVisible = function(visible) {
         this.geomUniforms.fade,
         this.ring0GeomUniforms.fade,
         this.dotUniforms.fade,
-        this.hudDiv.style.opacity],
+        this.hudDiv.style.opacity,
+        this.popDiv.style.opacity],
         1,
         {
           startAt: {value: 0.0},
@@ -400,7 +436,8 @@ Hand.prototype.setVisible = function(visible) {
         this.geomUniforms.fade,
         this.ring0GeomUniforms.fade,
         this.dotUniforms.fade,
-        this.hudDiv.style.opacity],
+        this.hudDiv.style.opacity,
+        this.popDiv.style.opacity],
         1,
         {
           startAt: {value: this.handOpacity},
@@ -434,7 +471,8 @@ Hand.prototype.animate_ = function() {
     getPointInfo(screenPos.x, screenPos.y);
 
     // move the HUD data to the proper spot
-    this.updateHudPosition(this.calloutPos);
+    this.updateHudPosition(this.hudDiv, this.topCalloutPos);
+    this.updateHudPosition(this.popDiv, this.popCalloutPos);
   }
 };
 
@@ -498,8 +536,18 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     this.ring0.geometry.computeBoundingSphere();
     this.dataRadius = this.ring1.geometry.boundingSphere.radius * ringScale;
 
+    this.popCallout.position.set(
+      this.hudPos.x,
+      this.hudPos.y,
+      this.hudPos.z
+    );
+    this.popCallout.scale.set(calloutScale, calloutScale, calloutScale);
+
     this.topCallout.updateMatrixWorld(false);
-    this.calloutPos.setFromMatrixPosition(this.topCalloutPanel.matrixWorld);
+    this.topCalloutPos.setFromMatrixPosition(this.topCalloutPanel.matrixWorld);
+
+    this.popCallout.updateMatrixWorld(false);
+    this.popCalloutPos.setFromMatrixPosition(this.popCalloutPanel.matrixWorld);
   }
 
   /*
@@ -544,6 +592,7 @@ var HandOverlay = function() {
   this.centerCircleFlatGeom;
   this.centerDotGeom;
   this.topCalloutGeom;
+  this.popCalloutGeom;
   this.compassRoseGeom;
 
   this.currentHand = -1;
@@ -750,6 +799,14 @@ HandOverlay.prototype.init3js = function() {
   loader5.load(chrome.extension.getURL('models/top_callout.json'),
     function(geometry) {
        self.topCalloutGeom = geometry;
+    });
+
+  var loader6 = new THREE.JSONLoader();
+  loader6.load(chrome.extension.getURL('models/pop_callout.json'),
+    function(geometry) {
+       // shift origin
+       geometry.applyMatrix(new THREE.Matrix4().makeTranslation(1, 0, 0));
+       self.popCalloutGeom = geometry;
     });
 
   this.compassRoseGeom = this.createGeometry_(3, 0.1, 0xFF0000);
