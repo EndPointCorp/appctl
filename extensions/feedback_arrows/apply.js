@@ -116,7 +116,7 @@ function init() {
       if ( child instanceof THREE.Mesh ) {
     	 console.log('Loading Feedback arrows Extension: preloading object and adding texture');
     	 child.material.color.setRGB(220, 220, 220);
-         child.material.map = texture;
+         //child.material.map = texture;
       }
     } 
     );
