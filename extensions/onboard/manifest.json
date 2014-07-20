@@ -5,6 +5,10 @@
   "description": "This extension shows and hides the onboard keyboard.",
   "version": "1.2",
 
+  "background": {
+    "page": "onboard.html"
+  },
+
   "content_scripts": [{
     "matches": ["*://*.google.com/maps/*"],
     "js": [
