@@ -58,15 +58,6 @@ var mouseX = 0, mouseY = 0;
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
 
-document.onreadystatechange = function () {
-    if (document.readyState == "complete") {
-    	console.log('Loading Feedback arrows Extension: Initializing three.js');
-    	init();
-    	console.log('Loading Feedback arrows Extension: Starting animation');
-    	animate(); 
-  }
-}
-
 
 /*** Initialize ***/
 function init() {
@@ -158,3 +149,8 @@ function animate() {
   camera.lookAt(scene.position);
   renderer.render(scene, camera);
 }
+
+console.log('Loading Feedback arrows Extension: Initializing three.js');
+init();
+console.log('Loading Feedback arrows Extension: Starting animation');
+animate();
