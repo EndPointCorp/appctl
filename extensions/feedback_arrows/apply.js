@@ -74,8 +74,10 @@ function init() {
   // You can adjust the cameras distance and set the FOV to something
   // different than 45°. The last two values set the clippling plane.
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-  camera.position.z = 100;
-
+  camera.position.x = 33;
+  camera.position.y = 33;
+  camera.position.z = 33;
+  
   // This is the scene we will add all objects to.
   scene = new THREE.Scene();
 
@@ -86,43 +88,42 @@ function init() {
   scene.add( ambient );
 
   // Uncomment these lines to create a simple directional light.
-  // var directionalLight = new THREE.DirectionalLight( 0xffeedd );
-  // directionalLight.position.set( 0, 0, 1 ).normalize();
-  // scene.add( directionalLight );
+  var directionalLight = new THREE.DirectionalLight( 0xffeedd );
+  directionalLight.position.set( 0, 0, 1 ).normalize();
+  scene.add( directionalLight );
 
   /*** Texture Loading ***/
   var manager = new THREE.LoadingManager();
   manager.onProgress = function ( item, loaded, total ) {
-    console.log( item, loaded, total );
+    console.log( "Feedback arrows threejs manager => ", item, loaded, total );
   };
-  var texture = new THREE.Texture();
-  var loader = new THREE.ImageLoader( manager );
-
+  
   //texturing
-  loader.load( 'arrows_texture.gif', function ( image ) {
+  var texture = new THREE.Texture();
+  var image_loader = new THREE.ImageLoader( manager );
+  image_loader.load( 'arrows_texture.gif', function ( image ) {
     texture.image = image;
     texture.needsUpdate = true;
     console.log('Loading Feedback arrows Extension: texture');
   } );
 
   //obj loading
-  var loader = new THREE.OBJLoader( manager );
+  var obj_loader = new THREE.OBJLoader( manager );
 
   // As soon as the OBJ has been loaded this function looks for a mesh
   // inside the data and applies the texture to it.
-  loader.load( 'arrows.obj', function ( event ) {
+  obj_loader.load( 'arrows.obj', function ( event ) {
     var object = event;
     object.traverse( function ( child ) {
       if ( child instanceof THREE.Mesh ) {
     	 console.log('Loading Feedback arrows Extension: preloading object and adding texture');
-    	 child.material.color.setRGB(220, 220, 220);
-         //child.material.map = texture;
+    	 child.material.color.setRGB(1, 0, 0);
+         child.material.map = texture;
       }
     } 
     );
-
     // upward scaling
-    //object.scale = new THREE.Vector3( 25, 25, 25 );
+    object.scale = new THREE.Vector3( 100, 100, 100 );
 
     // You can change the position of the object, so that it is not
     // centered in the view and leaves some space for overlay text.
