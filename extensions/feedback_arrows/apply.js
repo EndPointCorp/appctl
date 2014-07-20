@@ -98,20 +98,14 @@ function init() {
   var texture = new THREE.Texture();
   var loader = new THREE.ImageLoader( manager );
 
-  // You can set the texture properties in this function. 
-  // The string has to be the path to your texture file.
+  //texturing
   loader.load( 'arrows_texture.gif', function ( image ) {
     texture.image = image;
     texture.needsUpdate = true;
-    console.log('Loading Feedback arrows Extension: texturing object');
-    // I wanted a nearest neighbour filtering for my low-poly character,
-    // so that every pixel is crips and sharp. You can delete this lines
-    // if have a larger texture and want a smooth linear filter.
-    texture.magFilter = THREE.NearestFilter;
-    texture.minFilter = THREE.NearestMipMapLinearFilter;
+    console.log('Loading Feedback arrows Extension: texture');
   } );
 
-  /*** OBJ Loading ***/
+  //obj loading
   var loader = new THREE.OBJLoader( manager );
 
   // As soon as the OBJ has been loaded this function looks for a mesh
@@ -120,18 +114,19 @@ function init() {
     var object = event;
     object.traverse( function ( child ) {
       if ( child instanceof THREE.Mesh ) {
-    	 console.log('Loading Feedback arrows Extension: loading object');
-        child.material.map = texture;
-        
+    	 console.log('Loading Feedback arrows Extension: preloading object and adding texture');
+         child.material.map = texture;
       }
-    } );
+    } 
+    );
 
-    // My initial model was too small, so I scaled it upwards.
-    object.scale = new THREE.Vector3( 25, 25, 25 );
+    // upward scaling
+    //object.scale = new THREE.Vector3( 25, 25, 25 );
 
     // You can change the position of the object, so that it is not
     // centered in the view and leaves some space for overlay text.
     object.position.y -= 2.5;
+    console.log('Loading Feedback arrows Extension: adding object to scene');
     scene.add( object );
   });
 
