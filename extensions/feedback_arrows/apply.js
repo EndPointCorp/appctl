@@ -78,6 +78,15 @@ console.log("Arrows: after animate");
 
 function init() {
 
+	controls = new THREE.TrackballControls( camera );
+	  controls.rotateSpeed = 5.0;
+	  controls.zoomSpeed = 5;
+	  controls.panSpeed = 2;
+	  controls.noZoom = false;
+	  controls.noPan = false;
+	  controls.staticMoving = true;
+	  controls.dynamicDampingFactor = 0.3;
+	  
 	container = document.createElement( 'div' );
 	container.id = 'feedback_arrows';
 	document.body.appendChild( container );
@@ -132,10 +141,10 @@ function init() {
 
 	//
 
-	renderer = new THREE.WebGLRenderer({ alpha: false });
+	renderer = new THREE.WebGLRenderer({ alpha: true });
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	container.appendChild( renderer.domElement );
-
+	renderer.setClearColor( 0xffffff, 1);
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 
 	//
