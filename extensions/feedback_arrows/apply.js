@@ -140,7 +140,7 @@ function init() {
 	renderer = new THREE.WebGLRenderer({ alpha: true });
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	container.appendChild( renderer.domElement );
-	renderer.setClearColor( 0xffffff, 1);
+	renderer.setClearColor( 0x000000, 0);
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 
 	//
