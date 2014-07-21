@@ -55,6 +55,7 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
 
   this.leapOrigin = new THREE.Object3D();
   this.handOrigin = new THREE.Object3D();
+  this.calloutOrigin = new THREE.Object3D();
   this.ring0;
   this.ring1;
   this.ring2;
@@ -297,6 +298,7 @@ Hand.prototype.createRings_ = function(handOrigin) {
   this.topCallout.name = 'topCallout';
   this.topCallout.add(this.topCalloutPanel);
   this.topCallout.visible = true;
+  this.calloutOrigin.add(this.topCallout);
 
   this.popCalloutPanel = new THREE.Mesh(
       new THREE.SphereGeometry(8, 8), 
@@ -317,6 +319,7 @@ Hand.prototype.createRings_ = function(handOrigin) {
   this.popCallout.name = 'popCallout';
   this.popCallout.add(this.popCalloutPanel);
   this.popCallout.visible = true;
+  this.calloutOrigin.add(this.popCallout);
 
   this.compassRose = new THREE.Mesh(
     this.handOverlay_.compassRoseGeom,
@@ -394,8 +397,7 @@ Hand.prototype.setupGeometry_ = function(leapInteractionBox) {
 Hand.prototype.fadeInOutAnimationComplete = function() {
   if (!this.visible) {
     this.handOverlay_.scene.remove(this.handOrigin);
-    this.handOverlay_.scene.remove(this.topCallout);
-    this.handOverlay_.scene.remove(this.popCallout);
+    this.handOverlay_.scene.remove(this.calloutOrigin);
     document.body.removeChild(this.hudDiv);
     document.body.removeChild(this.popDiv);
   }
@@ -404,8 +406,7 @@ Hand.prototype.fadeInOutAnimationComplete = function() {
 Hand.prototype.fadeInOutAnimationOnStart = function() {
   if (this.visible) {
     this.handOverlay_.scene.add(this.handOrigin);
-    this.handOverlay_.scene.add(this.topCallout);
-    this.handOverlay_.scene.add(this.popCallout);
+    this.handOverlay_.scene.add(this.calloutOrigin);
     document.body.appendChild(this.hudDiv);
     document.body.appendChild(this.popDiv);
   }
@@ -506,7 +507,7 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     this.handOpacity = Math.sqrt(Math.max(0, 1.0 - (fadeMax) * (1 / fadeEdge)));
 
     this.handOrigin.position.set(this.hudPos.x, this.hudPos.y, this.hudPos.z);
-    this.topCallout.position.set(this.hudPos.x, this.hudPos.y, this.hudPos.z);
+    this.calloutOrigin.position.set(this.hudPos.x, this.hudPos.y, this.hudPos.z);
 
     if (currentCameraPose) {
       this.handOrigin.rotation.set(
@@ -522,25 +523,16 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     var calloutScale = distanceMod * 1.5;
 
     this.handOrigin.scale.set(ringScale, ringScale, ringScale);
-    this.topCallout.scale.set(calloutScale, calloutScale, calloutScale);
-    this.handOrigin.updateMatrixWorld(false);
+    this.calloutOrigin.scale.set(calloutScale, calloutScale, calloutScale);
+    this.calloutOrigin.updateMatrixWorld(false);
 
     this.ring2.rotation.set(0, -palmYaw, 0);
 
     this.ring0.geometry.computeBoundingSphere();
     this.dataRadius = this.ring1.geometry.boundingSphere.radius * ringScale;
 
-    this.popCallout.position.set(
-      this.hudPos.x,
-      this.hudPos.y,
-      this.hudPos.z
-    );
-    this.popCallout.scale.set(calloutScale, calloutScale, calloutScale);
-
-    this.topCallout.updateMatrixWorld(false);
     this.topCalloutPos.setFromMatrixPosition(this.topCalloutPanel.matrixWorld);
 
-    this.popCallout.updateMatrixWorld(false);
     this.popCalloutPos.setFromMatrixPosition(this.popCalloutPanel.matrixWorld);
   }
 
@@ -768,7 +760,7 @@ HandOverlay.prototype.init3js = function() {
   this.scene.add(this.handPlane);
 
   this.globeSphere = new THREE.Mesh(
-    new THREE.SphereGeometry(EARTH_RADIUS, 256, 256, 0, Math.PI),
+    new THREE.SphereGeometry(EARTH_RADIUS, 128, 128, 0, Math.PI),
     new THREE.MeshBasicMaterial({
       color: 0x000000,
       wireframe: true
