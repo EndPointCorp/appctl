@@ -136,7 +136,7 @@ function init() {
     //scene.add(sphere);
 
     //debugging
-    console.log("Sphere at " + sphere.position.x + " " + sphere.position.y + " " + sphere.position.z);
+    //console.log("Sphere at " + sphere.position.x + " " + sphere.position.y + " " + sphere.position.z);
     
   });
 
