@@ -30,7 +30,7 @@
   "permissions": [
     "<all_urls>",
     "http://*/",
-    "chrome-extension://*",
+    "chrome-extension://*/*.gif",
     "tabs",
     "webRequest",
     "webNavigation",

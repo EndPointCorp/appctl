@@ -100,8 +100,8 @@ function init() {
 
 	var texture = new THREE.Texture();
 
-	var loader = new THREE.ImageLoader( manager );
-	loader.load( chrome.extension.getURL('models/arrows_texture.gif'), function ( image ) {
+	var loader_img = new THREE.ImageLoader( manager );
+	loader_img.load( chrome.extension.getURL('models/arrows_texture.gif'), function ( image ) {
 
 		texture.image = image;
 		texture.needsUpdate = true;
@@ -110,8 +110,8 @@ function init() {
 
 	// model
 
-	var loader = new THREE.OBJLoader( manager );
-	loader.load( chrome.extension.getURL('models/arrows.obj'), function ( object ) {
+	var loader_obj = new THREE.OBJLoader( manager );
+	loader_obj.load( chrome.extension.getURL('models/arrows.obj'), function ( object ) {
 
 		object.traverse( function ( child ) {
 
