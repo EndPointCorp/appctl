@@ -22,14 +22,15 @@ console.log('Loading Feedback arrows Extension: initializing ROS');
 var feedbackArrowsSpacenavListener = new ROSLIB.Topic({
   ros: spacenavROS,
   name: 'spacenav/twist',
-  messageType: 'geometry_msgs/Twist'
+  messageType: 'geometry_msgs/Twist',
+  throttle_rate: 10  
 });
 
+var arrowObjPosition = [0,0,0,0,0,0]; 
 
 // Subscribe to spacenav topic + ROS messages rate limiting
 console.log('Loading Feedback arrows Extension: subscribing to spacenav topic');
-var counter = 0;
-var sendEachNoMessage = 100;
+
 feedbackArrowsSpacenavListener.subscribe(function(msg){
   this.msg = msg;
   if (
@@ -42,18 +43,11 @@ feedbackArrowsSpacenavListener.subscribe(function(msg){
       ) 
   {
 
-        counter = 0;
         return;
    }
 
-  if (counter % sendEachNoMessage == 0) {
-     counter = 1;
-     console.log("Feedback arrows Extension: catched message");
-     
-  } else {
-    counter += 1;
-  }
-  //console.log("Counter " + counter);
+   arrowObjPosition[4] += 0.1;                                                                
+   arrowObjPosition[5] += 0.1; 
 });
 
 
@@ -115,7 +109,7 @@ function init() {
 
 	var loader_obj = new THREE.OBJLoader( manager );
 	loader_obj.load( chrome.extension.getURL('models/arrows.obj'), function ( object ) {
-		this.object = object;
+		this.arrowObj = object;
 		
 		object.traverse( function ( child ) {
 
@@ -175,7 +169,16 @@ function animate() {
 }
 
 function render() {
-	object.rotation.x += 0.1;
+
+    if (arrowObj) {
+        arrowObj.position.x = arrowObjPosition[0];
+        arrowObj.position.y = arrowObjPosition[1];
+        arrowObj.position.z = arrowObjPosition[2];
+        arrowObj.rotation.x = arrowObjPosition[3];
+        arrowObj.rotation.y = arrowObjPosition[4];
+        arrowObj.rotation.z = arrowObjPosition[5];
+        } 
+
 	camera.position.x += ( mouseX - camera.position.x ) * .05;
 	camera.position.y += ( - mouseY - camera.position.y ) * .05;
 	camera.lookAt( scene.position );
