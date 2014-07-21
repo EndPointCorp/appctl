@@ -249,6 +249,24 @@ Hand.prototype.createRings_ = function(handOrigin) {
       depthTest: false
   });
 
+  // compass rose vertex-colored uniforms
+  this.compassRoseUniforms = {
+     alpha: { type: 'f', value: 0.6 },
+     fade: { type: 'f', value: 0.0 }
+  };
+
+  // compass rose vertex-colored material
+  var compassRoseShader = new THREE.ShaderMaterial({
+
+      vertexColors: THREE.VertexColors,
+      uniforms: this.compassRoseUniforms,
+      attributes: handAttributes,
+      vertexShader: document.getElementById('vcolorvertexshader').textContent,
+      fragmentShader: document.getElementById('vcolorfragmentshader').textContent,
+      transparent: true,
+      depthTest: false
+  });
+
   this.ring0 = new THREE.Mesh(this.handOverlay_.ring0Geom, ring0Shader);
   this.ring0.name = 'ring0';
   this.handOrigin.add(this.ring0);
@@ -302,7 +320,7 @@ Hand.prototype.createRings_ = function(handOrigin) {
 
   this.compassRose = new THREE.Mesh(
     this.handOverlay_.compassRoseGeom,
-    handShader
+    compassRoseShader
   );
   this.compassRose.name = 'compassRose';
   this.compassRose.position.set(0, 0, -1.25);
@@ -398,6 +416,7 @@ Hand.prototype.fadeInOutAnimationOnUpdate = function() {
   this.geomUniforms.fade.needsUpdate = true;
   this.ring0GeomUniforms.fade.needsUpdate = true;
   this.dotUniforms.fade.needsUpdate = true;
+  this.compassRoseUniforms.fade.needsUpdate = true;
 };
 
 Hand.prototype.setVisible = function(visible) {
@@ -405,57 +424,25 @@ Hand.prototype.setVisible = function(visible) {
     return;
   }
 
-  var self = this;
   this.visible = visible;
 
-  // Fading in/out with a single animation does not seem to work, either
-  // with reverse, or with modifying the start and value, so we have two
-  // animations.
-  if (!this.fadeInAnimation) {
-    this.fadeInAnimation = TweenMax.to(
-        [this.centerCircleGeomUniforms.fade,
-        this.geomUniforms.fade,
-        this.ring0GeomUniforms.fade,
-        this.dotUniforms.fade,
-        this.hudDiv.style.opacity,
-        this.popDiv.style.opacity],
-        1,
-        {
-          startAt: {value: 0.0},
-          value: 1.0,
-          onStart: self.fadeInOutAnimationOnStart.bind(self),
-          onComplete: self.fadeInOutAnimationComplete.bind(self),
-          onUpdate: self.fadeInOutAnimationOnUpdate.bind(self),
-          paused: true
-        });
-  }
-
-  if (!this.fadeOutAnimation) {
-    this.fadeOutAnimation = TweenMax.to(
-        [this.centerCircleGeomUniforms.fade,
-        this.geomUniforms.fade,
-        this.ring0GeomUniforms.fade,
-        this.dotUniforms.fade,
-        this.hudDiv.style.opacity,
-        this.popDiv.style.opacity],
-        1,
-        {
-          startAt: {value: this.handOpacity},
-          value: 0.0,
-          onStart: self.fadeInOutAnimationOnStart.bind(self),
-          onComplete: self.fadeInOutAnimationComplete.bind(self),
-          onUpdate: self.fadeInOutAnimationOnUpdate.bind(self),
-          paused: true
-        });
-  }
-
   if (visible) {
-    this.fadeInAnimation.restart();
+    this.fadeInOutAnimationOnStart();
   } else {
-    this.fadeOutAnimation.restart();
+    this.fadeInOutAnimationComplete();
   }
 };
 
+Hand.prototype.setOpacity = function(opacity) {
+  this.centerCircleGeomUniforms.fade.value = this.handOpacity;
+  this.geomUniforms.fade.value = this.handOpacity;
+  this.ring0GeomUniforms.fade.value = this.handOpacity;
+  this.dotUniforms.fade.value = this.handOpacity;
+  this.compassRoseUniforms.fade.value = this.handOpacity;
+  this.hudDiv.style.opacity = this.handOpacity;
+  this.popDiv.style.opacity = this.handOpacity;
+  this.fadeInOutAnimationOnUpdate();  // Inform shaders of data change.
+};
 
 Hand.prototype.animate_ = function() {
   var currentTimeMs = Date.now();
@@ -502,14 +489,21 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
   var intersects = ray.intersectObject(this.handOverlay_.globeSphere);
 
   if (intersects.length == 0) {
-    this.setVisible(false);
     this.handOpacity = 0.0;
     this.hudPos = null;
   } else {
-    this.setVisible(true);
     this.hudPos = intersects[0].point;
     var distance = intersects[0].distance;
     var interNormal = intersects[0].face.normal;
+    // push fade to the edge
+    var fadeEdge = 0.5;
+    var fadeMax = Math.max(0,
+      Math.abs(interNormal.x) +
+      Math.abs(interNormal.y +
+      toRadians_(currentCameraPose.tilt / 2)) -
+      fadeEdge
+    );
+    this.handOpacity = Math.sqrt(Math.max(0, 1.0 - (fadeMax) * (1 / fadeEdge)));
 
     this.handOrigin.position.set(this.hudPos.x, this.hudPos.y, this.hudPos.z);
     this.topCallout.position.set(this.hudPos.x, this.hudPos.y, this.hudPos.z);
@@ -550,14 +544,8 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     this.popCalloutPos.setFromMatrixPosition(this.popCalloutPanel.matrixWorld);
   }
 
-  /*
-  this.centerCircleGeomUniforms.fade.value = this.handOpacity;
-  this.geomUniforms.fade.value = this.handOpacity;
-  this.ring0GeomUniforms.fade.value = this.handOpacity;
-  this.dotUniforms.fade.value = this.handOpacity;
-  this.hudDiv.style.opacity = this.handOpacity;
-  this.fadeInOutAnimationOnUpdate();  // Inform shaders of data change.
-  */
+  this.setOpacity(this.handOpacity);
+  this.setVisible(this.handOpacity > 0.0);
 };
 
 /**
@@ -692,8 +680,35 @@ HandOverlay.prototype.injectShaders = function() {
     '    gl_FragColor = vec4( vColor );' +
     '}';
   document.body.appendChild(handFragmentScript);
-};
 
+  // Compass Rose Geometry Shaders.
+  var vcolorVertexScript = document.createElement('script');
+  vcolorVertexScript.type = 'x-shader/x-vertex';
+  vcolorVertexScript.id = 'vcolorvertexshader';
+  vcolorVertexScript.textContent =
+    'uniform float alpha;' +
+    'uniform float fade;' +
+    'varying vec4 vColor;' +
+
+    'void main() {' +
+    '    vColor.rgb = color.rgb;' +
+    '    vColor.a = alpha * fade;' +
+    '    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );' +
+    '    gl_Position = projectionMatrix * mvPosition;' +
+    '}';
+  document.body.appendChild(vcolorVertexScript);
+
+  var vcolorFragmentScript = document.createElement('script');
+  vcolorFragmentScript.type = 'x-shader/x-fragment';
+  vcolorFragmentScript.id = 'vcolorfragmentshader';
+  vcolorFragmentScript.textContent =
+    'varying vec4 vColor;' +
+
+    'void main() {' +
+    '    gl_FragColor = vColor;' +
+    '}';
+  document.body.appendChild(vcolorFragmentScript);
+};
 
 /**
  * Initialize the 3D canvas and renderer.
@@ -809,7 +824,8 @@ HandOverlay.prototype.init3js = function() {
        self.popCalloutGeom = geometry;
     });
 
-  this.compassRoseGeom = this.createGeometry_(3, 0.1, 0xFF0000);
+  this.compassRoseColor = new THREE.Color(0xFF0000);
+  this.compassRoseGeom = this.createGeometry_(3, 0.1, this.compassRoseColor);
 
   this.injectShaders();
   initialized_ = true;
@@ -818,6 +834,7 @@ HandOverlay.prototype.init3js = function() {
 
 /**
  * Creates geometry with n sides.
+ * To use vertex colors, material must have vertexColors: THREE.VertexColors
  * @see http://jsfiddle.net/Elephanter/mUah5/
  */
 HandOverlay.prototype.createGeometry_ = function(n, circumradius, color) {
@@ -839,7 +856,9 @@ HandOverlay.prototype.createGeometry_ = function(n, circumradius, color) {
 
   // Generate the faces of the n-gon.
   for (x = 0; x < n-2; x++) {
-    geometry.faces.push(new THREE.Face3(0, x + 1, x + 2));
+    var face = new THREE.Face3(0, x + 1, x + 2);
+    face.vertexColors = [color, color, color];
+    geometry.faces.push(face);
   }
 
   geometry.computeBoundingSphere();
@@ -919,10 +938,6 @@ HandOverlay.prototype.processHandMoved = function(
   if (!hand) {
     hand = new Hand(this, leapInteractionBox, leapData.id);
     this.hands_[leapData.id] = hand;
-  }
-
-  if (!hand.visible) {
-    hand.setVisible(true);
   }
 
   var timeMs = Date.now();
