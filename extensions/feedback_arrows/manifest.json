@@ -8,7 +8,6 @@
     "page": "feedback_arrows_threejs.html",
     "content_security_policy": "img-src *; script-src 'self' https://www.google.com/*; object-src 'self' https://www.google.com/*"
   },
-  "content_security_policy": "img-src *; script-src 'self' https://www.google.com/*; object-src 'self' https://www.google.com/*",
   "content_scripts": [{
     "matches": ["*://*.google.com/maps/*", "*://*.endpoint.com/*"],
     "js": [
