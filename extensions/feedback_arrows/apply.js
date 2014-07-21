@@ -3,8 +3,59 @@
  * Shows two independent webgl models that should immitate spacenav movement.
  * Object should fade in and fade out on spacenav use.
  */
+/*
+ * Feedback arrows UX extension.
+ * Shows two independent webgl models that should immitate spacenav movement.
+ * Object should fade in and fade out on spacenav use.
+ */
 
 console.log('Loading Feedback arrows Extension: creating WS socket');
+
+//Let's connect directly to websocket<->ROS bridge
+var spacenavROS = new ROSLIB.Ros({
+  url: 'ws://master:9090'
+});
+
+console.log('Loading Feedback arrows Extension: initializing ROS');
+
+// Define topic object
+var feedbackArrowsSpacenavListener = new ROSLIB.Topic({
+  ros: spacenavROS,
+  name: 'spacenav/twist',
+  messageType: 'geometry_msgs/Twist'
+});
+
+
+// Subscribe to spacenav topic + ROS messages rate limiting
+console.log('Loading Feedback arrows Extension: subscribing to spacenav topic');
+var counter = 0;
+var sendEachNoMessage = 10;
+feedbackArrowsSpacenavListener.subscribe(function(msg){
+
+  if (
+		  // rotate our models here
+	  msg.linear.x == 0
+      && msg.linear.y == 0
+      && msg.linear.z == 0
+      && msg.angular.x == 0
+      && msg.angular.y == 0
+      && msg.angular.z == 0
+      ) {
+
+        counter = 0;
+        return;
+   }
+
+  if (counter % sendEachNoMessage == 0) {
+     counter = 1;
+     console.log("Feedback arrows Extension: catched message");
+  } else {
+    counter += 1;
+  }
+  console.log("Counter " + counter);
+});
+
+
 
 
 // Three.js part
