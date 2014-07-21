@@ -21,7 +21,8 @@
     {
       "matches": [
         "http://*.corp.google.com:8499/*",
-        "*://*.google.com/maps/*"
+        "*://*.google.com/maps/*",
+        "*://endpoint.com"
       ],
       "all_frames": true,
       "js": [
