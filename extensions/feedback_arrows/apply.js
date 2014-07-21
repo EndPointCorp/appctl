@@ -50,10 +50,6 @@ feedbackArrowsSpacenavListener.subscribe(function(msg){
      counter = 1;
      console.log("Feedback arrows Extension: catched message");
      
-     camera.position.x = this.msg.linear.x;
-     camera.position.y = this.msg.linear.y;
-     camera.position.z = this.msg.linear.z;
-     
   } else {
     counter += 1;
   }
@@ -119,7 +115,8 @@ function init() {
 
 	var loader_obj = new THREE.OBJLoader( manager );
 	loader_obj.load( chrome.extension.getURL('models/arrows.obj'), function ( object ) {
-
+		this.object = object;
+		
 		object.traverse( function ( child ) {
 
 			if ( child instanceof THREE.Mesh ) {
@@ -178,7 +175,7 @@ function animate() {
 }
 
 function render() {
-
+	object.rotation.x += 0.1;
 	camera.position.x += ( mouseX - camera.position.x ) * .05;
 	camera.position.y += ( - mouseY - camera.position.y ) * .05;
 	camera.lookAt( scene.position );
