@@ -77,7 +77,16 @@ animate();
 console.log("Arrows: after animate");
 
 function init() {
+	  
+	container = document.createElement( 'div' );
+	container.id = 'feedback_arrows';
+	document.body.appendChild( container );
 
+	camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+	camera.position.x = 33;
+	camera.position.y = 33;
+	camera.position.z = 33;
+	
 	controls = new THREE.TrackballControls( camera );
 	  controls.rotateSpeed = 5.0;
 	  controls.zoomSpeed = 5;
@@ -86,13 +95,6 @@ function init() {
 	  controls.noPan = false;
 	  controls.staticMoving = true;
 	  controls.dynamicDampingFactor = 0.3;
-	  
-	container = document.createElement( 'div' );
-	container.id = 'feedback_arrows';
-	document.body.appendChild( container );
-
-	camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-	camera.position.z = 100;
 
 	// scene
 
