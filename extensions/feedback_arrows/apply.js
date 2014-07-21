@@ -120,7 +120,7 @@ function init() {
     } 
     );
     // upward scaling
-    object.scale = new THREE.Vector3( 100, 100, 100 );
+    //object.scale = new THREE.Vector3( 100, 100, 100 );
 
     // You can change the position of the object, so that it is not
     // centered in the view and leaves some space for overlay text.
