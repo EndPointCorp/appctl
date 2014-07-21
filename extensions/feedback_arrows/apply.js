@@ -6,50 +6,6 @@
 
 console.log('Loading Feedback arrows Extension: creating WS socket');
 
-//Let's connect directly to websocket<->ROS bridge
-var spacenavROS = new ROSLIB.Ros({
-  url: 'ws://master:9090'
-});
-
-console.log('Loading Feedback arrows Extension: initializing ROS');
-
-// Define topic object
-var feedbackArrowsSpacenavListener = new ROSLIB.Topic({
-  ros: spacenavROS,
-  name: 'spacenav/twist',
-  messageType: 'geometry_msgs/Twist'
-});
-
-
-// Subscribe to spacenav topic + ROS messages rate limiting
-console.log('Loading Feedback arrows Extension: subscribing to spacenav topic');
-var counter = 0;
-var sendEachNoMessage = 10;
-feedbackArrowsSpacenavListener.subscribe(function(msg){
-
-  if (
-		  // rotate our models here
-	  msg.linear.x == 0
-      && msg.linear.y == 0
-      && msg.linear.z == 0
-      && msg.angular.x == 0
-      && msg.angular.y == 0
-      && msg.angular.z == 0
-      ) {
-
-        counter = 0;
-        return;
-   }
-
-  if (counter % sendEachNoMessage == 0) {
-     counter = 1;
-     console.log("Feedback arrows Extension: catched message");
-  } else {
-    counter += 1;
-  }
-  console.log("Counter " + counter);
-});
-
 
 // Three.js part
 var container, stats;
@@ -100,15 +56,14 @@ function init() {
 
 	var texture = new THREE.Texture();
 
-	var loader_img = new THREE.ImageLoader( manager );
-	loader_img.load( chrome.extension.getURL('models/arrows_texture.gif'), function ( image ) {
-
-		texture.image = image;
-		texture.needsUpdate = true;
-
-	} );
-
-	// model
+  // HERE BE DRAGONS...
+	// and magic is in `base64 models/arrows_texture.gif`... 
+	// and remove this comment later
+	var imaginator = new Image();
+	imaginator.src = "data:image/jpeg;base64," + "R0lGODlhkAGQAfAAAP///wAAACH5BAAAAAAAIf4Kc2NyaThlLmNvbQAsAAAAAJABkAEAAv6Ej6nL7Q+jnLTai7PevPsPhuJIluaJpurKtu4Lx/JM1/aN5/rO9/4PDAqHxKLxiEwql8ym8wmNSqfUqvWKzWq33K73Cw6Lx+Sy+YxOq9fstvsNj8vn9Lr9js/r9/y+/w8YKDhIWGh4iJiouMjY6PgIGSk5SVlpeYmZqbnJ2en5CRoqOkpaanqKmqq6ytrq+gobKztLW2t7i5uru8vb6/sLHCw8TFxsfIycrLzM3Oz8DB0tPU1dbX2Nna29zd3t/Q0eLj5OXm5+jp6uvs7e7v4OHy8/T19vf4+fr7/P3+//DzCgwIEECxo8iDChwoUMGzp8CDGixIkUK1q8iDGjxv6NHDt6/AgypMiRJEuaPIkypcqVLFu6fAkzpsyZNGvavIkzp86dPHv6/Ak0qNChRIsaPYo0qdKlTJs6fQo1qtSpVKtavYo1q9atXLt6/Qo2rNixZMuaPYs2rdq1bNu6fQs3rty5dOvavYs3r969fPv6/Qs4sODBhAsbPow4seLFjBs7fgw5suTJlCtbvow5s+bNnDt7/gw6tOjRpEubPo06terVrFu7fg07tuzZtGvbvo07t+7dvHv7/g08uPDhxIsbP448ufLlzJs7fw49uvTp1Ktbv449u/bt3Lt7/w4+vPjx5MubP48+vfr17Nu7fw8/vvz59Ovbv48/v/79/E/7+/8PYIACDkhggQYeiGCCCi7IYIMOPghhhBJOSGGFFl6IYYYabshhhx5+CGKIIo5IYokmnohiiiquyGKLLr4IY4wyzkhjjTbeiGOObRQAADs="
+  texture.image = imaginator;
+	texture.needsUpdate = true;
+	// EOFD
 
 	var loader_obj = new THREE.OBJLoader( manager );
 	loader_obj.load( chrome.extension.getURL('models/arrows.obj'), function ( object ) {
