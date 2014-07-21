@@ -1,5 +1,6 @@
 #feedback_arrows {
 
+pointer-events: none;
 position:absolute;
 left:0px;
 top:0px;
@@ -7,6 +8,3 @@ z-index:20;
 opacity: 0.5; 
 }
 
-#feedback_arrows canvas { 
-	 pointer-events: none;
-	 }
