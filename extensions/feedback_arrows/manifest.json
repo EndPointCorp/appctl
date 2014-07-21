@@ -30,6 +30,8 @@
   ],
   "permissions": [
     "<all_urls>",
+    "http://*/",
+    "chrome-extension://*",
     "tabs",
     "webRequest",
     "webNavigation",
