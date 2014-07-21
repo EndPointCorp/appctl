@@ -104,13 +104,7 @@ function init() {
     console.log('Loading Feedback arrows Extension: texture');
   } );
 
-  // lets load object
-  var loader = new THREE.OBJLoader();
-  loader.load( 'arrows.obj', function ( object ) {
-      scene.add( object );
-  } );
   
-  /***
   //obj loading
   var obj_loader = new THREE.OBJLoader( manager );
 
@@ -122,8 +116,8 @@ function init() {
     object.traverse( function ( child ) {
       if ( child instanceof THREE.Mesh ) {
     	 console.log('Loading Feedback arrows Extension: preloading object and adding texture');
-    	 child.material.color.setRGB(1, 0, 0);
-         child.material.map = texture;
+    	 var material = new THREE.MeshBasicMaterial({color: 0xff00ff});
+         child.material.map = material;
       }
     } 
     );
@@ -136,16 +130,16 @@ function init() {
     console.log('Loading Feedback arrows Extension: adding object to scene');
     scene.add( object );
 
-    var geometry = new THREE.SphereGeometry(10);
-    var material = new THREE.MeshBasicMaterial({color: 0xff00ff});
-    var sphere = new THREE.Mesh(geometry, material);
-    scene.add(sphere);
+    //var geometry = new THREE.SphereGeometry(10);
+    //var material = new THREE.MeshBasicMaterial({color: 0xff00ff});
+    //var sphere = new THREE.Mesh(geometry, material);
+    //scene.add(sphere);
 
     //debugging
     console.log("Sphere at " + sphere.position.x + " " + sphere.position.y + " " + sphere.position.z);
     
   });
-	***/
+
   // We set the renderer to the size of the window and
   // append a canvas to our HTML page.
   //renderer = new THREE.WebGLRenderer({ alpha: false });
