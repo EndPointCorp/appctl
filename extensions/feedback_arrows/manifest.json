@@ -14,6 +14,7 @@
       "lib/OBJLoader.js",	
       "lib/eventemitter2.min.js",
       "lib/roslib.min.js",
+      "lib/trackball_controls.js",
       "apply.js"
       ],
     "all_frames": true,
