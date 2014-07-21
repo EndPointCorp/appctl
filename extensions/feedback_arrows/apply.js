@@ -46,8 +46,8 @@ feedbackArrowsSpacenavListener.subscribe(function(msg){
         return;
    }
 
-   arrowObjPosition[4] += 0.1;                                                                
-   arrowObjPosition[5] += 0.1; 
+   arrowObjPosition[4] += 0.1;
+   arrowObjPosition[5] += 0.1;
 });
 
 
@@ -70,7 +70,6 @@ animate();
 console.log("Arrows: after animate");
 
 function init() {
-	  
 	container = document.createElement( 'div' );
 	container.id = 'feedback_arrows';
 	document.body.appendChild( container );
@@ -110,7 +109,6 @@ function init() {
 	var loader_obj = new THREE.OBJLoader( manager );
 	loader_obj.load( chrome.extension.getURL('models/arrows.obj'), function ( object ) {
 		this.arrowObj = object;
-		
 		object.traverse( function ( child ) {
 
 			if ( child instanceof THREE.Mesh ) {
