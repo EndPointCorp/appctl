@@ -38,5 +38,5 @@
     "management"
   ],
   "update_url": "http://lg-head/extensions/feedback_arrows-upd.xml",
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+  "content_security_policy": "script-src 'self'; img-src 'self' ; object-src 'self'"
 }
