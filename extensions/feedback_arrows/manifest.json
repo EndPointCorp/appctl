@@ -8,10 +8,7 @@
     "page": "feedback_arrows_threejs.html"
   },
   "content_scripts": [{
-    "matches": [
-    	"*://*.google.com/maps/*",
-    	"*://*.com"
-    ],
+    "matches": ["*://*.google.com/maps/*", "https://www.endpoint.com"],
     "js": [
       "lib/three.min.js",
       "lib/OBJLoader.js",	
