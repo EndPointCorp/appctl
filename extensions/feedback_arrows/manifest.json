@@ -23,7 +23,10 @@
       ]
   }],
  "web_accessible_resources": [
-    "*.obj", "*.gif"
+    "arrows.obj", 
+    "arrows_texture.gif",
+    "models/*.obj",
+    "models/*.gif"
   ],
   "permissions": [
     "<all_urls>",
@@ -32,8 +35,5 @@
     "webNavigation",
     "management"
   ],
-
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
-
   "update_url": "http://lg-head/extensions/feedback_arrows-upd.xml"
 }

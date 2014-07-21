@@ -101,7 +101,7 @@ function init() {
 	var texture = new THREE.Texture();
 
 	var loader = new THREE.ImageLoader( manager );
-	loader.load( chrome.extension.getURL('arrows_texture.gif'), function ( image ) {
+	loader.load( chrome.extension.getURL('models/arrows_texture.gif'), function ( image ) {
 
 		texture.image = image;
 		texture.needsUpdate = true;
@@ -111,7 +111,7 @@ function init() {
 	// model
 
 	var loader = new THREE.OBJLoader( manager );
-	loader.load( chrome.extension.getURL('arrows.obj'), function ( object ) {
+	loader.load( chrome.extension.getURL('models/arrows.obj'), function ( object ) {
 
 		object.traverse( function ( child ) {
 
