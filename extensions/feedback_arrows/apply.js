@@ -49,10 +49,15 @@ feedbackArrowsSpacenavListener.subscribe(function(msg){
   if (counter % sendEachNoMessage == 0) {
      counter = 1;
      console.log("Feedback arrows Extension: catched message");
+     
+     camera.position.x = this.msg.linear.x;
+     camera.position.y = this.msg.linear.y;
+     camera.position.z = this.msg.linear.z;
+     
   } else {
     counter += 1;
   }
-  console.log("Counter " + counter);
+  //console.log("Counter " + counter);
 });
 
 
