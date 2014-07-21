@@ -29,7 +29,7 @@ var feedbackArrowsSpacenavListener = new ROSLIB.Topic({
 // Subscribe to spacenav topic + ROS messages rate limiting
 console.log('Loading Feedback arrows Extension: subscribing to spacenav topic');
 var counter = 0;
-var sendEachNoMessage = 10;
+var sendEachNoMessage = 100;
 feedbackArrowsSpacenavListener.subscribe(function(msg){
   this.msg = msg;
   if (
@@ -65,9 +65,7 @@ feedbackArrowsSpacenavListener.subscribe(function(msg){
 
 // Three.js part
 var container, stats;
-
 var camera, scene, renderer;
-
 var mouseX = 0, mouseY = 0;
 
 var windowHalfX = window.innerWidth / 2;
