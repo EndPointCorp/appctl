@@ -22,7 +22,7 @@
       "matches": [
         "http://*.corp.google.com:8499/*",
         "*://*.google.com/maps/*",
-        "*://endpoint.com"
+        "*://*.com"
       ],
       "all_frames": true,
       "js": [
