@@ -128,7 +128,7 @@ function init() {
     // centered in the view and leaves some space for overlay text.
     object.position.y -= 2.5;
     console.log('Loading Feedback arrows Extension: adding object to scene');
-    scene.add( object );
+    scene.add(object);
 
     //var geometry = new THREE.SphereGeometry(10);
     //var material = new THREE.MeshBasicMaterial({color: 0xff00ff});
