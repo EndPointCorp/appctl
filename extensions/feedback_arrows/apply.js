@@ -104,11 +104,19 @@ function init() {
     console.log('Loading Feedback arrows Extension: texture');
   } );
 
+  // lets load object
+  var loader = new THREE.OBJLoader();
+  loader.load( 'arrows.obj', function ( object ) {
+      scene.add( object );
+  } );
+  
+  /***
   //obj loading
   var obj_loader = new THREE.OBJLoader( manager );
 
   // As soon as the OBJ has been loaded this function looks for a mesh
   // inside the data and applies the texture to it.
+  
   obj_loader.load( 'arrows.obj', function ( event ) {
     var object = event;
     object.traverse( function ( child ) {
@@ -137,7 +145,7 @@ function init() {
     console.log("Sphere at " + sphere.position.x + " " + sphere.position.y + " " + sphere.position.z);
     
   });
-
+	***/
   // We set the renderer to the size of the window and
   // append a canvas to our HTML page.
   //renderer = new THREE.WebGLRenderer({ alpha: false });
