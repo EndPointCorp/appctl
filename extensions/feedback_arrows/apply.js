@@ -176,6 +176,7 @@ function onDocumentMouseMove( event ) {
 
 function animate() {
 
+	controls.update();
 	requestAnimationFrame( animate );
 	render();
 
