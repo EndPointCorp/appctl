@@ -129,7 +129,7 @@ function init() {
     scene.add( object );
 
     var geometry = new THREE.SphereGeometry(10);
-    var material = new THREE.MeshBasicMaterial({color: 0xff0000});
+    var material = new THREE.MeshBasicMaterial({color: 0xff00ff});
     var sphere = new THREE.Mesh(geometry, material);
     scene.add(sphere);
 
