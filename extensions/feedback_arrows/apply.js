@@ -62,8 +62,8 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 			ringObjPosition[i] = 0;
 		}
 		// set opacity to 0 
-		ring_opacity = 0;
-		arrow_opacity = 0;
+		this.ring_opacity = 0;
+		this.arrow_opacity = 0;
 		return;
 
 	} else { 
@@ -108,9 +108,9 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 
 			
 		// make object transparency proportional to the values
-		ring_opacity = 1;
-		arrow_opacity = 1;
-		console.log("Setting opacity to 1");
+		this.ring_opacity = 0.9;
+		this.arrow_opacity = 0.9;
+		console.log("Setting opacity to 0.9");
 		
 		// pull up , push down
 		ringObjPosition[1] = this.msg.linear.z;
@@ -183,18 +183,18 @@ function init() {
 	};
 
 	var ring_texture = new THREE.Texture();
-	var imaginator = new Image();
-	imaginator.src = "data:image/jpeg;base64,"
+	var ring_imaginator = new Image();
+	ring_imaginator.src = "data:image/jpeg;base64,"
 			+ "R0lGODlhkAGQAfAAAP///wAAACH5BAAAAAAAIf4Kc2NyaThlLmNvbQAsAAAAAJABkAEAAv6Ej6nL7Q+jnLTai7PevPsPhuJIluaJpurKtu4Lx/JM1/aN5/rO9/4PDAqHxKLxiEwql8ym8wmNSqfUqvWKzWq33K73Cw6Lx+Sy+YxOq9fstvsNj8vn9Lr9js/r9/y+/w8YKDhIWGh4iJiouMjY6PgIGSk5SVlpeYmZqbnJ2en5CRoqOkpaanqKmqq6ytrq+gobKztLW2t7i5uru8vb6/sLHCw8TFxsfIycrLzM3Oz8DB0tPU1dbX2Nna29zd3t/Q0eLj5OXm5+jp6uvs7e7v4OHy8/T19vf4+fr7/P3+//DzCgwIEECxo8iDChwoUMGzp8CDGixIkUK1q8iDGjxv6NHDt6/AgypMiRJEuaPIkypcqVLFu6fAkzpsyZNGvavIkzp86dPHv6/Ak0qNChRIsaPYo0qdKlTJs6fQo1qtSpVKtavYo1q9atXLt6/Qo2rNixZMuaPYs2rdq1bNu6fQs3rty5dOvavYs3r969fPv6/Qs4sODBhAsbPow4seLFjBs7fgw5suTJlCtbvow5s+bNnDt7/gw6tOjRpEubPo06terVrFu7fg07tuzZtGvbvo07t+7dvHv7/g08uPDhxIsbP448ufLlzJs7fw49uvTp1Ktbv449u/bt3Lt7/w4+vPjx5MubP48+vfr17Nu7fw8/vvz59Ovbv48/v/79/E/7+/8PYIACDkhggQYeiGCCCi7IYIMOPghhhBJOSGGFFl6IYYYabshhhx5+CGKIIo5IYokmnohiiiquyGKLLr4IY4wyzkhjjTbeiGOObRQAADs="
-	ring_texture.image = imaginator;
+	ring_texture.image = ring_imaginator;
 	ring_texture.needsUpdate = true;
 	
 	
 	var arrow_texture = new THREE.Texture();
-	var imaginator = new Image();
-	imaginator.src = "data:image/jpeg;base64,"
+	var arrow_imaginator = new Image();
+	arrow_imaginator.src = "data:image/jpeg;base64,"
 			+ "R0lGODlhkAGQAfAAAP///wAAACH5BAAAAAAAIf4Kc2NyaThlLmNvbQAsAAAAAJABkAEAAv6Ej6nL7Q+jnLTai7PevPsPhuJIluaJpurKtu4Lx/JM1/aN5/rO9/4PDAqHxKLxiEwql8ym8wmNSqfUqvWKzWq33K73Cw6Lx+Sy+YxOq9fstvsNj8vn9Lr9js/r9/y+/w8YKDhIWGh4iJiouMjY6PgIGSk5SVlpeYmZqbnJ2en5CRoqOkpaanqKmqq6ytrq+gobKztLW2t7i5uru8vb6/sLHCw8TFxsfIycrLzM3Oz8DB0tPU1dbX2Nna29zd3t/Q0eLj5OXm5+jp6uvs7e7v4OHy8/T19vf4+fr7/P3+//DzCgwIEECxo8iDChwoUMGzp8CDGixIkUK1q8iDGjxv6NHDt6/AgypMiRJEuaPIkypcqVLFu6fAkzpsyZNGvavIkzp86dPHv6/Ak0qNChRIsaPYo0qdKlTJs6fQo1qtSpVKtavYo1q9atXLt6/Qo2rNixZMuaPYs2rdq1bNu6fQs3rty5dOvavYs3r969fPv6/Qs4sODBhAsbPow4seLFjBs7fgw5suTJlCtbvow5s+bNnDt7/gw6tOjRpEubPo06terVrFu7fg07tuzZtGvbvo07t+7dvHv7/g08uPDhxIsbP448ufLlzJs7fw49uvTp1Ktbv449u/bt3Lt7/w4+vPjx5MubP48+vfr17Nu7fw8/vvz59Ovbv48/v/79/E/7+/8PYIACDkhggQYeiGCCCi7IYIMOPghhhBJOSGGFFl6IYYYabshhhx5+CGKIIo5IYokmnohiiiquyGKLLr4IY4wyzkhjjTbeiGOObRQAADs="
-	arrow_texture.image = imaginator;
+	arrow_texture.image = arrow_imaginator;
 	arrow_texture.needsUpdate = true;
 	// EOFD
 
@@ -208,7 +208,7 @@ function init() {
 				child.material.transparent = true;
 				child.material.opacity = 0.9;
 				
-				arrow_opacity = child.material.opacity;
+				this.arrow_opacity = child.material.opacity;
 				
 				//arrow_material = child.material;
 				//arrow_material.transparent = true;
@@ -228,7 +228,7 @@ function init() {
 				child.material.transparent = true;
 				child.material.opacity = 0;
 				
-				ring_opacity = child.material.opacity;
+				this.ring_opacity = child.material.opacity;
 				
 				//ring_material = child.material;
 				//ring_material.transparent = true;
