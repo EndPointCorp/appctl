@@ -1,0 +1,13 @@
+geometry_msgs/Point tip_position
+Vector tip_velocity
+Vector direction
+float64 width
+float64 length
+int32 id
+bool is_finger
+bool is_tool
+bool is_valid
+int32 touch_zone
+float64 touch_distance
+Vector stabilized_tip_position
+float64 time_visible
