@@ -130,7 +130,7 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		ring_opacity = Math.max(Math.abs(this.msg.linear.z), 
 				Math.abs(this.msg.angular.z), 
 				Math.abs(this.msg.angular.x), 
-				Math.abs(this.msg.angular.y)) / 10;
+				Math.abs(this.msg.angular.y)) / 3;
 		console.log("This is opacity ", ring_opacity)
 		setOpacity(ringObj, ring_opacity);
 		// pull up , push down
