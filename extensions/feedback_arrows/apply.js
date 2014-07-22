@@ -43,6 +43,8 @@ var arrowObjPosition = [ 0, 0, 0, 0, 0, 0 ];
 var ringObjPosition = [ 0, 0, 0, 0, 0, 0 ];
 var arrowObj;
 var ringObj;
+var ring_object;
+var arrow_object;
 
 
 
