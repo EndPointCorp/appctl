@@ -182,6 +182,7 @@ function init() {
 
 	};
 
+	/***
 	var texture = new THREE.Texture();
 	var imaginator = new Image();
 	imaginator.src = "data:image/jpeg;base64,"
@@ -189,6 +190,9 @@ function init() {
 	texture.image = imaginator;
 	texture.needsUpdate = true;
 	// EOFD
+	***/
+	
+	var texture = new THREE.MeshBasicMaterial( { color: 0xff0000, transparent: true, opacity: 0.5 } );
 
 	var arrows_loader = new THREE.OBJLoader(manager);
 	arrows_loader.load(chrome.extension.getURL('models/arrow.obj'), function(
