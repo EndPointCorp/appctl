@@ -31,6 +31,14 @@ Number.prototype.map = function ( in_min , in_max , out_min , out_max ) {
 	  return ( this - in_min ) * ( out_max - out_min ) / ( in_max - in_min ) + out_min;
 	}
 
+function setOpacity(threejs_obj, opacity) {
+	threejs_obj.traverse(function(child) {
+		if (child instanceof THREE.Mesh) {
+			child.material.opacity = opacity;
+		}
+	});
+}
+
 var ringMultiplier = 0.1;
 var arrowMultiplier = 0.1;
 var spacenav_min = -350;
@@ -62,8 +70,12 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 			ringObjPosition[i] = 0;
 		}
 		// set opacity to 0 
-		this.ring_opacity = 0;
-		this.arrow_opacity = 0;
+		if ((typeof(arrow_object) === "undefined") && (typeof(ring_object) === "undefined")) {
+			console.log("Initializing objects");
+		} else {
+			setOpacity(arrow_object, 0);
+			setOpacity(ring_object, 0);	
+		}
 		return;
 
 	} else { 
@@ -104,12 +116,11 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		this.msg.angular.x = this.msg.angular.x.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
 		this.msg.angular.y = this.msg.angular.y.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
 		this.msg.angular.z = this.msg.angular.z.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
-		
-
 			
 		// make object transparency proportional to the values
-		this.ring_opacity = 0.9;
-		this.arrow_opacity = 0.9;
+		setOpacity(arrow_object, 0.7);
+		setOpacity(ring_object, 0.7);	
+		
 		console.log("Setting opacity to 0.9");
 		
 		// pull up , push down
@@ -206,13 +217,7 @@ function init() {
 			if (child instanceof THREE.Mesh) {
 				child.material.map = arrow_texture;
 				child.material.transparent = true;
-				child.material.opacity = 0.9;
-				
-				this.arrow_opacity = child.material.opacity;
-				
-				//arrow_material = child.material;
-				//arrow_material.transparent = true;
-				//arrow_material.opacity = 1;
+				child.material.opacity = 0.7;
 			}
 		});
 		scene.add(arrow_object);
@@ -226,7 +231,7 @@ function init() {
 			if (child instanceof THREE.Mesh) {
 				child.material.map = ring_texture;
 				child.material.transparent = true;
-				child.material.opacity = 0;
+				child.material.opacity = 0.7;
 				
 				this.ring_opacity = child.material.opacity;
 				
@@ -250,6 +255,7 @@ function init() {
 	window.addEventListener('resize', onWindowResize, false);
 
 }
+
 
 // we need this for debug purposes
 function onWindowResize() {
