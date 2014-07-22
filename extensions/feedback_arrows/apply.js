@@ -41,6 +41,8 @@ var arrows_max = 3;
 
 var arrowObjPosition = [ 0, 0, 0, 0, 0, 0 ];
 var ringObjPosition = [ 0, 0, 0, 0, 0, 0 ];
+var arrowObj;
+var ringObj;
 
 
 
