@@ -27,35 +27,78 @@ var feedbackArrowsSpacenavListener = new ROSLIB.Topic({
 });
 
 /***
- [go front right, 
-  go up (z),
-  go front left,
-  rotate over front right,
+ ObjPosition = 
+ [
+ 0 : "go front right", 
+ 1 : "go up (z)",
+ 2 : "go front left",
+ 3 : "rotate over front->right axis",
+ 4 : "rotate over center",
+ 5 : "rotate over front->left axis"
  ]
-***/
+
+ rostopic echo /spacenav/twist:
+
+ [
+ "push then pull" : "linear z -350 => +350",
+ "rotate from left to right" : "angular z: +350 => -350",
+ "move backward then forward" : "linear x -350=>+350",
+ "move left then right" : "linear y +350 => -350",
+ "lean left then lean right" : "angular x -350 => +350",
+ "lean forward then lean backward" : "angular y +350 => -350"
+ ]
+ ***/
+
+// we'll need a map function
+Number.prototype.map = function ( in_min , in_max , out_min , out_max ) {
+	  return ( this - in_min ) * ( out_max - out_min ) / ( in_max - in_min ) + out_min;
+	}
+
+var ringMultiplier = 0.1;
+var arrowMultiplier = 0.1;
+
 var arrowObjPosition = [ 0, 0, 0, 0, 0, 0 ];
 var ringObjPosition = [ 0, 0, 0, 0, 0, 0 ];
 
 // Subscribe to spacenav topic + ROS messages rate limiting
 console.log('Loading Feedback arrows Extension: subscribing to spacenav topic');
 
+//Let's normalize values with .map function ( in_min , in_max , out_min , out_max )
+
 feedbackArrowsSpacenavListener.subscribe(function(msg) {
-	this.msg = msg;
+	this.msg = msg; 
 	if (this.msg.linear.x == 0 && this.msg.linear.y == 0
 			&& this.msg.linear.z == 0 && this.msg.angular.x == 0
-			&& this.msg.angular.y == 0 && this.msg.angular.z == 0) {
-		
-		// lets get back with objects to 0 point
-		for (var i = 0; i < arrowObjPosition.length ; i++) {
+			&& this.msg.angular.y == 0 && this.msg.angular.z == 0) 
+		{ 
+		/*** 
+		 * - fade objects out 
+		 * - return to point 0 
+		 */
+		for (var i = 0; i < arrowObjPosition.length; i++) {
 			arrowObjPosition[i] = 0;
 			ringObjPosition[i] = 0;
 		}
 		return;
+
+	} else { 
+		/***
+		 * - map spacenav values to threejs object coordinates  
+		 * - fade in
+		 * - move objects 
+		 */
+		this.msg.linear.x = this.msg.linear.x.map(-350, 350, -100, 100);
+		this.msg.linear.y = this.msg.linear.y.map(-350, 350, -100, 100);
+		this.msg.linear.z = this.msg.linear.z.map(-350, 350, -100, 100);
+		this.msg.angular.x = this.msg.angular.x.map(-350, 350, -100, 100);
+		this.msg.angular.y = this.msg.angular.y.map(-350, 350, -100, 100);
+		this.msg.angular.z = this.msg.angular.z.map(-350, 350, -100, 100);
 		
+		ringObjPosition[1] = this.msg.linear.z;
+		ringObjPosition[4] = this.msg.angular.z;
 	}
 
-	arrowObjPosition[4] += 0.1;
-	ringObjPosition[5] += 0.1;
+	
 });
 
 // Three.js part
