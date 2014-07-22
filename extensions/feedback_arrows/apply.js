@@ -161,12 +161,12 @@ function render() {
 		arrowObj.rotation.z = arrowObjPosition[5];
 	}
 	if (ringObj) {
-		arrowObj.position.x = ringObjPosition[0];
-		arrowObj.position.y = ringObjPosition[1];
-		arrowObj.position.z = ringObjPosition[2];
-		arrowObj.rotation.x = ringObjPosition[3];
-		arrowObj.rotation.y = ringObjPosition[4];
-		arrowObj.rotation.z = ringObjPosition[5];
+		ringObj.position.x = ringObjPosition[0];
+		ringObj.position.y = ringObjPosition[1];
+		ringObj.position.z = ringObjPosition[2];
+		ringObj.rotation.x = ringObjPosition[3];
+		ringObj.rotation.y = ringObjPosition[4];
+		ringObj.rotation.z = ringObjPosition[5];
 	}
 	camera.lookAt(scene.position);
 	renderer.render(scene, camera);
