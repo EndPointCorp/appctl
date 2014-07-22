@@ -61,6 +61,8 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 			arrowObjPosition[i] = 0;
 			ringObjPosition[i] = 0;
 		}
+		this.ring_material.opacity = 1;
+		this.arrow_material.opacity = 1;
 		return;
 
 	} else { 
@@ -105,7 +107,9 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 
 			
 		// make object transparency proportional to the values
-		// [...]
+		this.ring_material.opacity = 0;
+		this.arrow_material.opacity = 0;
+		
 		// pull up , push down
 		ringObjPosition[1] = this.msg.linear.z;
 		// rotate (twist)
@@ -117,7 +121,7 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		
 		// let's rotate and show the direction arrow
 		this.msg.linear.y = this.msg.linear.y*-1;
-		direction = (Math.atan2(this.msg.linear.x,  this.msg.linear.y) / Math.PI * 180)/-18;
+		direction = (Math.atan2(this.msg.linear.y,  this.msg.linear.x) / Math.PI * 180)/-18;
 		console.log("This is direction1:", direction, "computed out of (x,y)", this.msg.linear.y,"/", this.msg.linear.x	 );
 		arrowObjPosition[4] = direction;
 	}
@@ -186,6 +190,7 @@ function init() {
 		arrow_object.traverse(function(child) {
 			if (child instanceof THREE.Mesh) {
 				child.material.map = texture;
+				this.arrow_material = child.material;
 			}
 		});
 		scene.add(arrow_object);
@@ -198,6 +203,7 @@ function init() {
 		ring_object.traverse(function(child) {
 			if (child instanceof THREE.Mesh) {
 				child.material.map = texture;
+				this.ring_material = child.material;
 			}
 		});
 		scene.add(ring_object);
