@@ -99,10 +99,13 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		this.msg.angular.y = this.msg.angular.y.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
 		this.msg.angular.z = this.msg.angular.z.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
 		
+		//pull up , push down
 		ringObjPosition[1] = this.msg.linear.z;
+		//rotate (twist)
 		ringObjPosition[4] = this.msg.angular.z;
-		ringObjPosition[3] = (this.msg.angular.x/2 + this.msg.angular.y/2) * 0.5;
-		ringObjPosition[5] = (this.msg.angular.x/2 + this.msg.angular.y/2) * -0.5;
+		//lean forward and backward
+		ringObjPosition[3] = (this.msg.angular.x/2 + this.msg.angular.y/2) * -0.5;
+		ringObjPosition[5] = (this.msg.angular.x/2 + this.msg.angular.y/2) * 0.5;
 	}
 
 	
