@@ -57,6 +57,11 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		 * - fade objects out 
 		 * - return to point 0 
 		 */
+		if (ring_object && arrow_object ) {
+		ring_object.materials[0].opacity = 1;
+		arrow_object.materials[0].opacity = 1;
+		}
+		
 		for (var i = 0; i < arrowObjPosition.length; i++) {
 			arrowObjPosition[i] = 0;
 			ringObjPosition[i] = 0;
