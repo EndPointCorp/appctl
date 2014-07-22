@@ -62,8 +62,8 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 			ringObjPosition[i] = 0;
 		}
 		// set opacity to 0 
-		//ring_material.opacity = 0;
-		//arrow_material.opacity = 0;
+		ring_opacity = 0;
+		arrow_opacity = 0;
 		return;
 
 	} else { 
@@ -108,8 +108,8 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 
 			
 		// make object transparency proportional to the values
-		//ring_material.opacity = 1;
-		//arrow_material.opacity = 1;
+		ring_opacity = 1;
+		arrow_opacity = 1;
 		console.log("Setting opacity to 1");
 		
 		// pull up , push down
@@ -199,6 +199,9 @@ function init() {
 				child.material.map = texture;
 				child.material.transparent = true;
 				child.material.opacity = 0.9;
+				
+				arrow_opacity = child.material.opacity;
+				
 				//arrow_material = child.material;
 				//arrow_material.transparent = true;
 				//arrow_material.opacity = 1;
@@ -215,7 +218,9 @@ function init() {
 			if (child instanceof THREE.Mesh) {
 				child.material.map = texture;
 				child.material.transparent = true;
-				child.material.opacity = 0.1;
+				child.material.opacity = 0;
+				
+				ring_opacity = child.material.opacity;
 				
 				//ring_material = child.material;
 				//ring_material.transparent = true;
