@@ -26,28 +26,7 @@ var feedbackArrowsSpacenavListener = new ROSLIB.Topic({
 	throttle_rate : 20
 });
 
-/***
- ObjPosition = 
- [
- 0 : "go front right", 
- 1 : "go up (z)",
- 2 : "go front left",
- 3 : "rotate over front->right axis",
- 4 : "rotate over center",
- 5 : "rotate over front->left axis"
- ]
-
- rostopic echo /spacenav/twist:
-
- [
- "push then pull" : "linear z -350 => +350",
- "rotate from left to right" : "angular z: +350 => -350",
- "move backward then forward" : "linear x -350=>+350",
- "move left then right" : "linear y +350 => -350",
- "lean left then lean right" : "angular x -350 => +350",
- "lean forward then lean backward" : "angular y +350 => -350"
- ]
- ***/
+/
 
 // we'll need a map function
 Number.prototype.map = function ( in_min , in_max , out_min , out_max ) {
@@ -59,8 +38,8 @@ var arrowMultiplier = 0.1;
 var spacenav_min = -350;
 var spacenav_max = 350;
 
-var arrows_min = -10;
-var arrows_max = 10;
+var arrows_min = -3;
+var arrows_max = 3;
 
 var arrowObjPosition = [ 0, 0, 0, 0, 0, 0 ];
 var ringObjPosition = [ 0, 0, 0, 0, 0, 0 ];
@@ -91,7 +70,30 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		 * - map spacenav values to threejs object coordinates  
 		 * - fade in
 		 * - move objects 
-		 */
+		 *
+		 *	 ObjPosition = 
+		 *	 [
+		 *	 0 : "go front right", 
+		 *	 1 : "go up (z)",
+		 *	 2 : "go front left",
+		 *	 3 : "rotate over front->right axis",
+		 *	 4 : "rotate over center",
+		 *	 5 : "rotate over front->left axis"
+		 *	 ]
+		 *	
+		 *	 rostopic echo /spacenav/twist:
+		 *	
+		 *	 [
+		 *	 "push then pull" : "linear z -350 => +350",
+		 *	 "rotate from left to right" : "angular z: +350 => -350",
+		 *	 "move backward then forward" : "linear x -350=>+350",
+		 *	 "move left then right" : "linear y +350 => -350",
+		 *	 "lean left then lean right" : "angular x -350 => +350",
+		 *	 "lean forward then lean backward" : "angular y +350 => -350"
+		 *	 ]
+		 *
+		 ***/
+		
 		this.msg.linear.x = this.msg.linear.x.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
 		this.msg.linear.y = this.msg.linear.y.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
 		this.msg.linear.z = this.msg.linear.z.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
@@ -101,6 +103,8 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		
 		ringObjPosition[1] = this.msg.linear.z;
 		ringObjPosition[4] = this.msg.angular.z;
+		ringObjPosition[3] = this.msg.angular.x;
+		ringObjPosition[5] = this.msg.angular.y;
 	}
 
 	
