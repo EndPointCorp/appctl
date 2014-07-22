@@ -73,8 +73,8 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		if ((typeof(arrow_object) === "undefined") && (typeof(ring_object) === "undefined")) {
 			console.log("Initializing objects");
 		} else {
-			setOpacity(arrow_object, 0);
-			setOpacity(ring_object, 0);	
+			setOpacity(this.arrow_object, 0);
+			setOpacity(this.ring_object, 0);	
 		}
 		return;
 
@@ -118,8 +118,8 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		this.msg.angular.z = this.msg.angular.z.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
 			
 		// make object transparency proportional to the values
-		setOpacity(arrow_object, 0.7);
-		setOpacity(ring_object, 0.7);	
+		setOpacity(arrowObj, 0.7);
+		setOpacity(ringObj, 0.7);	
 		
 		console.log("Setting opacity to 0.9");
 		
