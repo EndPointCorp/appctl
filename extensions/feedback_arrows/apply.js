@@ -268,15 +268,21 @@ function animate() {
 }
 
 function render() {
-	if (arrowObj != undefined) {
+	if (typeof(arrowObj) === "undefined") {
+		console.log("Still initializing arrowObj");
+	}
+		else {
 		arrowObj.position.x = arrowObjPosition[0];
 		arrowObj.position.y = arrowObjPosition[1];
 		arrowObj.position.z = arrowObjPosition[2];
 		arrowObj.rotation.x = arrowObjPosition[3];
 		arrowObj.rotation.y = arrowObjPosition[4];
 		arrowObj.rotation.z = arrowObjPosition[5];
+		}
 	}
-	if (ringObj != undefined) {
+	if ( typeof(ringObj) === "undefined") {
+		console.log("Still initializing ringObj");
+	} else {
 		ringObj.position.x = ringObjPosition[0];
 		ringObj.position.y = ringObjPosition[1];
 		ringObj.position.z = ringObjPosition[2];
