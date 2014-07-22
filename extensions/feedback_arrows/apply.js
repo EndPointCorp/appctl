@@ -42,7 +42,24 @@ var arrows_max = 3;
 var arrowObjPosition = [ 0, 0, 0, 0, 0, 0 ];
 var ringObjPosition = [ 0, 0, 0, 0, 0, 0 ];
 
-// Subscribe to spacenav topic + ROS messages rate limiting
+
+});
+
+// Three.js part
+var container, stats;
+var camera, scene, renderer;
+var mouseX = 0, mouseY = 0;
+
+var windowHalfX = window.innerWidth / 2;
+var windowHalfY = window.innerHeight / 2;
+
+console.log("Arrows: before init");
+init();
+console.log("Arrows: after init");
+console.log("Arrows: before animate");
+animate();
+console.log("Arrows: after animate");
+//Subscribe to spacenav topic + ROS messages rate limiting
 console.log('Loading Feedback arrows Extension: subscribing to spacenav topic');
 
 //Let's normalize values with .map function ( in_min , in_max , out_min , out_max )
@@ -57,10 +74,79 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		 * - fade objects out 
 		 * - return to point 0 
 		 */
+		feedbackArrowsSpacenavListener.subscribe(function(msg) {
+			this.msg = msg; 
+			if (this.msg.linear.x == 0 && this.msg.linear.y == 0
+					&& this.msg.linear.z == 0 && this.msg.angular.x == 0
+					&& this.msg.angular.y == 0 && this.msg.angular.z == 0) 
+				{ 
+				/*** 
+				 * - fade objects out 
+				 * - return to point 0 
+				 */
+				for (var i = 0; i < arrowObjPosition.length; i++) {
+					arrowObjPosition[i] = 0;
+					ringObjPosition[i] = 0;
+				}
+				return;
+
+			} else { 
+				/***
+				 * - map spacenav values to threejs object coordinates  
+				 * - fade in
+				 * - move objects 
+				 *
+				 *	 ObjPosition = 
+				 *	 [
+				 *	 0 : "go front right", 
+				 *	 1 : "go up (z)",
+				 *	 2 : "go front left",
+				 *	 3 : "rotate over y axis",
+				 *	 4 : "rotate over center",
+				 *	 5 : "rotate over x axis"
+				 *	 ]
+				 *	
+				 *	 rostopic echo /spacenav/twist:
+				 *	
+				 *	 [
+				 *	 "push then pull" : "linear z -350 => +350",
+				 *	 "rotate from left to right" : "angular z: +350 => -350",
+				 *	 "move backward then forward" : "linear x -350=>+350",
+				 *	 "move left then right" : "linear y +350 => -350",
+				 *	 "lean left then lean right" : "angular x -350 => +350",
+				 *	 "lean forward then lean backward" : "angular y +350 => -350"
+				 *	 ]
+				 *
+				 ***/
+				
+				this.msg.linear.x = this.msg.linear.x.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
+				this.msg.linear.y = this.msg.linear.y.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
+				this.msg.linear.z = this.msg.linear.z.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
+				this.msg.angular.x = this.msg.angular.x.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
+				this.msg.angular.y = this.msg.angular.y.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
+				this.msg.angular.z = this.msg.angular.z.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
+				
+
+				// make object transparency proportional to the values
+				ring_object.materials[0].opacity = Math.max(this.msg.linear.z,
+						this.msg.angular.z, this.msg.angular.x, this.msg.angular.y)/100;
+				// pull up , push down
+				ringObjPosition[1] = this.msg.linear.z;
+				// rotate (twist)
+				ringObjPosition[4] = this.msg.angular.z;
+				// lean forward and backward
+				ringObjPosition[5] = this.msg.angular.x * -0.1;
+				ringObjPosition[3] = this.msg.angular.y * -0.1;
+				
+			}
+
+			
+		});
+		
 		if (ring_object && arrow_object ) {
-		ring_object.materials[0].opacity = 1;
-		arrow_object.materials[0].opacity = 1;
-		}
+			ring_object.materials[0].opacity = 1;
+			arrow_object.materials[0].opacity = 1;
+			}
 		
 		for (var i = 0; i < arrowObjPosition.length; i++) {
 			arrowObjPosition[i] = 0;
@@ -119,23 +205,7 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 	}
 
 	
-});
-
-// Three.js part
-var container, stats;
-var camera, scene, renderer;
-var mouseX = 0, mouseY = 0;
-
-var windowHalfX = window.innerWidth / 2;
-var windowHalfY = window.innerHeight / 2;
-
-console.log("Arrows: before init");
-init();
-console.log("Arrows: after init");
-console.log("Arrows: before animate");
-animate();
-console.log("Arrows: after animate");
-
+	
 function init() {
 	container = document.createElement('div');
 	container.id = 'feedback_arrows';
