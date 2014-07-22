@@ -110,13 +110,14 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		ringObjPosition[1] = this.msg.linear.z;
 		// rotate (twist)
 		ringObjPosition[4] = this.msg.angular.z * 0.5;
+		console.log("this.msg.angular.z =>", this.msg.angular.z);
 		// lean forward and backward
 		ringObjPosition[5] = this.msg.angular.x * -0.1;
 		ringObjPosition[3] = this.msg.angular.y * -0.1;
 		
 		// let's rotate and show the direction arrow
-		direction = Math.atan2(this.msg.linear.y,  this.msg.linear.x) / Math.PI * 180;
-		console.log("This is direction1:", direction, "computed out of (x,y)", this.msg.linear.y,"/", this.msg.linear.x );
+		direction = Math.atan2(this.msg.linear.y,  this.msg.linear.x*-1) / Math.PI * 180;
+		console.log("This is direction1:", direction, "computed out of (x,y)", this.msg.linear.y,"/", this.msg.linear.x*-1	 );
 		arrowObjPosition[4] = direction;
 	}
 
