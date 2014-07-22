@@ -41,7 +41,7 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 	}
 
 	arrowObjPosition[4] += 0.1;
-	ringObjPosition[5] += 0.1;
+	ringObjPosition[3] += 0.1;
 });
 
 // Three.js part
