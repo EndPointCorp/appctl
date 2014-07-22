@@ -10,3 +10,10 @@ docs/
 
 # Other cruft
 *.swp
+
+# Eclipse
+.project
+.settings
+
+# osx
+.DS_Store
