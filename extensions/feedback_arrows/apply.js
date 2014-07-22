@@ -239,7 +239,7 @@ function animate() {
 }
 
 function render() {
-	if (arrowObj) {
+	if (arrowObj != undefined) {
 		arrowObj.position.x = arrowObjPosition[0];
 		arrowObj.position.y = arrowObjPosition[1];
 		arrowObj.position.z = arrowObjPosition[2];
@@ -247,7 +247,7 @@ function render() {
 		arrowObj.rotation.y = arrowObjPosition[4];
 		arrowObj.rotation.z = arrowObjPosition[5];
 	}
-	if (ringObj) {
+	if (ringObj != undefined) {
 		ringObj.position.x = ringObjPosition[0];
 		ringObj.position.y = ringObjPosition[1];
 		ringObj.position.z = ringObjPosition[2];
