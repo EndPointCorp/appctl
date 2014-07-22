@@ -70,11 +70,11 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 			ringObjPosition[i] = 0;
 		}
 		// set opacity to 0 
-		if ((typeof(this.arrow_object) === "undefined") && (typeof(this.ring_object) === "undefined")) {
+		if ((typeof(arrowObj) === "undefined") && (typeof(ringObj) === "undefined")) {
 			console.log("Initializing objects");
 		} else {
-			setOpacity(this.arrow_object, 0);
-			setOpacity(this.ring_object, 0);	
+			setOpacity(ringObj, 0);
+			setOpacity(arrowObj, 0);	
 		}
 		return;
 
