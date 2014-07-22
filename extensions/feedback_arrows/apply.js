@@ -61,7 +61,7 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 			arrowObjPosition[i] = 0;
 			ringObjPosition[i] = 0;
 		}
-		console.log("Setting opacity to 0 of ", this.ring_material, " and ", this.arrow_material);
+		console.log("Setting opacity to 0");
 		this.ring_material.opacity = 0;
 		this.arrow_material.opacity = 0;
 		return;
@@ -110,7 +110,7 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		// make object transparency proportional to the values
 		this.ring_material.opacity = 1;
 		this.arrow_material.opacity = 1;
-		console.log("Setting opacity to 1 of ", this.ring_material, " and ", this.arrow_material);
+		console.log("Setting opacity to 1");
 		
 		// pull up , push down
 		ringObjPosition[1] = this.msg.linear.z;
@@ -193,6 +193,7 @@ function init() {
 			if (child instanceof THREE.Mesh) {
 				child.material.map = texture;
 				this.arrow_material = child.material;
+				this.arrow_material.transparent = true;
 			}
 		});
 		scene.add(arrow_object);
@@ -206,6 +207,7 @@ function init() {
 			if (child instanceof THREE.Mesh) {
 				child.material.map = texture;
 				this.ring_material = child.material;
+				this.ring_material.transparent = true;
 			}
 		});
 		scene.add(ring_object);
