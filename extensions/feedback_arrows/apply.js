@@ -26,6 +26,12 @@ var feedbackArrowsSpacenavListener = new ROSLIB.Topic({
 	throttle_rate : 20
 });
 
+/***
+ [go right front, 
+  go up (z),
+  
+ ]
+***/
 var arrowObjPosition = [ 0, 0, 0, 0, 0, 0 ];
 var ringObjPosition = [ 0, 0, 0, 0, 0, 0 ];
 
@@ -40,8 +46,8 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		return;
 	}
 
-	arrowObjPosition[1] += 0.1;
-	ringObjPosition[0] += 0.1;
+	arrowObjPosition[2] += 0.1;
+	ringObjPosition[3] += 0.1;
 });
 
 // Three.js part
