@@ -210,9 +210,9 @@ function init() {
 		this.ringObj = ring_object;
 		ring_object.traverse(function(child) {
 			if (child instanceof THREE.Mesh) {
-				var ring_texture = new THREE.MeshBasicMaterial( { color: 0xff0000, transparent: true, opacity: 0.5 } );
-				child.material.map = ring_texture;
-				ring_material = child.material.map;
+				child.material.map = texture;
+				ring_material = child.material;
+				ring_material.transparent = true;
 			}
 		});
 		scene.add(ring_object);
