@@ -270,7 +270,7 @@ function animate() {
 function render() {
 	if (typeof(arrowObj) === "undefined") {
 		console.log("Still initializing arrowObj");
-	}
+		}
 		else {
 		arrowObj.position.x = arrowObjPosition[0];
 		arrowObj.position.y = arrowObjPosition[1];
@@ -279,7 +279,7 @@ function render() {
 		arrowObj.rotation.y = arrowObjPosition[4];
 		arrowObj.rotation.z = arrowObjPosition[5];
 		}
-	}
+	
 	if ( typeof(ringObj) === "undefined") {
 		console.log("Still initializing ringObj");
 	} else {
