@@ -133,9 +133,9 @@ function init() {
 
 	camera = new THREE.PerspectiveCamera(45, window.innerWidth
 			/ window.innerHeight, 1, 2000);
-	camera.position.x = 0;
+	camera.position.x = 33;
 	camera.position.y = 0;
-	camera.position.z = 0;
+	camera.position.z = 33;
 
 	// scene
 
