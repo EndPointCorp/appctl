@@ -92,8 +92,11 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		 *
 		 ***/
 		
-		this.msg.linear.x = this.msg.linear.x.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
-		this.msg.linear.y = this.msg.linear.y.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
+		// needed for arrow
+		this.msg.linear.x = this.msg.linear.x.map(spacenav_min, spacenav_max, -10, 10);
+		this.msg.linear.y = this.msg.linear.y.map(spacenav_min, spacenav_max, -10, 10);
+		
+		// needed for ring
 		this.msg.linear.z = this.msg.linear.z.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
 		this.msg.angular.x = this.msg.angular.x.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
 		this.msg.angular.y = this.msg.angular.y.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
@@ -114,7 +117,7 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		// let's rotate and show the direction arrow
 		direction = Math.atan2(this.msg.linear.y,  this.msg.linear.x) / Math.PI * 180;
 		console.log("This is direction1:", direction);
-		arrowObjPosition[4] = direction*0.04;
+		arrowObjPosition[4] = direction;
 	}
 
 	
