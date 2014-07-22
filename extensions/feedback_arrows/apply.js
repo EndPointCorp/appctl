@@ -114,7 +114,7 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		// let's rotate and show the direction arrow
 		direction = Math.atan2(this.msg.linear.y,  this.msg.linear.x) / Math.PI * 180;
 		console.log("This is direction1:", direction);
-		arrowObjPosition[4] = direction*0.01;
+		arrowObjPosition[4] = direction*0.04;
 	}
 
 	
