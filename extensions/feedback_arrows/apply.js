@@ -26,8 +26,6 @@ var feedbackArrowsSpacenavListener = new ROSLIB.Topic({
 	throttle_rate : 20
 });
 
-/
-
 // we'll need a map function
 Number.prototype.map = function ( in_min , in_max , out_min , out_max ) {
 	  return ( this - in_min ) * ( out_max - out_min ) / ( in_max - in_min ) + out_min;
