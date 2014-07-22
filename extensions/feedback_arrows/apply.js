@@ -101,8 +101,8 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		
 		ringObjPosition[1] = this.msg.linear.z;
 		ringObjPosition[4] = this.msg.angular.z;
-		ringObjPosition[3] = this.msg.angular.x;
-		ringObjPosition[5] = this.msg.angular.y;
+		ringObjPosition[3] = (this.msg.angular.x/2 + this.msg.angular.y/2) * 0.5;
+		ringObjPosition[5] = (this.msg.angular.x/2 + this.msg.angular.y/2) * -0.5;
 	}
 
 	
