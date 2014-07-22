@@ -56,6 +56,11 @@ Number.prototype.map = function ( in_min , in_max , out_min , out_max ) {
 
 var ringMultiplier = 0.1;
 var arrowMultiplier = 0.1;
+var spacenav_min = -350;
+var spacenav_max = 350;
+
+var arrows_min = -10;
+var arrows_max = 10;
 
 var arrowObjPosition = [ 0, 0, 0, 0, 0, 0 ];
 var ringObjPosition = [ 0, 0, 0, 0, 0, 0 ];
@@ -87,12 +92,12 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		 * - fade in
 		 * - move objects 
 		 */
-		this.msg.linear.x = this.msg.linear.x.map(-350, 350, -100, 100);
-		this.msg.linear.y = this.msg.linear.y.map(-350, 350, -100, 100);
-		this.msg.linear.z = this.msg.linear.z.map(-350, 350, -100, 100);
-		this.msg.angular.x = this.msg.angular.x.map(-350, 350, -100, 100);
-		this.msg.angular.y = this.msg.angular.y.map(-350, 350, -100, 100);
-		this.msg.angular.z = this.msg.angular.z.map(-350, 350, -100, 100);
+		this.msg.linear.x = this.msg.linear.x.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
+		this.msg.linear.y = this.msg.linear.y.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
+		this.msg.linear.z = this.msg.linear.z.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
+		this.msg.angular.x = this.msg.angular.x.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
+		this.msg.angular.y = this.msg.angular.y.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
+		this.msg.angular.z = this.msg.angular.z.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
 		
 		ringObjPosition[1] = this.msg.linear.z;
 		ringObjPosition[4] = this.msg.angular.z;
