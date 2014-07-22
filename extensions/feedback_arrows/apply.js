@@ -18,7 +18,7 @@ var feedbackArrowsSpacenavListener = new ROSLIB.Topic({
 	ros : spacenavROS,
 	name : 'spacenav/twist',
 	messageType : 'geometry_msgs/Twist',
-	throttle_rate : 50
+	throttle_rate : 100
 });
 
 // we'll need a map function
@@ -147,7 +147,7 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 					/ Math.PI * 180)
 					/ -18;
 
-			console.log("This is direction1:", direction,
+			//console.log("This is direction1:", direction,
 					"computed out of (x,y)", this.msg.linear.y, "/",
 					this.msg.linear.x);
 
