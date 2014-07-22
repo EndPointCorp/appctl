@@ -182,7 +182,6 @@ function init() {
 
 	};
 
-	/***
 	var texture = new THREE.Texture();
 	var imaginator = new Image();
 	imaginator.src = "data:image/jpeg;base64,"
@@ -190,9 +189,6 @@ function init() {
 	texture.image = imaginator;
 	texture.needsUpdate = true;
 	// EOFD
-	***/
-	
-	var texture = new THREE.MeshBasicMaterial( { color: 0xff0000, transparent: true, opacity: 0.5 } );
 
 	var arrows_loader = new THREE.OBJLoader(manager);
 	arrows_loader.load(chrome.extension.getURL('models/arrow.obj'), function(
@@ -201,8 +197,9 @@ function init() {
 		arrow_object.traverse(function(child) {
 			if (child instanceof THREE.Mesh) {
 				child.material.map = texture;
-				arrow_material = child.material.map;
+				arrow_material = child.material;
 				arrow_material.transparent = true;
+				arrow_material.opacity = 1;
 			}
 		});
 		scene.add(arrow_object);
@@ -215,8 +212,9 @@ function init() {
 		ring_object.traverse(function(child) {
 			if (child instanceof THREE.Mesh) {
 				child.material.map = texture;
-				ring_material = child.material.map;
+				ring_material = child.material;
 				ring_material.transparent = true;
+				ring_material.opacity = 1;
 			}
 		});
 		scene.add(ring_object);
