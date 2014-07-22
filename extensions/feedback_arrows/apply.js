@@ -104,8 +104,8 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		//rotate (twist)
 		ringObjPosition[4] = this.msg.angular.z;
 		//lean forward and backward
-		ringObjPosition[5] = this.msg.angular.x * 0.5;
-		ringObjPosition[3] = this.msg.angular.y * -0.5;
+		ringObjPosition[5] = this.msg.angular.x * 0.1;
+		ringObjPosition[3] = this.msg.angular.y * 0.1;
 	}
 
 	
