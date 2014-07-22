@@ -27,9 +27,10 @@ var feedbackArrowsSpacenavListener = new ROSLIB.Topic({
 });
 
 /***
- [go right front, 
+ [go front right, 
   go up (z),
-  
+  go front left,
+  rotate over front right,
  ]
 ***/
 var arrowObjPosition = [ 0, 0, 0, 0, 0, 0 ];
@@ -43,11 +44,18 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 	if (this.msg.linear.x == 0 && this.msg.linear.y == 0
 			&& this.msg.linear.z == 0 && this.msg.angular.x == 0
 			&& this.msg.angular.y == 0 && this.msg.angular.z == 0) {
+		
+		// lets get back with objects to 0 point
+		for (var i = 0; i < arrowObjPosition.length ; i++) {
+			arrowObjPosition[i] = 0;
+			ringObjPosition[i] = 0;
+		}
 		return;
+		
 	}
 
-	arrowObjPosition[2] += 0.1;
-	ringObjPosition[3] += 0.1;
+	arrowObjPosition[4] += 0.1;
+	ringObjPosition[5] += 0.1;
 });
 
 // Three.js part
