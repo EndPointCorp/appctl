@@ -74,9 +74,9 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		 *	 0 : "go front right", 
 		 *	 1 : "go up (z)",
 		 *	 2 : "go front left",
-		 *	 3 : "rotate over front->right axis",
+		 *	 3 : "rotate over y axis",
 		 *	 4 : "rotate over center",
-		 *	 5 : "rotate over front->left axis"
+		 *	 5 : "rotate over x axis"
 		 *	 ]
 		 *	
 		 *	 rostopic echo /spacenav/twist:
@@ -104,8 +104,8 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		//rotate (twist)
 		ringObjPosition[4] = this.msg.angular.z;
 		//lean forward and backward
-		ringObjPosition[3] = (this.msg.angular.x/2 + this.msg.angular.y/2) * -0.5;
-		ringObjPosition[5] = (this.msg.angular.x/2 + this.msg.angular.y/2) * 0.5;
+		ringObjPosition[3] = this.msg.angular.x * 0.5;
+		ringObjPosition[5] = this.msg.angular.y * -0.5;
 	}
 
 	
