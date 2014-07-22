@@ -40,8 +40,8 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		return;
 	}
 
-	arrowObjPosition[4] += 0.1;
-	ringObjPosition[3] += 0.1;
+	arrowObjPosition[1] += 0.1;
+	ringObjPosition[0] += 0.1;
 });
 
 // Three.js part
@@ -100,26 +100,26 @@ function init() {
 
 	var arrows_loader = new THREE.OBJLoader(manager);
 	arrows_loader.load(chrome.extension.getURL('models/arrow.obj'), function(
-			object) {
-		this.arrowObj = object;
-		object.traverse(function(child) {
+			arrow_object) {
+		this.arrowObj = arrow_object;
+		arrow_object.traverse(function(child) {
 			if (child instanceof THREE.Mesh) {
 				child.material.map = texture;
 			}
 		});
-		scene.add(object);
+		scene.add(arrow_object);
 	});
 
 	var ring_loader = new THREE.OBJLoader(manager);
 	ring_loader.load(chrome.extension.getURL('models/ring.obj'), function(
-			object) {
-		this.ringObj = object;
-		object.traverse(function(child) {
+			ring_object) {
+		this.ringObj = ring_object;
+		ring_object.traverse(function(child) {
 			if (child instanceof THREE.Mesh) {
 				child.material.map = texture;
 			}
 		});
-		scene.add(object);
+		scene.add(ring_object);
 	});
 
 	//
