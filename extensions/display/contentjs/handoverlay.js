@@ -523,7 +523,8 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     var calloutScale = distanceMod * 1.5;
 
     this.handOrigin.scale.set(ringScale, ringScale, ringScale);
-    this.calloutOrigin.scale.set(calloutScale, calloutScale, calloutScale);
+    this.popCallout.scale.set(calloutScale, calloutScale, calloutScale);
+    this.topCallout.scale.set(calloutScale, calloutScale, calloutScale);
     this.calloutOrigin.updateMatrixWorld(false);
 
     this.ring2.rotation.set(0, -palmYaw, 0);
