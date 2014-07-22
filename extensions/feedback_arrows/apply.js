@@ -126,7 +126,7 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 				.abs(this.msg.angular.y))
 				/ arrows_max;
 		console.log("This is opacity ", ring_opacity)
-		if (ring_opacity < arrows_max / 20) { // yes that's evil
+		if (ring_opacity > arrows_max / 20) { // yes that's evil
 			setOpacity(ringObj, ring_opacity);
 			// pull up , push down
 			ringObjPosition[1] = this.msg.linear.z;
