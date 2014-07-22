@@ -18,7 +18,7 @@ var feedbackArrowsSpacenavListener = new ROSLIB.Topic({
 	ros : spacenavROS,
 	name : 'spacenav/twist',
 	messageType : 'geometry_msgs/Twist',
-	throttle_rate : 100
+	throttle_rate : 40
 });
 
 // we'll need a map function
