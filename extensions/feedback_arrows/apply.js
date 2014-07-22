@@ -57,6 +57,12 @@ console.log('Loading Feedback arrows Extension: subscribing to spacenav topic');
 
 feedbackArrowsSpacenavListener.subscribe(function(msg) {
 	this.msg = msg; 
+	/*
+	 * Two possible states: 
+	 * spacenav not being used (all zeros),
+	 * else
+	 * spacenav being touched - we rotate our pretty objects
+	 */
 	if (this.msg.linear.x == 0 && this.msg.linear.y == 0
 			&& this.msg.linear.z == 0 && this.msg.angular.x == 0
 			&& this.msg.angular.y == 0 && this.msg.angular.z == 0) 
@@ -118,11 +124,13 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		this.msg.angular.z = this.msg.angular.z.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
 			
 		// make object transparency proportional to the values
-		setOpacity(arrowObj, 0.7);
-		setOpacity(ringObj, 0.7);	
 		
-		console.log("Setting opacity to 0.9");
-		
+
+		// add preety curve possibly y=3x/(x+2)
+		ring_opacity = Math.max(Math.abs(this.msg.linear.z), Math
+				.abs(this.msg.angular.z), Math.abs(this.msg.angular.x), Math
+				.abs(this.msg.angular.y)) / 100;
+		setOpacity(ringObj, ring_opacity);
 		// pull up , push down
 		ringObjPosition[1] = this.msg.linear.z;
 		// rotate (twist)
@@ -134,12 +142,14 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		
 
 		// let's rotate and show the direction arrow with little tresholding
-		if ((Math.abs(this.msg.linear.y) > 0.2) || (Math.abs(this.msg.linear.x) > 0.2)) {
+		if ((Math.abs(this.msg.linear.y) > 0.3) || (Math.abs(this.msg.linear.x) > 0.3)) {
 			this.msg.linear.y = this.msg.linear.y * -1;
 			direction = (Math.atan2(this.msg.linear.y, this.msg.linear.x)/ Math.PI * 180)/ -18;
 			console.log("This is direction1:", direction,
 					"computed out of (x,y)", this.msg.linear.y, "/",
 					this.msg.linear.x);
+			arrow_opacity = Math.max(Math.abs(this.msg.linear.y),Math.abs(this.msg.linear.x));
+			setOpacity(arrowObj, arrow_opacity);
 			arrowObjPosition[4] = direction;
 		}
 	}
@@ -217,7 +227,7 @@ function init() {
 			if (child instanceof THREE.Mesh) {
 				child.material.map = arrow_texture;
 				child.material.transparent = true;
-				child.material.opacity = 0.7;
+				child.material.opacity = 0.8;
 			}
 		});
 		scene.add(arrow_object);
@@ -231,7 +241,7 @@ function init() {
 			if (child instanceof THREE.Mesh) {
 				child.material.map = ring_texture;
 				child.material.transparent = true;
-				child.material.opacity = 0.7;
+				child.material.opacity = 0.8;
 				
 				this.ring_opacity = child.material.opacity;
 				
