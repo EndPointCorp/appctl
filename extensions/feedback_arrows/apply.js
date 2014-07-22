@@ -23,7 +23,7 @@ var feedbackArrowsSpacenavListener = new ROSLIB.Topic({
 	ros : spacenavROS,
 	name : 'spacenav/twist',
 	messageType : 'geometry_msgs/Twist',
-	throttle_rate : 20
+	throttle_rate : 50
 });
 
 // we'll need a map function
@@ -93,8 +93,8 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		 ***/
 		
 		// needed for arrow
-		this.msg.linear.x = this.msg.linear.x.map(spacenav_min, spacenav_max, -10, 10);
-		this.msg.linear.y = this.msg.linear.y.map(spacenav_min, spacenav_max, -10, 10);
+		this.msg.linear.x = this.msg.linear.x.map(spacenav_min, spacenav_max, -1, 1);
+		this.msg.linear.y = this.msg.linear.y.map(spacenav_min, spacenav_max, -1, 1);
 		
 		// needed for ring
 		this.msg.linear.z = this.msg.linear.z.map(spacenav_min, spacenav_max, arrows_min, arrows_max);
@@ -116,8 +116,10 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		ringObjPosition[3] = this.msg.angular.y * -0.1;
 		
 		// let's rotate and show the direction arrow
-		direction = Math.atan2(this.msg.linear.y,  this.msg.linear.x*-1) / Math.PI * 180;
-		console.log("This is direction1:", direction, "computed out of (x,y)", this.msg.linear.y,"/", this.msg.linear.x*-1	 );
+		this.msg.linear.x = this.msg.linear.x*-1;
+		this.msg.linear.y = this.msg.linear.y*-1;
+		direction = Math.atan2(this.msg.linear.y,  this.msg.linear.x) / Math.PI * 180;
+		console.log("This is direction1:", direction, "computed out of (x,y)", this.msg.linear.y,"/", this.msg.linear.x	 );
 		arrowObjPosition[4] = direction;
 	}
 
