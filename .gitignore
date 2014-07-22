@@ -14,3 +14,6 @@ docs/
 # Eclipse
 .project
 .settings
+
+# osx
+.DS_Store
