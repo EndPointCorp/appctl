@@ -147,9 +147,11 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 					/ Math.PI * 180)
 					/ -18;
 
-			//console.log("This is direction1:", direction,
+			/***
+			console.log("This is direction1:", direction,
 					"computed out of (x,y)", this.msg.linear.y, "/",
-					this.msg.linear.x);
+					this.msg.linear.x); 
+			***/
 
 			arrow_opacity = Math.max(Math.abs(this.msg.linear.y), Math
 					.abs(this.msg.linear.x));
