@@ -127,22 +127,23 @@ feedbackArrowsSpacenavListener.subscribe(function(msg) {
 		
 
 		// add preety curve possibly y=3x/(x+2)
-		ring_opacity = Math.max(Math.abs(this.msg.linear.z), Math
-				.abs(this.msg.angular.z), Math.abs(this.msg.angular.x), Math
-				.abs(this.msg.angular.y)) / 100;
+		ring_opacity = Math.max(Math.abs(this.msg.linear.z), 
+				Math.abs(this.msg.angular.z), 
+				Math.abs(this.msg.angular.x), 
+				Math.abs(this.msg.angular.y)) / 10;
+		console.log("This is opacity ", ring_opacity)
 		setOpacity(ringObj, ring_opacity);
 		// pull up , push down
 		ringObjPosition[1] = this.msg.linear.z;
 		// rotate (twist)
 		ringObjPosition[4] = this.msg.angular.z * 0.5;
-		console.log("this.msg.angular.z =>", this.msg.angular.z);
 		// lean forward and backward
 		ringObjPosition[5] = this.msg.angular.x * -0.1;
 		ringObjPosition[3] = this.msg.angular.y * -0.1;
 		
 
 		// let's rotate and show the direction arrow with little tresholding
-		if ((Math.abs(this.msg.linear.y) > 0.3) || (Math.abs(this.msg.linear.x) > 0.3)) {
+		if ((Math.abs(this.msg.linear.y) > 0.2) || (Math.abs(this.msg.linear.x) > 0.2)) {
 			this.msg.linear.y = this.msg.linear.y * -1;
 			direction = (Math.atan2(this.msg.linear.y, this.msg.linear.x)/ Math.PI * 180)/ -18;
 			console.log("This is direction1:", direction,
