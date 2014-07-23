@@ -7,7 +7,7 @@ var SlinkyGLEnvironment = function() {
 
   if (!this.canvas) {
     this.canvas = document.createElement('canvas');
-    this.canvas.id = 'this.glCanvas';
+    this.canvas.id = 'glCanvas';
     this.canvas.style.position = 'fixed';
     this.canvas.style.bottom = '0px';
     this.canvas.style.left = '0px';
