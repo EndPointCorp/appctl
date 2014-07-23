@@ -118,5 +118,34 @@ var SlinkyShaders = (function() {
     '    gl_FragColor = vColor;' +
     '}';
   document.body.appendChild(xGradientFragmentScript);
+
+  // Gradient fade from z = N.
+  var zGradientVertexScript = document.createElement('script');
+  zGradientVertexScript.type = 'x-shader/x-vertex';
+  zGradientVertexScript.id = 'zgradientvertexshader';
+  zGradientVertexScript.textContent =
+    'uniform float alpha;' +
+    'uniform float fade;' +
+    'uniform float zDepth;' +
+    'varying vec4 vColor;' +
+
+    'void main() {' +
+    '    vColor.rgb = color.rgb;' +
+    '    vColor.a = alpha * fade * (position.z / zDepth);' +
+    '    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );' +
+    '    gl_Position = projectionMatrix * mvPosition;' +
+    '}';
+  document.body.appendChild(zGradientVertexScript);
+
+  var zGradientFragmentScript = document.createElement('script');
+  zGradientFragmentScript.type = 'x-shader/x-fragment';
+  zGradientFragmentScript.id = 'zgradientfragmentshader';
+  zGradientFragmentScript.textContent =
+    'varying vec4 vColor;' +
+
+    'void main() {' +
+    '    gl_FragColor = vColor;' +
+    '}';
+  document.body.appendChild(zGradientFragmentScript);
 })();
 

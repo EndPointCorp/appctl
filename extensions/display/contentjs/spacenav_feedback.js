@@ -172,7 +172,8 @@ SpacenavFeedback.prototype.init = function() {
 
   this.arrowUniforms = {
     alpha: { type: 'f', value: 0.6 },
-    fade: { type: 'f', value: 0.0 }
+    fade: { type: 'f', value: 0.0 },
+    zDepth: { type: 'f', value: 20 }
   };
 
   this.ringUniforms = {
@@ -183,8 +184,8 @@ SpacenavFeedback.prototype.init = function() {
   var arrowShader = new THREE.ShaderMaterial({
     vertexColors: THREE.VertexColors,
     uniforms: this.arrowUniforms,
-    vertexShader: document.getElementById('xgradientvertexshader').textContent,
-    fragmentShader: document.getElementById('xgradientfragmentshader').textContent,
+    vertexShader: document.getElementById('zgradientvertexshader').textContent,
+    fragmentShader: document.getElementById('zgradientfragmentshader').textContent,
     transparent: true,
     depthTest: false
   });
@@ -205,6 +206,9 @@ SpacenavFeedback.prototype.init = function() {
       geometry,
       arrowShader
     );
+    geometry.computeBoundingSphere();
+    this.arrowUniforms.zDepth.value = geometry.boundingSphere.radius;
+    this.arrowUniforms.zDepth.needsUpdate = true;
     this.innerOrigin.add(this.arrowObj);
   }.bind(this));
 
