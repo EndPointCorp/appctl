@@ -185,7 +185,7 @@ window.addEventListener('acmeCameraCallback', cameraUpdateHandler, true);
 /** Add ROS Subscriptions.  These are almost last to prevent exception from
  * killing the event listeners when ROS is down. */
 var slinkyRosDisplay = new ROSLIB.Ros({
-  url: 'ws://master:9090'
+  url: 'wss://42-b:9090'
 });
 
 // Globe View Topic listens and publishes camera updates.

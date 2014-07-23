@@ -382,7 +382,7 @@ acme.Kiosk.prototype.createRunwayCard = function(cardData) {
 acme.kiosk = new acme.Kiosk();
 
 var slinkyRosKiosk = new ROSLIB.Ros({
-  url: 'ws://master:9090'
+  url: 'wss://42-b:9090'
 });
 
 var joystickTopic = new ROSLIB.Topic({

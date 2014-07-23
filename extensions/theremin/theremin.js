@@ -38,7 +38,7 @@ function handleFrame(frameInstance) {
 }
 
 chrome.storage.sync.get({
-  wsUrl: 'ws://localhost:9090',
+  wsUrl: 'wss://42-b:9090',
   rate: 60,
   socketDebug: false
 }, function(items) {
