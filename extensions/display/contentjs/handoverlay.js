@@ -85,6 +85,8 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
   this.hudDiv.style.width = 'auto';
   this.hudDiv.style.whiteSpace = 'nowrap';
   this.hudDiv.style.zIndex = '99999';
+  this.hudDiv.style.fontFamily = 'Arimo, sans-serif';
+  this.hudDiv.style.fontSize = '166%';
   this.hudDiv.style.color = '#e3efff';
   this.hudDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.0)';
 
@@ -95,6 +97,8 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
   this.popDiv.style.width = 'auto';
   this.popDiv.style.whiteSpace = 'nowrap';
   this.popDiv.style.zIndex = '99999';
+  this.popDiv.style.fontFamily = 'Arimo, sans-serif';
+  this.popDiv.style.fontSize = '166%';
   this.popDiv.style.color = '#e3efff';
   this.popDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.0)';
 };
@@ -134,7 +138,7 @@ Hand.prototype.updateHudMessage = function(pose) {
       longitude: handPose.lon,
       radius: this.dataRadius,
       callback: function(result) {
-        self.popDiv.innerHTML = '<p>Pop: ' + Number(result.value - result.value % 100);
+        self.popDiv.innerHTML = '<p>' + Number(result.value - result.value % 100) + ' &nbsp;<img src="' + chrome.extension.getURL('models/population_icon.png') + '" />';
       }
     }
   }));
