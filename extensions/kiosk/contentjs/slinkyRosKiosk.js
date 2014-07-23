@@ -619,9 +619,11 @@ navigatorListener.subscribe(function(rosPoseStamped) {
   handleRosPoseChange(rosPoseStamped);
 });
 
+/*
 var ambient = new Ambient();
 proximityPresenceTopic.subscribe(ambient.handlePresenceMessage.bind(ambient));
 joystickTopic.subscribe(ambient.handleJoystickMessage.bind(ambient));
+*/
 
 window.addEventListener('acmeCameraUpdate', cameraUpdateHandler, true);
 window.addEventListener('acmeStableCameraUpdate', cameraUpdateHandler, true);
