@@ -94,11 +94,12 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
   this.popDiv.id = 'slinkypop' + handId;
   this.popDiv.style.position = 'absolute';
   this.popDiv.style.height = 'auto';
-  this.popDiv.style.width = 'auto';
+  this.popDiv.style.width = '20%';
   this.popDiv.style.whiteSpace = 'nowrap';
   this.popDiv.style.zIndex = '99999';
   this.popDiv.style.fontFamily = 'Arimo, sans-serif';
   this.popDiv.style.fontSize = '166%';
+  this.popDiv.style.textAlign = 'right';
   this.popDiv.style.color = '#e3efff';
   this.popDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.0)';
 };
@@ -116,7 +117,7 @@ Hand.prototype.toScreenCoords = function(worldPos) {
 
 Hand.prototype.updateHudPosition = function(div, worldPos) {
   var screenPos = this.toScreenCoords(worldPos);
-  div.style.left = screenPos.x + 'px';
+  div.style.right = window.innerWidth - screenPos.x + 'px';
   div.style.top = screenPos.y + 'px';
 };
 
@@ -291,9 +292,14 @@ Hand.prototype.createRings_ = function(handOrigin) {
   this.handOrigin.add(this.centerDot);
 
   this.topCalloutPanel = new THREE.Mesh(
-      new THREE.SphereGeometry(8, 8), handShader);
+      new THREE.SphereGeometry(8, 8),
+      new THREE.MeshBasicMaterial({
+        color: 0x00FF00,
+        wireframe: true }
+      )
+  );
   this.topCalloutPanel.scale.set(0.01, 0.01, 0.01);
-  this.topCalloutPanel.position.x = 0.8;
+  this.topCalloutPanel.position.x = 1.6;
   this.topCalloutPanel.position.y = 0.7;
   this.topCalloutPanel.visible = false;
 
@@ -301,6 +307,7 @@ Hand.prototype.createRings_ = function(handOrigin) {
       this.handOverlay_.topCalloutGeom, handShader);
   this.topCallout.name = 'topCallout';
   this.topCallout.add(this.topCalloutPanel);
+  this.topCallout.scale.set(1.1, 1.1, 1.1);
   this.topCallout.visible = true;
   this.calloutOrigin.add(this.topCallout);
 
@@ -312,8 +319,8 @@ Hand.prototype.createRings_ = function(handOrigin) {
       )
   );
   this.popCalloutPanel.scale.set(0.01, 0.01, 0.01);
-  this.popCalloutPanel.position.x = 1.3;
-  this.popCalloutPanel.position.y = -0.1;
+  this.popCalloutPanel.position.x = 2.0;
+  this.popCalloutPanel.position.y = -0.05;
   this.popCalloutPanel.visible = false;
 
   this.popCallout = new THREE.Mesh(
@@ -534,11 +541,10 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
 
     var distanceMod = distance / 12;
     var ringScale = distanceMod + (palmDepth / 300) * distanceMod;
-    var calloutScale = distanceMod * 1.5;
+    var calloutScale = distanceMod * 1.1;
 
     this.handOrigin.scale.set(ringScale, ringScale, ringScale);
-    this.popCallout.scale.set(calloutScale, calloutScale, calloutScale);
-    this.topCallout.scale.set(calloutScale, calloutScale, calloutScale);
+    this.calloutOrigin.scale.set(calloutScale, calloutScale, calloutScale);
     this.calloutOrigin.updateMatrixWorld(false);
 
     this.ring2.rotation.set(0, -palmYaw, 0);
