@@ -184,8 +184,8 @@ Hand.prototype.createRings_ = function(handOrigin) {
 
       uniforms: this.centerCircleGeomUniforms,
       attributes: handAttributes,
-      vertexShader: document.getElementById('handvertexshader').textContent,
-      fragmentShader: document.getElementById('handfragmentshader').textContent,
+      vertexShader: document.getElementById('xrayvertexshader').textContent,
+      fragmentShader: document.getElementById('xrayfragmentshader').textContent,
       transparent: true
   });
 
@@ -205,8 +205,8 @@ Hand.prototype.createRings_ = function(handOrigin) {
 
       uniforms: this.ring0GeomUniforms,
       attributes: handAttributes,
-      vertexShader: document.getElementById('handvertexshader').textContent,
-      fragmentShader: document.getElementById('handfragmentshader').textContent,
+      vertexShader: document.getElementById('xrayvertexshader').textContent,
+      fragmentShader: document.getElementById('xrayfragmentshader').textContent,
       transparent: true
   });
 
@@ -224,8 +224,8 @@ Hand.prototype.createRings_ = function(handOrigin) {
 
       uniforms: this.dotUniforms,
       attributes: handAttributes,
-      vertexShader: document.getElementById('handvertexshader').textContent,
-      fragmentShader: document.getElementById('handfragmentshader').textContent,
+      vertexShader: document.getElementById('xrayvertexshader').textContent,
+      fragmentShader: document.getElementById('xrayfragmentshader').textContent,
       transparent: true
   });
 
@@ -244,8 +244,8 @@ Hand.prototype.createRings_ = function(handOrigin) {
 
       uniforms: this.geomUniforms,
       attributes: handAttributes,
-      vertexShader: document.getElementById('handvertexshader').textContent,
-      fragmentShader: document.getElementById('handfragmentshader').textContent,
+      vertexShader: document.getElementById('xrayvertexshader').textContent,
+      fragmentShader: document.getElementById('xrayfragmentshader').textContent,
       transparent: true,
       depthTest: false
   });
@@ -619,102 +619,6 @@ HandOverlay.prototype.setCurrentCameraPose = function(pose) {
   }
 };
 
-
-/**
- * Inject the GL shaders into the page.
- */
-HandOverlay.prototype.injectShaders = function() {
-
-  // Particle Shaders.
-  var script0 = document.createElement('script');
-  script0.type = 'x-shader/x-vertex';
-  script0.id = 'particlevertexshader';
-  script0.textContent =
-    'attribute float alpha;' +
-    'attribute vec4 color4;' +
-    'varying vec4 vColor;' +
-
-    'void main() {' +
-    '    vColor = color4;' +
-    '    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );' +
-    '    gl_PointSize = 1.0;' +
-    '    gl_Position = projectionMatrix * mvPosition;' +
-    '}';
-  document.body.appendChild(script0);
-
-  var script1 = document.createElement('script');
-  script1.type = 'x-shader/x-fragment';
-  script1.id = 'particlefragmentshader';
-  script1.textContent =
-    'varying vec4 vColor;' +
-
-    'void main() {' +
-    '    gl_FragColor = vec4( vColor );' +
-    '}';
-  document.body.appendChild(script1);
-
-  // Hand Geometry Shaders.
-  var handVertexScript = document.createElement('script');
-  handVertexScript.type = 'x-shader/x-vertex';
-  handVertexScript.id = 'handvertexshader';
-  handVertexScript.textContent =
-    'uniform vec3 xRayDirection;' +
-    'uniform float alpha;' +
-    'uniform float fade;' +
-    'uniform sampler2D colorTexture;' +
-    'varying vec4 vColor;' +
-
-    'void main() {' +
-    '    vec3 mvNormal = normalize(normalMatrix * normal);' +
-    '    float dotP = (dot(xRayDirection, mvNormal) + 1.0) / 2.0;' +
-    '    vec2 uv = vec2(0.5, dotP);' +
-    '    vColor.rgb = texture2D(colorTexture, uv).rgb;' +
-    '    vColor.a = alpha * fade;' +
-    '    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );' +
-    '    gl_Position = projectionMatrix * mvPosition;' +
-    '}';
-  document.body.appendChild(handVertexScript);
-
-  var handFragmentScript = document.createElement('script');
-  handFragmentScript.type = 'x-shader/x-fragment';
-  handFragmentScript.id = 'handfragmentshader';
-  handFragmentScript.textContent =
-    'varying vec4 vColor;' +
-
-    'void main() {' +
-    '    gl_FragColor = vec4( vColor );' +
-    '}';
-  document.body.appendChild(handFragmentScript);
-
-  // Compass Rose Geometry Shaders.
-  var vcolorVertexScript = document.createElement('script');
-  vcolorVertexScript.type = 'x-shader/x-vertex';
-  vcolorVertexScript.id = 'vcolorvertexshader';
-  vcolorVertexScript.textContent =
-    'uniform float alpha;' +
-    'uniform float fade;' +
-    'varying vec4 vColor;' +
-
-    'void main() {' +
-    '    vColor.rgb = color.rgb;' +
-    '    vColor.a = alpha * fade;' +
-    '    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );' +
-    '    gl_Position = projectionMatrix * mvPosition;' +
-    '}';
-  document.body.appendChild(vcolorVertexScript);
-
-  var vcolorFragmentScript = document.createElement('script');
-  vcolorFragmentScript.type = 'x-shader/x-fragment';
-  vcolorFragmentScript.id = 'vcolorfragmentshader';
-  vcolorFragmentScript.textContent =
-    'varying vec4 vColor;' +
-
-    'void main() {' +
-    '    gl_FragColor = vColor;' +
-    '}';
-  document.body.appendChild(vcolorFragmentScript);
-};
-
 /**
  * Initialize the 3D canvas and renderer.
  */
@@ -845,7 +749,6 @@ HandOverlay.prototype.init3js = function() {
   this.compassRoseColor = new THREE.Color(0xFF0000);
   this.compassRoseGeom = this.createGeometry_(3, 0.1, this.compassRoseColor);
 
-  this.injectShaders();
   initialized_ = true;
 
   function _animate() {

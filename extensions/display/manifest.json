@@ -31,6 +31,7 @@
         "libs/OBJLoader.js",
         "libs/trackball_controls.js",
         "libs/TweenMax.js",
+        "contentjs/shaders.js",
         "contentjs/glenvironment.js",
         "contentjs/handoverlay.js",
         "contentjs/spacenav_feedback.js",
