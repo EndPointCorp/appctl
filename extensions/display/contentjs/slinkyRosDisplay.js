@@ -284,6 +284,8 @@ window.addEventListener('acmePopulationQuery', function(ev) {
   }, ev.detail.callback);
 }, true);
 
+acme.glEnvironment = new SlinkyGLEnvironment();
+
 var leapListener = new ROSLIB.Topic({
   ros: slinkyRosDisplay,
   name: '/leap_motion/frame',
@@ -294,8 +296,22 @@ var leapListener = new ROSLIB.Topic({
 // TODO(daden): detect if webGL is available before trying
 // to load the hand.  If webGL isn't available this code crashes.
 // Init the hand last so if it fails to load it doesn't crash.
-var handOverlay = new HandOverlay();
+var handOverlay = new HandOverlay(acme.glEnvironment);
 handOverlay.init3js();
 leapListener.subscribe(handOverlay.processLeapMessage);
 window.addEventListener('acmeScreenLocation',
     handOverlay.processHandGeoLocationEvent.bind(handOverlay), true);
+
+var spacenavListener = new ROSLIB.Topic({
+  ros: slinkyRosDisplay,
+  name: '/spacenav/twist',
+  messageType: 'geometry_msgs/Twist',
+  throttle_rate: 30
+});
+
+var spacenavFeedback = new SpacenavFeedback(acme.glEnvironment);
+spacenavFeedback.init();
+spacenavListener.subscribe(
+  spacenavFeedback.processSpacenavMessage.bind(spacenavFeedback)
+);
+

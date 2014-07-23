@@ -15,7 +15,7 @@
     "management"
   ],
   "web_accessible_resources": [
-    "models/*.json", "contentjs/inject.js"
+    "models/*.json", "models/*.obj", "models/*.gif", "contentjs/inject.js"
   ],
   "content_scripts": [
     {
@@ -28,8 +28,12 @@
         "libs/eventemitter2.min.js",
         "libs/roslib.min.js",
         "libs/three.min.js",
+        "libs/OBJLoader.js",
+        "libs/trackball_controls.js",
         "libs/TweenMax.js",
+        "contentjs/glenvironment.js",
         "contentjs/handoverlay.js",
+        "contentjs/spacenav_feedback.js",
         "contentjs/slinkyRosDisplay.js",
         "contentjs/texture_src.js"
       ],

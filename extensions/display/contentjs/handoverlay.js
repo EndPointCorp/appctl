@@ -554,15 +554,17 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
 /**
  * @constructor
  */
-var HandOverlay = function() {
+var HandOverlay = function(glEnvironment) {
+  this.glEnvironment = glEnvironment;
+
   /** @type {THREE.Scene} */
-  this.scene;
+  this.scene = this.glEnvironment.scene;
 
   /** @type {THREE.WebGLRenderer} */
-  this.renderer;
+  this.renderer = this.glEnvironment.renderer;
 
   /** @type {THREE.Camera} */
-  this.camera;
+  this.camera = this.glEnvironment.camera;
 
   /** @type {Array.<Hand|null>} */
   this.hands_ = new Array();
@@ -717,11 +719,15 @@ HandOverlay.prototype.injectShaders = function() {
  * Initialize the 3D canvas and renderer.
  */
 HandOverlay.prototype.init3js = function() {
+  var self = this;
 
+  /*
   this.scene = new THREE.Scene();
+  */
   var WIDTH = window.innerWidth,
       HEIGHT = window.innerHeight;
 
+  /*
   var handCanvas = document.getElementById('handCanvas');
 
   if (!handCanvas) {
@@ -739,16 +745,22 @@ HandOverlay.prototype.init3js = function() {
   }
 
   var gl = handCanvas.getContext('webgl', {premultipliedAlpha: false});
+  */
 
+  /*
   this.renderer = new THREE.WebGLRenderer({canvas: handCanvas, alpha: true});
   this.renderer.setSize(WIDTH, HEIGHT);
 
   this.renderer.setClearColor(new THREE.Color(0xffffff), 0);
+  */
 
+  /*
   this.camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, EARTH_RADIUS * 10);
   this.camera.position.set(0, 0, 6);
   this.scene.add(this.camera);
+  */
 
+  /*
   var self = this;
   window.addEventListener('resize', function() {
     var WIDTH = window.innerWidth,
@@ -758,7 +770,9 @@ HandOverlay.prototype.init3js = function() {
 
     self.camera.updateProjectionMatrix();
   });
+  */
 
+  /*
   this.handPlane = new THREE.Mesh(
       new THREE.PlaneGeometry(2000, 2000),
       new THREE.MeshBasicMaterial({
@@ -769,6 +783,7 @@ HandOverlay.prototype.init3js = function() {
   this.handPlane.visible = false;
   this.handPlane.position = new THREE.Vector3(0, 0, 0);
   this.scene.add(this.handPlane);
+  */
 
   this.globeSphere = new THREE.Mesh(
     new THREE.SphereGeometry(EARTH_RADIUS, 128, 128, 0, Math.PI),
@@ -832,7 +847,11 @@ HandOverlay.prototype.init3js = function() {
 
   this.injectShaders();
   initialized_ = true;
-  self.animate_();
+
+  function _animate() {
+    self.animate_();
+  }
+  this.glEnvironment.addAnimation(_animate);
 };
 
 /**
@@ -954,11 +973,13 @@ HandOverlay.prototype.processHandMoved = function(
  * @private
  */
 HandOverlay.prototype.animate_ = function() {
+  /*
   var self = this;
   function f() {
     self.animate_();
   };
   requestAnimationFrame(f);
+  */
   if (this.scene == null || this.camera == null) {
     return;
   }
@@ -981,6 +1002,8 @@ HandOverlay.prototype.animate_ = function() {
       }
     }
   }
+  /*
   this.renderer.render(this.scene, this.camera);
+  */
 };
 
