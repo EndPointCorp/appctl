@@ -24,6 +24,9 @@ var SpacenavFeedback = function(glEnvironment) {
   this.arrowObj;
   this.ringObj;
 
+  this.arrowUniforms;
+  this.ringUniforms;
+
   this.arrowObjPosition = [ 0, 0, 0, 0, 0, 0 ];
   this.ringObjPosition = [ 0, 0, 0, 0, 0, 0 ];
 
@@ -31,12 +34,11 @@ var SpacenavFeedback = function(glEnvironment) {
   this.ringOpacity = 0;
 };
 
-SpacenavFeedback.prototype.setOpacity = function(threejs_obj, opacity) {
-  threejs_obj.traverse(function(child) {
-    if (child instanceof THREE.Mesh) {
-      child.material.opacity = opacity;
-    }
-  });
+SpacenavFeedback.prototype.setOpacity = function(uniforms, opacity) {
+  if (uniforms.fade.value != opacity) {
+    uniforms.fade.value = opacity;
+    uniforms.fade.needsUpdate = true;
+  }
 };
 
 SpacenavFeedback.prototype.clampAxis = function(num, low, high) {
@@ -146,36 +148,76 @@ SpacenavFeedback.prototype.processSpacenavMessage = function(msg) {
   }
 };
 
+SpacenavFeedback.prototype.paintGeometry = function(geometry, color) {
+  var numVertices = geometry.vertices.length;
+  for (var i = 0; i < numVertices; i++) {
+    geometry.colors[i] = color;
+  }
+
+  var faceIndices = ['a', 'b', 'c', 'd'];
+
+  var numFaces = geometry.faces.length;
+  for (var i = 0; i < numFaces; i++) {
+    var face = geometry.faces[i];
+
+    var numSides = (face instanceof THREE.Face3) ? 3 : 4;
+    for (var j = 0; j < numSides; j++) {
+      var vertexIndex = face[faceIndices[j]];
+      face.vertexColors[j] = geometry.colors[vertexIndex];
+    }
+  }
+};
+
 SpacenavFeedback.prototype.init = function() {
   this.scene.add(this.absOrigin);
   this.absOrigin.add(this.innerOrigin);
 
-  var arrows_loader = new THREE.OBJLoader(manager);
-  arrows_loader.load(chrome.extension.getURL('models/arrow.obj'), function(
-      arrow_object) {
-    this.arrowObj = arrow_object;
-    arrow_object.traverse(function(child) {
-      if (child instanceof THREE.Mesh) {
-        child.material.map = arrow_texture;
-        child.material.transparent = true;
-        child.material.opacity = 0.8;
-      }
-    }.bind(this));
-    this.innerOrigin.add(arrow_object);
+  this.arrowUniforms = {
+    alpha: { type: 'f', value: 0.6 },
+    fade: { type: 'f', value: 0.0 }
+  };
+
+  this.ringUniforms = {
+    alpha: { type: 'f', value: 0.6 },
+    fade: { type: 'f', value: 0.0 }
+  };
+
+  var arrowShader = new THREE.ShaderMaterial({
+    vertexColors: THREE.VertexColors,
+    uniforms: this.arrowUniforms,
+    vertexShader: document.getElementById('vcolorvertexshader').textContent,
+    fragmentShader: document.getElementById('vcolorfragmentshader').textContent,
+    transparent: true,
+    depthTest: false
+  });
+
+  var ringShader = new THREE.ShaderMaterial({
+    vertexColors: THREE.VertexColors,
+    uniforms: this.ringUniforms,
+    vertexShader: document.getElementById('vcolorvertexshader').textContent,
+    fragmentShader: document.getElementById('vcolorfragmentshader').textContent,
+    transparent: true,
+    depthTest: false
+  });
+
+  var arrowLoader = new THREE.JSONLoader();
+  arrowLoader.load(chrome.extension.getURL('models/arrow.json'), function(geometry) {
+    this.paintGeometry(geometry, new THREE.Color(0xFFFFFF));
+    this.arrowObj = new THREE.Mesh(
+      geometry,
+      arrowShader
+    );
+    this.innerOrigin.add(this.arrowObj);
   }.bind(this));
 
-  var ring_loader = new THREE.OBJLoader(manager);
-  ring_loader.load(chrome.extension.getURL('models/ring.obj'), function(
-      ring_object) {
-    this.ringObj = ring_object;
-    ring_object.traverse(function(child) {
-      if (child instanceof THREE.Mesh) {
-        child.material.map = ring_texture;
-        child.material.transparent = true;
-        child.material.opacity = 0.8;
-      }
-    });
-    this.innerOrigin.add(ring_object);
+  var ringLoader = new THREE.JSONLoader();
+  ringLoader.load(chrome.extension.getURL('models/ring.json'), function(geometry) {
+    this.paintGeometry(geometry, new THREE.Color(0xFFFFFF));
+    this.ringObj = new THREE.Mesh(
+      geometry,
+      ringShader
+    );
+    this.innerOrigin.add(this.ringObj);
   }.bind(this));
 
   var self = this;
@@ -195,7 +237,7 @@ SpacenavFeedback.prototype.animate = function() {
     this.arrowObj.rotation.x = this.arrowObjPosition[3];
     this.arrowObj.rotation.y = this.arrowObjPosition[4];
     this.arrowObj.rotation.z = this.arrowObjPosition[5];
-    this.setOpacity(this.arrowObj, this.arrowOpacity);
+    this.setOpacity(this.arrowUniforms, this.arrowOpacity);
   }
 
   if (typeof (this.ringObj) === "undefined") {
@@ -207,6 +249,6 @@ SpacenavFeedback.prototype.animate = function() {
     this.innerOrigin.rotation.x = this.ringObjPosition[3];
     this.ringObj.rotation.y = this.ringObjPosition[4];
     this.innerOrigin.rotation.z = this.ringObjPosition[5];
-    this.setOpacity(this.ringObj, this.ringOpacity);
+    this.setOpacity(this.ringUniforms, this.ringOpacity);
   }
 };
