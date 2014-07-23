@@ -129,12 +129,8 @@ SpacenavFeedback.prototype.processSpacenavMessage = function(msg) {
     // let's rotate and show the direction arrow with little tresholding
     if ((Math.abs(linearY) > 0.2)
         || (Math.abs(linearX) > 0.2)) {
-      linearY = linearY*-1;
-      linearX = linearX*-1;
 
-      var direction = (Math.atan2(linearY, linearX)
-          / Math.PI * 180)
-          / -18;
+      var direction = Math.atan2(-linearY, -linearX);
 
       /*
       console.log("This is direction1:", direction,
@@ -144,6 +140,8 @@ SpacenavFeedback.prototype.processSpacenavMessage = function(msg) {
 
       this.arrowOpacity = Math.max(Math.abs(linearY), Math.abs(linearX));
       this.arrowObjPosition[4] = direction;
+    } else {
+      this.arrowOpacity = 0.0;
     }
   }
 };
