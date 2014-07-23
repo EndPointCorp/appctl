@@ -183,8 +183,8 @@ SpacenavFeedback.prototype.init = function() {
   var arrowShader = new THREE.ShaderMaterial({
     vertexColors: THREE.VertexColors,
     uniforms: this.arrowUniforms,
-    vertexShader: document.getElementById('vcolorvertexshader').textContent,
-    fragmentShader: document.getElementById('vcolorfragmentshader').textContent,
+    vertexShader: document.getElementById('xgradientvertexshader').textContent,
+    fragmentShader: document.getElementById('xgradientfragmentshader').textContent,
     transparent: true,
     depthTest: false
   });
