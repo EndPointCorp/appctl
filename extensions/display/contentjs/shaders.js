@@ -91,33 +91,38 @@ var SlinkyShaders = (function() {
     '}';
   document.body.appendChild(vcolorFragmentScript);
 
-  // Gradient fade from x = 0.
-  var xGradientVertexScript = document.createElement('script');
-  xGradientVertexScript.type = 'x-shader/x-vertex';
-  xGradientVertexScript.id = 'xgradientvertexshader';
-  xGradientVertexScript.textContent =
+  // Gradient fade from X and Z edges.
+  var xzGradientVertexScript = document.createElement('script');
+  xzGradientVertexScript.type = 'x-shader/x-vertex';
+  xzGradientVertexScript.id = 'xzgradientvertexshader';
+  xzGradientVertexScript.textContent =
     'uniform float alpha;' +
-    'uniform float fade;' +
+    'uniform float fadeRadius;' +
+    'uniform float zFade;' +
+    'uniform float xFade;' +
     'varying vec4 vColor;' +
 
     'void main() {' +
     '    vColor.rgb = color.rgb;' +
-    '    vColor.a = alpha * fade * (1.0 - abs(position.x / 5.0));' +
+    '    float doubleRad = fadeRadius * 2.0;' +
+    '    float xPosFade = xFade * (position.x / doubleRad);' +
+    '    float zPosFade = zFade * (position.z / doubleRad);' +
+    '    vColor.a = alpha * max(0.0, min(1.0, (xPosFade + zPosFade)));' +
     '    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );' +
     '    gl_Position = projectionMatrix * mvPosition;' +
     '}';
-  document.body.appendChild(xGradientVertexScript);
+  document.body.appendChild(xzGradientVertexScript);
 
-  var xGradientFragmentScript = document.createElement('script');
-  xGradientFragmentScript.type = 'x-shader/x-fragment';
-  xGradientFragmentScript.id = 'xgradientfragmentshader';
-  xGradientFragmentScript.textContent =
+  var xzGradientFragmentScript = document.createElement('script');
+  xzGradientFragmentScript.type = 'x-shader/x-fragment';
+  xzGradientFragmentScript.id = 'xzgradientfragmentshader';
+  xzGradientFragmentScript.textContent =
     'varying vec4 vColor;' +
 
     'void main() {' +
     '    gl_FragColor = vColor;' +
     '}';
-  document.body.appendChild(xGradientFragmentScript);
+  document.body.appendChild(xzGradientFragmentScript);
 
   // Gradient fade from z = N.
   var zGradientVertexScript = document.createElement('script');
@@ -126,12 +131,12 @@ var SlinkyShaders = (function() {
   zGradientVertexScript.textContent =
     'uniform float alpha;' +
     'uniform float fade;' +
-    'uniform float zDepth;' +
+    'uniform float fadeRadius;' +
     'varying vec4 vColor;' +
 
     'void main() {' +
     '    vColor.rgb = color.rgb;' +
-    '    vColor.a = alpha * fade * (position.z / zDepth);' +
+    '    vColor.a = alpha * fade * (position.z / fadeRadius);' +
     '    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );' +
     '    gl_Position = projectionMatrix * mvPosition;' +
     '}';

@@ -31,8 +31,9 @@ var SpacenavFeedback = function(glEnvironment) {
   this.arrowObjPosition = [ 0, 0, 0, 0, 0, 0 ];
   this.ringObjPosition = [ 0, 0, 0, 0, 0, 0 ];
 
-  this.arrowOpacity = 0;
-  this.ringOpacity = 0;
+  this.arrowOpacity = 0.0;
+  this.ringXOpacity = 0.0;
+  this.ringZOpacity = 0.0;
 };
 
 SpacenavFeedback.prototype.setOpacity = function(uniforms, opacity) {
@@ -66,7 +67,8 @@ SpacenavFeedback.prototype.processSpacenavMessage = function(msg) {
         && (typeof (this.ringObj) === "undefined")) {
       console.log("Initializing objects");
     } else {
-      this.ringOpacity = 0;
+      this.ringXOpacity = 0;
+      this.ringZOpacity = 0;
       this.arrowOpacity = 0;
     }
     return;
@@ -113,8 +115,10 @@ SpacenavFeedback.prototype.processSpacenavMessage = function(msg) {
         .abs(angularZ), Math.abs(angularX), Math
         .abs(angularY))
         / this.arrows_max;
-    if (ring_opacity > this.arrows_max / 20) { // yes that's evil
-      this.ringOpacity = ring_opacity;
+    if (Math.abs(ring_opacity) > this.arrows_max / 20) { // yes that's evil
+      this.ringXOpacity = this.clampAxis(msg.angular.z, -1, 1);
+      this.ringZOpacity = -this.clampAxis(msg.angular.y, -1, 1);
+      //this.ringZOpacity = ring_opacity;
       // pull up , push down
       this.ringObjPosition[1] = linearZ;
       // rotate (twist)
@@ -124,7 +128,8 @@ SpacenavFeedback.prototype.processSpacenavMessage = function(msg) {
       this.ringObjPosition[5] = 0;
       this.ringObjPosition[3] = angularY * -0.1;
     } else {
-      this.ringOpacity = 0;
+      this.ringXOpacity = 0.0;
+      this.ringZOpacity = 0.0;
     }
 
     // let's rotate and show the direction arrow with little tresholding
@@ -174,12 +179,14 @@ SpacenavFeedback.prototype.init = function() {
   this.arrowUniforms = {
     alpha: { type: 'f', value: 0.23 },
     fade: { type: 'f', value: 0.0 },
-    zDepth: { type: 'f', value: 20 }
+    fadeRadius: { type: 'f', value: 0.0 }
   };
 
   this.ringUniforms = {
     alpha: { type: 'f', value: 0.23 },
-    fade: { type: 'f', value: 0.0 }
+    xFade: { type: 'f', value: 0.0 },
+    zFade: { type: 'f', value: 0.0 },
+    fadeRadius: { type: 'f', value: 0.0 }
   };
 
   var arrowShader = new THREE.ShaderMaterial({
@@ -194,8 +201,8 @@ SpacenavFeedback.prototype.init = function() {
   var ringShader = new THREE.ShaderMaterial({
     vertexColors: THREE.VertexColors,
     uniforms: this.ringUniforms,
-    vertexShader: document.getElementById('vcolorvertexshader').textContent,
-    fragmentShader: document.getElementById('vcolorfragmentshader').textContent,
+    vertexShader: document.getElementById('xzgradientvertexshader').textContent,
+    fragmentShader: document.getElementById('xzgradientfragmentshader').textContent,
     transparent: true,
     depthTest: false
   });
@@ -208,8 +215,8 @@ SpacenavFeedback.prototype.init = function() {
       arrowShader
     );
     geometry.computeBoundingSphere();
-    this.arrowUniforms.zDepth.value = geometry.boundingSphere.radius;
-    this.arrowUniforms.zDepth.needsUpdate = true;
+    this.arrowUniforms.fadeRadius.value = geometry.boundingSphere.radius;
+    this.arrowUniforms.fadeRadius.needsUpdate = true;
     this.innerOrigin.add(this.arrowObj);
   }.bind(this));
 
@@ -220,6 +227,9 @@ SpacenavFeedback.prototype.init = function() {
       geometry,
       ringShader
     );
+    geometry.computeBoundingSphere();
+    this.ringUniforms.fadeRadius.value = geometry.boundingSphere.radius;
+    this.ringUniforms.fadeRadius.needsUpdate = true;
     this.innerOrigin.add(this.ringObj);
   }.bind(this));
 
@@ -252,6 +262,10 @@ SpacenavFeedback.prototype.animate = function() {
     this.innerOrigin.rotation.x = this.ringObjPosition[3];
     this.ringObj.rotation.y = this.ringObjPosition[4];
     this.innerOrigin.rotation.z = this.ringObjPosition[5];
-    this.setOpacity(this.ringUniforms, this.ringOpacity);
+
+    this.ringUniforms.xFade.value = this.ringXOpacity;
+    this.ringUniforms.zFade.value = this.ringZOpacity;
+    this.ringUniforms.xFade.needsUpdate = true;
+    this.ringUniforms.zFade.needsUpdate = true;
   }
 };
