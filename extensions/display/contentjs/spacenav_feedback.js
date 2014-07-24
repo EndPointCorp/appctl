@@ -348,5 +348,8 @@ SpacenavFeedback.prototype.animate = function() {
       this.flapRightUniforms,
       Math.min(1, Math.max(0, Math.abs(this.flapRotation) + this.ringXOpacity))
     );
+
+    var overallScale = 1.0 + this.flapRotation * 0.125;
+    this.innerOrigin.scale.set(overallScale, overallScale, overallScale);
   }
 };
