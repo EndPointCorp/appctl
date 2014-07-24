@@ -497,13 +497,21 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
   palmHeight -= 100;
 
   // limits: prevent jumpy tracking at out edges of leap detection
-  palmDepth = Math.min(Math.max(palmDepth, -125), 125);
+  palmHeight = Math.min(Math.max(palmHeight - 50, 0), 250);
 
   var camera = this.handOverlay_.camera;
 
+  /* window mode
   var leapVector = new THREE.Vector3(
     (palmSlide / 100),
     (palmHeight / 100 - 2.0),
+    1.0
+  );
+  */
+
+  var leapVector = new THREE.Vector3(
+    (palmSlide / 100),
+    (-palmDepth / 100),
     1.0
   );
 
@@ -540,7 +548,7 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     }
 
     var distanceMod = distance / 12;
-    var ringScale = distanceMod + (palmDepth / 300) * distanceMod;
+    var ringScale = distanceMod + (palmHeight / 300) * distanceMod;
     var calloutScale = distanceMod * 1.1;
 
     this.handOrigin.scale.set(ringScale, ringScale, ringScale);
