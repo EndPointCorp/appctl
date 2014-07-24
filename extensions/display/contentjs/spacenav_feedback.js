@@ -13,6 +13,7 @@ var SpacenavFeedback = function(glEnvironment) {
   this.absOrigin = new THREE.Object3D();
   this.absOrigin.position.set(0, -7, -95);
   this.absOrigin.rotation.set(0.5, 0, 0);
+  this.absOrigin.scale.set(1.25, 1.25, 1.25);
   this.innerOrigin = new THREE.Object3D();
 
   this.spacenav_min = -350;
