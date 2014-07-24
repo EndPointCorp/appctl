@@ -197,6 +197,7 @@ SpacenavFeedback.prototype.init = function() {
   this.ringUniforms = {
     alpha: { type: 'f', value: 0.23 },
     xFade: { type: 'f', value: 0.0 },
+    bothXFade: { type: 'f', value: 0.0 },
     zFade: { type: 'f', value: 0.0 },
     fadeRadius: { type: 'f', value: 0.0 }
   };
@@ -328,6 +329,7 @@ SpacenavFeedback.prototype.animate = function() {
 
     this.ringUniforms.xFade.value = this.ringXOpacity;
     this.ringUniforms.zFade.value = this.ringZOpacity;
+    this.ringUniforms.bothXFade.value = Math.abs(this.flapRotation * 0.5);
     this.ringUniforms.xFade.needsUpdate = true;
     this.ringUniforms.zFade.needsUpdate = true;
   }

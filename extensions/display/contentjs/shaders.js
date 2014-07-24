@@ -100,13 +100,14 @@ var SlinkyShaders = (function() {
     'uniform float fadeRadius;' +
     'uniform float zFade;' +
     'uniform float xFade;' +
+    'uniform float bothXFade;' +
     'varying vec4 vColor;' +
 
     'void main() {' +
     '    vColor.rgb = color.rgb;' +
     '    float doubleRad = fadeRadius * 2.0;' +
-    '    float xPosFade = xFade * (position.x / doubleRad);' +
-    '    float zPosFade = zFade * (position.z / doubleRad);' +
+    '    float xPosFade = (position.x / doubleRad * xFade) + abs(position.x / fadeRadius * bothXFade);' +
+    '    float zPosFade = (position.z / doubleRad * zFade);' +
     '    vColor.a = alpha * max(0.0, min(1.0, (xPosFade + zPosFade)));' +
     '    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );' +
     '    gl_Position = projectionMatrix * mvPosition;' +
