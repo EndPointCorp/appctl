@@ -451,8 +451,8 @@ Hand.prototype.setOpacity = function(opacity) {
   this.ring0GeomUniforms.fade.value = this.handOpacity;
   this.dotUniforms.fade.value = this.handOpacity;
   this.compassRoseUniforms.fade.value = this.handOpacity;
-  this.hudDiv.style.opacity = this.handOpacity / 2;
-  this.popDiv.style.opacity = this.handOpacity / 2;
+  this.hudDiv.style.opacity = this.handOpacity * 0.66;
+  this.popDiv.style.opacity = this.handOpacity * 0.66;
   this.fadeInOutAnimationOnUpdate();  // Inform shaders of data change.
 };
 
