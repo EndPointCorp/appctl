@@ -13,7 +13,7 @@ var SpacenavFeedback = function(glEnvironment) {
   this.absOrigin = new THREE.Object3D();
   this.absOrigin.position.set(0, -7, -95);
   this.absOrigin.rotation.set(0.5, 0, 0);
-  this.absOrigin.scale.set(1.25, 1.25, 1.25);
+  this.absOrigin.scale.set(2.0, 2.0, 2.0);
 
   this.innerOrigin = new THREE.Object3D();
 
@@ -189,13 +189,13 @@ SpacenavFeedback.prototype.init = function() {
   this.absOrigin.add(this.innerOrigin);
 
   this.arrowUniforms = {
-    alpha: { type: 'f', value: 0.23 },
+    alpha: { type: 'f', value: 0.3 },
     fade: { type: 'f', value: 0.0 },
     fadeRadius: { type: 'f', value: 0.0 }
   };
 
   this.ringUniforms = {
-    alpha: { type: 'f', value: 0.23 },
+    alpha: { type: 'f', value: 0.3 },
     xFade: { type: 'f', value: 0.0 },
     bothXFade: { type: 'f', value: 0.0 },
     zFade: { type: 'f', value: 0.0 },
@@ -203,12 +203,12 @@ SpacenavFeedback.prototype.init = function() {
   };
 
   this.flapLeftUniforms = {
-    alpha: { type: 'f', value: 0.23 },
+    alpha: { type: 'f', value: 0.3 },
     fade: { type: 'f', value: 0.0 }
   };
 
   this.flapRightUniforms = {
-    alpha: { type: 'f', value: 0.23 },
+    alpha: { type: 'f', value: 0.3 },
     fade: { type: 'f', value: 0.0 }
   };
 
@@ -323,15 +323,20 @@ SpacenavFeedback.prototype.animate = function() {
     this.innerOrigin.position.x = this.ringObjPosition[0];
     this.innerOrigin.position.y = this.ringObjPosition[1];
     this.innerOrigin.position.z = this.ringObjPosition[2];
+    // tilt rotation
     this.innerOrigin.rotation.x = this.ringObjPosition[3];
-    this.ringObj.rotation.y = this.ringObjPosition[4];
+    // twist rotation
+    this.ringObj.rotation.y = this.ringObjPosition[4] * Math.pow(2, Math.abs(this.ringObjPosition[4]));
+    // roll rotation
     this.innerOrigin.rotation.z = this.ringObjPosition[5];
 
-    this.ringUniforms.xFade.value = this.ringXOpacity;
-    this.ringUniforms.zFade.value = this.ringZOpacity;
-    this.ringUniforms.bothXFade.value = Math.abs(this.flapRotation * 0.5);
+    this.ringUniforms.xFade.value = this.ringXOpacity * 0.5;
+    this.ringUniforms.bothXFade.value = Math.abs(this.flapRotation * 0.5) + Math.abs(this.ringXOpacity * 0.5);
+    this.ringUniforms.zFade.value = this.ringZOpacity * (1 - this.ringUniforms.bothXFade.value);
+
     this.ringUniforms.xFade.needsUpdate = true;
     this.ringUniforms.zFade.needsUpdate = true;
+    this.ringUniforms.bothXFade.needsUpdate = true;
   }
 
   if (typeof this.flapLeftObj === "undefined" ||
@@ -344,11 +349,11 @@ SpacenavFeedback.prototype.animate = function() {
 
     this.setOpacity(
       this.flapLeftUniforms,
-      Math.min(1, Math.max(0, Math.abs(this.flapRotation) - this.ringXOpacity))
+      Math.min(1, Math.max(0, Math.abs(this.flapRotation) - this.ringXOpacity) + Math.abs(this.ringXOpacity) * 0.2)
     );
     this.setOpacity(
       this.flapRightUniforms,
-      Math.min(1, Math.max(0, Math.abs(this.flapRotation) + this.ringXOpacity))
+      Math.min(1, Math.max(0, Math.abs(this.flapRotation) + this.ringXOpacity) + Math.abs(this.ringXOpacity) * 0.2)
     );
 
     var overallScale = 1.0 + this.flapRotation * 0.125;
