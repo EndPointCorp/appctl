@@ -14,7 +14,11 @@ var SpacenavFeedback = function(glEnvironment) {
   this.absOrigin.position.set(0, -7, -95);
   this.absOrigin.rotation.set(0.5, 0, 0);
   this.absOrigin.scale.set(1.25, 1.25, 1.25);
+
   this.innerOrigin = new THREE.Object3D();
+
+  this.flapLeftOrigin = new THREE.Object3D();
+  this.flapRightOrigin = new THREE.Object3D();
 
   this.spacenav_min = -350;
   this.spacenav_max = 350;
@@ -24,16 +28,21 @@ var SpacenavFeedback = function(glEnvironment) {
 
   this.arrowObj;
   this.ringObj;
+  this.flapLeftObj;
+  this.flapRightObj;
 
   this.arrowUniforms;
   this.ringUniforms;
+  this.flapUniforms;
 
   this.arrowObjPosition = [ 0, 0, 0, 0, 0, 0 ];
   this.ringObjPosition = [ 0, 0, 0, 0, 0, 0 ];
+  this.flapRotation = 0.0;
 
   this.arrowOpacity = 0.0;
   this.ringXOpacity = 0.0;
   this.ringZOpacity = 0.0;
+  this.flapOpacity = 0.0;
 };
 
 SpacenavFeedback.prototype.setOpacity = function(uniforms, opacity) {
@@ -115,12 +124,15 @@ SpacenavFeedback.prototype.processSpacenavMessage = function(msg) {
         .abs(angularZ), Math.abs(angularX), Math
         .abs(angularY))
         / this.arrows_max;
+
+    this.flapRotation = this.clampAxis(msg.linear.z, -1, 1);
+
     if (Math.abs(ring_opacity) > this.arrows_max / 20) { // yes that's evil
       this.ringXOpacity = this.clampAxis(msg.angular.z, -1, 1);
       this.ringZOpacity = -this.clampAxis(msg.angular.y, -1, 1);
       //this.ringZOpacity = ring_opacity;
       // pull up , push down
-      this.ringObjPosition[1] = linearZ;
+      //this.ringObjPosition[1] = linearZ;
       // rotate (twist)
       this.ringObjPosition[4] = angularZ * 0.5;
       // lean forward and backward
@@ -189,6 +201,16 @@ SpacenavFeedback.prototype.init = function() {
     fadeRadius: { type: 'f', value: 0.0 }
   };
 
+  this.flapLeftUniforms = {
+    alpha: { type: 'f', value: 0.23 },
+    fade: { type: 'f', value: 0.0 }
+  };
+
+  this.flapRightUniforms = {
+    alpha: { type: 'f', value: 0.23 },
+    fade: { type: 'f', value: 0.0 }
+  };
+
   var arrowShader = new THREE.ShaderMaterial({
     vertexColors: THREE.VertexColors,
     uniforms: this.arrowUniforms,
@@ -203,6 +225,24 @@ SpacenavFeedback.prototype.init = function() {
     uniforms: this.ringUniforms,
     vertexShader: document.getElementById('xzgradientvertexshader').textContent,
     fragmentShader: document.getElementById('xzgradientfragmentshader').textContent,
+    transparent: true,
+    depthTest: false
+  });
+
+  var flapLeftShader = new THREE.ShaderMaterial({
+    vertexColors: THREE.VertexColors,
+    uniforms: this.flapLeftUniforms,
+    vertexShader: document.getElementById('vcolorvertexshader').textContent,
+    fragmentShader: document.getElementById('vcolorfragmentshader').textContent,
+    transparent: true,
+    depthTest: false
+  });
+
+  var flapRightShader = new THREE.ShaderMaterial({
+    vertexColors: THREE.VertexColors,
+    uniforms: this.flapRightUniforms,
+    vertexShader: document.getElementById('vcolorvertexshader').textContent,
+    fragmentShader: document.getElementById('vcolorfragmentshader').textContent,
     transparent: true,
     depthTest: false
   });
@@ -228,9 +268,32 @@ SpacenavFeedback.prototype.init = function() {
       ringShader
     );
     geometry.computeBoundingSphere();
+    this.flapLeftOrigin.position.set(-geometry.boundingSphere.radius + 0.1, 0, 0);
+    this.flapRightOrigin.position.set(geometry.boundingSphere.radius - 0.1, 0, 0);
     this.ringUniforms.fadeRadius.value = geometry.boundingSphere.radius;
     this.ringUniforms.fadeRadius.needsUpdate = true;
     this.innerOrigin.add(this.ringObj);
+    this.ringObj.add(this.flapLeftOrigin);
+    this.ringObj.add(this.flapRightOrigin);
+  }.bind(this));
+
+  var flapLoader = new THREE.JSONLoader();
+  flapLoader.load(chrome.extension.getURL('models/flap.json'), function(geometry) {
+    this.paintGeometry(geometry, new THREE.Color(0xFFFFFF));
+    this.flapLeftObj = new THREE.Mesh(
+      geometry,
+      flapLeftShader
+    );
+    this.flapRightObj = new THREE.Mesh(
+      geometry,
+      flapRightShader
+    );
+
+    this.flapLeftObj.rotation.set(0, -Math.PI, 0);
+
+    this.flapLeftOrigin.add(this.flapLeftObj);
+    this.flapRightOrigin.add(this.flapRightObj);
+    geometry.computeBoundingSphere();
   }.bind(this));
 
   var self = this;
@@ -267,5 +330,23 @@ SpacenavFeedback.prototype.animate = function() {
     this.ringUniforms.zFade.value = this.ringZOpacity;
     this.ringUniforms.xFade.needsUpdate = true;
     this.ringUniforms.zFade.needsUpdate = true;
+  }
+
+  if (typeof this.flapLeftObj === "undefined" ||
+      typeof this.flapRightObj === "undefined") {
+
+    console.log("Still initializing flap objects");
+  } else {
+    this.flapRightObj.rotation.z = this.flapRotation;
+    this.flapLeftObj.rotation.z = this.flapRotation;
+
+    this.setOpacity(
+      this.flapLeftUniforms,
+      Math.min(1, Math.max(0, Math.abs(this.flapRotation) - this.ringXOpacity))
+    );
+    this.setOpacity(
+      this.flapRightUniforms,
+      Math.min(1, Math.max(0, Math.abs(this.flapRotation) + this.ringXOpacity))
+    );
   }
 };
