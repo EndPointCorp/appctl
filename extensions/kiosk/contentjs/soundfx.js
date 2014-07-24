@@ -212,7 +212,7 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
   var dLateral = Math.sqrt(x * x + y * y) * distanceToEarthCenter;
 
   var speed = (dLateral + dAlt) / dt; // m/s, theoretically
-  var val = Math.sqrt(speed / 100000);
+  var val = Math.sqrt(speed / 100000) * 5;
 
   // atmospheric component
   var atmosphereCoeff = 0;
