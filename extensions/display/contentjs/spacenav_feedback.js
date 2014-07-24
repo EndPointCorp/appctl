@@ -189,13 +189,13 @@ SpacenavFeedback.prototype.init = function() {
   this.absOrigin.add(this.innerOrigin);
 
   this.arrowUniforms = {
-    alpha: { type: 'f', value: 0.3 },
+    alpha: { type: 'f', value: 0.35 },
     fade: { type: 'f', value: 0.0 },
     fadeRadius: { type: 'f', value: 0.0 }
   };
 
   this.ringUniforms = {
-    alpha: { type: 'f', value: 0.3 },
+    alpha: { type: 'f', value: 0.35 },
     xFade: { type: 'f', value: 0.0 },
     bothXFade: { type: 'f', value: 0.0 },
     zFade: { type: 'f', value: 0.0 },
@@ -203,12 +203,12 @@ SpacenavFeedback.prototype.init = function() {
   };
 
   this.flapLeftUniforms = {
-    alpha: { type: 'f', value: 0.3 },
+    alpha: { type: 'f', value: 0.35 },
     fade: { type: 'f', value: 0.0 }
   };
 
   this.flapRightUniforms = {
-    alpha: { type: 'f', value: 0.3 },
+    alpha: { type: 'f', value: 0.35 },
     fade: { type: 'f', value: 0.0 }
   };
 
@@ -326,7 +326,7 @@ SpacenavFeedback.prototype.animate = function() {
     // tilt rotation
     this.innerOrigin.rotation.x = this.ringObjPosition[3];
     // twist rotation
-    this.ringObj.rotation.y = this.ringObjPosition[4] * Math.pow(2, Math.abs(this.ringObjPosition[4]));
+    this.ringObj.rotation.y = this.ringObjPosition[4] * Math.pow(1.66, Math.abs(this.ringObjPosition[4]));
     // roll rotation
     this.innerOrigin.rotation.z = this.ringObjPosition[5];
 
