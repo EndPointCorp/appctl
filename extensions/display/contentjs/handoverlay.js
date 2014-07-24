@@ -180,7 +180,7 @@ Hand.prototype.createRings_ = function(handOrigin) {
      xRayDirection: {
        type: 'v3', value: new THREE.Vector3(0, 0, 1).normalize() },
      colorTexture: { type: 't', value: xRayColorTexture },
-     alpha: { type: 'f', value: 0.1 },
+     alpha: { type: 'f', value: 0.08 },
      fade: { type: 'f', value: 0.0 }
   };
 
@@ -200,7 +200,7 @@ Hand.prototype.createRings_ = function(handOrigin) {
      xRayDirection: {
        type: 'v3', value: new THREE.Vector3(0, 0, 1).normalize() },
      colorTexture: { type: 't', value: xRayColorTexture },
-     alpha: { type: 'f', value: 0.35 },
+     alpha: { type: 'f', value: 0.15 },
      fade: { type: 'f', value: 0.0 }
   };
 
@@ -220,7 +220,7 @@ Hand.prototype.createRings_ = function(handOrigin) {
      xRayDirection: {
        type: 'v3', value: new THREE.Vector3(0, 0, 1).normalize() },
      colorTexture: { type: 't', value: xRayColorTexture },
-     alpha: { type: 'f', value: 0.3 },
+     alpha: { type: 'f', value: 0.15 },
      fade: { type: 'f', value: 0.0 }
   };
 
@@ -240,7 +240,7 @@ Hand.prototype.createRings_ = function(handOrigin) {
      xRayDirection: {
        type: 'v3', value: new THREE.Vector3(0, 0, 1).normalize() },
      colorTexture: { type: 't', value: xRayColorTexture },
-     alpha: { type: 'f', value: 0.4 },
+     alpha: { type: 'f', value: 0.23 },
      fade: { type: 'f', value: 0.0 }
   };
 
@@ -257,7 +257,7 @@ Hand.prototype.createRings_ = function(handOrigin) {
 
   // compass rose vertex-colored uniforms
   this.compassRoseUniforms = {
-     alpha: { type: 'f', value: 0.6 },
+     alpha: { type: 'f', value: 0.23 },
      fade: { type: 'f', value: 0.0 }
   };
 
@@ -451,8 +451,8 @@ Hand.prototype.setOpacity = function(opacity) {
   this.ring0GeomUniforms.fade.value = this.handOpacity;
   this.dotUniforms.fade.value = this.handOpacity;
   this.compassRoseUniforms.fade.value = this.handOpacity;
-  this.hudDiv.style.opacity = this.handOpacity;
-  this.popDiv.style.opacity = this.handOpacity;
+  this.hudDiv.style.opacity = this.handOpacity / 2;
+  this.popDiv.style.opacity = this.handOpacity / 2;
   this.fadeInOutAnimationOnUpdate();  // Inform shaders of data change.
 };
 

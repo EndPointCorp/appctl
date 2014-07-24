@@ -171,13 +171,13 @@ SpacenavFeedback.prototype.init = function() {
   this.absOrigin.add(this.innerOrigin);
 
   this.arrowUniforms = {
-    alpha: { type: 'f', value: 0.6 },
+    alpha: { type: 'f', value: 0.23 },
     fade: { type: 'f', value: 0.0 },
     zDepth: { type: 'f', value: 20 }
   };
 
   this.ringUniforms = {
-    alpha: { type: 'f', value: 0.6 },
+    alpha: { type: 'f', value: 0.23 },
     fade: { type: 'f', value: 0.0 }
   };
 
