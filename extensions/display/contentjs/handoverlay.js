@@ -139,7 +139,7 @@ Hand.prototype.updateHudMessage = function(pose) {
       longitude: handPose.lon,
       radius: this.dataRadius,
       callback: function(result) {
-        self.popDiv.innerHTML = '<p>' + Number(result.value - result.value % 100) + ' &nbsp;<img src="' + chrome.extension.getURL('models/population_icon.png') + '" />';
+        self.popDiv.innerHTML = '<p><img src="' + chrome.extension.getURL('models/population_icon.png') + '" />: ' + Number(result.value - result.value % 100);
       }
     }
   }));
