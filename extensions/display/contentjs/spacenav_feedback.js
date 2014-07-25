@@ -43,6 +43,8 @@ var SpacenavFeedback = function(glEnvironment) {
   this.ringXOpacity = 0.0;
   this.ringZOpacity = 0.0;
   this.flapOpacity = 0.0;
+
+  this.maxAbsoluteOpacity = 0.35;
 };
 
 SpacenavFeedback.prototype.setOpacity = function(uniforms, opacity) {
@@ -189,13 +191,13 @@ SpacenavFeedback.prototype.init = function() {
   this.absOrigin.add(this.innerOrigin);
 
   this.arrowUniforms = {
-    alpha: { type: 'f', value: 0.35 },
+    alpha: { type: 'f', value: this.maxAbsoluteOpacity },
     fade: { type: 'f', value: 0.0 },
     fadeRadius: { type: 'f', value: 0.0 }
   };
 
   this.ringUniforms = {
-    alpha: { type: 'f', value: 0.35 },
+    alpha: { type: 'f', value: this.maxAbsoluteOpacity },
     xFade: { type: 'f', value: 0.0 },
     bothXFade: { type: 'f', value: 0.0 },
     zFade: { type: 'f', value: 0.0 },
@@ -203,12 +205,12 @@ SpacenavFeedback.prototype.init = function() {
   };
 
   this.flapLeftUniforms = {
-    alpha: { type: 'f', value: 0.35 },
+    alpha: { type: 'f', value: this.maxAbsoluteOpacity },
     fade: { type: 'f', value: 0.0 }
   };
 
   this.flapRightUniforms = {
-    alpha: { type: 'f', value: 0.35 },
+    alpha: { type: 'f', value: this.maxAbsoluteOpacity },
     fade: { type: 'f', value: 0.0 }
   };
 
