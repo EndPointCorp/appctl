@@ -493,11 +493,6 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
   // use more responsive un-stabilized palm position for z
   var palmDepth = leapData.palm_position.z;
 
-  // ergonomics: move the leap "box" away from the touchscreen
-  palmHeight -= 100;
-
-  // limits: prevent jumpy tracking at out edges of leap detection
-  palmHeight = Math.min(Math.max(palmHeight - 50, 0), 250);
 
   var camera = this.handOverlay_.camera;
 
@@ -515,9 +510,14 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     1.0
   );
 
-  var ray = this.projector.pickingRay(leapVector, camera);
+  // TODO(mv): better logic for bypassing ray intersect when out of bounds
+  var intersects = [];
+  if (palmHeight > 180) {
+    var ray = this.projector.pickingRay(leapVector, camera);
+    intersects = ray.intersectObject(this.handOverlay_.globeSphere);
+  }
 
-  var intersects = ray.intersectObject(this.handOverlay_.globeSphere);
+  palmHeight = Math.min(Math.max(palmHeight - 150, 0), 250);
 
   if (intersects.length == 0) {
     this.handOpacity = 0.0;
