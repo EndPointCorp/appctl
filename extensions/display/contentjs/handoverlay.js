@@ -512,31 +512,57 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     1.0
   );
 
+  // limits of normalized height
+  var HEIGHT_MIN = 0;
+  var HEIGHT_MAX = 300;
+
+  // normalized height where fade starts
+  var FADE_LOW = HEIGHT_MIN + 50;
+  var FADE_HIGH = HEIGHT_MAX - 50;
+
+  // normal angle where fade starts on edges
+  var FADE_EDGE = 0.5;
+
+  // absolute height limits
+  var MIN_ABS_HEIGHT = 120;
+  var MAX_ABS_HEIGHT = MIN_ABS_HEIGHT + HEIGHT_MAX;
+
   // TODO(mv): better logic for bypassing ray intersect when out of bounds
   var intersects = [];
-  if (palmHeight > 180) {
+  if (palmHeight > MIN_ABS_HEIGHT && palmHeight <= MAX_ABS_HEIGHT) {
     var ray = this.projector.pickingRay(leapVector, camera);
     intersects = ray.intersectObject(this.handOverlay_.globeSphere);
   }
-
-  palmHeight = Math.min(Math.max(palmHeight - 150, 0), 250);
 
   if (intersects.length == 0) {
     this.handOpacity = 0.0;
     this.hudPos = null;
   } else {
+    // normalize and limit height
+    palmHeight = Math.min(Math.max(palmHeight - MIN_ABS_HEIGHT, HEIGHT_MIN), HEIGHT_MAX);
+
+    // height limits for data radius
+    var palmDataHeight = Math.min(Math.max(palmHeight, FADE_LOW), FADE_HIGH);
+
     this.hudPos = intersects[0].point;
     var distance = intersects[0].distance;
     var interNormal = intersects[0].face.normal;
+
     // push fade to the edge
-    var fadeEdge = 0.5;
-    var fadeMax = Math.max(0,
+    var normalAngle = Math.max(0,
       Math.abs(interNormal.x) +
       Math.abs(interNormal.y +
       toRadians_(currentCameraPose.tilt / 2)) -
-      fadeEdge
+      FADE_EDGE
     );
-    this.handOpacity = Math.sqrt(Math.max(0, 1.0 - (fadeMax) * (1 / fadeEdge)));
+    var normalFade = Math.sqrt(Math.max(0, 1.0 - (normalAngle) * (1 / FADE_EDGE)));
+
+    // height fade coefficient
+    var lowFade = Math.min(Math.max((palmHeight - FADE_LOW) * (1 / FADE_LOW), 0), 1);
+    var highFade = Math.min(Math.max((FADE_HIGH - palmHeight) * (1 / (HEIGHT_MAX - FADE_HIGH)), 0), 1);
+    var heightFade = Math.min(lowFade, highFade);
+
+    this.handOpacity = Math.min(Math.max(normalFade * heightFade, 0), 1);
 
     this.handOrigin.position.set(this.hudPos.x, this.hudPos.y, this.hudPos.z);
     this.calloutOrigin.position.set(this.hudPos.x, this.hudPos.y, this.hudPos.z);
@@ -550,7 +576,7 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     }
 
     var distanceMod = distance / 12;
-    var ringScale = distanceMod + (palmHeight / 300) * distanceMod;
+    var ringScale = distanceMod + (palmDataHeight / (FADE_HIGH - FADE_LOW)) * distanceMod;
     var calloutScale = distanceMod * 1.1;
 
     this.handOrigin.scale.set(ringScale, ringScale, ringScale);
