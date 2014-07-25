@@ -666,3 +666,52 @@ var preventDefaultHandler = function(e) {
   e.preventDefault();
 };
 window.addEventListener('touchmove', preventDefaultHandler, false);
+
+// This event handler should disallow for pinch events
+// in the street view mode.
+// The main idea works. However I have some hardware problems.
+// Sometimes my touchscreen emits two touches, when I'm using one finger,
+// when I'm using two fingers it sometimes emits three touches. That's
+// bacause of my fat fingers (not too fat, but too fat for the touch events).
+// When using one finger, the emitted touch events are very near each other,
+// the coordinates are like: (200, 200) and (200, 202). There is no way
+// to emit such events with two fingers. Except for Aliens maybe.
+// So I had to count the distance between all the touch coordinates
+// in order to get the 'distinct' ones. I assume that if the length
+// between them is less than 3 pixels, then it is the same event.
+document.addEventListener("touchmove", function(e){
+  console.log('touchmove');
+  console.log('runwaytActionRestriction is: '+runwayActionRestrictions);
+  //console.log(e);
+  //console.log(e.touches);
+  //console.log(e.touches.length);
+  var differentTouches = [e.touches[0]];
+  for(var i = 1; i < e.touches.length; i++ ){
+    var touch = e.touches[i];
+
+    // let's count the 'distinct' touch events
+    for(var j = 0; j < differentTouches.length; j++) {
+      var df = differentTouches[j];
+      var xs = (df.pageX - touch.pageX)*(df.pageX - touch.pageX);
+      var ys = (df.pageY - touch.pageY)*(df.pageY - touch.pageY);
+      var diff = Math.sqrt(xs + ys);
+      console.log("xs " + xs + " ys " + ys  + " diff " + diff);
+      if ( Math.sqrt(xs + ys) > 3) {
+        differentTouches.push(touch);
+        break;
+      }
+    }
+    console.log({ identifier: touch.identifier, pageX: touch.pageX, pageY: touch.pageY });
+  }
+  console.log("Different touches length=" + differentTouches.length);
+  console.log("*********************************************");
+
+  // if there are more than one distinct touch event
+  // and we are in the mode where spacenav shouldn't zoom, then
+  // disable the pinch events
+  if(differentTouches.length > 1 && runwayActionRestrictions != 0) {
+    console.log("Pinch events not allowed");
+    e.preventDefault();
+    e.stopPropagation();
+  }
+}, true);
