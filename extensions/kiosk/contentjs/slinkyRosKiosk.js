@@ -690,7 +690,11 @@ document.addEventListener("touchmove", function(e){
   //console.log(e);
   //console.log(e.touches);
   //console.log(e.touches.length);
+
+  /*
   var differentTouches = [e.touches[0]];
+  touch = e.touches[0];
+  console.log({ identifier: touch.identifier, pageX: touch.pageX, pageY: touch.pageY });
   for(var i = 1; i < e.touches.length; i++ ){
     var touch = e.touches[i];
 
@@ -708,13 +712,26 @@ document.addEventListener("touchmove", function(e){
     }
     console.log({ identifier: touch.identifier, pageX: touch.pageX, pageY: touch.pageY });
   }
-  console.log("Different touches length=" + differentTouches.length);
+  */
+
+  // however I noticed that if the two points are similar, and go from one finger,
+  // then the identifier field is the same, for two fingers the ids are [0, 1]
+  var ids = [];
+  for(var i = 0 ; i < e.touches.length ; i++) {
+    var id = e.touches[i].identifier;
+    var touch = e.touches[i];
+    console.log({ identifier: touch.identifier, pageX: touch.pageX, pageY: touch.pageY });
+    if (ids.indexOf(id) == -1) { ids.push(id); }
+    //console.log(ids);
+  }
+  console.log("Found ids: ", ids);
+  // I can just count the different numbers in the identifier list...
   console.log("*********************************************");
 
   // if there are more than one distinct touch event
   // and we are in the mode where spacenav shouldn't zoom, then
   // disable the pinch events
-  if(differentTouches.length > 1 && runwayActionRestrictions != 0) {
+  if(ids.length > 1 && runwayActionRestrictions != 0) {
     console.log("Pinch events not allowed");
     e.preventDefault();
     e.stopPropagation();
