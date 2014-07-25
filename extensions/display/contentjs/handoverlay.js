@@ -542,7 +542,7 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
 
   var palmpos = leapData.stabilized_palm_position;
   var palmPitch = leapData.direction.pitch + Math.PI;
-  var palmRoll = -leapData.palm_normal.roll;
+  var palmRoll = leapData.palm_normal.roll;
   var palmYaw = leapData.direction.yaw;
 
   var palmHeight = palmpos.y;
@@ -638,7 +638,8 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     this.calloutOrigin.scale.set(calloutScale, calloutScale, calloutScale);
     this.calloutOrigin.updateMatrixWorld(false);
 
-    this.ring2.rotation.set(0, -palmYaw, 0);
+    // for now, outer sub-ring based on roll, and fudged to center
+    this.ring2.rotation.set(0, palmRoll + 0.36, 0);
 
     this.ring0.geometry.computeBoundingSphere();
     this.dataRadius = this.ring1.geometry.boundingSphere.radius * ringScale;
