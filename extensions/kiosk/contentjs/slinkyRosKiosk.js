@@ -716,6 +716,7 @@ document.addEventListener("touchmove", function(e){
 
   // however I noticed that if the two points are similar, and go from one finger,
   // then the identifier field is the same, for two fingers the ids are [0, 1]
+	/*
   var ids = [];
   for(var i = 0 ; i < e.touches.length ; i++) {
     var id = e.touches[i].identifier;
@@ -727,11 +728,15 @@ document.addEventListener("touchmove", function(e){
   console.log("Found ids: ", ids);
   // I can just count the different numbers in the identifier list...
   console.log("*********************************************");
-
+  
   // if there are more than one distinct touch event
   // and we are in the mode where spacenav shouldn't zoom, then
   // disable the pinch events
   if(ids.length > 1 && runwayActionRestrictions != 0) {
+	*/
+
+	// version for chrome browser, not tested yet, as I cannot get the secure websockets running
+  if(e.touches.length > 1 && runwayActionRestrictions != 0) {
     console.log("Pinch events not allowed");
     e.preventDefault();
     e.stopPropagation();
