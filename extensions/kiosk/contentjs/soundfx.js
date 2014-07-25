@@ -6,6 +6,7 @@ var EARTH_RADIUS = 6371000; // meters from center
 var EARTH_ATMOSPHERE_CEILING = 120000; // meters from surface
 var ATMOSPHERE_FALLOFF = 6; // exponential falloff rate for atmospheric density
 var SILENCE_TIMEOUT = 200; // ms, silence after no movement for this amount of time
+var HOVER_LEVEL = 0.08; // ambient level
 
 /**
  * Container for single sound effect, able to isolate a section and/or loop.
@@ -18,19 +19,47 @@ var SILENCE_TIMEOUT = 200; // ms, silence after no movement for this amount of t
  * @param {int} end
  * @param {bool} loop
  */
-SoundEffect = function(src_file, begin, end, loop) {
+SoundEffect = function(context, src_file, begin, end, loop) {
+
+  this.context = context;
+  this.source = this.context.createBufferSource();
+  this.loaded = false;
+
+  this.gainNode = this.context.createGain();
+  this.panNode = this.context.createPanner();
+
+  // source -> gain -> pan -> destination
+  this.source.connect(this.gainNode);
+  this.gainNode.connect(this.panNode);
+  this.panNode.connect(this.context.destination);
+
+  this.gainNode.gain.value = 0;
+  this.panNode.panningModel = "HRTF";
 
   this.startMs = begin;
   this.durationMs = end - begin;
 
-  // Prepare the audio resource.
-  this.audio = new Audio(src_file);
-  this.audio.preload = 'auto';
-  this.audio.loop = loop;
+  var request = new XMLHttpRequest();
+  request.open('GET', src_file, true);
+  request.responseType = 'arraybuffer';
+
+  request.onload = function() {
+    this.context.decodeAudioData(request.response, function(buffer) {
+      this.source.buffer = buffer;
+      this.loaded = true;
+      if (this.source.loop) {
+        this.start(0);
+      }
+    }.bind(this), function(err) { console.error(err); });
+  }.bind(this)
+  request.send();
+
+  this.source.loop = loop;
   this.loop = false;
   this.event_thread = 0;
   this.playing = false;
 
+  /*
   // support crossfade
   this.xfade = 0;
   this.xratio = 0;
@@ -39,6 +68,7 @@ SoundEffect = function(src_file, begin, end, loop) {
   this.crossfading = false;
   // Keep track of the event thread for the cross fading.
   this.xthread = 0;
+  */
 };
 
 /**
@@ -47,7 +77,19 @@ SoundEffect = function(src_file, begin, end, loop) {
  */
 SoundEffect.prototype.setVolume = function(float_val) {
   float_val = Math.max(0, Math.min(1, float_val));
-  this.audio.volume = float_val;
+  this.gainNode.gain.value = float_val;
+};
+
+/**
+ * Pan the clip.
+ * @param {float} panX left/right pan
+ * @param {float} panZ forward/back pan
+ */
+SoundEffect.prototype.setPan = function(panX, panY, panZ) {
+  panX = panX ? Math.max(-1, Math.min(1, panX)) : 0;
+  panY = panY ? Math.max(-1, Math.min(1, panY)) : 0;
+  panZ = panZ ? Math.max(-1, Math.min(1, panZ)) : 0;
+  this.panNode.setPosition(panX, panY, panZ);
 };
 
 /**
@@ -118,6 +160,7 @@ SoundEffect.prototype.start = function() {
  * @private
  */
 SoundEffect.prototype.start_ = function() {
+  /*
   if (this.audio.readyState == 0) return; // Consider an error
   this.audio.currentTime = this.startMs / 1000;
   var self = this;
@@ -126,42 +169,51 @@ SoundEffect.prototype.start_ = function() {
       self.stop();
     }
   }, this.durationMs);
-  this.audio.play();
+  */
+  this.source.start(0);
 };
 
 /**
  * Premptive stop of the audio clip.
  */
 SoundEffect.prototype.stop = function() {
-  this.audio.pause();
+  //this.audio.pause();
+  this.source.stop(); // web audio api can only start() once!
   this.playing = false;
-  this.crossfading = false;
+  //this.crossfading = false;
   // NOTE: might have to stop the crossfade target too?
-  clearTimeout(this.event_thread);
+  //clearTimeout(this.event_thread);
 };
 
 SoundFX = function() {
+  this.context = new AudioContext();
   this.lastPose = null;
   this.lastUpdateTime = 0;
   this.lastSeq = 0;
   this.silenceTimer = null;
   this.enabled = true;
+  this.lastTilt = 0;
 
   // Preload the sound clips.
   // TODO(arshan): Better to load these out of a config file?
   this.largestart = new SoundEffect(
+    this.context,
     chrome.extension.getURL('sounds/largestart.wav'),
                             0, 1217, false);
   this.largeidle = new SoundEffect(
+    this.context,
     chrome.extension.getURL('sounds/largeidle.wav'),
                             0, 27282, true);
   this.smallstart = new SoundEffect(
+    this.context,
     chrome.extension.getURL('sounds/smallstart.wav'),
                             0, 2000, false);
   this.smallidle = new SoundEffect(
+    this.context,
     chrome.extension.getURL('sounds/smallidle.wav'),
                              0, 14003, true);
   this.cutoff = new SoundEffect(
+    this.context,
     chrome.extension.getURL('sounds/cutoff.wav'),
                              0, 1994, false);
 
@@ -202,7 +254,7 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
   var dLng = toRadians(pose.position.x - lastPose.position.x);
 
   // altitude change in meters
-  var dAlt = Math.abs(pose.position.z - lastPose.position.z);
+  var dAlt = pose.position.z - lastPose.position.z;
 
   this.lastPose = pose;
 
@@ -211,10 +263,10 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
   var y = dLat;
   var dLateral = Math.sqrt(x * x + y * y) * distanceToEarthCenter;
 
-  var speed = (dLateral + dAlt) / dt; // m/s, theoretically
+  var speed = (dLateral + Math.abs(dAlt)) / dt; // m/s, theoretically
   var val = Math.sqrt(speed / 100000) * 5;
 
-  // atmospheric component
+  // atmospheric coefficient
   var atmosphereCoeff = 0;
   if (pose.position.z < EARTH_ATMOSPHERE_CEILING) {
     // TODO(mv): reduce O
@@ -224,30 +276,45 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
   }
   val *= atmosphereCoeff;
 
+  // panning away from movement vectors
+  var tiltular = toRadians(pose.orientation.x) + Math.atan2(dLateral, dAlt);
+  var lateral = toRadians(pose.orientation.z) + Math.atan2(dLat, dLng);
+  var panX = -Math.cos(lateral);
+  var panZ = Math.sin(lateral) * Math.cos(tiltular);
+  var panY = -Math.sin(tiltular);
+
+  this.lastTilt = toRadians(pose.orientation.x);
+
   // Now play the corresponding sound effects.
-  this.update(val);
+  this.update(val, panX, panY, panZ);
 };
 
 /**
  * Plays appropriate sound effects for the incoming speed.
- * @param {Number} val The rate of movement around the globe.
+ * @param {float} level The rate of movement around the globe (0, 1)
+ * @param {float} panX Side to side panning component (-1, 1)
+ * @param {float} panY Up to down panning component (-1, 1)
+ * @param {float} panZ Forward to back panning component (-1, 1)
  */
-SoundFX.prototype.update = function(val) {
-  this.largeidle.setVolume(val);
+SoundFX.prototype.update = function(level, panX, panY, panZ) {
+  this.largeidle.setVolume(level);
+  this.largeidle.setPan(panX, panY, panZ);
 
-  if (val > 0) {
+  if (level > HOVER_LEVEL) {
     clearTimeout(this.silenceTimer);
     var self = this;
     this.silenceTimer = setTimeout(function() {
-      self.silence();
+      self.hover();
     }, SILENCE_TIMEOUT);
 
+    /*
     if (!this.largeidle.playing) {
       this.largeidle.start();
     }
-  } else if (val <= 0 && this.largeidle.playing) {
+    */
+  } else {
     clearTimeout(this.silenceTimer);
-    this.largeidle.stop();
+    this.hover();
   }
 };
 
@@ -257,6 +324,16 @@ SoundFX.prototype.update = function(val) {
 SoundFX.prototype.silence = function() {
   this.update(0);
 };
+
+/**
+ * Sets hover gain.
+ */
+SoundFX.prototype.hover = function() {
+  this.largeidle.setVolume(HOVER_LEVEL);
+  var downY = -Math.sin(this.lastTilt);
+  var downZ = Math.cos(this.lastTilt);
+  this.largeidle.setPan(0, downY, downZ);
+}
 
 /*
 Just for informations sake, and possibly fingerprinting, the sox output
