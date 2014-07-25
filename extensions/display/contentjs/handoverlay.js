@@ -80,6 +80,12 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
 
   this.setupGeometry_(leapInteractionBox);
 
+  this.hudSpanAltId = 'hudAlt' + handId;
+  this.hudSpanLatId = 'hudLat' + handId;
+  this.hudSpanLngId = 'hudLng' + handId;
+  this.hudSpanNorthingId = 'hudNorthing' + handId;
+  this.hudSpanEastingId = 'hudEasting' + handId;
+
   this.hudDiv = document.createElement('div');
   this.hudDiv.id = 'slinkyhud' + handId;
   this.hudDiv.style.position = 'absolute';
@@ -91,6 +97,10 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
   this.hudDiv.style.fontSize = '166%';
   this.hudDiv.style.color = '#e3efff';
   this.hudDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.0)';
+  this.hudDiv.innerHTML = '<p>Alt: <span id="' + this.hudSpanAltId + '"></span>m</p>' +
+    '<p>Lat: <span id="' + this.hudSpanLatId + '"></span>&deg; <span id="' + this.hudSpanNorthingId + '"></span></p>' +
+    '<p>Lng: <span id="' + this.hudSpanLngId + '"></span>&deg; <span id="' + this.hudSpanEastingId + '"></span></p>';
+
 
   this.popDiv = document.createElement('div');
   this.popDiv.id = 'slinkypop' + handId;
@@ -104,6 +114,8 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
   this.popDiv.style.textAlign = 'right';
   this.popDiv.style.color = '#e3efff';
   this.popDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.0)';
+
+  this.nextElevationRequest = 0;
 };
 
 /**
@@ -129,12 +141,21 @@ Hand.prototype.updateHudMessage = function(pose) {
   var northing = handPose.lat >= 0 ? 'N' : 'S';
   var easting = handPose.lon >= 0 ? 'E' : 'W';
 
-  this.hudDiv.innerHTML = 'Alt: ' + handPose.alt.toFixed(3) +
-    'm<p>Lat: ' + Math.abs(handPose.lat).toFixed(3) + '&deg; ' + northing +
-    '<p>Lng: ' + Math.abs(handPose.lon).toFixed(3) + '&deg; ' + easting;
+  // TODO(mv): cache these lookups
+  var hudSpanAlt = document.getElementById(this.hudSpanAltId);
+  var hudSpanLat = document.getElementById(this.hudSpanLatId);
+  var hudSpanLng = document.getElementById(this.hudSpanLngId);
+  var hudSpanNorthing = document.getElementById(this.hudSpanNorthingId);
+  var hudSpanEasting = document.getElementById(this.hudSpanEastingId);
+
+  hudSpanLat.innerHTML = Math.abs(handPose.lat).toFixed(3);
+  hudSpanLng.innerHTML = Math.abs(handPose.lon).toFixed(3);
+  hudSpanNorthing.innerHTML = northing;
+  hudSpanEasting.innerHTML = easting;
 
   var self = this;
 
+  // async population data request from geodata ros service
   window.dispatchEvent(new CustomEvent('acmePopulationQuery', {
     detail: {
       latitude: handPose.lat,
@@ -145,6 +166,40 @@ Hand.prototype.updateHudMessage = function(pose) {
       }
     }
   }));
+
+  // async elevation request from Google elevation api
+
+  // limit elevation request rate
+  var ELEVATION_REQ_RATE = 5; // Hz
+  var now = Date.now();
+  if (now < this.nextElevationRequest) {
+    return;
+  }
+  this.nextElevationRequest = now + 1000 / ELEVATION_REQ_RATE;
+
+  // TODO(mv): API key
+  var url = 'https://maps.googleapis.com/maps/api/elevation/json?locations={loc}';
+  //var url = 'http://maps.googleapis.com/maps/api/elevation/json?loations={loc}&key={key}';
+  url = url.replace('{loc}', [handPose.lat, handPose.lon].join(','));
+  //url = url.replace('{key}', API_KEY);
+
+  var elevationRequest = new XMLHttpRequest();
+  elevationRequest.overrideMimeType('application/json');
+  elevationRequest.open('GET', url, true);
+  elevationRequest.onload = function() {
+    if (elevationRequest.status != 200) {
+      console.error('elevation request returned', elevationRequest.status);
+      return;
+    }
+    var response = JSON.parse(elevationRequest.responseText);
+    if (response.status == 'OK') {
+      var elevation = response.results[0].elevation;
+      hudSpanAlt.innerHTML = elevation.toFixed(3);
+    } else {
+      console.error('elevation request status:', response.status);
+    }
+  };
+  elevationRequest.send();
 };
 
 Hand.prototype.updateHudCompass = function(pose) {
