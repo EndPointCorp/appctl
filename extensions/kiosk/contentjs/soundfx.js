@@ -34,7 +34,7 @@ SoundEffect = function(context, src_file, begin, end, loop) {
   this.panNode.connect(this.context.destination);
 
   this.gainNode.gain.value = 0;
-  this.panNode.panningModel = "HRTF";
+  this.panNode.panningModel = "equalpower";
 
   this.startMs = begin;
   this.durationMs = end - begin;
