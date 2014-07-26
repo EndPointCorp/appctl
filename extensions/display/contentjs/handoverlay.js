@@ -568,19 +568,22 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
   );
 
   // limits of normalized height
+  // this is relative to the absolute height below
   var HEIGHT_MIN = 0;
   var HEIGHT_MAX = 350;
+
+  // absolute height limits
+  // this sets the absolute bottom of the HUD "box"
+  var MIN_ABS_HEIGHT = 100;
+  var MAX_ABS_HEIGHT = MIN_ABS_HEIGHT + HEIGHT_MAX;
 
   // normalized height where fade starts
   var FADE_LOW = HEIGHT_MIN + 50;
   var FADE_HIGH = HEIGHT_MAX - 50;
 
   // normal angle where fade starts on edges
+  // TODO(mv): fix the logic using this setting
   var FADE_EDGE = 0.5;
-
-  // absolute height limits
-  var MIN_ABS_HEIGHT = 120;
-  var MAX_ABS_HEIGHT = MIN_ABS_HEIGHT + HEIGHT_MAX;
 
   // TODO(mv): better logic for bypassing ray intersect when out of bounds
   var intersects = [];
