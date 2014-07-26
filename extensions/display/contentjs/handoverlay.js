@@ -314,7 +314,7 @@ Hand.prototype.createRings_ = function(handOrigin) {
 
   // compass rose vertex-colored uniforms
   this.compassRoseUniforms = {
-     alpha: { type: 'f', value: this.maxOverallOpacity },
+     alpha: { type: 'f', value: this.maxOverallOpacity * 0.5 },
      fade: { type: 'f', value: 0.0 }
   };
 
