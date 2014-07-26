@@ -3,10 +3,10 @@
  */
 
 var EARTH_RADIUS = 6371000; // meters from center
-var EARTH_ATMOSPHERE_CEILING = 120000; // meters from surface
+var EARTH_ATMOSPHERE_CEILING = 480000; // meters from surface
 var ATMOSPHERE_FALLOFF = 6; // exponential falloff rate for atmospheric density
 var SILENCE_TIMEOUT = 200; // ms, silence after no movement for this amount of time
-var HOVER_LEVEL = 0.08; // ambient level
+var HOVER_LEVEL = 0.12; // ambient level
 
 /**
  * Container for single sound effect, able to isolate a section and/or loop.
@@ -255,6 +255,8 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
 
   // altitude change in meters
   var dAlt = pose.position.z - lastPose.position.z;
+  // greater thrust required to move "up"
+  dAlt *= (dAlt > 0) ? 1.5 : 0.5;
 
   this.lastPose = pose;
 
