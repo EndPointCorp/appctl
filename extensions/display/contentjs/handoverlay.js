@@ -630,9 +630,11 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
       );
     }
 
+    // TODO(mv): flush out magic numbers
     var distanceMod = distance / 12;
     var ringScale = distanceMod + (palmDataHeight / (FADE_HIGH - FADE_LOW)) * distanceMod;
-    var calloutScale = distanceMod * 1.1;
+    ringScale *= 0.58;
+    var calloutScale = distanceMod * 1.0;
 
     this.handOrigin.scale.set(ringScale, ringScale, ringScale);
     this.calloutOrigin.scale.set(calloutScale, calloutScale, calloutScale);
@@ -642,7 +644,7 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     this.ring2.rotation.set(0, palmRoll + 0.36, 0);
 
     this.ring0.geometry.computeBoundingSphere();
-    this.dataRadius = this.ring1.geometry.boundingSphere.radius * ringScale;
+    this.dataRadius = this.ring1.geometry.boundingSphere.radius * ringScale * 0.66;
 
     this.topCalloutPos.setFromMatrixPosition(this.topCalloutPanel.matrixWorld);
 
