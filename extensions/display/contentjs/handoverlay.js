@@ -569,7 +569,7 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
 
   // limits of normalized height
   var HEIGHT_MIN = 0;
-  var HEIGHT_MAX = 300;
+  var HEIGHT_MAX = 350;
 
   // normalized height where fade starts
   var FADE_LOW = HEIGHT_MIN + 50;
