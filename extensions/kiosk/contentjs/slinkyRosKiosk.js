@@ -445,6 +445,7 @@ var handleRosPoseChange = function(rosPoseStamped) {
 var publishKioskCurrentPose = function(pose) {
   // In normal navigation mode, we tell the navigator that it can use the
   // full range of motion:
+  var EARTH_RADIUS = 6378100; //meters
   var EPSILON = 0.000001;
   var NOMINAL_LAT_MIN = -90.0 + EPSILON;
   var NOMINAL_LAT_MAX = 90.0 - EPSILON;
@@ -453,7 +454,7 @@ var publishKioskCurrentPose = function(pose) {
   var NOMINAL_ALT_MIN = 80;
   var NOMINAL_ALT_MAX = Pose.SPACE_POSE.alt;
   var NOMINAL_TILT_MIN = 0.0;
-  var NOMINAL_TILT_MAX = 90.0;
+  var NOMINAL_TILT_MAX = Math.asin(EARTH_RADIUS / (EARTH_RADIUS + pose.alt)) * (180 / Math.PI) + 9;
   var NOMINAL_HDG_MIN = 0.0;
   var NOMINAL_HDG_MAX = 360.0;
 
