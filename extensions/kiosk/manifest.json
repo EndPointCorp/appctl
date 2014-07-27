@@ -15,7 +15,7 @@
     "management"
   ],
   "web_accessible_resources": [
-    "models/*.json", "sounds/*.wav", "contentjs/inject.js"
+    "images/zoomOut.jpg", "models/*.json", "sounds/*.wav", "contentjs/inject.js"
   ],
   "content_scripts": [
     {

@@ -32,13 +32,15 @@ a.gsst_a {
  * Add a zoom out to earth button.
  */
 .acme-zoom-out-earth {
-  border: 1px red solid;
+  border: 3px solid #357ae8;
+  border-radius: 2px;
   height: 100px;
   width: 100px;
   left: 3px;
   top: 16px;
   position: relative;
   cursor: pointer;
+  background-size: contain;
 }
 
 .acme-famous-places {

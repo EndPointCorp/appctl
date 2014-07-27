@@ -91,6 +91,13 @@ acme.Kiosk = function() {
 acme.Kiosk.prototype.addZoomOutToEarthButton = function() {
   var button = document.createElement('button');
   button.className = 'acme-zoom-out-earth';
+  /*
+   * JUST the background-image style, so we can use an asset from within the
+   * extension. ALL other style attributes sould be handled in the extension
+   * CSS
+   */
+  var zoomIcon = chrome.extension.getURL('images/zoomOut.jpg');
+  button.setAttribute('style', 'background-image:url(\''+zoomIcon+'\');');
   button.setAttribute('onclick',
       'javascript:document.dispatchEvent(new CustomEvent("acmeZoomOutToEarth"))'
       );
