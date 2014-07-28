@@ -106,7 +106,8 @@ var SlinkyShaders = (function() {
     'void main() {' +
     '    vColor.rgb = color.rgb;' +
     '    float doubleRad = fadeRadius * 2.0;' +
-    '    float xPosFade = (position.x / doubleRad * xFade) + abs(position.x / fadeRadius * bothXFade);' +
+    '    float xPosFade = (position.x / doubleRad * xFade) +' +
+    '                     abs(position.x / fadeRadius * bothXFade);' +
     '    float zPosFade = (position.z / doubleRad * zFade);' +
     '    vColor.a = alpha * max(0.0, min(1.0, (xPosFade + zPosFade)));' +
     '    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );' +

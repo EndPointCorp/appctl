@@ -1,9 +1,10 @@
-/*
+/**
  * Feedback arrows UX extension.
  * Shows two independent webgl models that should immitate spacenav movement.
  * Object should fade in and fade out on spacenav use.
+ * @constructor
+ * @param {SlinkyGLEnvironment} glEnvironment shared WebGL context
  */
-
 var SpacenavFeedback = function(glEnvironment) {
   this.glEnvironment = glEnvironment;
   this.canvas = glEnvironment.canvas;
@@ -35,8 +36,8 @@ var SpacenavFeedback = function(glEnvironment) {
   this.ringUniforms;
   this.flapUniforms;
 
-  this.arrowObjPosition = [ 0, 0, 0, 0, 0, 0 ];
-  this.ringObjPosition = [ 0, 0, 0, 0, 0, 0 ];
+  this.arrowObjPosition = [0, 0, 0, 0, 0, 0];
+  this.ringObjPosition = [0, 0, 0, 0, 0, 0];
   this.flapRotation = 0.0;
 
   this.arrowOpacity = 0.0;
@@ -47,6 +48,11 @@ var SpacenavFeedback = function(glEnvironment) {
   this.maxAbsoluteOpacity = 0.35;
 };
 
+/**
+ * Sets the opacity of shader uniforms.
+ * @param {object} uniforms
+ * @param {float} opacity [0, 1]
+ */
 SpacenavFeedback.prototype.setOpacity = function(uniforms, opacity) {
   if (uniforms.fade.value != opacity) {
     uniforms.fade.value = opacity;
@@ -54,18 +60,30 @@ SpacenavFeedback.prototype.setOpacity = function(uniforms, opacity) {
   }
 };
 
+/**
+ * Clamps a SpaceNav axis to the given range.
+ * @param {float} num inbound axis value
+ * @param {float} low
+ * @param {float} high
+ * @return {float} clamped value
+ */
 SpacenavFeedback.prototype.clampAxis = function(num, low, high) {
-  return (num - this.spacenav_min) * (high - low) / (this.spacenav_max - this.spacenav_min) + low;
+  return (num - this.spacenav_min) * (high - low) /
+         (this.spacenav_max - this.spacenav_min) + low;
 };
 
+/**
+ * Processes an incoming SpaceNav message.
+ * @param {object} msg incoming message from Ros
+ */
 SpacenavFeedback.prototype.processSpacenavMessage = function(msg) {
   /*
    * Two possible states: spacenav not being used (all zeros), else spacenav
    * being touched - we rotate our pretty objects
    */
-  if (msg.linear.x == 0 && msg.linear.y == 0
-      && msg.linear.z == 0 && msg.angular.x == 0
-      && msg.angular.y == 0 && msg.angular.z == 0) {
+  if (msg.linear.x == 0 && msg.linear.y == 0 &&
+      msg.linear.z == 0 && msg.angular.x == 0 &&
+      msg.angular.y == 0 && msg.angular.z == 0) {
     /*
      * - fade objects out - return to point 0
      */
@@ -74,9 +92,9 @@ SpacenavFeedback.prototype.processSpacenavMessage = function(msg) {
       this.ringObjPosition[i] = 0;
     }
     // set opacity to 0
-    if ((typeof (this.arrowObj) === "undefined")
-        && (typeof (this.ringObj) === "undefined")) {
-      console.log("Initializing objects");
+    if ((typeof (this.arrowObj) === 'undefined') &&
+        (typeof (this.ringObj) === 'undefined')) {
+      console.log('Initializing objects');
     } else {
       this.ringXOpacity = 0;
       this.ringZOpacity = 0;
@@ -88,25 +106,25 @@ SpacenavFeedback.prototype.processSpacenavMessage = function(msg) {
     /***********************************************************************
      * - map spacenav values to threejs object coordinates - fade in - move
      * objects
-     * 
-     * ObjPosition = [ 
-     * 0 : "go front right", 
-     * 1 : "go up (z)", 
-     * 2 : "go front left", 
-     * 3 : "rotate over y axis", 
-     * 4 : "rotate over center", 
-     * 5 : "rotate over x axis" 
+     *
+     * ObjPosition = [
+     * 0 : "go front right",
+     * 1 : "go up (z)",
+     * 2 : "go front left",
+     * 3 : "rotate over y axis",
+     * 4 : "rotate over center",
+     * 5 : "rotate over x axis"
+     *
+     *
+     * rostopic echo /spacenav/twist: [
+     * "push then pull" : "linear z -350 => +350",
+     * "rotate from left to right" : "angular z: +350 => -350",
+     * "move backward then forward" : "linear x -350=>+350",
+     * "move left then right" : "linear y +350 => -350",
+     * "lean left then lean right" : "angular x -350 => +350",
+     * "lean forward then lean backward" : "angular y +350 => -350"
      * ]
-     * 
-     * rostopic echo /spacenav/twist: [ 
-     * "push then pull" : "linear z -350 => +350", 
-     * "rotate from left to right" : "angular z: +350 => -350", 
-     * "move backward then forward" : "linear x -350=>+350", 
-     * "move left then right" : "linear y +350 => -350", 
-     * "lean left then lean right" : "angular x -350 => +350", 
-     * "lean forward then lean backward" : "angular y +350 => -350" 
-     * ]
-     * 
+     *
      **********************************************************************/
 
     // needed for arrow
@@ -114,18 +132,20 @@ SpacenavFeedback.prototype.processSpacenavMessage = function(msg) {
     var linearY = this.clampAxis(msg.linear.y, -1, 1);
 
     // needed for ring
-    var linearZ = this.clampAxis(msg.linear.z, this.arrows_min, this.arrows_max);
-    var angularX = this.clampAxis(msg.angular.x, this.arrows_min, this.arrows_max);
-    var angularY = this.clampAxis(msg.angular.y, this.arrows_min, this.arrows_max);
-    var angularZ = this.clampAxis(msg.angular.z, this.arrows_min, this.arrows_max);
+    var amin = this.arrows_min;
+    var amax = this.arrows_max;
+    var linearZ = this.clampAxis(msg.linear.z, amin, amax);
+    var angularX = this.clampAxis(msg.angular.x, amin, amax);
+    var angularY = this.clampAxis(msg.angular.y, amin, amax);
+    var angularZ = this.clampAxis(msg.angular.z, amin, amax);
 
     // make object transparency proportional to the values
 
     // add pretty curve possibly y=3x/(x+2)
-    var ring_opacity = Math.max(Math.abs(linearZ), Math
-        .abs(angularZ), Math.abs(angularX), Math
-        .abs(angularY))
-        / this.arrows_max;
+    var ring_opacity = Math.max(
+      Math.abs(linearZ), Math.abs(angularZ),
+      Math.abs(angularX), Math.abs(angularY)
+    ) / amax;
 
     this.flapRotation = this.clampAxis(msg.linear.z, -1, 1);
 
@@ -147,8 +167,7 @@ SpacenavFeedback.prototype.processSpacenavMessage = function(msg) {
     }
 
     // let's rotate and show the direction arrow with little tresholding
-    if ((Math.abs(linearY) > 0.2)
-        || (Math.abs(linearX) > 0.2)) {
+    if ((Math.abs(linearY) > 0.2) || (Math.abs(linearX) > 0.2)) {
 
       var direction = Math.atan2(-linearY, -linearX);
 
@@ -166,6 +185,11 @@ SpacenavFeedback.prototype.processSpacenavMessage = function(msg) {
   }
 };
 
+/**
+ * Applies a color to all vertices and faces of the given geometry.
+ * @param {THREE.Geometry} geometry
+ * @param {THREE.Color} color
+ */
 SpacenavFeedback.prototype.paintGeometry = function(geometry, color) {
   var numVertices = geometry.vertices.length;
   for (var i = 0; i < numVertices; i++) {
@@ -186,6 +210,9 @@ SpacenavFeedback.prototype.paintGeometry = function(geometry, color) {
   }
 };
 
+/**
+ * Initializes the feedback module.
+ */
 SpacenavFeedback.prototype.init = function() {
   this.scene.add(this.absOrigin);
   this.absOrigin.add(this.innerOrigin);
@@ -214,11 +241,26 @@ SpacenavFeedback.prototype.init = function() {
     fade: { type: 'f', value: 0.0 }
   };
 
+  var zGradientVertexShader =
+    document.getElementById('zgradientvertexshader').textContent;
+  var zGradientFragmentShader =
+    document.getElementById('zgradientfragmentshader').textContent;
+
+  var xzGradientVertexShader =
+    document.getElementById('xzgradientvertexshader').textContent;
+  var xzGradientFragmentShader =
+    document.getElementById('xzgradientfragmentshader').textContent;
+
+  var vColorVertexShader =
+    document.getElementById('vcolorvertexshader').textContent;
+  var vColorFragmentShader =
+    document.getElementById('vcolorfragmentshader').textContent;
+
   var arrowShader = new THREE.ShaderMaterial({
     vertexColors: THREE.VertexColors,
     uniforms: this.arrowUniforms,
-    vertexShader: document.getElementById('zgradientvertexshader').textContent,
-    fragmentShader: document.getElementById('zgradientfragmentshader').textContent,
+    vertexShader: zGradientVertexShader,
+    fragmentShader: zGradientFragmentShader,
     transparent: true,
     depthTest: false
   });
@@ -226,8 +268,8 @@ SpacenavFeedback.prototype.init = function() {
   var ringShader = new THREE.ShaderMaterial({
     vertexColors: THREE.VertexColors,
     uniforms: this.ringUniforms,
-    vertexShader: document.getElementById('xzgradientvertexshader').textContent,
-    fragmentShader: document.getElementById('xzgradientfragmentshader').textContent,
+    vertexShader: xzGradientVertexShader,
+    fragmentShader: xzGradientFragmentShader,
     transparent: true,
     depthTest: false
   });
@@ -235,8 +277,8 @@ SpacenavFeedback.prototype.init = function() {
   var flapLeftShader = new THREE.ShaderMaterial({
     vertexColors: THREE.VertexColors,
     uniforms: this.flapLeftUniforms,
-    vertexShader: document.getElementById('vcolorvertexshader').textContent,
-    fragmentShader: document.getElementById('vcolorfragmentshader').textContent,
+    vertexShader: vColorVertexShader,
+    fragmentShader: vColorFragmentShader,
     transparent: true,
     depthTest: false
   });
@@ -244,14 +286,15 @@ SpacenavFeedback.prototype.init = function() {
   var flapRightShader = new THREE.ShaderMaterial({
     vertexColors: THREE.VertexColors,
     uniforms: this.flapRightUniforms,
-    vertexShader: document.getElementById('vcolorvertexshader').textContent,
-    fragmentShader: document.getElementById('vcolorfragmentshader').textContent,
+    vertexShader: vColorVertexShader,
+    fragmentShader: vColorFragmentShader,
     transparent: true,
     depthTest: false
   });
 
+  var arrowUrl = chrome.extension.getURL('models/arrow.json');
   var arrowLoader = new THREE.JSONLoader();
-  arrowLoader.load(chrome.extension.getURL('models/arrow.json'), function(geometry) {
+  arrowLoader.load(arrowUrl, function(geometry) {
     this.paintGeometry(geometry, new THREE.Color(0xFFFFFF));
     this.arrowObj = new THREE.Mesh(
       geometry,
@@ -263,16 +306,28 @@ SpacenavFeedback.prototype.init = function() {
     this.innerOrigin.add(this.arrowObj);
   }.bind(this));
 
+  var ringUrl = chrome.extension.getURL('models/ring.json');
   var ringLoader = new THREE.JSONLoader();
-  ringLoader.load(chrome.extension.getURL('models/ring.json'), function(geometry) {
+  ringLoader.load(ringUrl, function(geometry) {
     this.paintGeometry(geometry, new THREE.Color(0xFFFFFF));
     this.ringObj = new THREE.Mesh(
       geometry,
       ringShader
     );
     geometry.computeBoundingSphere();
-    this.flapLeftOrigin.position.set(-geometry.boundingSphere.radius + 0.1, 0, 0);
-    this.flapRightOrigin.position.set(geometry.boundingSphere.radius - 0.1, 0, 0);
+
+    // attach flaps to the edges of the ring
+    this.flapLeftOrigin.position.set(
+      -geometry.boundingSphere.radius + 0.1,
+      0,
+      0
+    );
+    this.flapRightOrigin.position.set(
+      geometry.boundingSphere.radius - 0.1,
+      0,
+      0
+    );
+
     this.ringUniforms.fadeRadius.value = geometry.boundingSphere.radius;
     this.ringUniforms.fadeRadius.needsUpdate = true;
     this.innerOrigin.add(this.ringObj);
@@ -280,8 +335,9 @@ SpacenavFeedback.prototype.init = function() {
     this.ringObj.add(this.flapRightOrigin);
   }.bind(this));
 
+  var flapUrl = chrome.extension.getURL('models/flap.json');
   var flapLoader = new THREE.JSONLoader();
-  flapLoader.load(chrome.extension.getURL('models/flap.json'), function(geometry) {
+  flapLoader.load(flapUrl, function(geometry) {
     this.paintGeometry(geometry, new THREE.Color(0xFFFFFF));
     this.flapLeftObj = new THREE.Mesh(
       geometry,
@@ -306,9 +362,12 @@ SpacenavFeedback.prototype.init = function() {
   this.glEnvironment.addAnimation(_animate);
 };
 
+/**
+ * Updates SpaceNav visuals in the scene.
+ */
 SpacenavFeedback.prototype.animate = function() {
-  if (typeof (this.arrowObj) === "undefined") {
-    console.log("Still initializing arrowObj");
+  if (typeof (this.arrowObj) === 'undefined') {
+    console.log('Still initializing arrowObj');
   } else {
     this.arrowObj.position.x = this.arrowObjPosition[0];
     this.arrowObj.position.y = this.arrowObjPosition[1];
@@ -319,8 +378,8 @@ SpacenavFeedback.prototype.animate = function() {
     this.setOpacity(this.arrowUniforms, this.arrowOpacity);
   }
 
-  if (typeof (this.ringObj) === "undefined") {
-    console.log("Still initializing ringObj");
+  if (typeof (this.ringObj) === 'undefined') {
+    console.log('Still initializing ringObj');
   } else {
     this.innerOrigin.position.x = this.ringObjPosition[0];
     this.innerOrigin.position.y = this.ringObjPosition[1];
@@ -328,34 +387,43 @@ SpacenavFeedback.prototype.animate = function() {
     // tilt rotation
     this.innerOrigin.rotation.x = this.ringObjPosition[3];
     // twist rotation
-    this.ringObj.rotation.y = this.ringObjPosition[4] * Math.pow(1.66, Math.abs(this.ringObjPosition[4]));
+    this.ringObj.rotation.y = this.ringObjPosition[4] *
+      Math.pow(1.66, Math.abs(this.ringObjPosition[4]));
     // roll rotation
     this.innerOrigin.rotation.z = this.ringObjPosition[5];
 
     this.ringUniforms.xFade.value = this.ringXOpacity * 0.5;
-    this.ringUniforms.bothXFade.value = Math.abs(this.flapRotation * 0.5) + Math.abs(this.ringXOpacity * 0.5);
-    this.ringUniforms.zFade.value = this.ringZOpacity * (1 - this.ringUniforms.bothXFade.value);
+
+    this.ringUniforms.bothXFade.value = Math.abs(this.flapRotation * 0.5) +
+      Math.abs(this.ringXOpacity * 0.5);
+
+    this.ringUniforms.zFade.value = this.ringZOpacity *
+      (1 - this.ringUniforms.bothXFade.value);
 
     this.ringUniforms.xFade.needsUpdate = true;
     this.ringUniforms.zFade.needsUpdate = true;
     this.ringUniforms.bothXFade.needsUpdate = true;
   }
 
-  if (typeof this.flapLeftObj === "undefined" ||
-      typeof this.flapRightObj === "undefined") {
+  if (typeof this.flapLeftObj === 'undefined' ||
+      typeof this.flapRightObj === 'undefined') {
 
-    console.log("Still initializing flap objects");
+    console.log('Still initializing flap objects');
   } else {
     this.flapRightObj.rotation.z = this.flapRotation;
     this.flapLeftObj.rotation.z = this.flapRotation;
 
+    // TODO(mv): untangle this
+    var leftVal = Math.min(1, Math.max(0, Math.abs(this.flapRotation) - this.ringXOpacity) + Math.abs(this.ringXOpacity) * 0.2);
+    var rightVal = Math.min(1, Math.max(0, Math.abs(this.flapRotation) + this.ringXOpacity) + Math.abs(this.ringXOpacity) * 0.2);
+
     this.setOpacity(
       this.flapLeftUniforms,
-      Math.min(1, Math.max(0, Math.abs(this.flapRotation) - this.ringXOpacity) + Math.abs(this.ringXOpacity) * 0.2)
+      leftVal
     );
     this.setOpacity(
       this.flapRightUniforms,
-      Math.min(1, Math.max(0, Math.abs(this.flapRotation) + this.ringXOpacity) + Math.abs(this.ringXOpacity) * 0.2)
+      rightVal
     );
 
     var overallScale = 1.0 + this.flapRotation * 0.125;
