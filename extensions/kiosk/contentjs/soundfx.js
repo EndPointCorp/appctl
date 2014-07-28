@@ -5,7 +5,7 @@
 var EARTH_RADIUS = 6371000; // meters from center
 var EARTH_ATMOSPHERE_CEILING = 480000; // meters from surface
 var ATMOSPHERE_FALLOFF = 6; // exponential falloff rate for atmospheric density
-var SILENCE_TIMEOUT = 200; // ms, silence after no movement for this amount of time
+var SILENCE_TIMEOUT = 200; // ms, silence after no movement for this interval
 var HOVER_LEVEL = 0.12; // ambient level
 
 /**
@@ -14,6 +14,7 @@ var HOVER_LEVEL = 0.12; // ambient level
  * TODO(arshan): What is the floor for durationMs?
  * NOTE: see the sox output for the wav clips at the bottom of file.
  * @constructor
+ * @param {AudioContext} context
  * @param {string} src_file
  * @param {int} begin
  * @param {int} end
@@ -34,7 +35,7 @@ SoundEffect = function(context, src_file, begin, end, loop) {
   this.panNode.connect(this.context.destination);
 
   this.gainNode.gain.value = 0;
-  this.panNode.panningModel = "equalpower";
+  this.panNode.panningModel = 'equalpower';
 
   this.startMs = begin;
   this.durationMs = end - begin;
@@ -48,10 +49,11 @@ SoundEffect = function(context, src_file, begin, end, loop) {
       this.source.buffer = buffer;
       this.loaded = true;
       if (this.source.loop) {
-        this.start(0);
+        this.start();
       }
     }.bind(this), function(err) { console.error(err); });
-  }.bind(this)
+  }.bind(this);
+
   request.send();
 
   this.source.loop = loop;
@@ -73,7 +75,7 @@ SoundEffect = function(context, src_file, begin, end, loop) {
 
 /**
  * Change the volume of the clip.
- * @param {float} float_val
+ * @param {float} float_val volume level [0, 1]
  */
 SoundEffect.prototype.setVolume = function(float_val) {
   float_val = Math.max(0, Math.min(1, float_val));
@@ -82,8 +84,9 @@ SoundEffect.prototype.setVolume = function(float_val) {
 
 /**
  * Pan the clip.
- * @param {float} panX left/right pan
- * @param {float} panZ forward/back pan
+ * @param {float} panX left/right pan [-1, 1]
+ * @param {float} panY up/down pan [-1, 1]
+ * @param {float} panZ forward/back pan [-1, 1]
  */
 SoundEffect.prototype.setPan = function(panX, panY, panZ) {
   panX = panX ? Math.max(-1, Math.min(1, panX)) : 0;
@@ -185,6 +188,10 @@ SoundEffect.prototype.stop = function() {
   //clearTimeout(this.event_thread);
 };
 
+/**
+ * Sound FX control module.
+ * @constructor
+ */
 SoundFX = function() {
   this.context = new AudioContext();
   this.lastPose = null;
@@ -293,10 +300,10 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
 
 /**
  * Plays appropriate sound effects for the incoming speed.
- * @param {float} level The rate of movement around the globe (0, 1)
- * @param {float} panX Side to side panning component (-1, 1)
- * @param {float} panY Up to down panning component (-1, 1)
- * @param {float} panZ Forward to back panning component (-1, 1)
+ * @param {float} level The rate of movement around the globe [0, 1]
+ * @param {float} panX Side to side panning component [-1, 1]
+ * @param {float} panY Up to down panning component [-1, 1]
+ * @param {float} panZ Forward to back panning component [-1, 1]
  */
 SoundFX.prototype.update = function(level, panX, panY, panZ) {
   this.largeidle.setVolume(level);
@@ -335,7 +342,7 @@ SoundFX.prototype.hover = function() {
   var downY = -Math.sin(this.lastTilt);
   var downZ = Math.cos(this.lastTilt);
   this.largeidle.setPan(0, downY, downZ);
-}
+};
 
 /*
 Just for informations sake, and possibly fingerprinting, the sox output
