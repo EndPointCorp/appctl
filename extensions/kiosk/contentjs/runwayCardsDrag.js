@@ -1,25 +1,39 @@
-
+console.log("Initializing the runway handlers.");
 var runway = document.querySelector('.widget-runway-tray-wrapper');
+
 var initialMousePosition = null;
 var initialScrollLeft = null;
 
-runway.addEventListener('mousedown', function(e){
-	initialMousePosition = e.pageX;
-	initialScrollLeft = runway.scrollLeft;
-}, 
+runway.addEventListener('touchstart', function(e){
+  console.log('touchstart');
+
+	// this should be enabled only in chrome
+	// in chromium I need to support the multiple touch events when using one finger,
+	// so I just take the first one currently
+  // if (e.touches.length > 1) { console.log('No multiple touch allowed'); return; }
+
+  initialMousePosition = e.touches[0].pageX;
+  initialScrollLeft = runway.scrollLeft;
+},
 true);
 
 
-runway.addEventListener('mouseup', function(e){
-	initialMousePosition = null;
-}, 
+runway.addEventListener('touchend', function(e){
+  console.log('touchend');
+  initialMousePosition = null;
+},
 true);
 
 
-runway.addEventListener('mousemove', function(e){
-	if (initialMousePosition === null) return;
+runway.addEventListener('touchmove', function(e){
+  console.log('touchmove');
+  if (initialMousePosition === null) return;
 
-	var dx = e.pageX - initialMousePosition;
-	runway.scrollLeft = initialScrollLeft + dx;
-}, 
+	// this should be enabled only in chrome
+	// in chromium I need to support the multiple touch events when using one finger,
+	// so I just take the first one currently
+  //if (e.touches.length > 1) { console.log('No multiple touch allowed'); return; }
+  var dx = e.touches[0].pageX - initialMousePosition;
+  runway.scrollLeft = initialScrollLeft + dx;
+},
 true);
