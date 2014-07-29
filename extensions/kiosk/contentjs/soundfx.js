@@ -8,6 +8,9 @@ var ATMOSPHERE_FALLOFF = 6; // exponential falloff rate for atmospheric density
 var SILENCE_TIMEOUT = 200; // ms, silence after no movement for this interval
 var HOVER_LEVEL = 0.12; // ambient level
 
+// shim for audio context
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
 /**
  * Container for single sound effect, able to isolate a section and/or loop.
  * TODO(arshan): Should we support end < begin by looping past the end?
