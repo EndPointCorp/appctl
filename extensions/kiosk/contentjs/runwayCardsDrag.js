@@ -33,7 +33,10 @@ runway.addEventListener('touchmove', function(e){
   // in chromium I need to support the multiple touch events when using one finger,
   // so I just take the first one currently
   //if (e.touches.length > 1) { console.log('No multiple touch allowed'); return; }
-  var dx = e.touches[0].pageX - initialMousePosition;
+
+
+  // this scrolls like I feel it should...
+  var dx = initialMousePosition - e.touches[0].pageX;
   runway.scrollLeft = initialScrollLeft + dx;
 },
 true);
