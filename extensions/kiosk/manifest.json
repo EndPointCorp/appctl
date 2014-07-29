@@ -30,7 +30,8 @@
         "contentjs/soundfx.js",
         "contentjs/ambient.js",
         "contentjs/slinkyRosKiosk.js",
-        "contentjs/highres.js"
+        "contentjs/highres.js",
+        "contentjs/runwayCardsDrag.js"
       ],
       "css": [
         "css/acme_kiosk.css"
