@@ -686,56 +686,8 @@ window.addEventListener('touchmove', preventDefaultHandler, false);
 // and also all the code before it could be removed
 document.addEventListener("touchmove", function(e){
   console.log('touchmove');
-  console.log('runwaytActionRestriction is: '+runwayActionRestrictions);
-  //console.log(e);
-  //console.log(e.touches);
-  //console.log(e.touches.length);
+  console.log('runwayActionRestriction is: '+runwayActionRestrictions);
 
-  /*
-  var differentTouches = [e.touches[0]];
-  touch = e.touches[0];
-  console.log({ identifier: touch.identifier, pageX: touch.pageX, pageY: touch.pageY });
-  for(var i = 1; i < e.touches.length; i++ ){
-    var touch = e.touches[i];
-
-    // let's count the 'distinct' touch events
-    for(var j = 0; j < differentTouches.length; j++) {
-      var df = differentTouches[j];
-      var xs = (df.pageX - touch.pageX)*(df.pageX - touch.pageX);
-      var ys = (df.pageY - touch.pageY)*(df.pageY - touch.pageY);
-      var diff = Math.sqrt(xs + ys);
-      console.log("xs " + xs + " ys " + ys  + " diff " + diff);
-      if ( Math.sqrt(xs + ys) > 3) {
-        differentTouches.push(touch);
-        break;
-      }
-    }
-    console.log({ identifier: touch.identifier, pageX: touch.pageX, pageY: touch.pageY });
-  }
-  */
-
-  // however I noticed that if the two points are similar, and go from one finger,
-  // then the identifier field is the same, for two fingers the ids are [0, 1]
-	/*
-  var ids = [];
-  for(var i = 0 ; i < e.touches.length ; i++) {
-    var id = e.touches[i].identifier;
-    var touch = e.touches[i];
-    console.log({ identifier: touch.identifier, pageX: touch.pageX, pageY: touch.pageY });
-    if (ids.indexOf(id) == -1) { ids.push(id); }
-    //console.log(ids);
-  }
-  console.log("Found ids: ", ids);
-  // I can just count the different numbers in the identifier list...
-  console.log("*********************************************");
-  
-  // if there are more than one distinct touch event
-  // and we are in the mode where spacenav shouldn't zoom, then
-  // disable the pinch events
-  if(ids.length > 1 && runwayActionRestrictions != 0) {
-	*/
-
-	// version for chrome browser, not tested yet, as I cannot get the secure websockets running
   if(e.touches.length > 1 && runwayActionRestrictions != 0) {
     console.log("Pinch events not allowed");
     e.preventDefault();
