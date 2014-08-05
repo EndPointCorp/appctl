@@ -667,23 +667,8 @@ var preventDefaultHandler = function(e) {
 };
 window.addEventListener('touchmove', preventDefaultHandler, false);
 
+
 // This event handler should not allow for pinch events in the street view mode.
-// The main idea works. However I have some hardware problems.
-// Sometimes my touchscreen emits two touches when I'm using one finger.
-// When I'm using two fingers it sometimes emits three touches. That's
-// bacause of my fat fingers (not too fat, but too fat for the touch events).
-// When using one finger, the emitted touch events are very near each other,
-// the coordinates are like: (200, 200) and (200, 202). There is no way
-// to emit such events with two fingers. Except for Aliens maybe.
-// So I had to count the distance between all the touch coordinates
-// in order to get the 'distinct' ones. I assume that if the length
-// between them is less than 3 pixels, then it is the same event.
-// It is possible that these kind of problems will not occur on the production site.
-// Then we could get rid of part of the code, and the line:
-//   if(differentTouches.length > 1 && runwayActionRestrictions != 0) {
-// could look like:
-//   if(e.touches.length > 1 && runwayActionRestrictions != 0) {
-// and also all the code before it could be removed
 document.addEventListener("touchmove", function(e){
   console.log('touchmove');
   console.log('runwayActionRestriction is: '+runwayActionRestrictions);
