@@ -4,6 +4,8 @@
 
 #include "joystick_navigator.h"
 
+//#define DEBUG
+
 #include <time.h>
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
@@ -120,6 +122,18 @@ void JoystickNavigator::ProcessJoy(const geometry_msgs::Twist& normalized_joy) {
             pose_minimums_.orientation.x,
             pose_maximums_.orientation.x);
 
+#ifdef DEBUG
+  ROS_INFO("JOYSTICK curr lon:%lf, lat:%lf, alt:%lf, hdg:%lf, tlt:%lf",
+           ending_pose.position.x,
+           ending_pose.position.y,
+           ending_pose.position.z,
+           ending_pose.orientation.z,
+           ending_pose.orientation.x);
+  ROS_INFO("JOYSTICK scaled linear x:%lf, y:%lf",
+           scaled_joy.linear.x,
+           scaled_joy.linear.y
+  );
+#endif
   // Translate:  Translates the camera per joystick linear X/Y axes.
   // Translation speed is dependent on altitude and direction is dependent
   // on heading.
@@ -135,8 +149,21 @@ void JoystickNavigator::ProcessJoy(const geometry_msgs::Twist& normalized_joy) {
       (cos_heading * scaled_joy.linear.x) +
       (sin_heading * scaled_joy.linear.y);
 
+#ifdef DEBUG
+  ROS_INFO("JOYSTICK hr:%lf, cos:%lf, sin:%lf, dlat:%lf, dlon:%lf",
+           heading_radians,
+           cos_heading, sin_heading,
+           delta_lat, delta_lon
+  );
+#endif
   // The further we are from the ground, the more we should translate x and y.
   double alt_scale = ending_pose.position.z;
+
+  double proposed_position_y = starting_pose.position.y + (delta_lat * alt_scale);
+  if ( abs(proposed_position_y) > kPoleLat) {
+    ending_pose.orientation.z = fmod(ending_pose.orientation.z + 180, 360);
+  }
+
   ending_pose.position.y =
       Clamp(starting_pose.position.y + (delta_lat * alt_scale),
             kPoleLat * -1.0,
@@ -145,6 +172,14 @@ void JoystickNavigator::ProcessJoy(const geometry_msgs::Twist& normalized_joy) {
       Clamp(ending_pose.position.y,
             pose_minimums_.position.y,
             pose_maximums_.position.y);
+
+#ifdef DEBUG
+  ROS_INFO("JOYSTICK ENDING POSE alt_scale:%lf, yold:%lf, ynew:%lf",
+           alt_scale,
+           ending_pose.position.y,
+           ending_pose.position.y +(delta_lat * alt_scale)
+  );
+#endif
 
   ending_pose.position.x =
       fmod((starting_pose.position.x + (delta_lon * alt_scale)) + 540, 360) -
@@ -201,6 +236,15 @@ void JoystickNavigator::Scale(
     const geometry_msgs::Twist& normal,
     double interval_scale,
     geometry_msgs::Twist* result) {
+
+#ifdef DEBUG
+  ROS_INFO("SCALING nlx:%lf, nly:%lf, lsx:%lf, lsy:%lf, is:%lf",
+           normal.linear.x, normal.linear.y,
+           linear_sensitivity_.linear.x, linear_sensitivity_.linear.y,
+           interval_scale
+  );
+#endif
+
   result->linear.x = (normal.linear.x * linear_sensitivity_.linear.x +
       Quadratic(normal.linear.x) * quadratic_sensitivity_.linear.x) *
       interval_scale;
