@@ -30,6 +30,7 @@
         "contentjs/soundfx.js",
         "contentjs/ambient.js",
         "contentjs/slinkyRosKiosk.js",
+        "contentjs/famousPlaces.js",
         "contentjs/highres.js"
       ],
       "css": [
