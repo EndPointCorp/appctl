@@ -8,6 +8,10 @@
  */
 
 var EARTH_RADIUS = 6371; // kilometers
+var TACTILE_LO_ALT = 17000000; // meters, low altitude of the fov change band
+var TACTILE_HI_ALT = 17500000; // meters, high altitude of the fov change band
+var TACTILE_LO_FOV = 20;
+var TACTILE_HI_FOV = 60;
 
 var dumpUpdateToScreen = function(message) {
   var stringifiedMessage = JSON.stringify(message);
@@ -592,7 +596,8 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     intersects = ray.intersectObject(this.handOverlay_.globeSphere);
   }
 
-  if (intersects.length == 0) {
+  // if no intersects or altitude is above maximum, hide the overlay
+  if (intersects.length == 0 || currentCameraPose.alt > TACTILE_LO_ALT) {
     this.handOpacity = 0.0;
     this.hudPos = null;
   } else {
@@ -715,10 +720,6 @@ HandOverlay.prototype.setCurrentCameraPose = function(pose) {
   // fix camera fov for zoom level to match Tactile
   // fov change occurs when zoomed out really far
   // TODO(mv): make the transition match Tactile's curve more closely
-  var TACTILE_LO_ALT = 17000000; // low altitude of the fov change band
-  var TACTILE_HI_ALT = 17500000; // high altitude of the fov change band
-  var TACTILE_LO_FOV = 20;
-  var TACTILE_HI_FOV = 60;
 
   var fov = TACTILE_HI_FOV;
   if (pose.alt < TACTILE_LO_ALT) {
