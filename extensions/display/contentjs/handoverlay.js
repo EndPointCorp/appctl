@@ -590,14 +590,15 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
   var FADE_EDGE = 0.5;
 
   // TODO(mv): better logic for bypassing ray intersect when out of bounds
+  // ray intersect is very expensive, so guard it as much as possible
   var intersects = [];
-  if (palmHeight > MIN_ABS_HEIGHT && palmHeight <= MAX_ABS_HEIGHT) {
+  if (palmHeight > MIN_ABS_HEIGHT && palmHeight <= MAX_ABS_HEIGHT &&
+      currentCameraPose.alt < TACTILE_LO_ALT && this.handOverlay_.enabled) {
     var ray = this.projector.pickingRay(leapVector, camera);
     intersects = ray.intersectObject(this.handOverlay_.globeSphere);
   }
 
-  // if no intersects or altitude is above maximum, hide the overlay
-  if (intersects.length == 0 || currentCameraPose.alt > TACTILE_LO_ALT) {
+  if (intersects.length == 0) {
     this.handOpacity = 0.0;
     this.hudPos = null;
   } else {
@@ -691,6 +692,8 @@ var HandOverlay = function(glEnvironment) {
   this.palmGeom;
 
   this.initialized_ = false;
+
+  this.enabled = true;
 
   this.ring0Geom;
   this.ring1Geom;

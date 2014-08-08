@@ -43,6 +43,15 @@ Pose = function(lat, lon, alt, heading, tilt, roll) {
 };
 
 /**
+ * Planet values.
+ */
+Planet = {
+  EARTH: 1,
+  MOON: 2,
+  MARS: 3
+};
+
+/**
  * Send a custom event to the page.
  *
  * @param {Object.<{context: string, method: string, args: Array}>} request
@@ -246,6 +255,13 @@ var runwayContentSubscriber = function(message) {
       ignoreCameraUpdates = true;
     }
 
+    // disable HUD unless changing planet to Earth
+    if (sceneContentArray[7] && sceneContentArray[7] == Planet.EARTH) {
+      handOverlay.enabled = true;
+    } else {
+      handOverlay.enabled = false;
+    }
+
     // this indicates planet zoom which will not provide an exit event
     if (sceneContentArray && sceneContentArray[0] == 3) {
       ignoreCameraUpdates = false;
@@ -256,6 +272,7 @@ var runwayContentSubscriber = function(message) {
         args: [sceneContentArray]
     });
   } else if (startsWith(data, runwayContentEvents.EXIT)) {
+    handOverlay.enabled = true;
     ignoreCameraUpdates = false;
     acme.Util.sendCustomEvent({
         method: 'exitTitleCard'
