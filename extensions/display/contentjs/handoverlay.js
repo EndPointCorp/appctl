@@ -634,7 +634,7 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     }
 
     // TODO(mv): flush out magic numbers
-    var distanceMod = distance / 12;
+    var distanceMod = distance / 24;
     var ringScale = distanceMod + (palmDataHeight / (FADE_HIGH - FADE_LOW)) * distanceMod;
     ringScale *= 0.58;
     var calloutScale = distanceMod * 1.0;
@@ -646,8 +646,9 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     // for now, outer sub-ring based on roll, and fudged to center
     this.ring2.rotation.set(0, palmRoll + 0.36, 0);
 
-    this.ring0.geometry.computeBoundingSphere();
-    this.dataRadius = this.ring1.geometry.boundingSphere.radius * ringScale * 0.66;
+    this.ring1.geometry.computeBoundingSphere();
+    // geodata radius does not follow ring scale, hence end coefficient
+    this.dataRadius = this.ring1.geometry.boundingSphere.radius * ringScale * 1.0;
 
     this.topCalloutPos.setFromMatrixPosition(this.topCalloutPanel.matrixWorld);
 
