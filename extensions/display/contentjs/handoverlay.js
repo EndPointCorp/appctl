@@ -574,7 +574,7 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
 
   // absolute height limits
   // this sets the absolute bottom of the HUD "box"
-  var MIN_ABS_HEIGHT = 100;
+  var MIN_ABS_HEIGHT = 80;
   var MAX_ABS_HEIGHT = MIN_ABS_HEIGHT + HEIGHT_MAX;
 
   // normalized height where fade starts
