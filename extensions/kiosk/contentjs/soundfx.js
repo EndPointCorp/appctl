@@ -5,7 +5,7 @@
 var EARTH_RADIUS = 6371000; // meters from center
 var EARTH_ATMOSPHERE_CEILING = 480000; // meters from surface
 var ATMOSPHERE_FALLOFF = 6; // exponential falloff rate for atmospheric density
-var SILENCE_TIMEOUT = 200; // ms, silence after no movement for this interval
+var HOVER_TIMEOUT = 200; // ms, hover fx after no movement for this interval
 var HOVER_LEVEL = 0.12; // ambient level
 
 // shim for audio context
@@ -200,7 +200,7 @@ SoundFX = function() {
   this.lastPose = null;
   this.lastUpdateTime = 0;
   this.lastSeq = 0;
-  this.silenceTimer = null;
+  this.hoverTimer = null;
   this.enabled = true;
   this.lastTilt = 0;
 
@@ -313,11 +313,11 @@ SoundFX.prototype.update = function(level, panX, panY, panZ) {
   this.largeidle.setPan(panX, panY, panZ);
 
   if (level > HOVER_LEVEL) {
-    clearTimeout(this.silenceTimer);
+    clearTimeout(this.hoverTimer);
     var self = this;
-    this.silenceTimer = setTimeout(function() {
+    this.hoverTimer = setTimeout(function() {
       self.hover();
-    }, SILENCE_TIMEOUT);
+    }, HOVER_TIMEOUT);
 
     /*
     if (!this.largeidle.playing) {
@@ -325,26 +325,24 @@ SoundFX.prototype.update = function(level, panX, panY, panZ) {
     }
     */
   } else {
-    clearTimeout(this.silenceTimer);
+    clearTimeout(this.hoverTimer);
     this.hover();
   }
-};
-
-/**
- * Ends sound effects.
- */
-SoundFX.prototype.silence = function() {
-  this.update(0);
 };
 
 /**
  * Sets hover gain.
  */
 SoundFX.prototype.hover = function() {
-  this.largeidle.setVolume(HOVER_LEVEL);
-  var downY = -Math.sin(this.lastTilt);
-  var downZ = Math.cos(this.lastTilt);
-  this.largeidle.setPan(0, downY, downZ);
+  // only play hover sound within the atmosphere
+  if (this.lastPose.position.z < EARTH_ATMOSPHERE_CEILING) {
+    this.largeidle.setVolume(HOVER_LEVEL);
+    var downY = -Math.sin(this.lastTilt);
+    var downZ = Math.cos(this.lastTilt);
+    this.largeidle.setPan(0, downY, downZ);
+  } else {
+    this.largeidle.setVolume(0);
+  }
 };
 
 /*
