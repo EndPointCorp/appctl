@@ -91,6 +91,13 @@ acme.Kiosk = function() {
 acme.Kiosk.prototype.addZoomOutToEarthButton = function() {
   var button = document.createElement('button');
   button.className = 'acme-zoom-out-earth';
+  /*
+   * JUST the background-image style, so we can use an asset from within the
+   * extension. ALL other style attributes sould be handled in the extension
+   * CSS
+   */
+  var zoomIcon = chrome.extension.getURL('images/zoomOut.jpg');
+  button.setAttribute('style', 'background-image:url(\''+zoomIcon+'\');');
   button.setAttribute('onclick',
       'javascript:document.dispatchEvent(new CustomEvent("acmeZoomOutToEarth"))'
       );
@@ -221,95 +228,6 @@ acme.Kiosk.prototype.createFamousPlacesRunway = function() {
   this.addFamousPlacesRunwayContent();
 };
 
-/**
- * Hard-coded famous places content.
- */
-acme.fpContent = [
-  [4, ['0x132f61b6638ccc9f:0x9559ad432c2467a0', 0, null, null,
-    'Arch of Constantine', 848.10455, 18,
-    '//g0.gstatic.com/heli/image/0x132f61b6638ccc9f_0x9559ad432c2467a0.jpg', [
-        null, null, null, null, null, '', []
-    ], 'Via di San Gregorio, Rome, Italy', null, null, [], ''
-  ], null, null, ['0x132f61b6638ccc9f:0x9559ad432c2467a0', 0, 18,
-    'Arch of Constantine', 'Via di San Gregorio, Rome, Italy', 848.10455, [
-        '//g0.gstatic.com/heli/image/0x132f61b6638ccc9f_0x9559ad432c2467a0.jpg',
-        'Arch of Constantine'
-    ], null, [
-      [3, 12.490644464962784, 41.889732371812144],
-      [0, 90, 0], null, 75
-    ], '_0-jU9bTJsWJjAKrt4DAAQ', '0CAwQzCcoBg', null, null, null, null, [
-      [
-        ['0x132f61b6638ccc9f:0x9559ad432c2467a0']
-      ],
-      [
-        ['0x132f61b6638ccc9f:0x9559ad432c2467a0']
-      ]
-    ], null, ['Via di San Gregorio, Rome, Italy']
-  ]],
-  [4, ['0x60196290556df7cf:0x8d5003885b877511', 0, null, null, 'Mt. Fuji',
-    864.9559, 18,
-    '//g0.gstatic.com/heli/image/0x60196290556df7cf_0x8d5003885b877511.jpg', [
-        null, null, null, null, null, '', []
-    ], 'Fujiyama', null, null, [], ''
-  ], null, null, ['0x60196290556df7cf:0x8d5003885b877511', 0, 18,
-    'Mt. Fuji', 'Fujiyama', 864.9559, [
-      '//g0.gstatic.com/heli/image/0x60196290556df7cf_0x8d5003885b877511.jpg',
-      'Mt. Fuji'
-    ], null, [
-      [3, 138.72778318005282, 35.36055376635301],
-      [0, 90, 0], null, 75
-    ], '0lijU5a5C8WJjAKrt4DAAQ', '0CCcQzCcoFQ', null, null, null, null, [
-      [
-        ['0x60196290556df7cf:0x8d5003885b877511']
-      ],
-      [
-        ['0x60196290556df7cf:0x8d5003885b877511']
-      ]
-    ], null, ['Fujiyama']
-  ]],
-  [4, ['0xd0cbf7d62978dd3:0xc3bed493e3ac6bbd', 0, null, null,
-    'Rock of Gibraltar', 853.2115, 18,
-    '//g0.gstatic.com/heli/image/0xd0cbf7d62978dd3_0xc3bed493e3ac6bbd.jpg', [
-        null, null, null, null, null, '', []
-    ], null, null, null, [], ''
-  ], null, null, ['0xd0cbf7d62978dd3:0xc3bed493e3ac6bbd', 0, 18,
-    'Rock of Gibraltar', null, 853.2115, [
-      '//g0.gstatic.com/heli/image/0xd0cbf7d62978dd3_0xc3bed493e3ac6bbd.jpg',
-      'Rock of Gibraltar'
-    ], null, [
-      [3, -5.343499215592419, 36.144107820079036],
-      [0, 90, 0], null, 75
-    ], 'lFmjU9SyA8WJjAKrt4DAAQ', '0CBcQzCcoCw', null, null, null, null, [
-      [
-        ['0xd0cbf7ddd3b0ff7:0x10c2257a5c95e67']
-      ],
-      [
-        ['0xd0cbf7ddd3b0ff7:0x10c2257a5c95e67']
-      ]
-    ]
-  ]],
-  [4, ['0x478f336499c0d2f1:0x1d00ff8937290620', 0, null, null, 'Matterhorn',
-    861.6677, 18,
-    '//g0.gstatic.com/heli/image/0x478f336499c0d2f1_0x1d00ff8937290620.jpg', [
-        null, null, null, null, null, '', []
-    ], null, null, null, [], ''
-  ], null, null, ['0x478f336499c0d2f1:0x1d00ff8937290620', 0, 18,
-    'Matterhorn', null, 861.6677, [
-      '//g0.gstatic.com/heli/image/0x478f336499c0d2f1_0x1d00ff8937290620.jpg',
-      'Matterhorn'
-    ], null, [
-      [3, 7.658448685050038, 45.97643282175824],
-      [0, 90, 0], null, 75
-    ], 'RWGjU47GAcWJjAKrt4DAAQ', '0CBMQzCcoBw', null, null, null, null, [
-      [
-        ['0x478f3368cbb9ecd9:0x9826458cace55849']
-      ],
-      [
-        ['0x478f3368cbb9ecd9:0x9826458cace55849']
-      ]
-    ]
-  ]]
-];
 
 /**
  * Add the famous places runway content.
@@ -382,7 +300,7 @@ acme.Kiosk.prototype.createRunwayCard = function(cardData) {
 acme.kiosk = new acme.Kiosk();
 
 var slinkyRosKiosk = new ROSLIB.Ros({
-  url: 'ws://master:9090'
+  url: 'wss://42-b:9090'
 });
 
 var joystickTopic = new ROSLIB.Topic({
@@ -445,6 +363,7 @@ var handleRosPoseChange = function(rosPoseStamped) {
 var publishKioskCurrentPose = function(pose) {
   // In normal navigation mode, we tell the navigator that it can use the
   // full range of motion:
+  var EARTH_RADIUS = 6378100; //meters
   var EPSILON = 0.000001;
   var NOMINAL_LAT_MIN = -90.0 + EPSILON;
   var NOMINAL_LAT_MAX = 90.0 - EPSILON;
@@ -453,7 +372,7 @@ var publishKioskCurrentPose = function(pose) {
   var NOMINAL_ALT_MIN = 80;
   var NOMINAL_ALT_MAX = Pose.SPACE_POSE.alt;
   var NOMINAL_TILT_MIN = 0.0;
-  var NOMINAL_TILT_MAX = 90.0;
+  var NOMINAL_TILT_MAX = Math.asin(EARTH_RADIUS / (EARTH_RADIUS + pose.alt)) * (180 / Math.PI) + 9;
   var NOMINAL_HDG_MIN = 0.0;
   var NOMINAL_HDG_MAX = 360.0;
 
@@ -579,6 +498,9 @@ var runwayContentClickHandler = function(e) {
     soundFX.enabled = (customData[1][7] != Planet.MOON);
     // Its a planet shift.  Allow the nav.
     runwayActionRestrictions = InputSupport_.NONE;
+  } else {
+    // disable sound if there are any special input restrictions
+    soundFX.enabled = (runwayActionRestrictions == InputSupport_.NONE);
   }
 
   // TODO(daden): Create a method on the large display extension.
@@ -603,6 +525,7 @@ var runwayContentExitHandler = function(e) {
   }
   console.log('runwayContentExitHandler');
   runwayActionRestrictions = InputSupport_.NONE;
+  soundFX.enabled = true;
 
   // TODO(daden): Generate an ESC keydown event on the large display extension.
   // AcmeKeyboard.keydown(27);
@@ -618,9 +541,11 @@ navigatorListener.subscribe(function(rosPoseStamped) {
   handleRosPoseChange(rosPoseStamped);
 });
 
+/*
 var ambient = new Ambient();
 proximityPresenceTopic.subscribe(ambient.handlePresenceMessage.bind(ambient));
 joystickTopic.subscribe(ambient.handleJoystickMessage.bind(ambient));
+*/
 
 window.addEventListener('acmeCameraUpdate', cameraUpdateHandler, true);
 window.addEventListener('acmeStableCameraUpdate', cameraUpdateHandler, true);
@@ -666,3 +591,16 @@ var preventDefaultHandler = function(e) {
   e.preventDefault();
 };
 window.addEventListener('touchmove', preventDefaultHandler, false);
+
+
+// This event handler should not allow for pinch events in the street view mode.
+document.addEventListener("touchmove", function(e){
+  console.log('touchmove');
+  console.log('runwayActionRestriction is: '+runwayActionRestrictions);
+
+  if(e.touches.length > 1 && runwayActionRestrictions != 0) {
+    console.log("Pinch events not allowed");
+    e.preventDefault();
+    e.stopPropagation();
+  }
+}, true);

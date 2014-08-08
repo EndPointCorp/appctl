@@ -32,13 +32,15 @@ a.gsst_a {
  * Add a zoom out to earth button.
  */
 .acme-zoom-out-earth {
-  border: 1px red solid;
+  border: 3px solid #357ae8;
+  border-radius: 2px;
   height: 100px;
   width: 100px;
   left: 3px;
   top: 16px;
   position: relative;
   cursor: pointer;
+  background-size: contain;
 }
 
 .acme-famous-places {
@@ -61,7 +63,7 @@ a.gsst_a {
 .acme-famous-places-button {
   height: 50px;
   width: 150px;
-  bottom: 35px;
+  bottom: 24px;
   position: relative;
   background-color: gray;
   color: lightgray;
@@ -74,7 +76,7 @@ a.gsst_a {
 .acme-poi-button {
   height: 50px;
   width: 150px;
-  bottom: 35px;
+  bottom: 24px;
   position: relative;
   background-color: gray;
   color: whitesmoke;
@@ -101,10 +103,13 @@ a.gsst_a {
 .widget-compass-tooltip,
 .widget-minimap-shim,
 .widget-minimap-shim-button,
+.widget-play-replay-hud,
+.widget-play-rewind,
 .widget-runway-expand-pegman,
 .widget-runway-expand-pegman-container,
 .widget-runway-expand-pegman.runway-pegman-hidden,
 .widget-tilt-tooltip,
+.widget-timemachine-button-icon.widget-timemachine-time-warp,
 .widget-titlecard-spotlightcontainer,
 .widget-titlecard-spotlight-divider,
 .widget-zoom-tooltip,

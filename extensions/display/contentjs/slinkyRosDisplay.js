@@ -43,6 +43,15 @@ Pose = function(lat, lon, alt, heading, tilt, roll) {
 };
 
 /**
+ * Planet values.
+ */
+Planet = {
+  EARTH: 1,
+  MOON: 2,
+  MARS: 3
+};
+
+/**
  * Send a custom event to the page.
  *
  * @param {Object.<{context: string, method: string, args: Array}>} request
@@ -185,7 +194,7 @@ window.addEventListener('acmeCameraCallback', cameraUpdateHandler, true);
 /** Add ROS Subscriptions.  These are almost last to prevent exception from
  * killing the event listeners when ROS is down. */
 var slinkyRosDisplay = new ROSLIB.Ros({
-  url: 'ws://master:9090'
+  url: 'wss://42-b:9090'
 });
 
 // Globe View Topic listens and publishes camera updates.
@@ -246,6 +255,13 @@ var runwayContentSubscriber = function(message) {
       ignoreCameraUpdates = true;
     }
 
+    // disable HUD unless changing planet to Earth
+    if (sceneContentArray[7] && sceneContentArray[7] == Planet.EARTH) {
+      handOverlay.enabled = true;
+    } else {
+      handOverlay.enabled = false;
+    }
+
     // this indicates planet zoom which will not provide an exit event
     if (sceneContentArray && sceneContentArray[0] == 3) {
       ignoreCameraUpdates = false;
@@ -256,6 +272,7 @@ var runwayContentSubscriber = function(message) {
         args: [sceneContentArray]
     });
   } else if (startsWith(data, runwayContentEvents.EXIT)) {
+    handOverlay.enabled = true;
     ignoreCameraUpdates = false;
     acme.Util.sendCustomEvent({
         method: 'exitTitleCard'
@@ -265,6 +282,26 @@ var runwayContentSubscriber = function(message) {
   }
 };
 runwayContentTopic.subscribe(runwayContentSubscriber);
+
+var populationService = new ROSLIB.Service({
+  ros: slinkyRosDisplay,
+  name: '/geodata/population',
+  serviceType: 'geodata/GeodataQuery'
+});
+
+window.addEventListener('acmePopulationQuery', function(ev) {
+  populationService.callService({
+    layer: 'population',
+    point: {
+      latitude: ev.detail.latitude,
+      longitude: ev.detail.longitude,
+      altitude: 0
+    },
+    radius: ev.detail.radius
+  }, ev.detail.callback);
+}, true);
+
+acme.glEnvironment = new SlinkyGLEnvironment();
 
 var leapListener = new ROSLIB.Topic({
   ros: slinkyRosDisplay,
@@ -276,8 +313,22 @@ var leapListener = new ROSLIB.Topic({
 // TODO(daden): detect if webGL is available before trying
 // to load the hand.  If webGL isn't available this code crashes.
 // Init the hand last so if it fails to load it doesn't crash.
-var handOverlay = new HandOverlay();
+var handOverlay = new HandOverlay(acme.glEnvironment);
 handOverlay.init3js();
 leapListener.subscribe(handOverlay.processLeapMessage);
 window.addEventListener('acmeScreenLocation',
     handOverlay.processHandGeoLocationEvent.bind(handOverlay), true);
+
+var spacenavListener = new ROSLIB.Topic({
+  ros: slinkyRosDisplay,
+  name: '/spacenav/twist',
+  messageType: 'geometry_msgs/Twist',
+  throttle_rate: 30
+});
+
+var spacenavFeedback = new SpacenavFeedback(acme.glEnvironment);
+spacenavFeedback.init();
+spacenavListener.subscribe(
+  spacenavFeedback.processSpacenavMessage.bind(spacenavFeedback)
+);
+

@@ -5,7 +5,7 @@
  */
 
 var onboardRos = new ROSLIB.Ros({
-  url: 'ws://master:9090'
+  url: 'wss://42-b:9090'
 });
 
 // This topic object is used for publishing the show and hide messages.

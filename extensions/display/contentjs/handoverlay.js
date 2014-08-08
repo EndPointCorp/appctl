@@ -7,6 +7,12 @@
  *
  */
 
+var EARTH_RADIUS = 6371; // kilometers
+var TACTILE_LO_ALT = 17000000; // meters, low altitude of the fov change band
+var TACTILE_HI_ALT = 17500000; // meters, high altitude of the fov change band
+var TACTILE_LO_FOV = 20;
+var TACTILE_HI_FOV = 60;
+
 var dumpUpdateToScreen = function(message) {
   var stringifiedMessage = JSON.stringify(message);
   var debugArea = document.getElementById('slinkydebug');
@@ -46,6 +52,8 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
 
   this.visible = false;
 
+  this.maxOverallOpacity = 0.35;
+
   this.attributes;
 
   this.interactionMinY;
@@ -53,15 +61,19 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
 
   this.leapOrigin = new THREE.Object3D();
   this.handOrigin = new THREE.Object3D();
+  this.calloutOrigin = new THREE.Object3D();
   this.ring0;
   this.ring1;
   this.ring2;
   this.centerCircleFlat;
   this.centerDot;
   this.topCallout;
+  this.popCallout;
+  this.compassRose;
   this.topCalloutPanel = new THREE.Object3D();
-  this.topCalloutPanel.position.x = 0.8;
-  this.topCalloutPanel.position.y = 0.7;
+  this.popCalloutPanel = new THREE.Object3D();
+  this.topCalloutPos = new THREE.Vector3();
+  this.popCalloutPos = new THREE.Vector3();
 
   this.centerCircleGeomUniforms;
   this.geomUniforms;
@@ -72,14 +84,42 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
 
   this.setupGeometry_(leapInteractionBox);
 
+  this.hudSpanAltId = 'hudAlt' + handId;
+  this.hudSpanLatId = 'hudLat' + handId;
+  this.hudSpanLngId = 'hudLng' + handId;
+  this.hudSpanNorthingId = 'hudNorthing' + handId;
+  this.hudSpanEastingId = 'hudEasting' + handId;
+
   this.hudDiv = document.createElement('div');
   this.hudDiv.id = 'slinkyhud' + handId;
   this.hudDiv.style.position = 'absolute';
-  this.hudDiv.style.height = '10%';
-  this.hudDiv.style.width = '10%';
+  this.hudDiv.style.height = 'auto';
+  this.hudDiv.style.width = 'auto';
+  this.hudDiv.style.whiteSpace = 'nowrap';
   this.hudDiv.style.zIndex = '99999';
+  this.hudDiv.style.fontFamily = 'Arimo, sans-serif';
+  this.hudDiv.style.fontSize = '166%';
   this.hudDiv.style.color = '#e3efff';
   this.hudDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.0)';
+  this.hudDiv.innerHTML = '<p>Alt: <span id="' + this.hudSpanAltId + '"></span>m</p>' +
+    '<p>Lat: <span id="' + this.hudSpanLatId + '"></span>&deg; <span id="' + this.hudSpanNorthingId + '"></span></p>' +
+    '<p>Lng: <span id="' + this.hudSpanLngId + '"></span>&deg; <span id="' + this.hudSpanEastingId + '"></span></p>';
+
+
+  this.popDiv = document.createElement('div');
+  this.popDiv.id = 'slinkypop' + handId;
+  this.popDiv.style.position = 'absolute';
+  this.popDiv.style.height = 'auto';
+  this.popDiv.style.width = '20%';
+  this.popDiv.style.whiteSpace = 'nowrap';
+  this.popDiv.style.zIndex = '99999';
+  this.popDiv.style.fontFamily = 'Arimo, sans-serif';
+  this.popDiv.style.fontSize = '166%';
+  this.popDiv.style.textAlign = 'right';
+  this.popDiv.style.color = '#e3efff';
+  this.popDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.0)';
+
+  this.nextElevationRequest = 0;
 };
 
 /**
@@ -93,10 +133,10 @@ Hand.prototype.toScreenCoords = function(worldPos) {
     return vector;
 };
 
-Hand.prototype.updateHudPosition = function(worldPos) {
+Hand.prototype.updateHudPosition = function(div, worldPos) {
   var screenPos = this.toScreenCoords(worldPos);
-  this.hudDiv.style.left = screenPos.x + 'px';
-  this.hudDiv.style.top = screenPos.y + 'px';
+  div.style.right = window.innerWidth - screenPos.x + 'px';
+  div.style.top = screenPos.y + 'px';
 };
 
 Hand.prototype.updateHudMessage = function(pose) {
@@ -105,9 +145,82 @@ Hand.prototype.updateHudMessage = function(pose) {
   var northing = handPose.lat >= 0 ? 'N' : 'S';
   var easting = handPose.lon >= 0 ? 'E' : 'W';
 
-  this.hudDiv.innerHTML = 'Alt:' + handPose.alt.toFixed(3) +
-      'm<p>Lat:' + Math.abs(handPose.lat).toFixed(3) + '&deg; ' + northing +
-      '<p>Lng:' + Math.abs(handPose.lon).toFixed(3) + '&deg; ' + easting;
+  // TODO(mv): cache these lookups
+  var hudSpanAlt = document.getElementById(this.hudSpanAltId);
+  var hudSpanLat = document.getElementById(this.hudSpanLatId);
+  var hudSpanLng = document.getElementById(this.hudSpanLngId);
+  var hudSpanNorthing = document.getElementById(this.hudSpanNorthingId);
+  var hudSpanEasting = document.getElementById(this.hudSpanEastingId);
+
+  hudSpanLat.innerHTML = Math.abs(handPose.lat).toFixed(3);
+  hudSpanLng.innerHTML = Math.abs(handPose.lon).toFixed(3);
+  hudSpanNorthing.innerHTML = northing;
+  hudSpanEasting.innerHTML = easting;
+
+  var self = this;
+
+  // async population data request from geodata ros service
+  window.dispatchEvent(new CustomEvent('acmePopulationQuery', {
+    detail: {
+      latitude: handPose.lat,
+      longitude: handPose.lon,
+      radius: this.dataRadius,
+      callback: function(result) {
+        self.popDiv.innerHTML = '<p>Pop: ' + Number(result.value - result.value % 100);
+      }
+    }
+  }));
+
+  // async elevation request from Google elevation api
+
+  // limit elevation request rate
+  var ELEVATION_REQ_RATE = 5; // Hz
+  var now = Date.now();
+  if (now < this.nextElevationRequest) {
+    return;
+  }
+  this.nextElevationRequest = now + 1000 / ELEVATION_REQ_RATE;
+
+  // TODO(mv): API key
+  var url = 'https://maps.googleapis.com/maps/api/elevation/json?locations={loc}';
+  //var url = 'http://maps.googleapis.com/maps/api/elevation/json?loations={loc}&key={key}';
+  url = url.replace('{loc}', [handPose.lat, handPose.lon].join(','));
+  //url = url.replace('{key}', API_KEY);
+
+  var elevationRequest = new XMLHttpRequest();
+  elevationRequest.overrideMimeType('application/json');
+  elevationRequest.open('GET', url, true);
+  elevationRequest.onload = function() {
+    if (elevationRequest.status != 200) {
+      console.error('elevation request returned', elevationRequest.status);
+      return;
+    }
+    var response = JSON.parse(elevationRequest.responseText);
+    if (response.status == 'OK') {
+      var elevation = response.results[0].elevation;
+      hudSpanAlt.innerHTML = elevation.toFixed(3);
+    } else {
+      console.error('elevation request status:', response.status);
+    }
+  };
+  elevationRequest.send();
+};
+
+Hand.prototype.updateHudCompass = function(pose) {
+  var handPose = pose.detail;
+
+  // rotate compass rose by rotating its parent
+  // TODO(mv): inaccurate when going across poles, prime meridian from camera
+  var currentCameraPose = this.handOverlay_.currentCameraPose;
+  var cameraHdg = currentCameraPose.heading;
+  var cameraLon = currentCameraPose.lon;
+  var handLon = handPose.lon;
+  var handLat = handPose.lat;
+  this.centerDot.rotation.set(
+    0,
+    toRadians_(cameraHdg - (cameraLon - handLon) * (handLat / 90)),
+    0
+  );
 };
 
 Hand.prototype.createRings_ = function(handOrigin) {
@@ -128,7 +241,7 @@ Hand.prototype.createRings_ = function(handOrigin) {
      xRayDirection: {
        type: 'v3', value: new THREE.Vector3(0, 0, 1).normalize() },
      colorTexture: { type: 't', value: xRayColorTexture },
-     alpha: { type: 'f', value: 0.1 },
+     alpha: { type: 'f', value: this.maxOverallOpacity * 0.33 },
      fade: { type: 'f', value: 0.0 }
   };
 
@@ -137,8 +250,8 @@ Hand.prototype.createRings_ = function(handOrigin) {
 
       uniforms: this.centerCircleGeomUniforms,
       attributes: handAttributes,
-      vertexShader: document.getElementById('handvertexshader').textContent,
-      fragmentShader: document.getElementById('handfragmentshader').textContent,
+      vertexShader: document.getElementById('xrayvertexshader').textContent,
+      fragmentShader: document.getElementById('xrayfragmentshader').textContent,
       transparent: true
   });
 
@@ -148,7 +261,7 @@ Hand.prototype.createRings_ = function(handOrigin) {
      xRayDirection: {
        type: 'v3', value: new THREE.Vector3(0, 0, 1).normalize() },
      colorTexture: { type: 't', value: xRayColorTexture },
-     alpha: { type: 'f', value: 0.35 },
+     alpha: { type: 'f', value: this.maxOverallOpacity * 0.66 },
      fade: { type: 'f', value: 0.0 }
   };
 
@@ -158,8 +271,8 @@ Hand.prototype.createRings_ = function(handOrigin) {
 
       uniforms: this.ring0GeomUniforms,
       attributes: handAttributes,
-      vertexShader: document.getElementById('handvertexshader').textContent,
-      fragmentShader: document.getElementById('handfragmentshader').textContent,
+      vertexShader: document.getElementById('xrayvertexshader').textContent,
+      fragmentShader: document.getElementById('xrayfragmentshader').textContent,
       transparent: true
   });
 
@@ -168,7 +281,7 @@ Hand.prototype.createRings_ = function(handOrigin) {
      xRayDirection: {
        type: 'v3', value: new THREE.Vector3(0, 0, 1).normalize() },
      colorTexture: { type: 't', value: xRayColorTexture },
-     alpha: { type: 'f', value: 0.3 },
+     alpha: { type: 'f', value: this.maxOverallOpacity * 0.66 },
      fade: { type: 'f', value: 0.0 }
   };
 
@@ -177,8 +290,8 @@ Hand.prototype.createRings_ = function(handOrigin) {
 
       uniforms: this.dotUniforms,
       attributes: handAttributes,
-      vertexShader: document.getElementById('handvertexshader').textContent,
-      fragmentShader: document.getElementById('handfragmentshader').textContent,
+      vertexShader: document.getElementById('xrayvertexshader').textContent,
+      fragmentShader: document.getElementById('xrayfragmentshader').textContent,
       transparent: true
   });
 
@@ -188,7 +301,7 @@ Hand.prototype.createRings_ = function(handOrigin) {
      xRayDirection: {
        type: 'v3', value: new THREE.Vector3(0, 0, 1).normalize() },
      colorTexture: { type: 't', value: xRayColorTexture },
-     alpha: { type: 'f', value: 0.4 },
+     alpha: { type: 'f', value: this.maxOverallOpacity },
      fade: { type: 'f', value: 0.0 }
   };
 
@@ -197,9 +310,28 @@ Hand.prototype.createRings_ = function(handOrigin) {
 
       uniforms: this.geomUniforms,
       attributes: handAttributes,
-      vertexShader: document.getElementById('handvertexshader').textContent,
-      fragmentShader: document.getElementById('handfragmentshader').textContent,
-      transparent: true
+      vertexShader: document.getElementById('xrayvertexshader').textContent,
+      fragmentShader: document.getElementById('xrayfragmentshader').textContent,
+      transparent: true,
+      depthTest: false
+  });
+
+  // compass rose vertex-colored uniforms
+  this.compassRoseUniforms = {
+     alpha: { type: 'f', value: this.maxOverallOpacity * 0.5 },
+     fade: { type: 'f', value: 0.0 }
+  };
+
+  // compass rose vertex-colored material
+  var compassRoseShader = new THREE.ShaderMaterial({
+
+      vertexColors: THREE.VertexColors,
+      uniforms: this.compassRoseUniforms,
+      attributes: handAttributes,
+      vertexShader: document.getElementById('vcolorvertexshader').textContent,
+      fragmentShader: document.getElementById('vcolorfragmentshader').textContent,
+      transparent: true,
+      depthTest: false
   });
 
   this.ring0 = new THREE.Mesh(this.handOverlay_.ring0Geom, ring0Shader);
@@ -220,11 +352,55 @@ Hand.prototype.createRings_ = function(handOrigin) {
   this.centerDot.name = 'centerCircleDot';
   this.handOrigin.add(this.centerDot);
 
+  this.topCalloutPanel = new THREE.Mesh(
+      new THREE.SphereGeometry(8, 8),
+      new THREE.MeshBasicMaterial({
+        color: 0x00FF00,
+        wireframe: true }
+      )
+  );
+  this.topCalloutPanel.scale.set(0.01, 0.01, 0.01);
+  this.topCalloutPanel.position.x = 1.6;
+  this.topCalloutPanel.position.y = 0.7;
+  this.topCalloutPanel.visible = false;
+
   this.topCallout = new THREE.Mesh(
       this.handOverlay_.topCalloutGeom, handShader);
   this.topCallout.name = 'topCallout';
   this.topCallout.add(this.topCalloutPanel);
-  this.handOrigin.add(this.topCallout);
+  this.topCallout.scale.set(1.1, 1.1, 1.1);
+  this.topCallout.visible = true;
+  this.calloutOrigin.add(this.topCallout);
+
+  this.popCalloutPanel = new THREE.Mesh(
+      new THREE.SphereGeometry(8, 8), 
+      new THREE.MeshBasicMaterial({
+        color: 0x00FF00,
+        wireframe: true }
+      )
+  );
+  this.popCalloutPanel.scale.set(0.01, 0.01, 0.01);
+  this.popCalloutPanel.position.x = 2.0;
+  this.popCalloutPanel.position.y = -0.05;
+  this.popCalloutPanel.visible = false;
+
+  this.popCallout = new THREE.Mesh(
+      this.handOverlay_.popCalloutGeom, 
+      handShader
+  );
+  this.popCallout.name = 'popCallout';
+  this.popCallout.add(this.popCalloutPanel);
+  this.popCallout.visible = true;
+  this.calloutOrigin.add(this.popCallout);
+
+  this.compassRose = new THREE.Mesh(
+    this.handOverlay_.compassRoseGeom,
+    compassRoseShader
+  );
+  this.compassRose.name = 'compassRose';
+  this.compassRose.position.set(0, 0, -1.25);
+  this.compassRose.rotation.set(Math.PI / 2, 0, 0);
+  this.centerDot.add(this.compassRose);
 
   this.handOpacity = 0.0;
 
@@ -243,6 +419,7 @@ Hand.prototype.setupGeometry_ = function(leapInteractionBox) {
   // TODO(paulby) plane intersections should we assume we always get
   // the same (and valid) interaction box from the leap.
 
+  /*
   var vector = new THREE.Vector3(-1, -1, 1);
   this.projector.unprojectVector(vector, camera);
   var ray = new THREE.Raycaster(camera.position,
@@ -283,6 +460,7 @@ Hand.prototype.setupGeometry_ = function(leapInteractionBox) {
   this.leapOrigin.applyMatrix(handCoordSystem);
   this.leapOrigin.updateMatrixWorld(false);
   this.leapOrigin.add(this.handOrigin);
+  */
 };
 
 /**
@@ -290,15 +468,19 @@ Hand.prototype.setupGeometry_ = function(leapInteractionBox) {
  */
 Hand.prototype.fadeInOutAnimationComplete = function() {
   if (!this.visible) {
-    this.handOverlay_.scene.remove(this.leapOrigin);
+    this.handOverlay_.scene.remove(this.handOrigin);
+    this.handOverlay_.scene.remove(this.calloutOrigin);
     document.body.removeChild(this.hudDiv);
+    document.body.removeChild(this.popDiv);
   }
 };
 
 Hand.prototype.fadeInOutAnimationOnStart = function() {
   if (this.visible) {
-    this.handOverlay_.scene.add(this.leapOrigin);
+    this.handOverlay_.scene.add(this.handOrigin);
+    this.handOverlay_.scene.add(this.calloutOrigin);
     document.body.appendChild(this.hudDiv);
+    document.body.appendChild(this.popDiv);
   }
 };
 
@@ -307,6 +489,7 @@ Hand.prototype.fadeInOutAnimationOnUpdate = function() {
   this.geomUniforms.fade.needsUpdate = true;
   this.ring0GeomUniforms.fade.needsUpdate = true;
   this.dotUniforms.fade.needsUpdate = true;
+  this.compassRoseUniforms.fade.needsUpdate = true;
 };
 
 Hand.prototype.setVisible = function(visible) {
@@ -314,55 +497,25 @@ Hand.prototype.setVisible = function(visible) {
     return;
   }
 
-  var self = this;
   this.visible = visible;
 
-  // Fading in/out with a single animation does not seem to work, either
-  // with reverse, or with modifying the start and value, so we have two
-  // animations.
-  if (!this.fadeInAnimation) {
-    this.fadeInAnimation = TweenMax.to(
-        [this.centerCircleGeomUniforms.fade,
-        this.geomUniforms.fade,
-        this.ring0GeomUniforms.fade,
-        this.dotUniforms.fade,
-        this.hudDiv.style.opacity],
-        1,
-        {
-          startAt: {value: 0.0},
-          value: 1.0,
-          onStart: self.fadeInOutAnimationOnStart.bind(self),
-          onComplete: self.fadeInOutAnimationComplete.bind(self),
-          onUpdate: self.fadeInOutAnimationOnUpdate.bind(self),
-          paused: true
-        });
-  }
-
-  if (!this.fadeOutAnimation) {
-    this.fadeOutAnimation = TweenMax.to(
-        [this.centerCircleGeomUniforms.fade,
-        this.geomUniforms.fade,
-        this.ring0GeomUniforms.fade,
-        this.dotUniforms.fade,
-        this.hudDiv.style.opacity],
-        1,
-        {
-          startAt: {value: this.handOpacity},
-          value: 0.0,
-          onStart: self.fadeInOutAnimationOnStart.bind(self),
-          onComplete: self.fadeInOutAnimationComplete.bind(self),
-          onUpdate: self.fadeInOutAnimationOnUpdate.bind(self),
-          paused: true
-        });
-  }
-
   if (visible) {
-    this.fadeInAnimation.restart();
+    this.fadeInOutAnimationOnStart();
   } else {
-    this.fadeOutAnimation.restart();
+    this.fadeInOutAnimationComplete();
   }
 };
 
+Hand.prototype.setOpacity = function(opacity) {
+  this.centerCircleGeomUniforms.fade.value = this.handOpacity;
+  this.geomUniforms.fade.value = this.handOpacity;
+  this.ring0GeomUniforms.fade.value = this.handOpacity;
+  this.dotUniforms.fade.value = this.handOpacity;
+  this.compassRoseUniforms.fade.value = this.handOpacity;
+  this.hudDiv.style.opacity = this.handOpacity * this.maxOverallOpacity * 2;
+  this.popDiv.style.opacity = this.handOpacity * this.maxOverallOpacity * 2;
+  this.fadeInOutAnimationOnUpdate();  // Inform shaders of data change.
+};
 
 Hand.prototype.animate_ = function() {
   var currentTimeMs = Date.now();
@@ -370,15 +523,17 @@ Hand.prototype.animate_ = function() {
     this.setVisible(false);
   }
 
-  this.topCalloutPanel.updateMatrixWorld(false);
-  var hudPos = new THREE.Vector3();
-  hudPos.setFromMatrixPosition(this.topCalloutPanel.matrixWorld);
-  var screenPos = this.toScreenCoords(hudPos);
+  if (this.hudPos) {
+    var screenPos = this.toScreenCoords(this.hudPos);
 
-  // Requests new geo data for location. Returned async to
-  // processHandGeoLocationEvent
-  getPointInfo(screenPos.x, screenPos.y);
-  this.updateHudPosition(hudPos);
+    // Requests new geo data for location. Returned async to
+    // processHandGeoLocationEvent
+    getPointInfo(screenPos.x, screenPos.y);
+
+    // move the HUD data to the proper spot
+    this.updateHudPosition(this.hudDiv, this.topCalloutPos);
+    this.updateHudPosition(this.popDiv, this.popCalloutPos);
+  }
 };
 
 function toRadians_(deg) {
@@ -391,68 +546,145 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
 
   var palmpos = leapData.stabilized_palm_position;
   var palmPitch = leapData.direction.pitch + Math.PI;
-  var palmRoll = -leapData.palm_normal.roll;
+  var palmRoll = leapData.palm_normal.roll;
   var palmYaw = leapData.direction.yaw;
 
-  var START_FADE = 150;  // Distance from plane where the fade starts
-  var FADE_DISTANCE = 10;  // Distance taken to go from opaque to transparent.
+  var palmHeight = palmpos.y;
+  var palmSlide = palmpos.x;
+  // use more responsive un-stabilized palm position for z
+  var palmDepth = leapData.palm_position.z;
 
-  var ray = new THREE.Raycaster(
-      new THREE.Vector3(palmpos.x, palmpos.y, palmpos.z),
-      new THREE.Vector3(0, -1, 0));
-  var intersects = ray.intersectObject(this.handOverlay_.handFadePlane);
-  if (intersects[0] && intersects[0].distance < START_FADE) {
 
+  var camera = this.handOverlay_.camera;
+
+  /* window mode
+  var leapVector = new THREE.Vector3(
+    (palmSlide / 100),
+    (palmHeight / 100 - 2.0),
+    1.0
+  );
+  */
+
+  var leapVector = new THREE.Vector3(
+    (palmSlide / 100),
+    (-palmDepth / 100),
+    1.0
+  );
+
+  // limits of normalized height
+  // this is relative to the absolute height below
+  var HEIGHT_MIN = 0;
+  var HEIGHT_MAX = 350;
+
+  // absolute height limits
+  // this sets the absolute bottom of the HUD "box"
+  var MIN_ABS_HEIGHT = 80;
+  var MAX_ABS_HEIGHT = MIN_ABS_HEIGHT + HEIGHT_MAX;
+
+  // normalized height where fade starts
+  var FADE_LOW = HEIGHT_MIN + 50;
+  var FADE_HIGH = HEIGHT_MAX - 50;
+
+  // normal angle where fade starts on edges
+  // TODO(mv): fix the logic using this setting
+  var FADE_EDGE = 0.5;
+
+  // TODO(mv): better logic for bypassing ray intersect when out of bounds
+  // ray intersect is very expensive, so guard it as much as possible
+  var intersects = [];
+  if (palmHeight > MIN_ABS_HEIGHT && palmHeight <= MAX_ABS_HEIGHT &&
+      currentCameraPose.alt < TACTILE_LO_ALT && this.handOverlay_.enabled) {
+    var ray = this.projector.pickingRay(leapVector, camera);
+    intersects = ray.intersectObject(this.handOverlay_.globeSphere);
+  }
+
+  if (intersects.length == 0) {
+    this.handOpacity = 0.0;
+    this.hudPos = null;
+  } else {
+    // normalize and limit height
+    palmHeight = Math.min(Math.max(palmHeight - MIN_ABS_HEIGHT, HEIGHT_MIN), HEIGHT_MAX);
+
+    // height limits for data radius
+    var palmDataHeight = Math.min(Math.max(palmHeight, FADE_LOW), FADE_HIGH);
+
+    this.hudPos = intersects[0].point;
     var distance = intersects[0].distance;
-    var startFadeOut = START_FADE;
-    var endFadeOut = START_FADE - FADE_DISTANCE;
-    if (distance < endFadeOut) {
-      this.handOpacity = 0.0;
-    } else {
-      this.handOpacity =
-          Math.abs((distance - endFadeOut) / (startFadeOut - endFadeOut));
+    var interNormal = intersects[0].face.normal;
+
+    // push fade to the edge
+    var normalAngle = Math.max(0,
+      Math.abs(interNormal.x) +
+      Math.abs(interNormal.y +
+      toRadians_(currentCameraPose.tilt / 2)) -
+      FADE_EDGE
+    );
+    var normalFade = Math.sqrt(Math.max(0, 1.0 - (normalAngle) * (1 / FADE_EDGE)));
+
+    // height fade coefficient
+    var lowFade = Math.min(Math.max((palmHeight - FADE_LOW) * (1 / FADE_LOW), 0), 1);
+    var highFade = Math.min(Math.max((FADE_HIGH - palmHeight) * (1 / (HEIGHT_MAX - FADE_HIGH)), 0), 1);
+    var heightFade = Math.min(lowFade, highFade);
+
+    this.handOpacity = Math.min(Math.max(normalFade * heightFade, 0), 1);
+
+    this.handOrigin.position.set(this.hudPos.x, this.hudPos.y, this.hudPos.z);
+    this.calloutOrigin.position.set(this.hudPos.x, this.hudPos.y, this.hudPos.z);
+
+    if (currentCameraPose) {
+      this.handOrigin.rotation.set(
+          toRadians_(90 - currentCameraPose.tilt) - interNormal.y,
+          0,
+          -interNormal.x
+      );
     }
-    this.centerCircleGeomUniforms.fade.value = this.handOpacity;
-    this.geomUniforms.fade.value = this.handOpacity;
-    this.ring0GeomUniforms.fade.value = this.handOpacity;
-    this.dotUniforms.fade.value = this.handOpacity;
-    this.hudDiv.style.opacity = this.handOpacity;
-    this.fadeInOutAnimationOnUpdate();  // Inform shaders of data change.
+
+    // TODO(mv): flush out magic numbers
+    var distanceMod = distance / 24;
+    var ringScale = distanceMod + (palmDataHeight / (FADE_HIGH - FADE_LOW)) * distanceMod;
+    ringScale *= 0.58;
+    var calloutScale = distanceMod * 1.0;
+
+    this.handOrigin.scale.set(ringScale, ringScale, ringScale);
+    this.calloutOrigin.scale.set(calloutScale, calloutScale, calloutScale);
+    this.calloutOrigin.updateMatrixWorld(false);
+
+    // for now, outer sub-ring based on roll, and fudged to center
+    this.ring2.rotation.set(0, palmRoll + 0.36, 0);
+
+    this.ring1.geometry.computeBoundingSphere();
+    // geodata radius does not follow ring scale, hence end coefficient
+    this.dataRadius = this.ring1.geometry.boundingSphere.radius * ringScale * 1.0;
+
+    this.topCalloutPos.setFromMatrixPosition(this.topCalloutPanel.matrixWorld);
+
+    this.popCalloutPos.setFromMatrixPosition(this.popCalloutPanel.matrixWorld);
   }
 
-
-  this.handOrigin.position.set(palmpos.x, palmpos.y, palmpos.z);
-  if (currentCameraPose) {
-    this.handOrigin.rotation.set(
-        toRadians_(90 - currentCameraPose.tilt), 0, 0);
-  }
-  this.handOrigin.scale.set(20, 20, 20);
-  this.handOrigin.updateMatrixWorld(false);
-
-  this.ring2.rotation.set(0, -palmYaw, 0);
+  this.setOpacity(this.handOpacity);
+  this.setVisible(this.handOpacity > 0.0);
 };
 
 /**
  * @constructor
  */
-var HandOverlay = function() {
+var HandOverlay = function(glEnvironment) {
+  this.glEnvironment = glEnvironment;
+
   /** @type {THREE.Scene} */
-  this.scene;
+  this.scene = this.glEnvironment.scene;
 
   /** @type {THREE.WebGLRenderer} */
-  this.renderer;
+  this.renderer = this.glEnvironment.renderer;
 
   /** @type {THREE.Camera} */
-  this.camera;
+  this.camera = this.glEnvironment.camera;
 
   /** @type {Array.<Hand|null>} */
   this.hands_ = new Array();
 
   /** @type {THREE.Mesh} */
   this.handPlane;
-
-  /** Plane at which hand will start to fade out. */
-  this.handFadePlane;
 
   /** Geometry used for every finger */
   this.fingerGeom;
@@ -461,12 +693,16 @@ var HandOverlay = function() {
 
   this.initialized_ = false;
 
+  this.enabled = true;
+
   this.ring0Geom;
   this.ring1Geom;
   this.ring2Geom;
   this.centerCircleFlatGeom;
   this.centerDotGeom;
   this.topCalloutGeom;
+  this.popCalloutGeom;
+  this.compassRoseGeom;
 
   this.currentHand = -1;
 };
@@ -474,86 +710,46 @@ var HandOverlay = function() {
 
 HandOverlay.prototype.setCurrentCameraPose = function(pose) {
   this.currentCameraPose = pose;
+
+  // move the virtual globe on top of the Tactile globe
+  // alitude is converted to km
+  var distanceToEarthCenter = -(pose.alt / 1000 + EARTH_RADIUS);
+  var tilt = pose.tilt;
+  var y = Math.sin(toRadians_(tilt)) * distanceToEarthCenter;
+  var z = Math.cos(toRadians_(tilt)) * distanceToEarthCenter;
+  this.globeSphere.position.set(0, y, z);
+  this.globeSphere.lookAt(this.camera.position);
+
+  // fix camera fov for zoom level to match Tactile
+  // fov change occurs when zoomed out really far
+  // TODO(mv): make the transition match Tactile's curve more closely
+
+  var fov = TACTILE_HI_FOV;
+  if (pose.alt < TACTILE_LO_ALT) {
+    fov = TACTILE_LO_FOV;
+  } else if (pose.alt < TACTILE_HI_ALT) {
+    fov = TACTILE_LO_FOV + (TACTILE_HI_FOV - TACTILE_LO_FOV) *
+            (pose.alt - TACTILE_LO_ALT) / (TACTILE_HI_ALT - TACTILE_LO_ALT);
+  }
+  if (fov != this.camera.fov) {
+    this.camera.fov = fov;
+    this.camera.updateProjectionMatrix();
+  }
 };
-
-
-/**
- * Inject the GL shaders into the page.
- */
-HandOverlay.prototype.injectShaders = function() {
-
-  // Particle Shaders.
-  var script0 = document.createElement('script');
-  script0.type = 'x-shader/x-vertex';
-  script0.id = 'particlevertexshader';
-  script0.textContent =
-    'attribute float alpha;' +
-    'attribute vec4 color4;' +
-    'varying vec4 vColor;' +
-
-    'void main() {' +
-    '    vColor = color4;' +
-    '    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );' +
-    '    gl_PointSize = 1.0;' +
-    '    gl_Position = projectionMatrix * mvPosition;' +
-    '}';
-  document.body.appendChild(script0);
-
-  var script1 = document.createElement('script');
-  script1.type = 'x-shader/x-fragment';
-  script1.id = 'particlefragmentshader';
-  script1.textContent =
-    'varying vec4 vColor;' +
-
-    'void main() {' +
-    '    gl_FragColor = vec4( vColor );' +
-    '}';
-  document.body.appendChild(script1);
-
-  // Hand Geometry Shaders.
-  var handVertexScript = document.createElement('script');
-  handVertexScript.type = 'x-shader/x-vertex';
-  handVertexScript.id = 'handvertexshader';
-  handVertexScript.textContent =
-    'uniform vec3 xRayDirection;' +
-    'uniform float alpha;' +
-    'uniform float fade;' +
-    'uniform sampler2D colorTexture;' +
-    'varying vec4 vColor;' +
-
-    'void main() {' +
-    '    vec3 mvNormal = normalize(normalMatrix * normal);' +
-    '    float dotP = (dot(xRayDirection, mvNormal) + 1.0) / 2.0;' +
-    '    vec2 uv = vec2(0.5, dotP);' +
-    '    vColor.rgb = texture2D(colorTexture, uv).rgb;' +
-    '    vColor.a = alpha * fade;' +
-    '    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );' +
-    '    gl_Position = projectionMatrix * mvPosition;' +
-    '}';
-  document.body.appendChild(handVertexScript);
-
-  var handFragmentScript = document.createElement('script');
-  handFragmentScript.type = 'x-shader/x-fragment';
-  handFragmentScript.id = 'handfragmentshader';
-  handFragmentScript.textContent =
-    'varying vec4 vColor;' +
-
-    'void main() {' +
-    '    gl_FragColor = vec4( vColor );' +
-    '}';
-  document.body.appendChild(handFragmentScript);
-};
-
 
 /**
  * Initialize the 3D canvas and renderer.
  */
 HandOverlay.prototype.init3js = function() {
+  var self = this;
 
+  /*
   this.scene = new THREE.Scene();
+  */
   var WIDTH = window.innerWidth,
       HEIGHT = window.innerHeight;
 
+  /*
   var handCanvas = document.getElementById('handCanvas');
 
   if (!handCanvas) {
@@ -571,16 +767,22 @@ HandOverlay.prototype.init3js = function() {
   }
 
   var gl = handCanvas.getContext('webgl', {premultipliedAlpha: false});
+  */
 
+  /*
   this.renderer = new THREE.WebGLRenderer({canvas: handCanvas, alpha: true});
   this.renderer.setSize(WIDTH, HEIGHT);
 
   this.renderer.setClearColor(new THREE.Color(0xffffff), 0);
+  */
 
-  this.camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 200);
+  /*
+  this.camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, EARTH_RADIUS * 10);
   this.camera.position.set(0, 0, 6);
   this.scene.add(this.camera);
+  */
 
+  /*
   var self = this;
   window.addEventListener('resize', function() {
     var WIDTH = window.innerWidth,
@@ -590,7 +792,9 @@ HandOverlay.prototype.init3js = function() {
 
     self.camera.updateProjectionMatrix();
   });
+  */
 
+  /*
   this.handPlane = new THREE.Mesh(
       new THREE.PlaneGeometry(2000, 2000),
       new THREE.MeshBasicMaterial({
@@ -601,18 +805,19 @@ HandOverlay.prototype.init3js = function() {
   this.handPlane.visible = false;
   this.handPlane.position = new THREE.Vector3(0, 0, 0);
   this.scene.add(this.handPlane);
+  */
 
-  this.handFadePlane = new THREE.Mesh(
-      new THREE.PlaneGeometry(2000, 2000),
-      new THREE.MeshBasicMaterial({
-        color: 0xff0000,
-        wireframe: false }
-  ));
-  this.handFadePlane.lookAt(this.camera.position);
-  this.handFadePlane.visible = false;
-  this.handFadePlane.position = new THREE.Vector3(0, 1, 0);
-  this.handFadePlane.rotation.x = toRadians_(-75);
-  this.scene.add(this.handFadePlane);
+  this.globeSphere = new THREE.Mesh(
+    new THREE.SphereGeometry(EARTH_RADIUS, 128, 128, 0, Math.PI),
+    new THREE.MeshBasicMaterial({
+      color: 0x000000,
+      wireframe: true
+    })
+  );
+  this.globeSphere.lookAt(this.camera.position);
+  this.globeSphere.visible = false;
+  this.globeSphere.position = new THREE.Vector3(0, 0, EARTH_RADIUS * 5);
+  this.scene.add(this.globeSphere);
 
   // Load the geometry for various parts of the hand.
   var loader0 = new THREE.JSONLoader();
@@ -651,10 +856,58 @@ HandOverlay.prototype.init3js = function() {
        self.topCalloutGeom = geometry;
     });
 
-  this.injectShaders();
+  var loader6 = new THREE.JSONLoader();
+  loader6.load(chrome.extension.getURL('models/pop_callout.json'),
+    function(geometry) {
+       // shift origin
+       geometry.applyMatrix(new THREE.Matrix4().makeTranslation(1, 0, 0));
+       self.popCalloutGeom = geometry;
+    });
+
+  this.compassRoseColor = new THREE.Color(0xFF0000);
+  this.compassRoseGeom = this.createGeometry_(3, 0.1, this.compassRoseColor);
+
   initialized_ = true;
-  self.animate_();
+
+  function _animate() {
+    self.animate_();
+  }
+  this.glEnvironment.addAnimation(_animate);
 };
+
+/**
+ * Creates geometry with n sides.
+ * To use vertex colors, material must have vertexColors: THREE.VertexColors
+ * @see http://jsfiddle.net/Elephanter/mUah5/
+ */
+HandOverlay.prototype.createGeometry_ = function(n, circumradius, color) {
+
+  var geometry = new THREE.Geometry(),
+    vertices = [],
+    faces = [],
+    x;
+
+  // Generate the vertices of the n-gon.
+  for (x = 1; x <= n; x++) {
+    geometry.vertices.push(new THREE.Vector3(
+      circumradius * Math.sin((Math.PI / n) + (x * ((2 * Math.PI)/ n))),
+      circumradius * Math.cos((Math.PI / n) + (x * ((2 * Math.PI)/ n))),
+      0
+    ));
+    geometry.colors.push(color);
+  }
+
+  // Generate the faces of the n-gon.
+  for (x = 0; x < n-2; x++) {
+    var face = new THREE.Face3(0, x + 1, x + 2);
+    face.vertexColors = [color, color, color];
+    geometry.faces.push(face);
+  }
+
+  geometry.computeBoundingSphere();
+
+  return geometry;
+}
 
 HandOverlay.prototype.processLeapMessage = function(leapMessage) {
   if (!initialized_) {
@@ -684,6 +937,7 @@ HandOverlay.prototype.processHandGeoLocationEvent = function(pose) {
   }
 
   hand.updateHudMessage(pose);
+  hand.updateHudCompass(pose);
 };
 
 /**
@@ -729,10 +983,6 @@ HandOverlay.prototype.processHandMoved = function(
     this.hands_[leapData.id] = hand;
   }
 
-  if (!hand.visible) {
-    hand.setVisible(true);
-  }
-
   var timeMs = Date.now();
   hand.lastEventTimeMs = timeMs;
 
@@ -744,11 +994,13 @@ HandOverlay.prototype.processHandMoved = function(
  * @private
  */
 HandOverlay.prototype.animate_ = function() {
+  /*
   var self = this;
   function f() {
     self.animate_();
   };
   requestAnimationFrame(f);
+  */
   if (this.scene == null || this.camera == null) {
     return;
   }
@@ -771,6 +1023,8 @@ HandOverlay.prototype.animate_ = function() {
       }
     }
   }
+  /*
   this.renderer.render(this.scene, this.camera);
+  */
 };
 

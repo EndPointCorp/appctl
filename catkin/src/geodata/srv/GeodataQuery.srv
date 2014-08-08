@@ -1,0 +1,5 @@
+string layer
+geographic_msgs/GeoPoint point
+float64 radius
+---
+float64 value
