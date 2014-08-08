@@ -29,9 +29,10 @@
         "libs/roslib.min.js",
         "contentjs/soundfx.js",
         "contentjs/ambient.js",
+        "contentjs/highres.js",
         "contentjs/slinkyRosKiosk.js",
-        "contentjs/famousPlaces.js",
-        "contentjs/highres.js"
+        "contentjs/runwayCardsDrag.js",
+        "contentjs/famousPlaces.js"
       ],
       "css": [
         "css/acme_kiosk.css"
