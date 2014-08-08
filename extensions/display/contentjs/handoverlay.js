@@ -713,10 +713,10 @@ HandOverlay.prototype.setCurrentCameraPose = function(pose) {
   this.globeSphere.lookAt(this.camera.position);
 
   // fix camera fov for zoom level to match Tactile
-  // 60 at super high altitude, transitioning down to 35 from 17500km to 9500km
+  // fov change occurs when zoomed out really far
   // TODO(mv): make the transition match Tactile's curve more closely
-  var TACTILE_LO_ALT = 17000000;
-  var TACTILE_HI_ALT = 17500000;
+  var TACTILE_LO_ALT = 17000000; // low altitude of the fov change band
+  var TACTILE_HI_ALT = 17500000; // high altitude of the fov change band
   var TACTILE_LO_FOV = 20;
   var TACTILE_HI_FOV = 60;
 
