@@ -12,9 +12,9 @@ var SpacenavFeedback = function(glEnvironment) {
   this.camera = glEnvironment.camera;
   this.scene = glEnvironment.scene;
   this.absOrigin = new THREE.Object3D();
-  this.absOrigin.position.set(0, -7, -95);
+  this.absOrigin.position.set(0, -3, -95);
   this.absOrigin.rotation.set(0.5, 0, 0);
-  this.absOrigin.scale.set(2.0, 2.0, 2.0);
+  this.absOrigin.scale.set(1.2, 1.2, 1.2);
 
   this.innerOrigin = new THREE.Object3D();
 
