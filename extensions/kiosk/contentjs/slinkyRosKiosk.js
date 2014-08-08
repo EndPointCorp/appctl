@@ -591,3 +591,16 @@ var preventDefaultHandler = function(e) {
   e.preventDefault();
 };
 window.addEventListener('touchmove', preventDefaultHandler, false);
+
+
+// This event handler should not allow for pinch events in the street view mode.
+document.addEventListener("touchmove", function(e){
+  console.log('touchmove');
+  console.log('runwayActionRestriction is: '+runwayActionRestrictions);
+
+  if(e.touches.length > 1 && runwayActionRestrictions != 0) {
+    console.log("Pinch events not allowed");
+    e.preventDefault();
+    e.stopPropagation();
+  }
+}, true);
