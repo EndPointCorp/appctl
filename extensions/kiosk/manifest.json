@@ -32,7 +32,8 @@
         "contentjs/highres.js",
         "contentjs/slinkyRosKiosk.js",
         "contentjs/runwayCardsDrag.js",
-        "contentjs/famousPlaces.js"
+        "contentjs/famousPlaces.js",
+        "contentjs/famousPlacesCardsDrag.js"
       ],
       "css": [
         "css/acme_kiosk.css"
