@@ -24,6 +24,16 @@ acme.Util.injectScript = function(filePath) {
 
 acme.Util.injectScript('contentjs/inject.js');
 
+/*
+ * Load the style overrides.
+ */
+var slinkyStyleOverrides = document.createElement('link');
+slinkyStyleOverrides.setAttribute('rel', 'stylesheet');
+slinkyStyleOverrides.setAttribute('type', 'text/css');
+slinkyStyleOverrides.setAttribute('href',
+    chrome.extension.getURL('css/acme_display.css'));
+document.getElementsByTagName('head')[0].appendChild(slinkyStyleOverrides);
+
 /**
  * @constructor
  * @param {number} lat Latitude in degrees N, (-90, 90).
