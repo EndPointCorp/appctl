@@ -46,6 +46,8 @@ var SpacenavFeedback = function(glEnvironment) {
   this.flapOpacity = 0.0;
 
   this.maxAbsoluteOpacity = 0.35;
+
+  this.enabled = true;
 };
 
 /**
@@ -73,6 +75,19 @@ SpacenavFeedback.prototype.clampAxis = function(num, low, high) {
 };
 
 /**
+ * Checks to see if a pose is in the zero gutter.
+ * @param {object} pose
+ * @return true if the pose is in the gutter
+ */
+SpacenavFeedback.prototype.isInGutter = function(pose) {
+  return (
+    pose.linear.x == 0 && pose.linear.y == 0 &&
+    pose.linear.z == 0 && pose.angular.x == 0 &&
+    pose.angular.y == 0 && pose.angular.z == 0
+  );
+};
+
+/**
  * Processes an incoming SpaceNav message.
  * @param {object} msg incoming message from Ros
  */
@@ -81,9 +96,7 @@ SpacenavFeedback.prototype.processSpacenavMessage = function(msg) {
    * Two possible states: spacenav not being used (all zeros), else spacenav
    * being touched - we rotate our pretty objects
    */
-  if (msg.linear.x == 0 && msg.linear.y == 0 &&
-      msg.linear.z == 0 && msg.angular.x == 0 &&
-      msg.angular.y == 0 && msg.angular.z == 0) {
+  if (!this.enabled || this.isInGutter(msg)) {
     /*
      * - fade objects out - return to point 0
      */

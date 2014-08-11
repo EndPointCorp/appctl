@@ -249,6 +249,8 @@ var runwayContentSubscriber = function(message) {
     var sceneContentArray = customData[1];
     var runwayImageType = customData[2];
 
+    var planetChange = sceneContentArray[7];
+
     // Check to see if this is the type of runway element that should
     // not use the pose information coming from anywhere.
     if (runwayImageType == InputSupport_.DISABLED) {
@@ -256,10 +258,15 @@ var runwayContentSubscriber = function(message) {
     }
 
     // disable HUD unless changing planet to Earth
-    if (sceneContentArray[7] && sceneContentArray[7] == Planet.EARTH) {
+    if (planetChange && planetChange == Planet.EARTH) {
       handOverlay.enabled = true;
     } else {
       handOverlay.enabled = false;
+    }
+
+    // disable spacenav feedback unless changing planets
+    if (runwayImageType != InputSupport_.NONE && !planetChange) {
+      spacenavFeedback.enabled = false;
     }
 
     // this indicates planet zoom which will not provide an exit event
@@ -273,6 +280,7 @@ var runwayContentSubscriber = function(message) {
     });
   } else if (startsWith(data, runwayContentEvents.EXIT)) {
     handOverlay.enabled = true;
+    spacenavFeedback.enabled = true;
     ignoreCameraUpdates = false;
     acme.Util.sendCustomEvent({
         method: 'exitTitleCard'
