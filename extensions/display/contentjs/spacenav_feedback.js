@@ -166,6 +166,10 @@ SpacenavFeedback.prototype.updateVisuals = function(pose) {
     this.ringZOpacity = -this.clampAxis(pose.angular.y, -1, 1);
     // rotate (twist)
     this.ringObjPosition[4] = angularZ * 0.5;
+    // give it an exponential curve
+    this.ringObjPosition[4] *= Math.pow(
+      1.66, Math.abs(this.ringObjPosition[4])
+    );
     // lean forward and backward
     this.ringObjPosition[5] = 0;
     this.ringObjPosition[3] = angularY * -0.1;
@@ -411,8 +415,7 @@ SpacenavFeedback.prototype.animate = function() {
     // tilt rotation
     this.innerOrigin.rotation.x = this.ringObjPosition[3];
     // twist rotation
-    this.ringObj.rotation.y = this.ringObjPosition[4] *
-      Math.pow(1.66, Math.abs(this.ringObjPosition[4]));
+    this.ringObj.rotation.y = this.ringObjPosition[4];
     // roll rotation
     this.innerOrigin.rotation.z = this.ringObjPosition[5];
 
@@ -437,17 +440,21 @@ SpacenavFeedback.prototype.animate = function() {
     this.flapRightObj.rotation.z = this.flapRotation;
     this.flapLeftObj.rotation.z = this.flapRotation;
 
-    // TODO(mv): untangle this
-    var leftVal = Math.min(1, Math.max(0, Math.abs(this.flapRotation) - this.ringXOpacity) + Math.abs(this.ringXOpacity) * 0.2);
-    var rightVal = Math.min(1, Math.max(0, Math.abs(this.flapRotation) + this.ringXOpacity) + Math.abs(this.ringXOpacity) * 0.2);
+    var leftOpacity = Math.abs(this.flapRotation) - this.ringXOpacity +
+                      Math.abs(this.ringXOpacity) * 0.2;
+    leftOpacity = Math.min(Math.max(leftOpacity, 0), 1);
+
+    var rightOpacity = Math.abs(this.flapRotation) + this.ringXOpacity +
+                       Math.abs(this.ringXOpacity) * 0.2;
+    rightOpacity = Math.min(Math.max(rightOpacity, 0), 1);
 
     this.setOpacity(
       this.flapLeftUniforms,
-      leftVal
+      leftOpacity
     );
     this.setOpacity(
       this.flapRightUniforms,
-      rightVal
+      rightOpacity
     );
 
     var overallScale = 1.0 + this.flapRotation * 0.125;
