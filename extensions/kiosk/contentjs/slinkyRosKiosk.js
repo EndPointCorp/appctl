@@ -495,12 +495,20 @@ var runwayContentClickHandler = function(e) {
   // restriction.
   if (customData[1] && customData[1][0] == 3) {
     // disable sound on the moon
-    soundFX.enabled = (customData[1][7] != Planet.MOON);
+    if (customData[1][7] != Planet.MOON) {
+      soundFX.enable();
+    } else {
+      soundFX.disable();
+    }
     // Its a planet shift.  Allow the nav.
     runwayActionRestrictions = InputSupport_.NONE;
   } else {
     // disable sound if there are any special input restrictions
-    soundFX.enabled = (runwayActionRestrictions == InputSupport_.NONE);
+    if (runwayActionRestrictions == InputSupport_.NONE) {
+      soundFX.enable();
+    } else {
+      soundFX.disable();
+    }
   }
 
   // TODO(daden): Create a method on the large display extension.
@@ -525,7 +533,7 @@ var runwayContentExitHandler = function(e) {
   }
   console.log('runwayContentExitHandler');
   runwayActionRestrictions = InputSupport_.NONE;
-  soundFX.enabled = true;
+  soundFX.enable();
 
   // TODO(daden): Generate an ESC keydown event on the large display extension.
   // AcmeKeyboard.keydown(27);
