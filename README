@@ -26,4 +26,3 @@ Packaged Extension Files:
   * <extension>.eid - the extension-specific Application ID which is derived from the public key.
   * <extension>.crx - the extension itself, installable in Chrome/Chromium.
   * <extension>-upd.xml - the auto-update xml file which should be served to Chrome/Chromium.
-
