@@ -1,10 +1,10 @@
-console.log("Initializing the runway handlers.");
+console.log('Initializing the runway handlers.');
 var runway = document.querySelector('.widget-runway-tray-wrapper');
 
 var initialMousePosition = null;
 var initialScrollLeft = null;
 
-runway.addEventListener('touchstart', function(e){
+runway.addEventListener('touchstart', function(e) {
   console.log('touchstart');
 
   // this should be enabled only in chrome
@@ -18,14 +18,14 @@ runway.addEventListener('touchstart', function(e){
 true);
 
 
-runway.addEventListener('touchend', function(e){
+runway.addEventListener('touchend', function(e) {
   console.log('touchend');
   initialMousePosition = null;
 },
 true);
 
 
-runway.addEventListener('touchmove', function(e){
+runway.addEventListener('touchmove', function(e) {
   console.log('touchmove');
   if (initialMousePosition === null) return;
 

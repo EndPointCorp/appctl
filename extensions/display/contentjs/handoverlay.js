@@ -373,7 +373,7 @@ Hand.prototype.createRings_ = function(handOrigin) {
   this.calloutOrigin.add(this.topCallout);
 
   this.popCalloutPanel = new THREE.Mesh(
-      new THREE.SphereGeometry(8, 8), 
+      new THREE.SphereGeometry(8, 8),
       new THREE.MeshBasicMaterial({
         color: 0x00FF00,
         wireframe: true }
@@ -385,7 +385,7 @@ Hand.prototype.createRings_ = function(handOrigin) {
   this.popCalloutPanel.visible = false;
 
   this.popCallout = new THREE.Mesh(
-      this.handOverlay_.popCalloutGeom, 
+      this.handOverlay_.popCalloutGeom,
       handShader
   );
   this.popCallout.name = 'popCallout';
@@ -890,15 +890,15 @@ HandOverlay.prototype.createGeometry_ = function(n, circumradius, color) {
   // Generate the vertices of the n-gon.
   for (x = 1; x <= n; x++) {
     geometry.vertices.push(new THREE.Vector3(
-      circumradius * Math.sin((Math.PI / n) + (x * ((2 * Math.PI)/ n))),
-      circumradius * Math.cos((Math.PI / n) + (x * ((2 * Math.PI)/ n))),
+      circumradius * Math.sin((Math.PI / n) + (x * ((2 * Math.PI) / n))),
+      circumradius * Math.cos((Math.PI / n) + (x * ((2 * Math.PI) / n))),
       0
     ));
     geometry.colors.push(color);
   }
 
   // Generate the faces of the n-gon.
-  for (x = 0; x < n-2; x++) {
+  for (x = 0; x < n - 2; x++) {
     var face = new THREE.Face3(0, x + 1, x + 2);
     face.vertexColors = [color, color, color];
     geometry.faces.push(face);
@@ -907,7 +907,7 @@ HandOverlay.prototype.createGeometry_ = function(n, circumradius, color) {
   geometry.computeBoundingSphere();
 
   return geometry;
-}
+};
 
 HandOverlay.prototype.processLeapMessage = function(leapMessage) {
   if (!initialized_) {

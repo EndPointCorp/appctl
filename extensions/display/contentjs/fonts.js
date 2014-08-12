@@ -1,5 +1,5 @@
 WebFontConfig = {
-  google: { families: [ 'Arimo::latin' ] }
+  google: { families: ['Arimo::latin'] }
 };
 
 (function() {
