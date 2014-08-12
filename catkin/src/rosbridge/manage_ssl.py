@@ -27,13 +27,12 @@ class SSLManager():
         self.ssl_local_crt_import_cmd = "rm -fr %s/.pki ; \
                                          mkdir -p %s/.pki/nssdb ; \
                                          chmod 700 %s/.pki/nssdb ; \
-                                         echo supersecret > /tmp/secret.txt ;\
                                          certutil -d sql:%s/.pki/nssdb -N \
-                                         -f /tmp/secret.txt ;\
+                                         --empty-password ;\
                                          certutil -d sql:%s/.pki/nssdb \
                                          -A -t P,P,P -n acme \
                                          -i %s/etc/slinky.crt \
-                                         -f /tmp/secret.txt" \
+                                         --empty-password" \
                                          % (self.home_dir,
                                             self.home_dir,
                                             self.home_dir,
