@@ -62,7 +62,7 @@ SlinkyGLEnvironment.prototype.animate = function() {
   }
 
   this.renderer.render(this.scene, this.camera);
-}
+};
 
 SlinkyGLEnvironment.prototype.addAnimation = function(callback) {
   this.animations.push(callback);

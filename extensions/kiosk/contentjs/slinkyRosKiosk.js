@@ -107,7 +107,7 @@ acme.Kiosk.prototype.addZoomOutToEarthButton = function() {
    * CSS
    */
   var zoomIcon = chrome.extension.getURL('images/zoomOut.jpg');
-  button.setAttribute('style', 'background-image:url(\''+zoomIcon+'\');');
+  button.setAttribute('style', 'background-image:url(\'' + zoomIcon + '\');');
   button.setAttribute('onclick',
       'javascript:document.dispatchEvent(new CustomEvent("acmeZoomOutToEarth"))'
       );
@@ -382,7 +382,9 @@ var publishKioskCurrentPose = function(pose) {
   var NOMINAL_ALT_MIN = 80;
   var NOMINAL_ALT_MAX = Pose.SPACE_POSE.alt;
   var NOMINAL_TILT_MIN = 0.0;
-  var NOMINAL_TILT_MAX = Math.asin(EARTH_RADIUS / (EARTH_RADIUS + pose.alt)) * (180 / Math.PI) + 9;
+  var NOMINAL_TILT_MAX = Math.asin(
+      EARTH_RADIUS / (EARTH_RADIUS + pose.alt)
+    ) * (180 / Math.PI) + 9;
   var NOMINAL_HDG_MIN = 0.0;
   var NOMINAL_HDG_MAX = 360.0;
 
@@ -612,12 +614,12 @@ window.addEventListener('touchmove', preventDefaultHandler, false);
 
 
 // This event handler should not allow for pinch events in the street view mode.
-document.addEventListener("touchmove", function(e){
+document.addEventListener('touchmove', function(e) {
   console.log('touchmove');
-  console.log('runwayActionRestriction is: '+runwayActionRestrictions);
+  console.log('runwayActionRestriction is: ' + runwayActionRestrictions);
 
-  if(e.touches.length > 1 && runwayActionRestrictions != 0) {
-    console.log("Pinch events not allowed");
+  if (e.touches.length > 1 && runwayActionRestrictions != 0) {
+    console.log('Pinch events not allowed');
     e.preventDefault();
     e.stopPropagation();
   }

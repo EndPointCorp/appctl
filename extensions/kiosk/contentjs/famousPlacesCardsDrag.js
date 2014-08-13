@@ -1,4 +1,4 @@
-console.log("Initializing the famousPlaces handlers.");
+console.log('Initializing the famousPlaces handlers.');
 
 var initialMousePosition = null;
 var initialScrollLeft = null;
@@ -10,18 +10,23 @@ var initiateFamousPlacesHandlers = function() {
   console.log(famousPlaces);
 
   if (famousPlaces == null) {
-    console.log("FamousPlaces are not ready yet... wating for a while...");
+    console.log('FamousPlaces are not ready yet... wating for a while...');
     setTimeout(initiateFamousPlacesHandlers, 2000);
     return;
   }
 
-  famousPlaces.addEventListener('touchstart', function(e){
+  famousPlaces.addEventListener('touchstart', function(e) {
     console.log('Famous touchstart');
 
-    // this should be enabled only in chrome
-    // in chromium I need to support the multiple touch events when using one finger,
-    // so I just take the first one currently
-    // if (e.touches.length > 1) { console.log('No multiple touch allowed'); return; }
+    // This should be enabled only in chrome.
+    // In chromium, I need to support the multiple touch events when using one
+    // finger, so I just take the first one currently.
+    /*
+     *if (e.touches.length > 1) {
+     *  console.log('No multiple touch allowed');
+     *  return;
+     *}
+     */
 
     initialMousePosition = e.touches[0].pageX;
     initialScrollLeft = famousPlaces.scrollLeft;
@@ -30,7 +35,7 @@ var initiateFamousPlacesHandlers = function() {
   true);
 
 
-  famousPlaces.addEventListener('touchend', function(e){
+  famousPlaces.addEventListener('touchend', function(e) {
     console.log('Famous touchend');
     initialMousePosition = null;
     e.stopPropagation();
@@ -38,14 +43,19 @@ var initiateFamousPlacesHandlers = function() {
   true);
 
 
-  famousPlaces.addEventListener('touchmove', function(e){
+  famousPlaces.addEventListener('touchmove', function(e) {
     console.log('Famous touchmove');
     if (initialMousePosition === null) return;
 
-    // this should be enabled only in chrome
-    // in chromium I need to support the multiple touch events when using one finger,
-    // so I just take the first one currently
-    //if (e.touches.length > 1) { console.log('No multiple touch allowed'); return; }
+    // This should be enabled only in chrome.
+    // In chromium, I need to support the multiple touch events when using one
+    // finger, so I just take the first one currently.
+    /*
+     *if (e.touches.length > 1) {
+     *  console.log('No multiple touch allowed');
+     *  return;
+     *}
+     */
 
 
     // this scrolls like I feel it should...
