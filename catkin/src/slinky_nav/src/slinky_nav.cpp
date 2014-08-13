@@ -6,7 +6,6 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Twist.h>
 
-#include "camera_buffer.h"
 #include "joystick_navigator.h"
 #include "slinky_nav/SlinkyPose.h"
 
@@ -29,18 +28,19 @@ class SlinkyNavigatorNode {
   ros::Subscriber spacenav_sub_;
   ros::Subscriber kiosk_pose_sub_;
   ros::Publisher joystick_pub_;
+  ros::Publisher kiosk_pub_;
   ros::Publisher display_pub_;
 
-  CameraBuffer kiosk_camera_buffer_;
   JoystickNavigator kiosk_joystick_navigator_;
 };
 
 void SlinkyNavigatorNode::Run(void) {
+  kiosk_pub_ = n_.advertise<geometry_msgs::PoseStamped>(
+      "/slinky_nav/kiosk_goto_pose", 1);
   display_pub_ = n_.advertise<geometry_msgs::PoseStamped>(
       "/slinky_nav/display_goto_pose", 1);
 
-  kiosk_camera_buffer_.Init(n_, "/slinky_nav/kiosk_goto_pose");
-  kiosk_joystick_navigator_.Init(&kiosk_camera_buffer_);
+  kiosk_joystick_navigator_.Init(&kiosk_pub_, &display_pub_);
 
   // This subscriber takes commands from the SpaceNav.
   spacenav_sub_ = n_.subscribe("/spacenav/twist", 0,
@@ -103,13 +103,7 @@ void SlinkyNavigatorNode::HandleKioskPose(
            slinky_pose->pose_maximums.orientation.z,
            slinky_pose->pose_maximums.orientation.x);
 #endif
-  kiosk_camera_buffer_.ProcessCameraMoved();
   kiosk_joystick_navigator_.ProcessCameraMoved(*slinky_pose);
-
-  geometry_msgs::PoseStamped pose_msg;
-  pose_msg.pose = slinky_pose->current_pose;
-  pose_msg.header.stamp = ros::Time::now();
-  display_pub_.publish(pose_msg);
 }
 
 /*
