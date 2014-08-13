@@ -211,7 +211,9 @@ var slinkyRosDisplay = new ROSLIB.Ros({
 var navigatorListener = new ROSLIB.Topic({
   ros: slinkyRosDisplay,
   name: '/slinky_nav/display_goto_pose',
-  messageType: 'geometry_msgs/PoseStamped'
+  messageType: 'geometry_msgs/PoseStamped',
+  throttle_rate: 30,
+  queue_length: 5
 });
 
 var slinkyDisplayCurrentPoseTopic = new ROSLIB.Topic({

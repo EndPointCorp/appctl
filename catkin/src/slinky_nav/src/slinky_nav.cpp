@@ -23,26 +23,24 @@ class SlinkyNavigatorNode {
   void HandleSpaceNav(const geometry_msgs::Twist::ConstPtr& twist);
   void HandleKioskPose(
       const slinky_nav::SlinkyPose::ConstPtr& slinky_pose);
-  void HandleDisplayPose(
-      const slinky_nav::SlinkyPose::ConstPtr& slinky_pose);
 
  private:
   ros::NodeHandle n_;
   ros::Subscriber spacenav_sub_;
   ros::Subscriber kiosk_pose_sub_;
-  ros::Subscriber display_pose_sub_;
   ros::Publisher joystick_pub_;
+  ros::Publisher display_pub_;
 
   CameraBuffer kiosk_camera_buffer_;
   JoystickNavigator kiosk_joystick_navigator_;
-  CameraBuffer display_camera_buffer_;
 };
 
 void SlinkyNavigatorNode::Run(void) {
+  display_pub_ = n_.advertise<geometry_msgs::PoseStamped>(
+      "/slinky_nav/display_goto_pose", 1);
+
   kiosk_camera_buffer_.Init(n_, "/slinky_nav/kiosk_goto_pose");
   kiosk_joystick_navigator_.Init(&kiosk_camera_buffer_);
-
-  display_camera_buffer_.Init(n_, "/slinky_nav/display_goto_pose");
 
   // This subscriber takes commands from the SpaceNav.
   spacenav_sub_ = n_.subscribe("/spacenav/twist", 0,
@@ -52,11 +50,6 @@ void SlinkyNavigatorNode::Run(void) {
   // We have a small Rx queue to make sure we don't lose any.
   kiosk_pose_sub_ = n_.subscribe("/slinky_kiosk/current_pose", 10,
       &SlinkyNavigatorNode::HandleKioskPose, this);
-
-  // This subscriber gets camera poses back from the display.
-  // We have a small Rx queue to make sure we don't lose any.
-  display_pose_sub_ = n_.subscribe("/slinky_display/current_pose", 10,
-      &SlinkyNavigatorNode::HandleDisplayPose, this);
 
   // This publishes a normalized version of the SpaceNav inputs.
   joystick_pub_ = n_.advertise<geometry_msgs::Twist>("/joystick/twist", 0);
@@ -113,20 +106,10 @@ void SlinkyNavigatorNode::HandleKioskPose(
   kiosk_camera_buffer_.ProcessCameraMoved();
   kiosk_joystick_navigator_.ProcessCameraMoved(*slinky_pose);
 
-  display_camera_buffer_.RequestPose(slinky_pose->current_pose);
-}
-
-void SlinkyNavigatorNode::HandleDisplayPose(
-    const slinky_nav::SlinkyPose::ConstPtr& slinky_pose) {
-#ifdef DEBUG
-  ROS_INFO("HandleDisplayPose curr lat:%lf, lon:%lf, alt:%lf, hdg:%lf, tlt:%lf",
-           slinky_pose->current_pose.position.y,
-           slinky_pose->current_pose.position.x,
-           slinky_pose->current_pose.position.z,
-           slinky_pose->current_pose.orientation.z,
-           slinky_pose->current_pose.orientation.x);
-#endif
-  display_camera_buffer_.ProcessCameraMoved();
+  geometry_msgs::PoseStamped pose_msg;
+  pose_msg.pose = slinky_pose->current_pose;
+  pose_msg.header.stamp = ros::Time::now();
+  display_pub_.publish(pose_msg);
 }
 
 /*
