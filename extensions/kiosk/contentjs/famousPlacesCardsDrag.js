@@ -11,7 +11,7 @@ var initiateFamousPlacesHandlers = function() {
 
 	if (famousPlaces == null) {
 		console.log("FamousPlaces are not ready yet... wating for a while...");
-		setTimeout(initiateFamousPlacesHandlers, 2000);
+		setTimeout(initiateFamousPlacesHandlers, 2);
 		return;
 	}
 
