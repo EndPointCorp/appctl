@@ -15,7 +15,7 @@
     "management"
   ],
   "web_accessible_resources": [
-    "models/*.json", "models/*.png", "contentjs/inject.js"
+    "models/*.json", "models/*.png", "contentjs/inject.js", "css/*.css"
   ],
   "content_scripts": [
     {
@@ -36,9 +36,6 @@
         "contentjs/handoverlay.js",
         "contentjs/spacenav_feedback.js",
         "contentjs/slinkyRosDisplay.js"
-      ],
-      "css": [
-        "css/acme_display.css"
       ]
     }
   ]

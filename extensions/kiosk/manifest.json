@@ -15,7 +15,7 @@
     "management"
   ],
   "web_accessible_resources": [
-    "images/zoomOut.jpg", "models/*.json", "sounds/*.wav", "contentjs/inject.js"
+    "images/zoomOut.jpg", "models/*.json", "sounds/*.wav", "contentjs/inject.js", "css/*.css"
   ],
   "content_scripts": [
     {
@@ -32,10 +32,8 @@
         "contentjs/highres.js",
         "contentjs/slinkyRosKiosk.js",
         "contentjs/runwayCardsDrag.js",
-        "contentjs/famousPlaces.js"
-      ],
-      "css": [
-        "css/acme_kiosk.css"
+        "contentjs/famousPlaces.js",
+        "contentjs/highres.js"
       ]
     }
   ]
