@@ -551,8 +551,7 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
 
   var palmHeight = palmpos.y;
   var palmSlide = palmpos.x;
-  // use more responsive un-stabilized palm position for z
-  var palmDepth = leapData.palm_position.z;
+  var palmDepth = palmpos.z;
 
 
   var camera = this.handOverlay_.camera;

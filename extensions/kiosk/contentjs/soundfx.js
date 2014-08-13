@@ -331,6 +331,13 @@ SoundFX.prototype.update = function(level, panX, panY, panZ) {
 };
 
 /**
+ * Silences all sound effects.
+ */
+SoundFX.prototype.silence = function() {
+  this.largeidle.setVolume(0);
+};
+
+/**
  * Sets hover gain.
  */
 SoundFX.prototype.hover = function() {
@@ -341,8 +348,23 @@ SoundFX.prototype.hover = function() {
     var downZ = Math.cos(this.lastTilt);
     this.largeidle.setPan(0, downY, downZ);
   } else {
-    this.largeidle.setVolume(0);
+    this.silence();
   }
+};
+
+/**
+ * Enables sound updates from camera motion.
+ */
+SoundFX.prototype.enable = function() {
+  this.enabled = true;
+};
+
+/**
+ * Disables sound updates from camera motion.
+ */
+SoundFX.prototype.disable = function() {
+  this.enabled = false;
+  this.silence();
 };
 
 /*

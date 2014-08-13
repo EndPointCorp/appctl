@@ -24,6 +24,16 @@ acme.Util.injectScript = function(filePath) {
 
 acme.Util.injectScript('contentjs/inject.js');
 
+/*
+ * Load the style overrides.
+ */
+var slinkyStyleOverrides = document.createElement('link');
+slinkyStyleOverrides.setAttribute('rel', 'stylesheet');
+slinkyStyleOverrides.setAttribute('type', 'text/css');
+slinkyStyleOverrides.setAttribute('href',
+    chrome.extension.getURL('css/acme_display.css'));
+document.getElementsByTagName('head')[0].appendChild(slinkyStyleOverrides);
+
 /**
  * @constructor
  * @param {number} lat Latitude in degrees N, (-90, 90).
@@ -249,22 +259,26 @@ var runwayContentSubscriber = function(message) {
     var sceneContentArray = customData[1];
     var runwayImageType = customData[2];
 
+    var planetChange = sceneContentArray[7];
+
     // Check to see if this is the type of runway element that should
     // not use the pose information coming from anywhere.
     if (runwayImageType == InputSupport_.DISABLED) {
       ignoreCameraUpdates = true;
+    } else {
+      ignoreCameraUpdates = false;
     }
 
     // disable HUD unless changing planet to Earth
-    if (sceneContentArray[7] && sceneContentArray[7] == Planet.EARTH) {
+    if (planetChange && planetChange == Planet.EARTH) {
       handOverlay.enabled = true;
     } else {
       handOverlay.enabled = false;
     }
 
-    // this indicates planet zoom which will not provide an exit event
-    if (sceneContentArray && sceneContentArray[0] == 3) {
-      ignoreCameraUpdates = false;
+    // disable spacenav feedback unless changing planets
+    if (runwayImageType != InputSupport_.NONE && !planetChange) {
+      spacenavFeedback.enabled = false;
     }
 
     acme.Util.sendCustomEvent({
@@ -272,7 +286,9 @@ var runwayContentSubscriber = function(message) {
         args: [sceneContentArray]
     });
   } else if (startsWith(data, runwayContentEvents.EXIT)) {
+    // we assume there is no runway content on Moon or Mars
     handOverlay.enabled = true;
+    spacenavFeedback.enabled = true;
     ignoreCameraUpdates = false;
     acme.Util.sendCustomEvent({
         method: 'exitTitleCard'
