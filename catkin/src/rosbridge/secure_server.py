@@ -13,12 +13,14 @@ import os
 
 class SecureBridgeRunner():
     def __init__(self):
-        self.catkin_home = "catkin/"
+        self.catkin_home = "pkg/catkin/"
         self.crt_path = "/home/lg/etc/slinky.crt"
         self.key_path = "/home/lg/etc/slinky.key"
         self.rosbridge_cmd = "export ROS_MASTER_URI='http://lg-head:11311' ;\
             cd %s ; bash devel/setup.sh ; cd - ; \
-            rosrun rosbridge_server rosbridge_websocket ~certfile %s ~keyfile %s" \
+            rosrun rosbridge_server rosbridge_websocket \
+            _certfile:=%s \
+            _keyfile:=%s" \
             % (self.catkin_home, self.crt_path, self.key_path)
 
     def run_rosbridge(self):
