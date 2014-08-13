@@ -265,6 +265,8 @@ var runwayContentSubscriber = function(message) {
     // not use the pose information coming from anywhere.
     if (runwayImageType == InputSupport_.DISABLED) {
       ignoreCameraUpdates = true;
+    } else {
+      ignoreCameraUpdates = false;
     }
 
     // disable HUD unless changing planet to Earth
@@ -279,16 +281,12 @@ var runwayContentSubscriber = function(message) {
       spacenavFeedback.enabled = false;
     }
 
-    // this indicates planet zoom which will not provide an exit event
-    if (sceneContentArray && sceneContentArray[0] == 3) {
-      ignoreCameraUpdates = false;
-    }
-
     acme.Util.sendCustomEvent({
         method: 'launchRunwayContent',
         args: [sceneContentArray]
     });
   } else if (startsWith(data, runwayContentEvents.EXIT)) {
+    // we assume there is no runway content on Moon or Mars
     handOverlay.enabled = true;
     spacenavFeedback.enabled = true;
     ignoreCameraUpdates = false;
