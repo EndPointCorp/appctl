@@ -6,7 +6,7 @@ var initiateRunwayTrayHandlers = function() {
 
 	if (runway == null) {
     console.log("Runway handlers are not ready yet... waiting for a while...");
-		setTimeout(initiateRunwayTrayHandlers, 2);
+		setTimeout(initiateRunwayTrayHandlers, 2000);
 		return;
 	}
 
