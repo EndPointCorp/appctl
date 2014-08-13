@@ -101,9 +101,12 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
   this.hudDiv.style.fontSize = '166%';
   this.hudDiv.style.color = '#e3efff';
   this.hudDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.0)';
-  this.hudDiv.innerHTML = '<p>Alt: <span id="' + this.hudSpanAltId + '"></span>m</p>' +
-    '<p>Lat: <span id="' + this.hudSpanLatId + '"></span>&deg; <span id="' + this.hudSpanNorthingId + '"></span></p>' +
-    '<p>Lng: <span id="' + this.hudSpanLngId + '"></span>&deg; <span id="' + this.hudSpanEastingId + '"></span></p>';
+  this.hudDiv.innerHTML =
+    '<p>Alt: <span id="' + this.hudSpanAltId + '"></span>m</p>' +
+    '<p>Lat: <span id="' + this.hudSpanLatId + '"></span>&deg; <span id="' +
+      this.hudSpanNorthingId + '"></span></p>' +
+    '<p>Lng: <span id="' + this.hudSpanLngId + '"></span>&deg; <span id="' +
+      this.hudSpanEastingId + '"></span></p>';
 
 
   this.popDiv = document.createElement('div');
@@ -166,7 +169,9 @@ Hand.prototype.updateHudMessage = function(pose) {
       longitude: handPose.lon,
       radius: this.dataRadius,
       callback: function(result) {
-        self.popDiv.innerHTML = '<p>Pop: ' + Number(result.value - result.value % 100);
+        self.popDiv.innerHTML =
+          '<p>Pop: ' +
+          Number(result.value - result.value % 100);
       }
     }
   }));
@@ -182,8 +187,10 @@ Hand.prototype.updateHudMessage = function(pose) {
   this.nextElevationRequest = now + 1000 / ELEVATION_REQ_RATE;
 
   // TODO(mv): API key
-  var url = 'https://maps.googleapis.com/maps/api/elevation/json?locations={loc}';
-  //var url = 'http://maps.googleapis.com/maps/api/elevation/json?loations={loc}&key={key}';
+  var url =
+    'https://maps.googleapis.com/maps/api/elevation/json?locations={loc}';
+  //var url =
+  //  'http://maps.googleapis.com/maps/api/elevation/json?loations={loc}&key={key}';
   url = url.replace('{loc}', [handPose.lat, handPose.lon].join(','));
   //url = url.replace('{key}', API_KEY);
 
@@ -328,8 +335,10 @@ Hand.prototype.createRings_ = function(handOrigin) {
       vertexColors: THREE.VertexColors,
       uniforms: this.compassRoseUniforms,
       attributes: handAttributes,
-      vertexShader: document.getElementById('vcolorvertexshader').textContent,
-      fragmentShader: document.getElementById('vcolorfragmentshader').textContent,
+      vertexShader:
+        document.getElementById('vcolorvertexshader').textContent,
+      fragmentShader:
+        document.getElementById('vcolorfragmentshader').textContent,
       transparent: true,
       depthTest: false
   });
@@ -602,7 +611,10 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     this.hudPos = null;
   } else {
     // normalize and limit height
-    palmHeight = Math.min(Math.max(palmHeight - MIN_ABS_HEIGHT, HEIGHT_MIN), HEIGHT_MAX);
+    palmHeight = Math.min(
+      Math.max(palmHeight - MIN_ABS_HEIGHT, HEIGHT_MIN),
+      HEIGHT_MAX
+    );
 
     // height limits for data radius
     var palmDataHeight = Math.min(Math.max(palmHeight, FADE_LOW), FADE_HIGH);
@@ -618,17 +630,36 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
       toRadians_(currentCameraPose.tilt / 2)) -
       FADE_EDGE
     );
-    var normalFade = Math.sqrt(Math.max(0, 1.0 - (normalAngle) * (1 / FADE_EDGE)));
-
+    var normalFade = Math.sqrt(
+      Math.max(
+        0,
+        1.0 - (normalAngle) * (1 / FADE_EDGE)
+      )
+    );
     // height fade coefficient
-    var lowFade = Math.min(Math.max((palmHeight - FADE_LOW) * (1 / FADE_LOW), 0), 1);
-    var highFade = Math.min(Math.max((FADE_HIGH - palmHeight) * (1 / (HEIGHT_MAX - FADE_HIGH)), 0), 1);
+    var lowFade = Math.min(
+      Math.max((palmHeight - FADE_LOW) * (1 / FADE_LOW), 0),
+      1
+    );
+    var highFade = Math.min(
+      Math.max((FADE_HIGH - palmHeight) *
+        (1 / (HEIGHT_MAX - FADE_HIGH)), 0),
+      1
+    );
     var heightFade = Math.min(lowFade, highFade);
 
     this.handOpacity = Math.min(Math.max(normalFade * heightFade, 0), 1);
 
-    this.handOrigin.position.set(this.hudPos.x, this.hudPos.y, this.hudPos.z);
-    this.calloutOrigin.position.set(this.hudPos.x, this.hudPos.y, this.hudPos.z);
+    this.handOrigin.position.set(
+      this.hudPos.x,
+      this.hudPos.y,
+      this.hudPos.z
+    );
+    this.calloutOrigin.position.set(
+      this.hudPos.x,
+      this.hudPos.y,
+      this.hudPos.z
+    );
 
     if (currentCameraPose) {
       this.handOrigin.rotation.set(
@@ -640,7 +671,9 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
 
     // TODO(mv): flush out magic numbers
     var distanceMod = distance / 24;
-    var ringScale = distanceMod + (palmDataHeight / (FADE_HIGH - FADE_LOW)) * distanceMod;
+    var ringScale = distanceMod +
+      (palmDataHeight / (FADE_HIGH - FADE_LOW)) *
+      distanceMod;
     ringScale *= 0.58;
     var calloutScale = distanceMod * 1.0;
 
@@ -653,7 +686,9 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
 
     this.ring1.geometry.computeBoundingSphere();
     // geodata radius does not follow ring scale, hence end coefficient
-    this.dataRadius = this.ring1.geometry.boundingSphere.radius * ringScale * 1.0;
+    this.dataRadius = this.ring1.geometry.boundingSphere.radius *
+      ringScale *
+      1.0;
 
     this.topCalloutPos.setFromMatrixPosition(this.topCalloutPanel.matrixWorld);
 
@@ -776,7 +811,12 @@ HandOverlay.prototype.init3js = function() {
   */
 
   /*
-  this.camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, EARTH_RADIUS * 10);
+  this.camera = new THREE.PerspectiveCamera(
+    45,
+    WIDTH / HEIGHT,
+    0.1,
+    EARTH_RADIUS * 10
+  );
   this.camera.position.set(0, 0, 6);
   this.scene.add(this.camera);
   */
