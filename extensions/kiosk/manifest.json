@@ -32,6 +32,7 @@
         "contentjs/slinkyRosKiosk.js",
         "contentjs/runwayCardsDrag.js",
         "contentjs/famousPlaces.js",
+        "contentjs/famousPlacesCardsDrag.js",
         "contentjs/highres.js"
       ]
     }
