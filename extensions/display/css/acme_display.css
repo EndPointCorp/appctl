@@ -28,6 +28,10 @@ body {
   display: none;
 }
 
+#runway-expand-button div[class="widget-expand-button-pegman"] {
+  display: none;
+}
+
 #butterbar {
   display: none;
 }

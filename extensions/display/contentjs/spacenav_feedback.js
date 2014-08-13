@@ -46,6 +46,8 @@ var SpacenavFeedback = function(glEnvironment) {
   this.flapOpacity = 0.0;
 
   this.maxAbsoluteOpacity = 0.35;
+
+  this.enabled = true;
 };
 
 /**
@@ -73,6 +75,128 @@ SpacenavFeedback.prototype.clampAxis = function(num, low, high) {
 };
 
 /**
+ * Checks to see if a pose is in the zero gutter.
+ * @static
+ * @param {object} pose
+ * @return {boolean} true if the pose is in the gutter
+ */
+SpacenavFeedback.isInGutter = function(pose) {
+  return (
+    pose.linear.x == 0 && pose.linear.y == 0 &&
+    pose.linear.z == 0 && pose.angular.x == 0 &&
+    pose.angular.y == 0 && pose.angular.z == 0
+  );
+};
+
+/**
+ * Zeroes out the visuals position and opacity.
+ */
+SpacenavFeedback.prototype.clearVisuals = function() {
+  /*
+   * - fade objects out - return to point 0
+   */
+  for (var i = 0; i < this.arrowObjPosition.length; i++) {
+    this.arrowObjPosition[i] = 0;
+    this.ringObjPosition[i] = 0;
+  }
+  // set opacity to 0
+  if ((typeof (this.arrowObj) === 'undefined') &&
+      (typeof (this.ringObj) === 'undefined')) {
+    console.log('Initializing objects');
+  } else {
+    this.ringXOpacity = 0;
+    this.ringZOpacity = 0;
+    this.arrowOpacity = 0;
+  }
+};
+
+/**
+ * Updates desired position and opacity of visuals from a pose.
+ * @param {object} pose
+ */
+SpacenavFeedback.prototype.updateVisuals = function(pose) {
+  /***********************************************************************
+   * - map spacenav values to threejs object coordinates - fade in - move
+   * objects
+   *
+   * ObjPosition = [
+   * 0 : "go front right",
+   * 1 : "go up (z)",
+   * 2 : "go front left",
+   * 3 : "rotate over y axis",
+   * 4 : "rotate over center",
+   * 5 : "rotate over x axis"
+   *
+   *
+   * rostopic echo /spacenav/twist: [
+   * "push then pull" : "linear z -350 => +350",
+   * "rotate from left to right" : "angular z: +350 => -350",
+   * "move backward then forward" : "linear x -350=>+350",
+   * "move left then right" : "linear y +350 => -350",
+   * "lean left then lean right" : "angular x -350 => +350",
+   * "lean forward then lean backward" : "angular y +350 => -350"
+   * ]
+   *
+   **********************************************************************/
+
+  // needed for arrow
+  var linearX = this.clampAxis(pose.linear.x, -1, 1);
+  var linearY = this.clampAxis(pose.linear.y, -1, 1);
+
+  // needed for ring
+  var amin = this.arrows_min;
+  var amax = this.arrows_max;
+  var linearZ = this.clampAxis(pose.linear.z, amin, amax);
+  var angularX = this.clampAxis(pose.angular.x, amin, amax);
+  var angularY = this.clampAxis(pose.angular.y, amin, amax);
+  var angularZ = this.clampAxis(pose.angular.z, amin, amax);
+
+  // make object transparency proportional to the values
+
+  // add pretty curve possibly y=3x/(x+2)
+  var ring_opacity = Math.max(
+    Math.abs(linearZ), Math.abs(angularZ),
+    Math.abs(angularX), Math.abs(angularY)
+  ) / amax;
+
+  this.flapRotation = this.clampAxis(pose.linear.z, -1, 1);
+
+  if (Math.abs(ring_opacity) > this.arrows_max / 20) { // yes that's evil
+    this.ringXOpacity = this.clampAxis(pose.angular.z, -1, 1);
+    this.ringZOpacity = -this.clampAxis(pose.angular.y, -1, 1);
+    // rotate (twist)
+    this.ringObjPosition[4] = angularZ * 0.5;
+    // give it an exponential curve
+    this.ringObjPosition[4] *= Math.pow(
+      1.66, Math.abs(this.ringObjPosition[4])
+    );
+    // lean forward and backward
+    this.ringObjPosition[5] = 0;
+    this.ringObjPosition[3] = angularY * -0.1;
+  } else {
+    this.ringXOpacity = 0.0;
+    this.ringZOpacity = 0.0;
+  }
+
+  // let's rotate and show the direction arrow with little tresholding
+  if ((Math.abs(linearY) > 0.2) || (Math.abs(linearX) > 0.2)) {
+
+    var direction = Math.atan2(-linearY, -linearX);
+
+    /*
+    console.log("This is direction1:", direction,
+        "computed out of (x,y)", this.pose.linear.y, "/",
+        this.pose.linear.x);
+    */
+
+    this.arrowOpacity = Math.max(Math.abs(linearY), Math.abs(linearX));
+    this.arrowObjPosition[4] = direction;
+  } else {
+    this.arrowOpacity = 0.0;
+  }
+};
+
+/**
  * Processes an incoming SpaceNav message.
  * @param {object} msg incoming message from Ros
  */
@@ -81,116 +205,20 @@ SpacenavFeedback.prototype.processSpacenavMessage = function(msg) {
    * Two possible states: spacenav not being used (all zeros), else spacenav
    * being touched - we rotate our pretty objects
    */
-  if (msg.linear.x == 0 && msg.linear.y == 0 &&
-      msg.linear.z == 0 && msg.angular.x == 0 &&
-      msg.angular.y == 0 && msg.angular.z == 0) {
-    /*
-     * - fade objects out - return to point 0
-     */
-    for (var i = 0; i < this.arrowObjPosition.length; i++) {
-      this.arrowObjPosition[i] = 0;
-      this.ringObjPosition[i] = 0;
-    }
-    // set opacity to 0
-    if ((typeof (this.arrowObj) === 'undefined') &&
-        (typeof (this.ringObj) === 'undefined')) {
-      console.log('Initializing objects');
-    } else {
-      this.ringXOpacity = 0;
-      this.ringZOpacity = 0;
-      this.arrowOpacity = 0;
-    }
-    return;
-
+  if (!this.enabled || SpacenavFeedback.isInGutter(msg)) {
+    this.clearVisuals();
   } else {
-    /***********************************************************************
-     * - map spacenav values to threejs object coordinates - fade in - move
-     * objects
-     *
-     * ObjPosition = [
-     * 0 : "go front right",
-     * 1 : "go up (z)",
-     * 2 : "go front left",
-     * 3 : "rotate over y axis",
-     * 4 : "rotate over center",
-     * 5 : "rotate over x axis"
-     *
-     *
-     * rostopic echo /spacenav/twist: [
-     * "push then pull" : "linear z -350 => +350",
-     * "rotate from left to right" : "angular z: +350 => -350",
-     * "move backward then forward" : "linear x -350=>+350",
-     * "move left then right" : "linear y +350 => -350",
-     * "lean left then lean right" : "angular x -350 => +350",
-     * "lean forward then lean backward" : "angular y +350 => -350"
-     * ]
-     *
-     **********************************************************************/
-
-    // needed for arrow
-    var linearX = this.clampAxis(msg.linear.x, -1, 1);
-    var linearY = this.clampAxis(msg.linear.y, -1, 1);
-
-    // needed for ring
-    var amin = this.arrows_min;
-    var amax = this.arrows_max;
-    var linearZ = this.clampAxis(msg.linear.z, amin, amax);
-    var angularX = this.clampAxis(msg.angular.x, amin, amax);
-    var angularY = this.clampAxis(msg.angular.y, amin, amax);
-    var angularZ = this.clampAxis(msg.angular.z, amin, amax);
-
-    // make object transparency proportional to the values
-
-    // add pretty curve possibly y=3x/(x+2)
-    var ring_opacity = Math.max(
-      Math.abs(linearZ), Math.abs(angularZ),
-      Math.abs(angularX), Math.abs(angularY)
-    ) / amax;
-
-    this.flapRotation = this.clampAxis(msg.linear.z, -1, 1);
-
-    if (Math.abs(ring_opacity) > this.arrows_max / 20) { // yes that's evil
-      this.ringXOpacity = this.clampAxis(msg.angular.z, -1, 1);
-      this.ringZOpacity = -this.clampAxis(msg.angular.y, -1, 1);
-      //this.ringZOpacity = ring_opacity;
-      // pull up , push down
-      //this.ringObjPosition[1] = linearZ;
-      // rotate (twist)
-      this.ringObjPosition[4] = angularZ * 0.5;
-      // lean forward and backward
-      //this.ringObjPosition[5] = angularX * -0.1;
-      this.ringObjPosition[5] = 0;
-      this.ringObjPosition[3] = angularY * -0.1;
-    } else {
-      this.ringXOpacity = 0.0;
-      this.ringZOpacity = 0.0;
-    }
-
-    // let's rotate and show the direction arrow with little tresholding
-    if ((Math.abs(linearY) > 0.2) || (Math.abs(linearX) > 0.2)) {
-
-      var direction = Math.atan2(-linearY, -linearX);
-
-      /*
-      console.log("This is direction1:", direction,
-          "computed out of (x,y)", this.msg.linear.y, "/",
-          this.msg.linear.x);
-      */
-
-      this.arrowOpacity = Math.max(Math.abs(linearY), Math.abs(linearX));
-      this.arrowObjPosition[4] = direction;
-    } else {
-      this.arrowOpacity = 0.0;
-    }
+    this.updateVisuals(msg);
   }
 };
 
 /**
  * Applies a color to all vertices and faces of the given geometry.
+ * @static
  * @param {THREE.Geometry} geometry
  * @param {THREE.Color} color
  */
-SpacenavFeedback.prototype.paintGeometry = function(geometry, color) {
+SpacenavFeedback.paintGeometry = function(geometry, color) {
   var numVertices = geometry.vertices.length;
   for (var i = 0; i < numVertices; i++) {
     geometry.colors[i] = color;
@@ -295,7 +323,7 @@ SpacenavFeedback.prototype.init = function() {
   var arrowUrl = chrome.extension.getURL('models/arrow.json');
   var arrowLoader = new THREE.JSONLoader();
   arrowLoader.load(arrowUrl, function(geometry) {
-    this.paintGeometry(geometry, new THREE.Color(0xFFFFFF));
+    SpacenavFeedback.paintGeometry(geometry, new THREE.Color(0xFFFFFF));
     this.arrowObj = new THREE.Mesh(
       geometry,
       arrowShader
@@ -309,7 +337,7 @@ SpacenavFeedback.prototype.init = function() {
   var ringUrl = chrome.extension.getURL('models/ring.json');
   var ringLoader = new THREE.JSONLoader();
   ringLoader.load(ringUrl, function(geometry) {
-    this.paintGeometry(geometry, new THREE.Color(0xFFFFFF));
+    SpacenavFeedback.paintGeometry(geometry, new THREE.Color(0xFFFFFF));
     this.ringObj = new THREE.Mesh(
       geometry,
       ringShader
@@ -338,7 +366,7 @@ SpacenavFeedback.prototype.init = function() {
   var flapUrl = chrome.extension.getURL('models/flap.json');
   var flapLoader = new THREE.JSONLoader();
   flapLoader.load(flapUrl, function(geometry) {
-    this.paintGeometry(geometry, new THREE.Color(0xFFFFFF));
+    SpacenavFeedback.paintGeometry(geometry, new THREE.Color(0xFFFFFF));
     this.flapLeftObj = new THREE.Mesh(
       geometry,
       flapLeftShader
@@ -387,8 +415,7 @@ SpacenavFeedback.prototype.animate = function() {
     // tilt rotation
     this.innerOrigin.rotation.x = this.ringObjPosition[3];
     // twist rotation
-    this.ringObj.rotation.y = this.ringObjPosition[4] *
-      Math.pow(1.66, Math.abs(this.ringObjPosition[4]));
+    this.ringObj.rotation.y = this.ringObjPosition[4];
     // roll rotation
     this.innerOrigin.rotation.z = this.ringObjPosition[5];
 
@@ -413,17 +440,21 @@ SpacenavFeedback.prototype.animate = function() {
     this.flapRightObj.rotation.z = this.flapRotation;
     this.flapLeftObj.rotation.z = this.flapRotation;
 
-    // TODO(mv): untangle this
-    var leftVal = Math.min(1, Math.max(0, Math.abs(this.flapRotation) - this.ringXOpacity) + Math.abs(this.ringXOpacity) * 0.2);
-    var rightVal = Math.min(1, Math.max(0, Math.abs(this.flapRotation) + this.ringXOpacity) + Math.abs(this.ringXOpacity) * 0.2);
+    var leftOpacity = Math.abs(this.flapRotation) - this.ringXOpacity +
+                      Math.abs(this.ringXOpacity) * 0.2;
+    leftOpacity = Math.min(Math.max(leftOpacity, 0), 1);
+
+    var rightOpacity = Math.abs(this.flapRotation) + this.ringXOpacity +
+                       Math.abs(this.ringXOpacity) * 0.2;
+    rightOpacity = Math.min(Math.max(rightOpacity, 0), 1);
 
     this.setOpacity(
       this.flapLeftUniforms,
-      leftVal
+      leftOpacity
     );
     this.setOpacity(
       this.flapRightUniforms,
-      rightVal
+      rightOpacity
     );
 
     var overallScale = 1.0 + this.flapRotation * 0.125;
