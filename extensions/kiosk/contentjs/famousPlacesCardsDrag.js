@@ -1,4 +1,4 @@
-console.log("Initializing the famousPlaces handlers.");
+console.log('Initializing the famousPlaces handlers.');
 
 var initialMousePosition = null;
 var initialScrollLeft = null;
@@ -10,12 +10,12 @@ var initiateFamousPlacesHandlers = function() {
   console.log(famousPlaces);
 
   if (famousPlaces == null) {
-    console.log("FamousPlaces are not ready yet... wating for a while...");
+    console.log('FamousPlaces are not ready yet... wating for a while...');
     setTimeout(initiateFamousPlacesHandlers, 2000);
     return;
   }
 
-  famousPlaces.addEventListener('touchstart', function(e){
+  famousPlaces.addEventListener('touchstart', function(e) {
     console.log('Famous touchstart');
 
     // this should be enabled only in chrome
@@ -30,7 +30,7 @@ var initiateFamousPlacesHandlers = function() {
   true);
 
 
-  famousPlaces.addEventListener('touchend', function(e){
+  famousPlaces.addEventListener('touchend', function(e) {
     console.log('Famous touchend');
     initialMousePosition = null;
     e.stopPropagation();
@@ -38,7 +38,7 @@ var initiateFamousPlacesHandlers = function() {
   true);
 
 
-  famousPlaces.addEventListener('touchmove', function(e){
+  famousPlaces.addEventListener('touchmove', function(e) {
     console.log('Famous touchmove');
     if (initialMousePosition === null) return;
 
