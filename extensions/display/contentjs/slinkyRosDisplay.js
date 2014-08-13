@@ -263,7 +263,7 @@ var runwayContentSubscriber = function(message) {
 
     // Check to see if this is the type of runway element that should
     // not use the pose information coming from anywhere.
-    if (runwayImageType == InputSupport_.DISABLED) {
+    if (!planetChange && runwayImageType == InputSupport_.DISABLED) {
       ignoreCameraUpdates = true;
     } else {
       ignoreCameraUpdates = false;
