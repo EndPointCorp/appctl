@@ -11,6 +11,7 @@
 #include <time.h>
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Pose.h>
 
 #include "slinky_nav/SlinkyPose.h"
 
@@ -19,7 +20,7 @@ class CameraBuffer;
 class JoystickNavigator {
  public:
   JoystickNavigator();
-  void Init(CameraBuffer* camera_buffer);
+  void Init(ros::Publisher *kiosk_pub, ros::Publisher *display_pub);
 
   // Updates the nav context with the latest pose from the camera.
   void ProcessCameraMoved(const slinky_nav::SlinkyPose& pose);
@@ -27,12 +28,18 @@ class JoystickNavigator {
   // Takes a normalized joystick twist and nudges the camera pose.
   void ProcessJoy(const geometry_msgs::Twist& normalized_joy);
 
+  // Publish a pose.
+  void PublishPose(
+      ros::Publisher *pub, const geometry_msgs::Pose& pose_msg);
+
  private:
   // Math utilities:
   static double Quadratic(double v);
   static double Clamp(double v, double min, double max);
   static timespec DiffTimespec(timespec start, timespec end);
   static double DivTimespec(timespec num, timespec denom);
+  static bool EqualPoses(
+      const geometry_msgs::Pose& left, const geometry_msgs::Pose& right);
 
   // These compare or scale the 'normal' twist per the class settings.
   bool IsWithinGutter(const geometry_msgs::Twist& normal);
@@ -66,8 +73,9 @@ class JoystickNavigator {
   // delta time between them.
   timespec last_joy_time_;
 
-  // We make pose requests on this camera buffer.
-  CameraBuffer* camera_buffer_;
+  // Publish pose to here.
+  ros::Publisher *kiosk_pub_;
+  ros::Publisher *display_pub_;
 };
 
 #endif  // EXPERIMENTAL_ACME_SRC_SLINKY_CATKIN_SRC_SLINKY_NAV_SRC_JOYSTICK_NAVIGATOR_H_

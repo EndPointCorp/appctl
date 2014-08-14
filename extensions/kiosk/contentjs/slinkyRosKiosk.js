@@ -323,7 +323,9 @@ var joystickTopic = new ROSLIB.Topic({
 var navigatorListener = new ROSLIB.Topic({
   ros: slinkyRosKiosk,
   name: '/slinky_nav/kiosk_goto_pose',
-  messageType: 'geometry_msgs/PoseStamped'
+  messageType: 'geometry_msgs/PoseStamped',
+  throttle_rate: 30,
+  queue_length: 2
 });
 
 var slinkyKioskCurrentPoseTopic = new ROSLIB.Topic({

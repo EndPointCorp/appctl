@@ -9,6 +9,8 @@
 #include <time.h>
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Pose.h>
+#include <geometry_msgs/PoseStamped.h>
 
 #include <algorithm>
 #include <cmath>
@@ -23,7 +25,8 @@ static const timespec kExpectedInterval = {0, 33333333};  // 30 Hz
 
 JoystickNavigator::JoystickNavigator()
     : under_joy_control_(false),
-      camera_buffer_(NULL) {
+      kiosk_pub_(NULL),
+      display_pub_(NULL) {
   // The sensitivities and gutter are hard-coded here.
   // In this case, linear_sensitivity_ refers to linear scaling
   // (vs. quadratic scaling) not linear motion (vs. angular).
@@ -51,16 +54,37 @@ JoystickNavigator::JoystickNavigator()
   gutter_.angular.z = 0.001;
 }
 
-void JoystickNavigator::Init(CameraBuffer* camera_buffer) {
-  camera_buffer_ = camera_buffer;
+void JoystickNavigator::Init(
+    ros::Publisher *kiosk_pub, ros::Publisher *display_pub) {
+
+  kiosk_pub_ = kiosk_pub;
+  display_pub_ = display_pub;
   clock_gettime(CLOCK_REALTIME, &last_joy_time_);
 }
 
 void JoystickNavigator::ProcessCameraMoved(
     const slinky_nav::SlinkyPose& slinky_pose) {
+  // Allow touchscreen takeover.
+  if (!under_joy_control_ &&
+        !EqualPoses(slinky_pose.current_pose, last_camera_pose_)) {
+    PublishPose(display_pub_, slinky_pose.current_pose);
+  }
+
   last_camera_pose_ = slinky_pose.current_pose;
   pose_minimums_ = slinky_pose.pose_minimums;
   pose_maximums_ = slinky_pose.pose_maximums;
+}
+
+bool JoystickNavigator::EqualPoses(
+    const geometry_msgs::Pose& left, const geometry_msgs::Pose& right) {
+  return (
+    left.position.x == right.position.x &&
+    left.position.y == right.position.y &&
+    left.position.z == right.position.z &&
+    left.orientation.x == right.orientation.x &&
+    left.orientation.y == right.orientation.y &&
+    left.orientation.z == right.orientation.z
+  );
 }
 
 void JoystickNavigator::ProcessJoy(const geometry_msgs::Twist& normalized_joy) {
@@ -190,7 +214,17 @@ void JoystickNavigator::ProcessJoy(const geometry_msgs::Twist& normalized_joy) {
             pose_maximums_.position.x);
 
   last_requested_pose_ = ending_pose;
-  camera_buffer_->RequestPose(ending_pose);
+
+  PublishPose(kiosk_pub_, ending_pose);
+  PublishPose(display_pub_, ending_pose);
+}
+
+void JoystickNavigator::PublishPose(
+    ros::Publisher *pub, const geometry_msgs::Pose &pose) {
+  geometry_msgs::PoseStamped pose_msg;
+  pose_msg.pose = pose;
+  pose_msg.header.stamp = ros::Time::now();
+  pub->publish(pose_msg);
 }
 
 double JoystickNavigator::Quadratic(double v) {
