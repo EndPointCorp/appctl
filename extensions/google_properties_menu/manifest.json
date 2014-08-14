@@ -19,7 +19,7 @@
   }],
 
   "web_accessible_resources": [
-    "images/*.png"
+    "images/*.png", "images/*.jpg"
   ],
   "permissions": [
     "<all_urls>",
