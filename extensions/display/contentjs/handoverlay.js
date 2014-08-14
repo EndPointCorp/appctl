@@ -343,19 +343,26 @@ Hand.prototype.createRings_ = function(handOrigin) {
       depthTest: false
   });
 
+  // inner ring
   this.ring0 = new THREE.Mesh(this.handOverlay_.ring0Geom, ring0Shader);
   this.ring0.name = 'ring0';
   this.handOrigin.add(this.ring0);
+
+  // outer ring
   this.ring1 = new THREE.Mesh(this.handOverlay_.ring1Geom, handShader);
   this.ring1.name = 'ring1';
   this.handOrigin.add(this.ring1);
+
+  // bottom semi-circle for hand roll, future water coverage
   this.ring2 = new THREE.Mesh(this.handOverlay_.ring2Geom, handShader);
   this.ring2.name = 'ring2';
   this.handOrigin.add(this.ring2);
+
   this.centerCircleFlat = new THREE.Mesh(
       this.handOverlay_.centerCircleFlatGeom, centerCircleShader);
   this.centerCircleFlat.name = 'centerCircleFlat';
   this.handOrigin.add(this.centerCircleFlat);
+
   this.centerDot = new THREE.Mesh(
       this.handOverlay_.centerDotGeom, dotShader);
   this.centerDot.name = 'centerCircleDot';
