@@ -5,7 +5,7 @@
   position:absolute;
   z-index: 1234;
   right: 10px;
-	top: 10px;
-	color: #666;
+	top: 50px;
+	color: rgb(207, 205, 205);
 	font-size: 200%;
 }
