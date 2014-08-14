@@ -1,8 +1,8 @@
 
 // Elements are shown in this order
 var data = [
-	{name: "earth",   desc: "Earth",   action="switch_display", url="youtube"},
-  {name: "doodles", desc: "Doodles", action="showDoodlesPage"}
+	{name: "earth",   desc: "Earth",   action:"switch_display", url:"youtube"},
+  {name: "doodles", desc: "Doodles", action:"showDoodlesPage"}
 ];
 
 // Sends ROS message to display to change the browser's URL

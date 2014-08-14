@@ -22,6 +22,7 @@
 	border: 1px solid grey;
 }
 
+/* TODO: place the items next to each other, with descriptions below */
 #morefun_items li {
   display: block;
 }
