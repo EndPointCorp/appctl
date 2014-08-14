@@ -1,5 +1,9 @@
 
 // Elements are shown in this order
+// name 	- used as a key, image name
+// desc 	- shown below the image
+// action - (switch_display|showDoodlesPage)
+// url 		- url to switch by the action switch_display
 var data = [
 	{name: "earth",   desc: "Earth",   action:"switch_display", url:"youtube"},
   {name: "doodles", desc: "Doodles", action:"showDoodlesPage"}
