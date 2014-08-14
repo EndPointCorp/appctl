@@ -404,6 +404,7 @@ Hand.prototype.createRings_ = function(handOrigin) {
       this.handOverlay_.popCalloutGeom,
       handShader
   );
+  this.popCallout.scale.x = 0.5;
   this.popCallout.name = 'popCallout';
   this.popCallout.add(this.popCalloutPanel);
   this.popCallout.visible = true;
@@ -626,6 +627,8 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     // height limits for data radius
     var palmDataHeight = Math.min(Math.max(palmHeight, FADE_LOW), FADE_HIGH);
 
+    var camTilt = toRadians_(currentCameraPose.tilt);
+
     this.hudPos = intersects[0].point;
     var distance = intersects[0].distance;
     var interNormal = intersects[0].face.normal;
@@ -633,8 +636,7 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     // push fade to the edge
     var normalAngle = Math.max(0,
       Math.abs(interNormal.x) +
-      Math.abs(interNormal.y +
-      toRadians_(currentCameraPose.tilt / 2)) -
+      Math.abs(interNormal.y + camTilt / 2) -
       FADE_EDGE
     );
     var normalFade = Math.sqrt(
@@ -670,9 +672,14 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
 
     if (currentCameraPose) {
       this.handOrigin.rotation.set(
-          toRadians_(90 - currentCameraPose.tilt) - interNormal.y,
+          (Math.PI / 2 - camTilt) - interNormal.y,
           0,
           -interNormal.x
+      );
+      this.calloutOrigin.rotation.set(
+          -camTilt + interNormal.y / 2,
+          interNormal.x,
+          0
       );
     }
 
@@ -691,11 +698,14 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     // for now, outer sub-ring based on roll, and fudged to center
     this.ring2.rotation.set(0, palmRoll + 0.36, 0);
 
-    this.ring1.geometry.computeBoundingSphere();
     // geodata radius does not follow ring scale, hence end coefficient
     this.dataRadius = this.ring1.geometry.boundingSphere.radius *
       ringScale *
       1.0;
+
+    this.popCallout.position.x =
+      (this.ring1.geometry.boundingSphere.radius * ringScale / distanceMod) -
+      Math.sin(Math.abs(interNormal.x / 2) * (camTilt / 2));
 
     this.topCalloutPos.setFromMatrixPosition(this.topCalloutPanel.matrixWorld);
 
