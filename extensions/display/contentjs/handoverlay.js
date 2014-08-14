@@ -62,6 +62,7 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
   this.leapOrigin = new THREE.Object3D();
   this.handOrigin = new THREE.Object3D();
   this.calloutOrigin = new THREE.Object3D();
+  this.popCalloutOrigin = new THREE.Object3D();
   this.ring0;
   this.ring1;
   this.ring2;
@@ -408,7 +409,9 @@ Hand.prototype.createRings_ = function(handOrigin) {
   this.popCallout.name = 'popCallout';
   this.popCallout.add(this.popCalloutPanel);
   this.popCallout.visible = true;
-  this.calloutOrigin.add(this.popCallout);
+  this.calloutOrigin.add(this.popCalloutOrigin);
+  this.popCalloutOrigin.add(this.popCallout);
+  this.calloutOrigin.add(this.popCalloutOrigin);
 
   this.compassRose = new THREE.Mesh(
     this.handOverlay_.compassRoseGeom,
@@ -676,8 +679,9 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
           0,
           -interNormal.x
       );
-      this.calloutOrigin.rotation.set(
-          -camTilt + interNormal.y / 2,
+      this.popCalloutOrigin.rotation.set(
+          //-camTilt + interNormal.y / 2,
+          0,
           interNormal.x,
           0
       );
@@ -705,7 +709,7 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
 
     this.popCallout.position.x =
       (this.ring1.geometry.boundingSphere.radius * ringScale / distanceMod) -
-      Math.sin(Math.abs(interNormal.x / 2) * (camTilt / 2));
+      Math.sin(Math.abs(interNormal.x / 2) * camTilt);
 
     this.topCalloutPos.setFromMatrixPosition(this.topCalloutPanel.matrixWorld);
 
