@@ -1,0 +1,11 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto);
+
+#morefun {
+  font-family: 'Roboto', sans-serif;
+  position:absolute;
+  z-index: 1234;
+  right: 10px;
+	top: 10px;
+	color: #666;
+	font-size: 200%;
+}
