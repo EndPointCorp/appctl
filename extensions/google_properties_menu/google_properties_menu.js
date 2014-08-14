@@ -1,26 +1,31 @@
 
 // Elements are shown in this order
 var data = [
-  {name: "youtube", desc: "YouTube", action="switch_display", url="youtube"}, 
 	{name: "earth",   desc: "Earth",   action="switch_display", url="youtube"},
   {name: "doodles", desc: "Doodles", action="showDoodlesPage"}
 ];
 
-var sendSwitchROSMessage = function(message) {
-  
+// Sends ROS message to display to change the browser's URL
+var sendSwitchROSMessage = function(url) {
+	// TODO invent some protocol message with url inside
+  // TODO send proper message
+	// TODO add support at display's side
 };
 
-var showDoodlesPage = function() {
 
-}
+var showDoodlesPage = function() {
+  // TODO: implement the doodles page
+	// TODO: add support for sending the ROS message to switch URL on display
+};
 
 var createElementsList = function() {
 	
 	var ul = document.createElement('ul');
 	for(var i = 0 ; i < data.length ; i++ ) {
 		
-		var name = data[i].name;
-		var desc = data[i].desc;
+		var name   = data[i].name;
+		var desc   = data[i].desc;
+		var action = data[i].action;
 
 		var li = document.createElement('li');
 		
@@ -33,7 +38,8 @@ var createElementsList = function() {
 		li.appendChild(img);
 		li.appendChild(span);
 
-		li.onclick = sendSwitchROSMessage(name);
+		if (action == "switch_display")	li.onclick = sendSwitchROSMessage(url);
+		if (action == "showDoodlesPage") li.onclick = showDoodlesPage();
 
 		ul.appendChild(li);
 	}
