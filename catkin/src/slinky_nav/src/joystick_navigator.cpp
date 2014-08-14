@@ -37,12 +37,12 @@ JoystickNavigator::JoystickNavigator()
   linear_sensitivity_.angular.y = 0.0;  // roll
   linear_sensitivity_.angular.z = 0.0;  // heading
 
-  quadratic_sensitivity_.linear.x = 0.0000008;  // longitude
-  quadratic_sensitivity_.linear.y = 0.0000008;  // latitude
-  quadratic_sensitivity_.linear.z = 0.12;  // altitude
-  quadratic_sensitivity_.angular.x = 3.5;  // pitch
+  quadratic_sensitivity_.linear.x = 0.00000064;  // longitude
+  quadratic_sensitivity_.linear.y = 0.00000064;  // latitude
+  quadratic_sensitivity_.linear.z = 0.096;  // altitude
+  quadratic_sensitivity_.angular.x = 2.8;  // pitch
   quadratic_sensitivity_.angular.y = 0.0;  // roll
-  quadratic_sensitivity_.angular.z = 3.5;  // heading
+  quadratic_sensitivity_.angular.z = 2.8;  // heading
 
   // If all joystick inputs are all less than the gutter, the input
   // is ignored, and it's assumed that we're under touch/mouse control.
