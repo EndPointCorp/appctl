@@ -48,6 +48,9 @@ var SlinkyGLEnvironment = function() {
   this.animate();
 };
 
+/**
+ * Runs all registered animation methds and renders the scene.
+ */
 SlinkyGLEnvironment.prototype.animate = function() {
   var self = this;
   function _animate() {
@@ -64,6 +67,10 @@ SlinkyGLEnvironment.prototype.animate = function() {
   this.renderer.render(this.scene, this.camera);
 };
 
+/**
+ * Registers an animation method.
+ * @param {function} callback
+ */
 SlinkyGLEnvironment.prototype.addAnimation = function(callback) {
   this.animations.push(callback);
 };

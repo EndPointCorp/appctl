@@ -33,16 +33,18 @@ var dumpUpdateToScreen = function(message) {
 
 /**
  * @param {THREE.Scene} handOverlay
- * @param {object} leapInteractionBox
+ * @param {leap_motion.InteractionBox} leapInteractionBox
  * @param {number} handId
  * @constructor
  */
 var Hand = function(handOverlay, leapInteractionBox, handId) {
-  /** @type {THREE.Scene} */
+  /** @type {HandOverlay} @private */
   this.handOverlay_ = handOverlay;
+
+  /** @type {THREE.Projector} */
   this.projector = new THREE.Projector();
 
-    /** @type {THREE.ParticleSystem} */
+  /** @type {THREE.ParticleSystem} */
   this.particleSystem;
 
   this.fingers = {};
@@ -83,7 +85,7 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
 
   this.fadeInAnimation;
 
-  this.setupGeometry_(leapInteractionBox);
+  this.createRings_();
 
   this.hudSpanAltId = 'hudAlt' + handId;
   this.hudSpanLatId = 'hudLat' + handId;
@@ -128,6 +130,8 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
 
 /**
  * Given a world coordinate return a screen coordinate.
+ * @param {THREE.Vector3} worldPos
+ * @return {THREE.Vector3}
  */
 Hand.prototype.toScreenCoords = function(worldPos) {
     var vector = this.projector.projectVector(worldPos.clone(),
@@ -137,12 +141,21 @@ Hand.prototype.toScreenCoords = function(worldPos) {
     return vector;
 };
 
+/**
+ * Updates the screen position of a callout element.
+ * @param {Element} div
+ * @param {THREE.Vector3} worldPos
+ */
 Hand.prototype.updateHudPosition = function(div, worldPos) {
   var screenPos = this.toScreenCoords(worldPos);
   div.style.right = window.innerWidth - screenPos.x + 'px';
   div.style.top = screenPos.y + 'px';
 };
 
+/**
+ * Kicks off an update of the HUD information.
+ * @param {geometry_msgs.Pose} pose
+ */
 Hand.prototype.updateHudMessage = function(pose) {
   var handPose = pose.detail;
 
@@ -214,6 +227,10 @@ Hand.prototype.updateHudMessage = function(pose) {
   elevationRequest.send();
 };
 
+/**
+ * Updates the compass pointer.  It should always point North.
+ * @param {geometry_msgs.Pose} pose
+ */
 Hand.prototype.updateHudCompass = function(pose) {
   var handPose = pose.detail;
 
@@ -231,7 +248,11 @@ Hand.prototype.updateHudCompass = function(pose) {
   );
 };
 
-Hand.prototype.createRings_ = function(handOrigin) {
+/**
+ * Generates meshes for the Hand overlay.
+ * @private
+ */
+Hand.prototype.createRings_ = function() {
     // attributes
   var handAttributes = {
   };
@@ -428,74 +449,20 @@ Hand.prototype.createRings_ = function(handOrigin) {
   this.fadeOutAnimation;
 };
 
-Hand.prototype.setupGeometry_ = function(leapInteractionBox) {
-  this.createRings_(this.handOrigin);
-
-  var WIDTH = window.innerWidth,
-      HEIGHT = window.innerHeight;
-
-  var camera = this.handOverlay_.camera;
-
-  // TODO(paulby) plane intersections should we assume we always get
-  // the same (and valid) interaction box from the leap.
-
-  /*
-  var vector = new THREE.Vector3(-1, -1, 1);
-  this.projector.unprojectVector(vector, camera);
-  var ray = new THREE.Raycaster(camera.position,
-      vector.sub(camera.position).normalize());
-  var intersects = ray.intersectObject(this.handOverlay_.handPlane);
-
-  vector.set(1, 1, 1);
-  this.projector.unprojectVector(vector, camera);
-  ray = new THREE.Raycaster(camera.position,
-      vector.sub(camera.position).normalize());
-  var intersects2 = ray.intersectObject(this.handOverlay_.handPlane);
-
-  if (intersects.length > 0 && intersects2.length > 0) {
-    var pos = intersects[0].point;
-    var pos2 = intersects2[0].point;
-
-    // Screen size in the scene and the handPlane.
-    var sceneWidth = pos2.x - pos.x;
-    var sceneHeight = pos2.y - pos.y;
-
-    var scaleX = sceneWidth / leapInteractionBox.width;
-    var scaleY = sceneHeight / leapInteractionBox.height;
-
-    this.interactionMinY =
-        leapInteractionBox.center.y - leapInteractionBox.height / 2;
-    this.interactionMaxY =
-        leapInteractionBox.center.y + leapInteractionBox.height / 2;
-
-    var scale = Math.min(scaleX, scaleY);
-
-    // Map the leap physical coordinate system to gl
-    var handCoordSystem = new THREE.Matrix4();
-    handCoordSystem.setPosition(new THREE.Vector3(
-        0, -sceneHeight / 2 - (this.interactionMinY * scaleY) , 0));
-    handCoordSystem.scale(new THREE.Vector3(scaleX, scaleY, scale));
-  }
-
-  this.leapOrigin.applyMatrix(handCoordSystem);
-  this.leapOrigin.updateMatrixWorld(false);
-  this.leapOrigin.add(this.handOrigin);
-  */
+/**
+ * Removes all overlay components from the DOM and scene.
+ */
+Hand.prototype.removeFromScene = function() {
+  this.handOverlay_.scene.remove(this.handOrigin);
+  this.handOverlay_.scene.remove(this.calloutOrigin);
+  document.body.removeChild(this.hudDiv);
+  document.body.removeChild(this.popDiv);
 };
 
 /**
- * Called by Tween fade[In|Out]Animation on completion.
+ * Adds all overlay components to the DOM and scene.
  */
-Hand.prototype.fadeInOutAnimationComplete = function() {
-  if (!this.visible) {
-    this.handOverlay_.scene.remove(this.handOrigin);
-    this.handOverlay_.scene.remove(this.calloutOrigin);
-    document.body.removeChild(this.hudDiv);
-    document.body.removeChild(this.popDiv);
-  }
-};
-
-Hand.prototype.fadeInOutAnimationOnStart = function() {
+Hand.prototype.addToScene = function() {
   if (this.visible) {
     this.handOverlay_.scene.add(this.handOrigin);
     this.handOverlay_.scene.add(this.calloutOrigin);
@@ -504,14 +471,11 @@ Hand.prototype.fadeInOutAnimationOnStart = function() {
   }
 };
 
-Hand.prototype.fadeInOutAnimationOnUpdate = function() {
-  this.centerCircleGeomUniforms.fade.needsUpdate = true;
-  this.geomUniforms.fade.needsUpdate = true;
-  this.ring0GeomUniforms.fade.needsUpdate = true;
-  this.dotUniforms.fade.needsUpdate = true;
-  this.compassRoseUniforms.fade.needsUpdate = true;
-};
-
+/**
+ * Sets the visibility of the overlay, adding to or removing from the DOM and
+ * scene appropriately.
+ * @param {boolean} visible
+ */
 Hand.prototype.setVisible = function(visible) {
   if (this.visible === visible) {
     return;
@@ -520,23 +484,37 @@ Hand.prototype.setVisible = function(visible) {
   this.visible = visible;
 
   if (visible) {
-    this.fadeInOutAnimationOnStart();
+    this.addToScene();
   } else {
-    this.fadeInOutAnimationComplete();
+    this.removeFromScene();
   }
 };
 
+/**
+ * Sets the overall opacity of the overlay.
+ * @param {float} opacity [0, 1]
+ */
 Hand.prototype.setOpacity = function(opacity) {
   this.centerCircleGeomUniforms.fade.value = this.handOpacity;
   this.geomUniforms.fade.value = this.handOpacity;
   this.ring0GeomUniforms.fade.value = this.handOpacity;
   this.dotUniforms.fade.value = this.handOpacity;
   this.compassRoseUniforms.fade.value = this.handOpacity;
+
+  this.centerCircleGeomUniforms.fade.needsUpdate = true;
+  this.geomUniforms.fade.needsUpdate = true;
+  this.ring0GeomUniforms.fade.needsUpdate = true;
+  this.dotUniforms.fade.needsUpdate = true;
+  this.compassRoseUniforms.fade.needsUpdate = true;
+
   this.hudDiv.style.opacity = this.handOpacity * this.maxOverallOpacity * 2;
   this.popDiv.style.opacity = this.handOpacity * this.maxOverallOpacity * 2;
-  this.fadeInOutAnimationOnUpdate();  // Inform shaders of data change.
 };
 
+/**
+ * Animates all visible overlays.
+ * @private
+ */
 Hand.prototype.animate_ = function() {
   var currentTimeMs = Date.now();
   if (currentTimeMs - this.lastEventTimeMs > 300) {
@@ -556,10 +534,21 @@ Hand.prototype.animate_ = function() {
   }
 };
 
+/**
+ * Converts degrees to radians.
+ * @param {number} deg
+ * @return {number}
+ */
 function toRadians_(deg) {
   return deg * Math.PI / 180;
 }
 
+/**
+ * Moves the overlay according to user interaction with the LEAP.
+ * @param {leap_motion.Hand} leapData
+ * @param {number} currentTimeMs
+ * @param {geometry_msgs.Pose} currentCameraPose
+ */
 Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     currentCameraPose) {
   this.lastEventTimeMs = currentTimeMs;
@@ -722,8 +711,10 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
 
 /**
  * @constructor
+ * @param {SlinkyGLEnvironment} glEnvironment Shared WebGL environment.
  */
 var HandOverlay = function(glEnvironment) {
+  /** @type {SlinkyGLEnvironment} */
   this.glEnvironment = glEnvironment;
 
   /** @type {THREE.Scene} */
@@ -735,7 +726,7 @@ var HandOverlay = function(glEnvironment) {
   /** @type {THREE.Camera} */
   this.camera = this.glEnvironment.camera;
 
-  /** @type {Array.<Hand|null>} */
+  /** @type {Array.<Hand|null>} @private */
   this.hands_ = new Array();
 
   /** @type {THREE.Mesh} */
@@ -762,7 +753,26 @@ var HandOverlay = function(glEnvironment) {
   this.currentHand = -1;
 };
 
-
+/**
+ * Updates the parallel globe from an incoming pose change.
+ *
+ * @typedef {{
+ *   x: float,
+ *   y: float,
+ *   z: float
+ * }}
+ * geometry_msgs.Position
+ *
+ * @typedef {geometry_msgs.Position} geometry_msgs.Orientation
+ *
+ * @typedef {{
+ *   position: geometry_msgs.Point,
+ *   orientation: geometry_msgs.Orientation
+ * }}
+ * geometry_msgs.Pose
+ *
+ * @param {geometry_msgs.Pose} pose
+ */
 HandOverlay.prototype.setCurrentCameraPose = function(pose) {
   this.currentCameraPose = pose;
 
@@ -936,9 +946,14 @@ HandOverlay.prototype.init3js = function() {
 };
 
 /**
- * Creates geometry with n sides.
+ * Creates a polygon with n sides.
  * To use vertex colors, material must have vertexColors: THREE.VertexColors
  * @see http://jsfiddle.net/Elephanter/mUah5/
+ * @private
+ * @param {number} n Number of sides for the polygon.
+ * @param {float} circumradius
+ * @param {THREE.Color} color
+ * @return {THREE.Geometry}
  */
 HandOverlay.prototype.createGeometry_ = function(n, circumradius, color) {
 
@@ -969,6 +984,10 @@ HandOverlay.prototype.createGeometry_ = function(n, circumradius, color) {
   return geometry;
 };
 
+/**
+ * Handles an incoming leap message.
+ * @param {object} leapMessage
+ */
 HandOverlay.prototype.processLeapMessage = function(leapMessage) {
   if (!initialized_) {
     return;
@@ -984,6 +1003,7 @@ HandOverlay.prototype.processLeapMessage = function(leapMessage) {
 /**
  * Handle geoLocationEvents, this is the geo location of the center of the
  * hand.
+ * @param {geometry_msgs.Pose} pose
  */
 HandOverlay.prototype.processHandGeoLocationEvent = function(pose) {
   if (this.currentHand == -1) {
@@ -1001,29 +1021,42 @@ HandOverlay.prototype.processHandGeoLocationEvent = function(pose) {
 };
 
 /**
-  * Called when the leap motion has new hand data.
-  *
-  * @typedef {{
-  *   roll: number,
-  *   pitch:number,
-  *   yaw:number,
-  *   x: number,
-  *   y: number,
-  *   z: number
-  * }}
-  * goog.LeapVector;
-  *
-  * @param {{
-  *   palm_position:Object,
-  *   palm_normal:goog.LeapVector,
-  *   direction:goog.LeapVector,
-  *   pointables:Array.<{
-  *     tip_position: goog.LeapVector,
-  *     stabilized_tip_position: goog.LeapVector,
-  *     id: number,
-  *     direction: goog.LeapVector
-  *   }>
-  * }} leapData
+ * Called when the leap motion has new hand data.
+ *
+ * @typedef {{
+ *   roll: number,
+ *   pitch:number,
+ *   yaw:number,
+ *   x: number,
+ *   y: number,
+ *   z: number
+ * }}
+ * leap_motion.Vector;
+ *
+ * @typedef {{
+ *   palm_position:Object,
+ *   palm_normal: leap_motion.Vector,
+ *   direction: leap_motion.Vector,
+ *   pointables:Array.<{
+ *     tip_position: leap_motion.Vector,
+ *     stabilized_tip_position: leap_motion.Vector,
+ *     id: number,
+ *     direction: leap_motion.Vector
+ *   }>
+ * }}
+ * leap_motion.Hand;
+ *
+ * @typedef {{
+ *   center: leap_motion.Vector,
+ *   width: number,
+ *   height: number,
+ *   depth: number,
+ *   is_valid: boolean
+ * }}
+ * leap_motion.InteractionBox;
+ *
+ * @param {leap_motion.Hand} leapData
+ * @param {leap_motion.InteractionBox} leapInteractionBox
  */
 HandOverlay.prototype.processHandMoved = function(
     leapData, leapInteractionBox) {
@@ -1054,13 +1087,6 @@ HandOverlay.prototype.processHandMoved = function(
  * @private
  */
 HandOverlay.prototype.animate_ = function() {
-  /*
-  var self = this;
-  function f() {
-    self.animate_();
-  };
-  requestAnimationFrame(f);
-  */
   if (this.scene == null || this.camera == null) {
     return;
   }
@@ -1083,8 +1109,5 @@ HandOverlay.prototype.animate_ = function() {
       }
     }
   }
-  /*
-  this.renderer.render(this.scene, this.camera);
-  */
 };
 

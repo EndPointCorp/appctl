@@ -8,7 +8,9 @@ var ATMOSPHERE_FALLOFF = 6; // exponential falloff rate for atmospheric density
 var HOVER_TIMEOUT = 200; // ms, hover fx after no movement for this interval
 var HOVER_LEVEL = 0.12; // ambient level
 
-// shim for audio context
+/** Shim for audio context.
+ * @ignore
+*/
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
 /**
@@ -47,15 +49,19 @@ SoundEffect = function(context, src_file, begin, end, loop) {
   request.open('GET', src_file, true);
   request.responseType = 'arraybuffer';
 
+  var self = this;
   request.onload = function() {
-    this.context.decodeAudioData(request.response, function(buffer) {
-      this.source.buffer = buffer;
-      this.loaded = true;
-      if (this.source.loop) {
-        this.start();
+    self.context.decodeAudioData(request.response, function(buffer) {
+      self.source.buffer = buffer;
+      self.loaded = true;
+      if (self.source.loop) {
+        self.start();
       }
-    }.bind(this), function(err) { console.error(err); });
-  }.bind(this);
+    },
+    function(err) {
+      console.error(err);
+    });
+  };
 
   request.send();
 

@@ -319,6 +319,9 @@ window.addEventListener('acmePopulationQuery', function(ev) {
   }, ev.detail.callback);
 }, true);
 
+/**
+ * A common WebGL environment for visual modules.
+ */
 acme.glEnvironment = new SlinkyGLEnvironment();
 
 var leapListener = new ROSLIB.Topic({

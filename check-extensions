@@ -4,7 +4,7 @@
 MY_DIR="$( dirname "${0}" )"
 EXT_DIR="extensions"
 LINT_TOOL="gjslint"
-CUSTOM_JSDOC_TAGS="example,memberof,namespace,static,instance"
+CUSTOM_JSDOC_TAGS="example,memberof,namespace,static,instance,ignore"
 
 if [ "${MY_DIR}" == "." ]; then
     MY_DIR="${PWD}"
