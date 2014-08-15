@@ -5,7 +5,7 @@
 // action - (switch_display|showDoodlesPage)
 // url 		- url to switch by the action switch_display
 var data = [
-	{name: "earth",   desc: "Earth",   action:"switch_display", url:"youtube"},
+	{name: "earth",   desc: "Earth",   action:"switch_display", url:"earth URL"},
   {name: "doodles", desc: "Doodles", action:"showDoodlesPage"}
 ];
 
@@ -14,12 +14,14 @@ var sendSwitchROSMessage = function(url) {
 	// TODO invent some protocol message with url inside
   // TODO send proper message
 	// TODO add support at display's side
+	alert("Dear display, please switch to " + url);
 };
 
 
 var showDoodlesPage = function() {
   // TODO: implement the doodles page
 	// TODO: add support for sending the ROS message to switch URL on display
+	document.location = chrome.extension.getURL("pages/doodles.html');
 };
 
 var createElementsList = function() {
