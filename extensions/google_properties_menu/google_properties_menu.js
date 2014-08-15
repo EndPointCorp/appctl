@@ -24,9 +24,11 @@ var data = [
 // Sends ROS message to display to change the browser's URL
 var sendSwitchROSMessage = function(e) {
   // TODO add support at display's side
+	console.log(e);
+	console.log(e.target);
   var url = e.target.getAttribute('switch_url');
 	console.log("Trying to switch display to " + url);
-  var msg = new ROSLIB.Message(url);
+  var msg = new ROSLIB.Message({a:url});
 	displaySwitchTopic.publish(msg);
 };
 
