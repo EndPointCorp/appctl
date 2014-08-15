@@ -26,7 +26,7 @@ var sendSwitchROSMessage = function(e) {
   // TODO add support at display's side
   var url = e.target.getAttribute('switch_url');
 	console.log("Trying to switch display to " + url);
-  var msg = new ROS.Message(url);
+  var msg = new ROSLIB.Message(url);
 	displaySwitchTopic.publish(msg);
 };
 
