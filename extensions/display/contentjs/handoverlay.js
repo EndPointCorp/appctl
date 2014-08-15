@@ -12,6 +12,7 @@ var TACTILE_LO_ALT = 17000000; // meters, low altitude of the fov change band
 var TACTILE_HI_ALT = 17500000; // meters, high altitude of the fov change band
 var TACTILE_LO_FOV = 20;
 var TACTILE_HI_FOV = 60;
+var ELEVATION_REQ_RATE = 5; // Hz
 
 var dumpUpdateToScreen = function(message) {
   var stringifiedMessage = JSON.stringify(message);
@@ -44,22 +45,19 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
   /** @type {THREE.Projector} */
   this.projector = new THREE.Projector();
 
-  /** @type {THREE.ParticleSystem} */
-  this.particleSystem;
-
-  this.fingers = {};
-
   /** @type {number} */
-  this.lastEventTimeMs = 0;
+  this.lastLeapTimeMs = 0;
 
   this.visible = false;
 
-  this.maxOverallOpacity = 0.35;
+  /**
+   * Tweak point for maximum opacity of the overlay.
+   * @type {float}
+   */
+  this.overallOpacity = 0.35;
 
-  this.attributes;
-
-  this.interactionMinY;
-  this.interactionMaxY;
+  /** @type {THREE.Vector3} */
+  this.hudPos;
 
   this.leapOrigin = new THREE.Object3D();
   this.handOrigin = new THREE.Object3D();
@@ -82,8 +80,6 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
   this.geomUniforms;
   this.ring0GeomUniforms;
   this.dotUniforms;
-
-  this.fadeInAnimation;
 
   this.createRings_();
 
@@ -129,7 +125,7 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
 };
 
 /**
- * Given a world coordinate return a screen coordinate.
+ * Given a world coordinate, return a screen coordinate.
  * @param {THREE.Vector3} worldPos
  * @return {THREE.Vector3}
  */
@@ -193,7 +189,6 @@ Hand.prototype.updateHudMessage = function(pose) {
   // async elevation request from Google elevation api
 
   // limit elevation request rate
-  var ELEVATION_REQ_RATE = 5; // Hz
   var now = Date.now();
   if (now < this.nextElevationRequest) {
     return;
@@ -253,9 +248,7 @@ Hand.prototype.updateHudCompass = function(pose) {
  * @private
  */
 Hand.prototype.createRings_ = function() {
-    // attributes
-  var handAttributes = {
-  };
+  var handAttributes = {};
 
   // TODO reuse these textures for every hand.
   // Load textures from base64 images to avoid cross domain issue. See
@@ -265,16 +258,14 @@ Hand.prototype.createRings_ = function() {
   xRayColorTexture.wrapT = THREE.ClampToEdgeWrapping;
   xRayColorTexture.needsUpdate = true;
 
-  // uniforms
   this.centerCircleGeomUniforms = {
      xRayDirection: {
        type: 'v3', value: new THREE.Vector3(0, 0, 1).normalize() },
      colorTexture: { type: 't', value: xRayColorTexture },
-     alpha: { type: 'f', value: this.maxOverallOpacity * 0.33 },
+     alpha: { type: 'f', value: this.overallOpacity * 0.33 },
      fade: { type: 'f', value: 0.0 }
   };
 
-  // particle system material
   var centerCircleShader = new THREE.ShaderMaterial({
 
       uniforms: this.centerCircleGeomUniforms,
@@ -284,18 +275,14 @@ Hand.prototype.createRings_ = function() {
       transparent: true
   });
 
-
-  // uniforms
   this.ring0GeomUniforms = {
      xRayDirection: {
        type: 'v3', value: new THREE.Vector3(0, 0, 1).normalize() },
      colorTexture: { type: 't', value: xRayColorTexture },
-     alpha: { type: 'f', value: this.maxOverallOpacity * 0.66 },
+     alpha: { type: 'f', value: this.overallOpacity * 0.66 },
      fade: { type: 'f', value: 0.0 }
   };
 
-
-  // particle system material
   var ring0Shader = new THREE.ShaderMaterial({
 
       uniforms: this.ring0GeomUniforms,
@@ -305,16 +292,14 @@ Hand.prototype.createRings_ = function() {
       transparent: true
   });
 
-    // uniforms
   this.dotUniforms = {
      xRayDirection: {
        type: 'v3', value: new THREE.Vector3(0, 0, 1).normalize() },
      colorTexture: { type: 't', value: xRayColorTexture },
-     alpha: { type: 'f', value: this.maxOverallOpacity * 0.66 },
+     alpha: { type: 'f', value: this.overallOpacity * 0.66 },
      fade: { type: 'f', value: 0.0 }
   };
 
-  // particle system material
   var dotShader = new THREE.ShaderMaterial({
 
       uniforms: this.dotUniforms,
@@ -324,17 +309,14 @@ Hand.prototype.createRings_ = function() {
       transparent: true
   });
 
-
-  // uniforms
   this.geomUniforms = {
      xRayDirection: {
        type: 'v3', value: new THREE.Vector3(0, 0, 1).normalize() },
      colorTexture: { type: 't', value: xRayColorTexture },
-     alpha: { type: 'f', value: this.maxOverallOpacity },
+     alpha: { type: 'f', value: this.overallOpacity },
      fade: { type: 'f', value: 0.0 }
   };
 
-  // particle system material
   var handShader = new THREE.ShaderMaterial({
 
       uniforms: this.geomUniforms,
@@ -345,13 +327,11 @@ Hand.prototype.createRings_ = function() {
       depthTest: false
   });
 
-  // compass rose vertex-colored uniforms
   this.compassRoseUniforms = {
-     alpha: { type: 'f', value: this.maxOverallOpacity * 0.5 },
+     alpha: { type: 'f', value: this.overallOpacity * 0.5 },
      fade: { type: 'f', value: 0.0 }
   };
 
-  // compass rose vertex-colored material
   var compassRoseShader = new THREE.ShaderMaterial({
 
       vertexColors: THREE.VertexColors,
@@ -365,31 +345,34 @@ Hand.prototype.createRings_ = function() {
       depthTest: false
   });
 
-  // inner ring
+  /** Inner ring. */
   this.ring0 = new THREE.Mesh(this.handOverlay_.ring0Geom, ring0Shader);
   this.ring0.name = 'ring0';
   this.handOrigin.add(this.ring0);
 
-  // outer ring
+  /** Outer ring. */
   this.ring1 = new THREE.Mesh(this.handOverlay_.ring1Geom, handShader);
   this.ring1.name = 'ring1';
   this.handOrigin.add(this.ring1);
 
-  // bottom semi-circle for hand roll, future water coverage
+  /** Bottom semi-circle for hand roll. Future water coverage. */
   this.ring2 = new THREE.Mesh(this.handOverlay_.ring2Geom, handShader);
   this.ring2.name = 'ring2';
   this.handOrigin.add(this.ring2);
 
+  /** Inner ring fill. */
   this.centerCircleFlat = new THREE.Mesh(
       this.handOverlay_.centerCircleFlatGeom, centerCircleShader);
   this.centerCircleFlat.name = 'centerCircleFlat';
   this.handOrigin.add(this.centerCircleFlat);
 
+  /** Center dot. */
   this.centerDot = new THREE.Mesh(
       this.handOverlay_.centerDotGeom, dotShader);
   this.centerDot.name = 'centerCircleDot';
   this.handOrigin.add(this.centerDot);
 
+  /** lat/lon/alt callout text position. */
   this.topCalloutPanel = new THREE.Mesh(
       new THREE.SphereGeometry(8, 8),
       new THREE.MeshBasicMaterial({
@@ -402,6 +385,7 @@ Hand.prototype.createRings_ = function() {
   this.topCalloutPanel.position.y = 0.7;
   this.topCalloutPanel.visible = false;
 
+  /** lat/lon/alt callout line. */
   this.topCallout = new THREE.Mesh(
       this.handOverlay_.topCalloutGeom, handShader);
   this.topCallout.name = 'topCallout';
@@ -410,6 +394,7 @@ Hand.prototype.createRings_ = function() {
   this.topCallout.visible = true;
   this.calloutOrigin.add(this.topCallout);
 
+  /** Population callout text position. */
   this.popCalloutPanel = new THREE.Mesh(
       new THREE.SphereGeometry(8, 8),
       new THREE.MeshBasicMaterial({
@@ -422,6 +407,7 @@ Hand.prototype.createRings_ = function() {
   this.popCalloutPanel.position.y = -0.05;
   this.popCalloutPanel.visible = false;
 
+  /** Population callout line. */
   this.popCallout = new THREE.Mesh(
       this.handOverlay_.popCalloutGeom,
       handShader
@@ -434,6 +420,7 @@ Hand.prototype.createRings_ = function() {
   this.popCalloutOrigin.add(this.popCallout);
   this.calloutOrigin.add(this.popCalloutOrigin);
 
+  /** Compass pointer. */
   this.compassRose = new THREE.Mesh(
     this.handOverlay_.compassRoseGeom,
     compassRoseShader
@@ -444,9 +431,6 @@ Hand.prototype.createRings_ = function() {
   this.centerDot.add(this.compassRose);
 
   this.handOpacity = 0.0;
-
-  this.fadeInAnimation;
-  this.fadeOutAnimation;
 };
 
 /**
@@ -463,12 +447,10 @@ Hand.prototype.removeFromScene = function() {
  * Adds all overlay components to the DOM and scene.
  */
 Hand.prototype.addToScene = function() {
-  if (this.visible) {
-    this.handOverlay_.scene.add(this.handOrigin);
-    this.handOverlay_.scene.add(this.calloutOrigin);
-    document.body.appendChild(this.hudDiv);
-    document.body.appendChild(this.popDiv);
-  }
+  this.handOverlay_.scene.add(this.handOrigin);
+  this.handOverlay_.scene.add(this.calloutOrigin);
+  document.body.appendChild(this.hudDiv);
+  document.body.appendChild(this.popDiv);
 };
 
 /**
@@ -495,11 +477,11 @@ Hand.prototype.setVisible = function(visible) {
  * @param {float} opacity [0, 1]
  */
 Hand.prototype.setOpacity = function(opacity) {
-  this.centerCircleGeomUniforms.fade.value = this.handOpacity;
-  this.geomUniforms.fade.value = this.handOpacity;
-  this.ring0GeomUniforms.fade.value = this.handOpacity;
-  this.dotUniforms.fade.value = this.handOpacity;
-  this.compassRoseUniforms.fade.value = this.handOpacity;
+  this.centerCircleGeomUniforms.fade.value = opacity;
+  this.geomUniforms.fade.value = opacity;
+  this.ring0GeomUniforms.fade.value = opacity;
+  this.dotUniforms.fade.value = opacity;
+  this.compassRoseUniforms.fade.value = opacity;
 
   this.centerCircleGeomUniforms.fade.needsUpdate = true;
   this.geomUniforms.fade.needsUpdate = true;
@@ -507,8 +489,8 @@ Hand.prototype.setOpacity = function(opacity) {
   this.dotUniforms.fade.needsUpdate = true;
   this.compassRoseUniforms.fade.needsUpdate = true;
 
-  this.hudDiv.style.opacity = this.handOpacity * this.maxOverallOpacity * 2;
-  this.popDiv.style.opacity = this.handOpacity * this.maxOverallOpacity * 2;
+  this.hudDiv.style.opacity = opacity * this.overallOpacity * 2;
+  this.popDiv.style.opacity = opacity * this.overallOpacity * 2;
 };
 
 /**
@@ -517,7 +499,7 @@ Hand.prototype.setOpacity = function(opacity) {
  */
 Hand.prototype.animate_ = function() {
   var currentTimeMs = Date.now();
-  if (currentTimeMs - this.lastEventTimeMs > 300) {
+  if (currentTimeMs - this.lastLeapTimeMs > 300) {
     this.setVisible(false);
   }
 
@@ -551,7 +533,7 @@ function toRadians_(deg) {
  */
 Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     currentCameraPose) {
-  this.lastEventTimeMs = currentTimeMs;
+  this.lastLeapTimeMs = currentTimeMs;
 
   var palmpos = leapData.stabilized_palm_position;
   var palmPitch = leapData.direction.pitch + Math.PI;
@@ -625,7 +607,7 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     var distance = intersects[0].distance;
     var interNormal = intersects[0].face.normal;
 
-    // push fade to the edge
+    // push fade to the edge of the globe
     var normalAngle = Math.max(0,
       Math.abs(interNormal.x) +
       Math.abs(interNormal.y + camTilt / 2) -
@@ -651,16 +633,8 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
 
     this.handOpacity = Math.min(Math.max(normalFade * heightFade, 0), 1);
 
-    this.handOrigin.position.set(
-      this.hudPos.x,
-      this.hudPos.y,
-      this.hudPos.z
-    );
-    this.calloutOrigin.position.set(
-      this.hudPos.x,
-      this.hudPos.y,
-      this.hudPos.z
-    );
+    this.handOrigin.position.copy(this.hudPos);
+    this.calloutOrigin.position.copy(this.hudPos);
 
     if (currentCameraPose) {
       this.handOrigin.rotation.set(
@@ -669,7 +643,6 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
           -interNormal.x
       );
       this.popCalloutOrigin.rotation.set(
-          //-camTilt + interNormal.y / 2,
           0,
           interNormal.x,
           0
@@ -808,75 +781,10 @@ HandOverlay.prototype.setCurrentCameraPose = function(pose) {
 HandOverlay.prototype.init3js = function() {
   var self = this;
 
-  /*
-  this.scene = new THREE.Scene();
-  */
-  var WIDTH = window.innerWidth,
-      HEIGHT = window.innerHeight;
-
-  /*
-  var handCanvas = document.getElementById('handCanvas');
-
-  if (!handCanvas) {
-    handCanvas = document.createElement('canvas');
-    handCanvas.id = 'handCanvas';
-    handCanvas.style.position = 'fixed';
-    handCanvas.style.bottom = '0px';
-    handCanvas.style.left = '0px';
-    handCanvas.style.height = '100%';
-    handCanvas.style.width = '100%';
-    handCanvas.style.zIndex = '99999';
-    handCanvas.style.backgroundColor = 'rgba(255, 255, 255, 0.0)';
-    handCanvas.style.pointerEvents = 'none';
-    document.body.appendChild(handCanvas);
-  }
-
-  var gl = handCanvas.getContext('webgl', {premultipliedAlpha: false});
-  */
-
-  /*
-  this.renderer = new THREE.WebGLRenderer({canvas: handCanvas, alpha: true});
-  this.renderer.setSize(WIDTH, HEIGHT);
-
-  this.renderer.setClearColor(new THREE.Color(0xffffff), 0);
-  */
-
-  /*
-  this.camera = new THREE.PerspectiveCamera(
-    45,
-    WIDTH / HEIGHT,
-    0.1,
-    EARTH_RADIUS * 10
-  );
-  this.camera.position.set(0, 0, 6);
-  this.scene.add(this.camera);
-  */
-
-  /*
-  var self = this;
-  window.addEventListener('resize', function() {
-    var WIDTH = window.innerWidth,
-        HEIGHT = window.innerHeight;
-    self.renderer.setSize(WIDTH, HEIGHT);
-    self.camera.aspect = WIDTH / HEIGHT;
-
-    self.camera.updateProjectionMatrix();
-  });
-  */
-
-  /*
-  this.handPlane = new THREE.Mesh(
-      new THREE.PlaneGeometry(2000, 2000),
-      new THREE.MeshBasicMaterial({
-        color: 0x000000,
-        wireframe: true }
-  ));
-  this.handPlane.lookAt(this.camera.position);
-  this.handPlane.visible = false;
-  this.handPlane.position = new THREE.Vector3(0, 0, 0);
-  this.scene.add(this.handPlane);
-  */
-
+  /**
+   * Geometry matching the position of the Tactile globe.
+   * @type {THREE.Mesh}
+   */
   this.globeSphere = new THREE.Mesh(
     new THREE.SphereGeometry(EARTH_RADIUS, 128, 128, 0, Math.PI),
     new THREE.MeshBasicMaterial({
@@ -1077,7 +985,7 @@ HandOverlay.prototype.processHandMoved = function(
   }
 
   var timeMs = Date.now();
-  hand.lastEventTimeMs = timeMs;
+  hand.lastLeapTimeMs = timeMs;
 
   hand.setPositionFromLeap(leapData, timeMs, this.currentCameraPose);
 };
@@ -1100,9 +1008,9 @@ HandOverlay.prototype.animate_ = function() {
         // Animate. If the hand is no longer receiving events then this call
         // will set it to invisible.
         hand.animate_();
-      } else if (timeMs - hand.lastEventTimeMs < 750) {
+      } else if (timeMs - hand.lastLeapTimeMs < 750) {
         // Delete hands which are not visible and have received no events
-        // for 10 seconds.
+        // for 0.75 seconds.
         this.currentHand = -1;
         delete this.hands_[key];
         delete hand;
