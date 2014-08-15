@@ -84,9 +84,16 @@ var initializeMoreFun = function() {
   document.body.appendChild(d);
 
   // and we should close the morefun_items window when clicked anywhere else...
-	// TODO add touch events too
   document.body.addEventListener(
       'click', 
+      function(e){
+  			if (e.target.id != 'morefun_items') 
+     			document.getElementById("morefun_items").style.visibility='hidden';
+  		},
+      true
+  );
+  document.body.addEventListener(
+      'touchstart', 
       function(e){
   			if (e.target.id != 'morefun_items') 
      			document.getElementById("morefun_items").style.visibility='hidden';
