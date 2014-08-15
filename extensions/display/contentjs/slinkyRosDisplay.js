@@ -349,7 +349,7 @@ spacenavListener.subscribe(
 );
 
 var displaySwitchTopic = new ROSLIB.Topic({
-  ros: slinkyRosKiosk,
+  ros: slinkyRosDisplay,
   name: '/display/switch',
   messageType: 'std_msgs/String',
 });
