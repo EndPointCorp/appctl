@@ -21,8 +21,6 @@ var data = [
 
 // Sends ROS message to display to change the browser's URL
 var sendSwitchROSMessage = function(e) {
-  // TODO invent some protocol message with url inside
-  // TODO send proper message
   // TODO add support at display's side
   var msg = new ros.Message(e.target.getAttribute('switch_url'));
 	displaySwitchTopic.publish(msg);
@@ -32,7 +30,7 @@ var sendSwitchROSMessage = function(e) {
 var showDoodlesPage = function() {
   // TODO: implement the doodles page
   // TODO: add support for sending the ROS message to switch URL on display
-  document.location = chrome.extension.getURL("pages/doodles.html');
+  document.location = chrome.extension.getURL("pages/doodles.html");
 };
 
 var createElementsList = function() {
