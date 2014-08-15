@@ -99,7 +99,6 @@ include_directories(
 )
 
 ## Declare a cpp library
-add_library(camera_buffer src/camera_buffer.cpp)
 add_library(joystick_navigator src/joystick_navigator.cpp)
 
 ## Declare a cpp executable
@@ -109,14 +108,12 @@ add_executable(slinky_nav src/slinky_nav.cpp)
 ## as an example, message headers may need to be generated before nodes
 add_dependencies(slinky_nav
   slinky_nav_generate_messages_cpp
-  camera_buffer
   joystick_navigator
 )
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(slinky_nav
   ${catkin_LIBRARIES}
-  camera_buffer
   joystick_navigator
 )
 

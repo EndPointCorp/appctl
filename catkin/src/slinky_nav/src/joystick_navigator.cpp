@@ -15,7 +15,6 @@
 #include <algorithm>
 #include <cmath>
 
-#include "camera_buffer.h"
 #include "slinky_nav/SlinkyPose.h"
 
 static const double kPi = 3.141592653589793;
