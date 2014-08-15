@@ -1,9 +1,9 @@
-var slinkyRosKiosk = new ROSLIB.Ros({
+var slinkyRosGoogleMenu = new ROSLIB.Ros({
   url: 'wss://42-b:9090'
 });
 
 var displaySwitchTopic = new ROSLIB.Topic({
-  ros: slinkyRosKiosk,
+  ros: slinkyRosGoogleMenu,
   name: '/display/switch',
   messageType: 'std_msgs/String',
 });
@@ -28,7 +28,7 @@ var sendSwitchROSMessage = function(e) {
 	console.log(e.target);
   var url = e.target.getAttribute('switch_url');
 	console.log("Trying to switch display to " + url);
-  var msg = new ROSLIB.Message({a:url});
+  var msg = new ROSLIB.Message({data:url});
 	displaySwitchTopic.publish(msg);
 };
 

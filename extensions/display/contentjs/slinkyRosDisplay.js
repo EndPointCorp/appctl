@@ -354,6 +354,7 @@ var displaySwitchTopic = new ROSLIB.Topic({
   messageType: 'std_msgs/String',
 });
 
-displaySwitchTopic.subscribe(function(url){
-  alert(url);
+displaySwitchTopic.subscribe(function(msg){
+  var url = msg.data;
+  $('body').fadeOut(2000, function() { document.location = url } );
 });
