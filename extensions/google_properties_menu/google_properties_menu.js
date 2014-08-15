@@ -14,8 +14,10 @@ var displaySwitchTopic = new ROSLIB.Topic({
 // icon   - the image used for an icon, must be in the 'images' directory
 // action - (switch_display|showDoodlesPage)
 // url     - url to switch by the action switch_display
+var earthURL = 'http://www.google.com/maps/@-38.8532463,-58.1360617,35306177a,60y,0.69h/data=!3m1!1e3?esrch=Tactile::TactileAcme';
+
 var data = [
-  {name: "earth",   desc: "Earth",   icon: "earth.jpg",       action:"switch_display", url:"earth URL"},
+  {name: "earth",   desc: "Earth",   icon: "earth.jpg",       action:"switch_display", url:earthURL},
   {name: "doodles", desc: "Doodles", icon: "icon_pacman.png", action:"showDoodlesPage"}
 ];
 
@@ -24,7 +26,7 @@ var sendSwitchROSMessage = function(e) {
   // TODO add support at display's side
   var url = e.target.getAttribute('switch_url');
 	console.log("Trying to switch display to " + url);
-  var msg = new ros.Message(url);
+  var msg = new ROS.Message(url);
 	displaySwitchTopic.publish(msg);
 };
 
