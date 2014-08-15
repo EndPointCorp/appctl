@@ -1,12 +1,13 @@
 
 // Elements are shown in this order
-// name 	- used as a key, image name
+// name 	- used as a key
 // desc 	- shown below the image
+// icon   - the image used for an icon, must be in the 'images' directory
 // action - (switch_display|showDoodlesPage)
 // url 		- url to switch by the action switch_display
 var data = [
-	{name: "earth",   desc: "Earth",   action:"switch_display", url:"earth URL"},
-  {name: "doodles", desc: "Doodles", action:"showDoodlesPage"}
+	{name: "earth",   desc: "Earth",   icon: "earth.jpg",       action:"switch_display", url:"earth URL"},
+  {name: "doodles", desc: "Doodles", icon: "icon_pacman.png", action:"showDoodlesPage"}
 ];
 
 // Sends ROS message to display to change the browser's URL
@@ -21,7 +22,7 @@ var sendSwitchROSMessage = function(url) {
 var showDoodlesPage = function() {
   // TODO: implement the doodles page
 	// TODO: add support for sending the ROS message to switch URL on display
-	document.location = chrome.extension.getURL("pages/doodles.html');
+	//document.location = chrome.extension.getURL("pages/doodles.html');
 };
 
 var createElementsList = function() {
@@ -32,11 +33,12 @@ var createElementsList = function() {
 		var name   = data[i].name;
 		var desc   = data[i].desc;
 		var action = data[i].action;
+		var icon   = data[i].icon;
 
 		var li = document.createElement('li');
 		
 		var img = document.createElement('img');
-		img.setAttribute('src', chrome.extension.getURL("images/" + name + '.jpg'));
+		img.setAttribute('src', chrome.extension.getURL("images/" + icon));
 
     var span = document.createElement('span');
     span.innerText = desc;
@@ -44,8 +46,8 @@ var createElementsList = function() {
 		li.appendChild(img);
 		li.appendChild(span);
 
-		if (action == "switch_display")	li.onclick = sendSwitchROSMessage(url);
-		if (action == "showDoodlesPage") li.onclick = showDoodlesPage();
+		if (action == "switch_display")	 li.onclick = sendSwitchROSMessage;
+		if (action == "showDoodlesPage") li.onclick = showDoodlesPage;
 
 		ul.appendChild(li);
 	}
@@ -60,11 +62,18 @@ var initializeMoreFun = function() {
 		document.getElementById("morefun_items").style.visibility='visible';
 	};
 
-  var s = document.createElement('div');
+	var i = document.createElement('img');
+	i.setAttribute('src', chrome.extension.getURL("images/icon_grid_grey.png"));
+  
+	var s = document.createElement('div');
 	s.id = "morefun";
-  s.innerText = "More fun --ICON HERE--";
+  var span = document.createElement('span');
+  span.innerText = "More fun";
 	s.onclick = onclick;
-  document.body.appendChild(s);
+  s.appendChild(span);
+  s.appendChild(i);
+
+	document.body.appendChild(s);
 
 	var d = document.createElement('div');
 	d.id = "morefun_items";
