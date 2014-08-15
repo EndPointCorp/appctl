@@ -12,6 +12,8 @@
   "content_scripts": [{
     "matches": ["*://*.google.com/maps/*"],
     "js": [
+      "libs/eventemitter2.min.js",
+      "libs/roslib.min.js",
       "google_properties_menu.js"
       ],
 		"css": ["css/style.css"],
