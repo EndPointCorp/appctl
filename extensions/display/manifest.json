@@ -40,7 +40,7 @@
       ]
     },
 	  {
-      "matches": ["*://*"],
+      "matches": ["*://*/*"],
       "js": [
         "libs/eventemitter2.min.js",
         "libs/roslib.min.js",
