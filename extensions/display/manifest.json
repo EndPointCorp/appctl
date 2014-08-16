@@ -38,6 +38,15 @@
         "contentjs/spacenav_feedback.js",
         "contentjs/slinkyRosDisplay.js"
       ]
+    },
+	  {
+      "matches": ["*://*"],
+      "js": [
+        "libs/eventemitter2.min.js",
+        "libs/roslib.min.js",
+        "contentjs/display_switch.js"
+        ],
+      "all_frames": true
     }
   ]
 }

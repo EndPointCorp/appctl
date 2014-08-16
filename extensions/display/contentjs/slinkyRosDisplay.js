@@ -348,13 +348,3 @@ spacenavListener.subscribe(
   spacenavFeedback.processSpacenavMessage.bind(spacenavFeedback)
 );
 
-var displaySwitchTopic = new ROSLIB.Topic({
-  ros: slinkyRosDisplay,
-  name: '/display/switch',
-  messageType: 'std_msgs/String',
-});
-
-displaySwitchTopic.subscribe(function(msg){
-  var url = msg.data;
-  $('body').fadeOut(2000, function() { document.location = url } );
-});
