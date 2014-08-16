@@ -24,12 +24,12 @@ var data = [
 // Sends ROS message to display to change the browser's URL
 var sendSwitchROSMessage = function(e) {
   // TODO add support at display's side
-	console.log(e);
-	console.log(e.target);
+  console.log(e);
+  console.log(e.target);
   var url = e.target.getAttribute('switch_url');
-	console.log("Trying to switch display to " + url);
+  console.log("Trying to switch display to " + url);
   var msg = new ROSLIB.Message({data:url});
-	displaySwitchTopic.publish(msg);
+  displaySwitchTopic.publish(msg);
 };
 
 
@@ -51,15 +51,15 @@ var createElementsList = function() {
     var icon   = data[i].icon;
 
     var li = document.createElement('li');
-		li.setAttribute('switch_url', url);
+    li.setAttribute('switch_url', url);
     
     var img = document.createElement('img');
     img.setAttribute('src', chrome.extension.getURL("images/" + icon));
-		img.setAttribute('switch_url', url);
+    img.setAttribute('switch_url', url);
 
     var span = document.createElement('span');
     span.innerText = desc;
-		span.setAttribute('switch_url', url);
+    span.setAttribute('switch_url', url);
 
     li.appendChild(img);
     li.appendChild(span);
@@ -105,17 +105,17 @@ var initializeMoreFun = function() {
   document.body.addEventListener(
       'click', 
       function(e){
-  			if (e.target.id != 'morefun_items') 
-     			document.getElementById("morefun_items").style.visibility='hidden';
-  		},
+        if (e.target.id != 'morefun_items') 
+           document.getElementById("morefun_items").style.visibility='hidden';
+      },
       true
   );
   document.body.addEventListener(
       'touchstart', 
       function(e){
-  			if (e.target.id != 'morefun_items') 
-     			document.getElementById("morefun_items").style.visibility='hidden';
-  		},
+        if (e.target.id != 'morefun_items') 
+           document.getElementById("morefun_items").style.visibility='hidden';
+      },
       true
   );
 };
