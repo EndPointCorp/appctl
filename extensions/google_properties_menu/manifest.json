@@ -18,15 +18,6 @@
       ],
 		"css": ["css/style.css"],
     "all_frames": true
-  },
-	{
-    "matches": ["*://*"],
-    "js": [
-      "libs/eventemitter2.min.js",
-      "libs/roslib.min.js",
-      "display_switch.js"
-      ],
-    "all_frames": true
   }],
 
   "web_accessible_resources": [
