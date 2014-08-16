@@ -7,7 +7,7 @@ var injectScript = function(filePath) {
   s.src = chrome.extension.getURL(filePath);
   (document.head || document.documentElement).appendChild(s);
   s.onload = function() {
-      s.parentNode.removeChild(s);
+    s.parentNode.removeChild(s);
   };
 };
 
