@@ -16,12 +16,15 @@
       "libs/roslib.min.js",
       "google_properties_menu.js"
       ],
-		"css": ["css/style.css"],
+    "css": ["css/style.css"],
     "all_frames": true
   }],
 
   "web_accessible_resources": [
-    "images/*.png", "images/*.jpg", "pages/*.html"
+    "images/*.png",
+    "images/*.jpg",
+    "pages/*.html",
+    "*.js"
   ],
   "permissions": [
     "<all_urls>",
