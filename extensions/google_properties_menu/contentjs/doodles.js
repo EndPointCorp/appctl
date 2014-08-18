@@ -12,7 +12,7 @@ $('#pacman').click(function(){
   runPacman();
 });
 
-document.body.addEventListener(
+$('#pacman').addEventListener(
   'touchstart', 
   runPacman,
   true
