@@ -1,11 +1,11 @@
-var runPacman = function() {
+var runPacman = function(e) {
 
     $(this).addClass("selected");
     $("#choose_game").hide();
     $("#pacman_selected").show();
 
     // and send the ROS message
-    sendSwitchROSMessage($(this));
+    sendSwitchROSMessage(e);
 }
 
 $('#pacman').click(function(){
