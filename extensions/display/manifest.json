@@ -44,6 +44,7 @@
       "js": [
         "libs/eventemitter2.min.js",
         "libs/roslib.min.js",
+        "libs/jquery-2.1.1.min.js",
         "contentjs/display_switch.js"
         ],
       "all_frames": true
