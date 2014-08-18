@@ -36,9 +36,9 @@ JoystickNavigator::JoystickNavigator()
   linear_sensitivity_.angular.y = 0.0;  // roll
   linear_sensitivity_.angular.z = 0.0;  // heading
 
-  quadratic_sensitivity_.linear.x = 0.00000048;  // longitude
-  quadratic_sensitivity_.linear.y = 0.00000048;  // latitude
-  quadratic_sensitivity_.linear.z = 0.072;  // altitude
+  quadratic_sensitivity_.linear.x = 0.00000058;  // longitude
+  quadratic_sensitivity_.linear.y = 0.00000058;  // latitude
+  quadratic_sensitivity_.linear.z = 0.078;  // altitude
   quadratic_sensitivity_.angular.x = 2.2;  // pitch
   quadratic_sensitivity_.angular.y = 0.0;  // roll
   quadratic_sensitivity_.angular.z = 2.2;  // heading
