@@ -14,6 +14,6 @@ $('#pacman').click(function(){
 
 document.body.addEventListener(
   'touchstart', 
-  runPacman
+  runPacman,
   true
 );
