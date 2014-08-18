@@ -8,8 +8,6 @@ var displaySwitchTopic = new ROSLIB.Topic({
   messageType: 'std_msgs/String',
 });
 
-var previousEarthUrl = null; // we should get back to the same location from the doodle page
-
 // Elements are shown in this order
 // name   - used as a key
 // desc   - shown below the image
@@ -32,15 +30,11 @@ var sendSwitchROSMessage = function(e) {
 };
 
 var showDoodlesPage = function() {
-  previousEarthUrl = document.location;
   document.location = chrome.extension.getURL("pages/doodles.html");
 };
 
 var goBackToEarthPage = function() {
-  if (previousEarthUrl != null) {
-    document.location = previousEarthUrl;
-    previousEarthUrl = null;
-  }
+    document.location = earthURL;
 }
 
 var createElementsList = function() {
