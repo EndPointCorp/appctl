@@ -1,3 +1,4 @@
+$('body').fadein(1400);
 
 var slinkyRosDisplay = new ROSLIB.Ros({
   url: 'wss://42-b:9090'
