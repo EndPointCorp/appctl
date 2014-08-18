@@ -1,26 +1,26 @@
 @import url(http://fonts.googleapis.com/css?family=Roboto);
 
 #morefun {
-	display: table;
+  display: table;
   font-family: 'Roboto', sans-serif;
   position:absolute;
   z-index: 1234;
   right: 10px;
-	top: -20px;
-	color: rgb(207, 205, 205);
-	font-size: 50px;
+  top: -20px;
+  color: rgb(207, 205, 205);
+  font-size: 50px;
 }
 
 #morefun_items {
-	position: absolute;
-	top: 120px;
-	right: 40px;
-	width: 200px;
-	height: 200px;
+  position: absolute;
+  top: 120px;
+  right: 40px;
+  width: 200px;
+  height: 200px;
   font-family: 'Roboto', sans-serif;
   z-index: 1234;
-	background: white;
-	padding: 20px;
+  background: white;
+  padding: 20px;
 }
 
 /* TODO: place the items next to each other, with descriptions below */
@@ -29,13 +29,13 @@
 }
 
 #morefun span {
-	display: table-cell;
-	vertical-align:middle;
+  display: table-cell;
+  vertical-align:middle;
 }
 
 #morefun img {
-	display: table-cell;
-	vertical-align:middle;
+  display: table-cell;
+  vertical-align:middle;
   width: 174px;
 }
 
@@ -44,15 +44,20 @@
 
 #morefun_items li {
   width: 50px;
-	float: left;
-	margin-right: 20px;
-	margin-left: 20px;
+  float: left;
+  margin-right: 20px;
+  margin-left: 20px;
 }
 
 #morefun_items span {
+  width: 100%;
 }
 
 #morefun_items img {
-  width: 50px;
-	height: 50px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 20px;
 }
+
+
+

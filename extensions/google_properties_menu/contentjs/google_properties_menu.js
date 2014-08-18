@@ -8,6 +8,8 @@ var displaySwitchTopic = new ROSLIB.Topic({
   messageType: 'std_msgs/String',
 });
 
+var previousEarthUrl = ""; // we should get back to the same location from the doodle page
+
 // Elements are shown in this order
 // name   - used as a key
 // desc   - shown below the image
@@ -23,21 +25,23 @@ var data = [
 
 // Sends ROS message to display to change the browser's URL
 var sendSwitchROSMessage = function(e) {
-  // TODO add support at display's side
-  console.log(e);
-  console.log(e.target);
   var url = e.target.getAttribute('switch_url');
   console.log("Trying to switch display to " + url);
   var msg = new ROSLIB.Message({data:url});
   displaySwitchTopic.publish(msg);
 };
 
-
 var showDoodlesPage = function() {
-  // TODO: implement the doodles page
-  // TODO: add support for sending the ROS message to switch URL on display
+  previousEarthUrl = document.location;
   document.location = chrome.extension.getURL("pages/doodles.html");
 };
+
+var goBackToEarthPage = function() {
+  if (previousEarthUrl != null) {
+    document.location = previousEarthUrl;
+    previousEarthUrl = null;
+  }
+}
 
 var createElementsList = function() {
   
@@ -64,7 +68,7 @@ var createElementsList = function() {
     li.appendChild(img);
     li.appendChild(span);
 
-    if (action == "switch_display")  li.onclick = sendSwitchROSMessage;
+    if (action == "switch_display")  li.onclick = goBackToEarthPage;
     if (action == "showDoodlesPage") li.onclick = showDoodlesPage;
 
     ul.appendChild(li);
@@ -98,7 +102,7 @@ var initializeMoreFun = function() {
   
   d.appendChild(createElementsList());
   d.style.visibility='hidden';
-  console.log(d);
+
   document.body.appendChild(d);
 
   // and we should close the morefun_items window when clicked anywhere else...

@@ -11,6 +11,8 @@ var injectScript = function(filePath) {
   };
 };
 
-injectScript("libs/eventemitter2.min.js"),
-injectScript("libs/roslib.min.js"),
+injectScript("libs/jquery-2.1.1.min.js");
+injectScript("libs/eventemitter2.min.js");
+injectScript("libs/roslib.min.js");
 injectScript('contentjs/google_properties_menu.js');
+injectScript('contentjs/doodles.js');
