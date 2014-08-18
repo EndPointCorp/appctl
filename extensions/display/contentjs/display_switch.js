@@ -1,4 +1,4 @@
-$('body').fadein(1400);
+$(document).ready(function(){$("body").hide().fadeIn(1000);});
 
 var slinkyRosDisplay = new ROSLIB.Ros({
   url: 'wss://42-b:9090'
