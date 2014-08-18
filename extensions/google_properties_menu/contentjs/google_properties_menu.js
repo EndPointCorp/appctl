@@ -68,8 +68,23 @@ var createElementsList = function() {
     li.appendChild(img);
     li.appendChild(span);
 
-    if (action == "switch_display")  li.onclick = goBackToEarthPage;
-    if (action == "showDoodlesPage") li.onclick = showDoodlesPage;
+    if (action == "switch_display")  {
+      li.onclick = goBackToEarthPage;
+      li.addEventListener(
+        'touchstart', 
+        goBackToEarthPage,
+        true
+      );
+    }
+    if (action == "showDoodlesPage") {
+      li.onclick = showDoodlesPage;
+      
+      li.addEventListener(
+        'touchstart', 
+        showDoodlesPage,
+        true
+      );
+    }
 
     ul.appendChild(li);
   }
