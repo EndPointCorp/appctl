@@ -8,9 +8,7 @@ var runPacman = function(e) {
     sendSwitchROSMessage(e);
 }
 
-$('#pacman').click(function(){
-  runPacman();
-});
+$('#pacman').click(runPacman);
 
 document.getElementById('pacman').addEventListener(
   'touchstart',
