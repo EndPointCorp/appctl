@@ -23,6 +23,7 @@ var data = [
 
 // Sends ROS message to display to change the browser's URL
 var sendSwitchROSMessage = function(e) {
+  console.log(JSON.stringify(e));
   var url = e.target.getAttribute('switch_url');
   console.log("Trying to switch display to " + url);
   var msg = new ROSLIB.Message({data:url});
