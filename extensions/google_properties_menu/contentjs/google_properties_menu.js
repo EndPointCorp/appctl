@@ -24,6 +24,10 @@ var data = [
 // Sends ROS message to display to change the browser's URL
 var sendSwitchROSMessage = function(e) {
   var url = e.target.getAttribute('switch_url');
+  sendSwitchROSMessageURL(url);
+};
+
+var sendSwitchROSMessageURL = function(url) {
   console.log("Trying to switch display to " + url);
   var msg = new ROSLIB.Message({data:url});
   displaySwitchTopic.publish(msg);
@@ -34,6 +38,7 @@ var showDoodlesPage = function() {
 };
 
 var goBackToEarthPage = function() {
+    sendSwitchROSMessageURL(earthURL);
     document.location = earthURL;
 }
 
