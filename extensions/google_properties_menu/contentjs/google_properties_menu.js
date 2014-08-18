@@ -8,7 +8,7 @@ var displaySwitchTopic = new ROSLIB.Topic({
   messageType: 'std_msgs/String',
 });
 
-var previousEarthUrl = ""; // we should get back to the same location from the doodle page
+var previousEarthUrl = null; // we should get back to the same location from the doodle page
 
 // Elements are shown in this order
 // name   - used as a key
@@ -78,7 +78,7 @@ var createElementsList = function() {
     }
     if (action == "showDoodlesPage") {
       li.onclick = showDoodlesPage;
-      
+
       li.addEventListener(
         'touchstart', 
         showDoodlesPage,
