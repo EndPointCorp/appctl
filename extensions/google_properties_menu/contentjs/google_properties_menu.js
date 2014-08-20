@@ -18,7 +18,7 @@ var earthURL = 'http://www.google.com/maps/@-38.8532463,-58.1360617,35306177a,60
 
 var data = [
   {name: "earth",   desc: "Earth",    icon: "icon_earth.png", action:"switch_display", url:earthURL},
-  {name: "doodles", desc: "Doodles",  icon: "doodles.png",    action:"showDoodlesPage"}
+  {name: "doodles", desc: "Arcade",  icon: "doodles.png",    action:"showDoodlesPage"}
 ];
 
 // Sends ROS message to display to change the browser's URL
