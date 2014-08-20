@@ -5,7 +5,7 @@
   position:absolute;
   z-index: 1234;
   right: 10px;
-  top:  10px;
+  top:  20px;
   color: rgb(207, 205, 205);
   font-size: 30pt;
 }
@@ -13,15 +13,13 @@
 #morefun_items {
   position: absolute;
   font-size: 20pt;
-  top: 80px;
+  top: 100px;
   right: 20px;
   height: 150px;
   width: 300px;
   z-index: 1234;
   background: white;
-  padding-top: 30px;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding-top: 20px;
 }
 
 /* TODO: place the items next to each other, with descriptions below */
@@ -46,8 +44,8 @@
 #morefun_items li {
   width: 50px;
   float: left;
-  margin-right: 30px;
-  margin-left: 20px;
+  margin-left:  40px;
+  margin-right: 40px;
 }
 
 #morefun_items span {
@@ -57,7 +55,6 @@
 #morefun_items img {
   width: 64px;
   height: 64px;
-  margin-bottom: 20px;
 }
 
 
