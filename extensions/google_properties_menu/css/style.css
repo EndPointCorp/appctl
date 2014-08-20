@@ -26,7 +26,7 @@
   width: 300px;
   z-index: 1234;
   background: white;
-  padding-top: 20px;
+  padding-top: 40px;
   padding-left: 20px;
   padding-right: 20px;
 }
@@ -44,7 +44,15 @@
 }
 
 #morefun_items ul {
-  margin: 0 auto;
+  font-family: 'Roboto-Light';
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  font: inherit;
+  vertical-align: baseline;
+  background: transparent;
+  list-style: none;
 }
 
 #morefun_items li {
@@ -56,6 +64,7 @@
 
 #morefun_items span {
   width: 100%;
+  font-family: 'Roboto-Light';
 }
 
 #morefun_items img {
