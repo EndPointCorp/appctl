@@ -2,25 +2,26 @@
 
 #morefun {
   display: table;
-  font-family: 'Roboto', sans-serif;
   position:absolute;
   z-index: 1234;
   right: 10px;
-  top: -20px;
+  top:  10px;
   color: rgb(207, 205, 205);
-  font-size: 50px;
+  font-size: 30pt;
 }
 
 #morefun_items {
   position: absolute;
-  top: 120px;
-  right: 40px;
-  height: 246px;
-  width: 402px;
-  font-family: 'Roboto', sans-serif;
+  font-size: 20pt;
+  top: 80px;
+  right: 20px;
+  height: 150px;
+  width: 300px;
   z-index: 1234;
   background: white;
-  padding: 20px;
+  padding-top: 30px;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 /* TODO: place the items next to each other, with descriptions below */
@@ -36,7 +37,7 @@
 #morefun img {
   display: table-cell;
   vertical-align:middle;
-  width: 174px;
+  width: 90px;
 }
 
 #morefun_items ul {
@@ -45,7 +46,7 @@
 #morefun_items li {
   width: 50px;
   float: left;
-  margin-right: 20px;
+  margin-right: 30px;
   margin-left: 20px;
 }
 
