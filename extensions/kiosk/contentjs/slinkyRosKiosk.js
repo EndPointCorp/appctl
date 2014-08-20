@@ -285,6 +285,8 @@ acme.Kiosk.prototype.createRunwayCard = function(cardData) {
     switch (contentType) {
       case 18:
         return 'earth-tour';
+      case 11:
+        return 'photo-sphere';
       default:
         console.error('Unknown Content Type');
     }
