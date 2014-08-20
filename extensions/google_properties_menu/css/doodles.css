@@ -56,6 +56,9 @@ body {
   background-color: #545557;
 }
 
+#spacenavigator {
+  margin-top: 30px;
+}
 /*
 #morefun {
   display: table;

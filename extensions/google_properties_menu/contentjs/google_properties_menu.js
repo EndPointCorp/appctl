@@ -17,8 +17,8 @@ var displaySwitchTopic = new ROSLIB.Topic({
 var earthURL = 'http://www.google.com/maps/@-38.8532463,-58.1360617,35306177a,60y,0.69h/data=!3m1!1e3?esrch=Tactile::TactileAcme';
 
 var data = [
-  {name: "earth",   desc: "Earth",   icon: "earth.jpg",       action:"switch_display", url:earthURL},
-  {name: "doodles", desc: "Arcade",  icon: "icon_pacman.png", action:"showDoodlesPage"}
+  {name: "earth",   desc: "Earth",    icon: "icon_earth.png", action:"switch_display", url:earthURL},
+  {name: "doodles", desc: "Doodles",  icon: "doodles.png",    action:"showDoodlesPage"}
 ];
 
 // Sends ROS message to display to change the browser's URL
