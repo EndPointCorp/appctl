@@ -1,4 +1,5 @@
 #top {
+  font-family: 'Roboto-Light';
   padding-top: 30px;
   padding-left: 20px;
   color: white;
@@ -9,7 +10,7 @@
 
 body {
   font-size: 30pt;
-  font-family: 'Roboto', sans-serif;  
+  font-family: 'Roboto-Light';  
   margin: 0px;
   background-color: #2C2C2C;
 }
