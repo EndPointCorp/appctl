@@ -32,8 +32,13 @@ body {
 }
 
 #middle div {
-  width: 250px;
-  margin: 0 auto;
+  display: inline-block;
+}
+
+#middle .game {
+  width: 300px;
+  margin-left: 50px;
+  float: left;
   vertical-align: middle;
 }
 
