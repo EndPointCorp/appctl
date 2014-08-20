@@ -65,6 +65,7 @@ var initiatePacmanSpacenavHandlers = function() {
     else if (v.y < -GUTTER) move('RIGHT');
   });
 
+  console.log("Pacman loaded");
 }
 
 initiatePacmanSpacenavHandlers();
