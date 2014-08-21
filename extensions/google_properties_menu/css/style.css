@@ -1,34 +1,43 @@
 
 @font-face {
   font-family: 'Roboto';
-  font-style: normal;
+  font-style:  normal;
   font-weight: 300;
-  src: local('Roboto Light'), local('Roboto-Light'), url(//ssl.gstatic.com/fonts/roboto/v12/Pru33qjShpZSmG3z6VYwnT8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
+  src: local('Roboto Light'), local('Roboto-Light'), url(https://ssl.gstatic.com/fonts/roboto/v12/Pru33qjShpZSmG3z6VYwnT8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
 }
 
 #morefun {
-  font-family: 'Roboto-Light';
+  font-family: 'Roboto';
+  font-weight: 300;
+  font-size: 25pt;
   display: table;
-  position:absolute;
-  z-index: 1234;
-  right: 10px;
-  top:  20px;
+  position: absolute;
+  right: 19px;
+  top:  18px;
   color: rgb(207, 205, 205);
-  font-size: 30pt;
+  background: rgba(0,0,0,0.6);
+  padding-left: 20px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  z-index: 1234;
 }
 
 #morefun_items {
+  font-size: 12pt;
   position: absolute;
-  font-size: 20pt;
   top: 100px;
   right: 20px;
   height: 150px;
   width: 300px;
-  z-index: 1234;
   background: white;
   padding-top: 40px;
   padding-left: 20px;
   padding-right: 20px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  z-index: 1234;
 }
 
 /* TODO: place the items next to each other, with descriptions below */
@@ -39,12 +48,14 @@
 
 #morefun img {
   display: table-cell;
-  vertical-align:middle;
-  width: 90px;
+  vertical-align: middle;
+  background: transparent;
+  width: 81px;
 }
 
 #morefun_items ul {
-  font-family: 'Roboto-Light';
+  font-family: 'Roboto';
+  font-weight: 300;
   margin: 0;
   padding: 0;
   border: 0;
@@ -64,7 +75,8 @@
 
 #morefun_items span {
   width: 100%;
-  font-family: 'Roboto-Light';
+  font-family: 'Roboto';
+  font-weight: 300;
 }
 
 #morefun_items img {

@@ -1,5 +1,6 @@
 #top {
-  font-family: 'Roboto-Light';
+  font-family: 'Roboto';
+  font-weight: 300;
   padding-top: 30px;
   padding-left: 20px;
   color: white;
@@ -13,7 +14,8 @@ body {
   /* this will work for QtWebKit in future */
   -webkit-user-drag: none;
   font-size: 30pt;
-  font-family: 'Roboto-Light';  
+  font-family: 'Roboto';
+  font-weight: 300;
   margin: 0px;
   background-color: #2C2C2C;
 }
