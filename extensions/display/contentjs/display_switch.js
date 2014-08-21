@@ -9,7 +9,7 @@ $(document).ready(function(){
 
   console.log("x2");
 
-  $('#fade_overlay').fadeOut(2000, function() { $('#fade_overlay').remove(); console.log("x3"); } );
+  $('#fade_overlay').fadeOut(5000, function() { $('#fade_overlay').remove(); console.log("x3"); } );
 });
 
 var slinkyRosDisplay = new ROSLIB.Ros({
