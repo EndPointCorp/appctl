@@ -12,5 +12,9 @@ var displaySwitchTopic = new ROSLIB.Topic({
 
 displaySwitchTopic.subscribe(function(msg){
   var url = msg.data;
-  $('body').fadeOut(2000, function() { document.location = url } );
+
+  // the below line causes the white flickering
+  // $('body').fadeOut(2000, function() { document.location = url } );
+
+  document.location = url;
 });
