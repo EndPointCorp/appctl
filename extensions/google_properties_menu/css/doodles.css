@@ -54,7 +54,7 @@ body {
   font-size: 38pt;
 }
 
-#choose_game { 
+#choose_game {
   margin: 0 auto;
   display: table-cell;
   vertical-align: middle;
@@ -76,7 +76,6 @@ body {
   right: 10px;
   top: 10px;
   color: #737373;
-  
 }
 
 #morefun_items {
