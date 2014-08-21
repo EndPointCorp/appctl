@@ -114,6 +114,12 @@ var initializeMoreFun = function() {
   var d = document.createElement('div');
   d.id = "morefun_items";
 
+  var t = document.createElement('img');
+  t.setAttribute('src', chrome.extension.getURL("images/arrow.png"));
+  t.setAttribute('id', "arrow");
+
+  d.appendChild(t);
+
   d.appendChild(createElementsList());
   d.style.visibility='hidden';
 
