@@ -1,16 +1,19 @@
 #top {
+  font-family: 'Roboto-Light';
   padding-top: 30px;
   padding-left: 20px;
   color: white;
-  padding-top: 20px;
   padding-bottom: 20px;
   background-color: #292929;
   color: rgb(207, 205, 205);
 }
 
 body {
-  font-size: 22px;
-  font-family: 'Roboto', sans-serif;
+  -webkit-user-select: none;
+  /* this will work for QtWebKit in future */
+  -webkit-user-drag: none;
+  font-size: 30pt;
+  font-family: 'Roboto-Light';  
   margin: 0px;
   background-color: #2C2C2C;
 }
@@ -27,13 +30,18 @@ body {
   background-color: #4B4C4D;
   padding-bottom: 40px;
   padding-top: 20px;
-  font-size: 36px;
+  font-size: 41pt;
   width: 100%;
 }
 
 #middle div {
-  width: 250px;
-  margin: 0 auto;
+  display: inline-block;
+}
+
+#middle .game {
+  width: 300px;
+  margin-left: 50px;
+  float: left;
   vertical-align: middle;
 }
 
@@ -43,7 +51,7 @@ body {
   color: #696969;
   display: table;
   margin-top: 80px;
-  font-size: 30px;
+  font-size: 38pt;
 }
 
 #choose_game { 
@@ -56,6 +64,10 @@ body {
   background-color: #545557;
 }
 
+#spacenavigator {
+  margin-top: 30px;
+}
+/*
 #morefun {
   display: table;
   font-family: 'Roboto', sans-serif;
@@ -79,7 +91,7 @@ body {
   padding: 20px;
 }
 
-/* TODO: place the items next to each other, with descriptions below */
+
 #morefun_items li {
   display: block;
 }
@@ -115,3 +127,4 @@ body {
   height: 64px;
   margin-bottom: 20px;
 }
+*/
