@@ -101,7 +101,7 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
   this.hudDiv.style.color = '#e3efff';
   this.hudDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.0)';
   this.hudDiv.innerHTML =
-    '<p>Alt: <span id="' + this.hudSpanAltId + '"></span>m</p>' +
+    '<p>Elv: <span id="' + this.hudSpanAltId + '"></span>m</p>' +
     '<p>Lat: <span id="' + this.hudSpanLatId + '"></span>&deg; <span id="' +
       this.hudSpanNorthingId + '"></span></p>' +
     '<p>Lng: <span id="' + this.hudSpanLngId + '"></span>&deg; <span id="' +
