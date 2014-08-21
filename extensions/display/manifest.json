@@ -47,7 +47,8 @@
         "libs/jquery-2.1.1.min.js",
         "contentjs/display_switch.js"
         ],
-      "all_frames": true
+      "all_frames": true,
+      "run_at": "document_start"
     }
   ]
 }
