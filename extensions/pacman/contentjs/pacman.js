@@ -63,6 +63,6 @@ var initiatePacmanSpacenavHandlers = function() {
   });
 
   console.log('Pacman loaded');
-}
+};
 
 initiatePacmanSpacenavHandlers();
