@@ -3,15 +3,19 @@ console.log('Pacman extension loading');
 
 var initiatePacmanSpacenavHandlers = function() {
 
-  GUTTER = 100;
-  MESSAGE_INTERVAL = 200; // [ms]
+  var GUTTER = 180;
 
-  messageTs = 0;
+  var keyBindings = {
+    'LEFT': 37,
+    'UP': 38,
+    'RIGHT': 39,
+    'DOWN': 40
+  };
 
   var pacmanFrame = document.getElementById('i');
 
   if (pacmanFrame == null) {
-    console.log("DOM elements are not ready yet... wating for a while...");
+    console.log('DOM elements are not ready yet... wating for a while...');
     setTimeout(initiatePacmanSpacenavHandlers, 2000);
     return;
   }
@@ -24,9 +28,9 @@ var initiatePacmanSpacenavHandlers = function() {
 
   var navigatorListener = new ROSLIB.Topic({
     ros: slinkyRosKiosk,
-      name: '/spacenav/offset',
-      messageType: 'geometry_msgs/Vector3',
-      throttle_rate: 100
+      name: '/spacenav/twist',
+      messageType: 'geometry_msgs/Twist',
+      throttle_rate: 30
   });
 
   function keydown(which) {
@@ -36,36 +40,29 @@ var initiatePacmanSpacenavHandlers = function() {
     return e;
   }
 
-  var previousMessage = "";
+  var previousMessage = '';
 
   function move(direction) {
-    // var t = new Date().getTime();
-
     if (previousMessage == direction) return;
-    //if (t - messageTs < MESSAGE_INTERVAL) return;
-    //messageTs = t;
     previousMessage = direction;
 
-    if (direction == 'LEFT') left();
-    else if (direction == 'RIGHT') right();
-    else if (direction == 'DOWN') down();
-    else if (direction == 'UP') up();
+    var keyCode = keyBindings[direction];
+    pacmanWindow.dispatchEvent(keydown(keyCode));
   };
 
-  function left()  { console.log('LEFT');  pacmanWindow.dispatchEvent(keydown(37)); }
-  function up()    { console.log('UP');    pacmanWindow.dispatchEvent(keydown(38)); }
-  function right() { console.log('RIGHT'); pacmanWindow.dispatchEvent(keydown(39)); }
-  function down()  { console.log('DOWN');  pacmanWindow.dispatchEvent(keydown(40)); }
+  navigatorListener.subscribe(function(twist) {
 
-  navigatorListener.subscribe(function(v){
+    // use a combination of linear and angular values
+    var spacenavX = -twist.linear.y + twist.angular.x;
+    var spacenavY = twist.linear.x + twist.angular.y;
 
-    if (v.x > GUTTER) move('UP');
-    else if (v.x < -GUTTER) move('DOWN');
-    else if (v.y > GUTTER) move('LEFT');
-    else if (v.y < -GUTTER) move('RIGHT');
+    if (spacenavY > GUTTER) move('UP');
+    else if (spacenavY < -GUTTER) move('DOWN');
+    else if (spacenavX > GUTTER) move('RIGHT');
+    else if (spacenavX < -GUTTER) move('LEFT');
   });
 
-  console.log("Pacman loaded");
+  console.log('Pacman loaded');
 }
 
 initiatePacmanSpacenavHandlers();
