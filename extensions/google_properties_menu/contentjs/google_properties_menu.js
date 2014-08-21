@@ -43,10 +43,10 @@ var goBackToEarthPage = function() {
 }
 
 var createElementsList = function() {
-  
+
   var ul = document.createElement('ul');
   for(var i = 0 ; i < data.length ; i++ ) {
-    
+
     var name   = data[i].name;
     var desc   = data[i].desc;
     var action = data[i].action;
@@ -55,7 +55,7 @@ var createElementsList = function() {
 
     var li = document.createElement('li');
     li.setAttribute('switch_url', url);
-    
+
     var img = document.createElement('img');
     img.setAttribute('src', chrome.extension.getURL("images/" + icon));
     img.setAttribute('switch_url', url);
@@ -70,7 +70,7 @@ var createElementsList = function() {
     if (action == "switch_display")  {
       li.onclick = goBackToEarthPage;
       li.addEventListener(
-        'touchstart', 
+        'touchstart',
         goBackToEarthPage,
         true
       );
@@ -79,7 +79,7 @@ var createElementsList = function() {
       li.onclick = showDoodlesPage;
 
       li.addEventListener(
-        'touchstart', 
+        'touchstart',
         showDoodlesPage,
         true
       );
@@ -100,7 +100,7 @@ var initializeMoreFun = function() {
 
   var i = document.createElement('img');
   i.setAttribute('src', chrome.extension.getURL("images/icon_grid_grey.png"));
-  
+
   var s = document.createElement('div');
   s.id = "morefun";
   var span = document.createElement('span');
@@ -113,7 +113,7 @@ var initializeMoreFun = function() {
 
   var d = document.createElement('div');
   d.id = "morefun_items";
-  
+
   d.appendChild(createElementsList());
   d.style.visibility='hidden';
 
@@ -121,17 +121,17 @@ var initializeMoreFun = function() {
 
   // and we should close the morefun_items window when clicked anywhere else...
   document.body.addEventListener(
-      'click', 
+      'click',
       function(e){
-        if (e.target.id != 'morefun_items') 
+        if (e.target.id != 'morefun_items')
            document.getElementById("morefun_items").style.visibility='hidden';
       },
       true
   );
   document.body.addEventListener(
-      'touchstart', 
+      'touchstart',
       function(e){
-        if (e.target.id != 'morefun_items') 
+        if (e.target.id != 'morefun_items')
            document.getElementById("morefun_items").style.visibility='hidden';
       },
       true

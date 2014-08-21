@@ -19,7 +19,7 @@ var injectScript = function(index) {
   var s = document.createElement('script');
   s.src = chrome.extension.getURL(filePath);
   (document.head || document.documentElement).appendChild(s);
-  
+
   s.onload = function() {
     s.parentNode.removeChild(s);
     console.log("INJECTOR - file loaded " + filePath);
