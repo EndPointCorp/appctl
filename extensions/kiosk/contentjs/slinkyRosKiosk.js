@@ -489,8 +489,8 @@ var publishKioskCurrentPose = function(pose) {
       break;
   }
 
-  if (runwayActionRestrictions == InputSupport_.None) showZoomButtons();
-  else hideZoomButtons();
+  if (runwayActionRestrictions == InputSupport_.None) acme.kiosk.showZoomButtons();
+  else acme.kiosk.hideZoomButtons();
 
   slinkyKioskCurrentPoseTopic.publish(slinkyPose);
 };
