@@ -63,8 +63,44 @@ acme.messageAPI = acme.messageAPI || (function() {
     acme.toLocationEvent(screenX, screenY);
   };
 
+  MessageAPI.prototype.elevationQuery = function(lat, lng) {
+    var elem = document.getElementById('acmeElevationResult');
+    if (!elem) {
+      // Maps V3 API not initialized yet.
+      return;
+    }
+
+    if (!acme.elevationService) {
+      console.debug('Lazily initializing elevation service');
+      acme.elevationService = new google.maps.ElevationService();
+    }
+
+    var request = {
+      locations: [new google.maps.LatLng(lat, lng)]
+    };
+    acme.elevationService.getElevationForLocations(request, function(res, s) {
+      if (s == google.maps.ElevationStatus.OK) {
+        elem.innerHTML = '//' + JSON.stringify(res[0]);
+        var ev = new CustomEvent('acmeElevationResult');
+        window.dispatchEvent(ev);
+      } else {
+        console.error('Elevation query:', r, 'status:', s);
+      }
+    });
+  };
+
   var messageAPI = new MessageAPI();
   document.addEventListener('acme-event',
       messageAPI.handleEvent.bind(messageAPI), true);
   return messageAPI;
 })();
+
+/**
+ * Callback for initialization of legacy Maps API V3.
+ */
+acme.MapsV3Init = acme.MapsV3Init || function() {
+  console.debug('Maps V3 Init');
+  var s = document.createElement('script');
+  s.id = 'acmeElevationResult';
+  (document.head || document.documentElement).appendChild(s);
+};
