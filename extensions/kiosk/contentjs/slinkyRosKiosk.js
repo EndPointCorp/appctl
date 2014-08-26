@@ -188,7 +188,6 @@ acme.Kiosk.prototype.createFamousPlacesRunway = function() {
 
   poiRunway.id = 'acme-points-of-interest';
 
-
   var famousPlacesRunway = document.createElement('ul');
   famousPlacesRunway.id = 'acme-famous-places';
   famousPlacesRunway.className = 'acme-famous-places ' +
@@ -317,11 +316,22 @@ acme.fpContent = [
 acme.Kiosk.prototype.addFamousPlacesRunwayContent = function() {
   var famousPlacesRunway = document.querySelector('#acme-famous-places');
 
+  this.removeFamousPlacesRunwayContent();
   for (var i in acme.fpContent) {
     famousPlacesRunway.appendChild(this.createRunwayCard(acme.fpContent[i]));
   }
 };
 
+/**
+ * Add the famous places runway content.
+ */
+acme.Kiosk.prototype.removeFamousPlacesRunwayContent = function() {
+  var famousPlacesRunway = document.querySelector('#acme-famous-places');
+  var children = famousPlacesRunway.children;
+  for (var i = children.length - 1; i >= 0; i--) {
+    children[i].remove();
+  }
+}
 
 /** @type {string} */
 acme.Kiosk.RUNWAY_CARD_TEMPLATE =
@@ -574,12 +584,25 @@ var runwayContentClickHandler = function(e) {
   runwayActionRestrictions = customData[2];
 
   // Check to see if this is a planet action.  If so, remove the nav
-  // restriction.
+  // restriction and drop points of interest.
   if (customData[1] && customData[1][0] == 3) {
     // disable sound on the moon
     soundFX.enabled = (customData[1][7] != Planet.MOON);
     // Its a planet shift.  Allow the nav.
     runwayActionRestrictions = InputSupport_.NONE;
+
+    // If this is a non-earth planet no "Famous places."
+    if (customData[1][7] != Planet.EARTH) { 
+      acme.kiosk.removeFamousPlacesRunwayContent();
+    } else {
+      acme.kiosk.addFamousPlacesRunwayContent();
+    }
+  } else {
+    // Since this is not a planet action.  Make sure the famous
+    // places content exists when we're not in space.
+    if (!document.location.href.match(/space/)) {
+      acme.kiosk.addFamousPlacesRunwayContent();
+    }
   }
 
   // TODO(daden): Create a method on the large display extension.
