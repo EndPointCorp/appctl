@@ -323,7 +323,7 @@ acme.Kiosk.prototype.addFamousPlacesRunwayContent = function() {
 };
 
 /**
- * Add the famous places runway content.
+ * Remove the famous places runway content.
  */
 acme.Kiosk.prototype.removeFamousPlacesRunwayContent = function() {
   var famousPlacesRunway = document.querySelector('#acme-famous-places');
