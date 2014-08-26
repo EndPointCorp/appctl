@@ -10,6 +10,7 @@ acme.Util = function() {
 };
 
 /**
+ * Inject a script into this page.
  * @param {string} url The location of the script to inject.
  */
 acme.Util.injectScript = function(url) {
@@ -22,6 +23,7 @@ acme.Util.injectScript = function(url) {
 };
 
 /**
+ * Inject a script from this extension into the page.
  * @param {string} filePath The location of the script to inject.
  */
 acme.Util.injectExtensionScript = function(filePath) {
