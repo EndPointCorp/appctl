@@ -67,7 +67,7 @@
 }
 
 #morefun_items li {
-  width: 50px;
+  width: 64px;
   float: left;
   margin-left:  40px;
   margin-right: 40px;
@@ -77,6 +77,8 @@
   width: 100%;
   font-family: 'Roboto';
   font-weight: 300;
+  text-align: center;
+  display: block;
 }
 
 #morefun_items img {
