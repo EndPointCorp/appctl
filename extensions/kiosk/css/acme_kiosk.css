@@ -1,5 +1,12 @@
 /* Styles for ACME Kiosk. */
 
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout; none;
+}
+
 /*
  * Disable all links on the page and change them to be the
  * color of the page incase we forget to hide them.
@@ -32,7 +39,7 @@ a.gsst_a {
  * Add a zoom out to earth button.
  */
 .acme-zoom-out-earth {
-  border: 3px solid #357ae8;
+  border: 3px solid #222;
   border-radius: 2px;
   height: 100px;
   width: 100px;
@@ -65,11 +72,14 @@ a.gsst_a {
   width: 150px;
   bottom: 24px;
   position: relative;
-  background-color: gray;
+  background-color: #000;
   color: lightgray;
-  border-top-right-radius: 10px;
+  font-family: 'Roboto';
+  font-weight: 300;
+  border-top-right-radius: 3px;
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.3);
   left: -8px;
-  z-index: -1;
+  z-index: 3;
   cursor: pointer;
 }
 
@@ -78,14 +88,19 @@ a.gsst_a {
   width: 150px;
   bottom: 24px;
   position: relative;
-  background-color: gray;
+  background-color: #000;
   color: whitesmoke;
-  border-top-right-radius: 10px;
+  font-family: 'Roboto';
+  font-weight: 300;
+  border-top-right-radius: 3px;
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.3);
+  z-index: 3;
   cursor: pointer;
 }
 
 .acme-button-selected {
-  background-color: black;
+  background-color: #222;
+  z-index: 6;
 }
 
 /*
@@ -103,6 +118,7 @@ a.gsst_a {
 .widget-compass-tooltip,
 .widget-minimap-shim,
 .widget-minimap-shim-button,
+.widget-play-button-divider,
 .widget-play-replay-hud,
 .widget-play-rewind,
 .widget-expand-button-pegman,
@@ -115,16 +131,16 @@ a.gsst_a {
 .widget-zoom-tooltip,
 button.widget-runway-satellite-card,
 button.widget-play-button.widget-play-left,
-button.widget-play-button.widget-play-right,
-/* Hide the button divider if it is the 2nd or greater. */
-.widget-play-button-divider ~ .widget-play-button-divider {
+button.widget-play-button.widget-play-pause,
+button.widget-play-button.widget-play-right {
   display: none !important;
 }
 
 #searchbox,
-#titlecard,
 .app-vertical-widget-holder { zoom: 200%; }
 .widget-play-widget { bottom: 10px; zoom: 200%; }
+
+#titlecard { zoom: 220%; }
 
 .widget-runway-wide-primary-card.widget-runway-satellite-card-enabled.widget-runway-tray-wrapper,
 .widget-runway-tray-wrapper {

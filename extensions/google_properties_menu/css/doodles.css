@@ -13,6 +13,7 @@ body {
   -webkit-user-select: none;
   /* this will work for QtWebKit in future */
   -webkit-user-drag: none;
+  -webkit-touch-callout; none;
   font-size: 30pt;
   font-family: 'Roboto';
   font-weight: 300;
