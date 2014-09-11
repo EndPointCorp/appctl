@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
     int num_read = read(device_fd, event_data, sizeof(ev));
 
     if (sizeof(ev) != num_read) {
-      // don't spin until all messages have been read
+      // don't spin until all events have been read
       ros::spinOnce();
       ros::Duration(SLEEP_DURATION).sleep();
       continue;
