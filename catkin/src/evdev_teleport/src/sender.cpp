@@ -6,6 +6,7 @@
 
 #include "evdev_teleport/EvdevEvent.h"
 
+const char* DEVICE_PATH_PARAM = "device_path";
 const double SLEEP_DURATION = 0.0001; // seconds
 
 int main(int argc, char** argv) {
@@ -24,15 +25,19 @@ int main(int argc, char** argv) {
   std::string device_path;
   int device_fd;
 
-  n.param<std::string>(
-    "device_path",
-    device_path,
-    "/dev/input/by-id/usb-PIXART_USB_OPTICAL_MOUSE-event-mouse"
-  );
+  if (n.getParam(DEVICE_PATH_PARAM, device_path)) {
+    ROS_INFO("Using device: %s", device_path.c_str());
+    n.deleteParam(DEVICE_PATH_PARAM);
+  } else {
+    ROS_ERROR("Private parameter 'device_path' must be set");
+    ros::shutdown();
+    exit(EXIT_FAILURE);
+  }
 
   if ((device_fd = open(device_path.c_str(), O_RDONLY | O_NONBLOCK)) < 0) {
     perror("opening the file you specified");
     ros::shutdown();
+    exit(EXIT_FAILURE);
   }
 
   /* begin relaying from the device to the topic */

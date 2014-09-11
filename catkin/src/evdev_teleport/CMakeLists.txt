@@ -101,14 +101,14 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-add_executable(evdev_teleport_node src/sender.cpp)
+add_executable(sender_node src/sender.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(evdev_teleport_node evdev_teleport_generate_messages_cpp)
+add_dependencies(sender_node evdev_teleport_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(evdev_teleport_node
+target_link_libraries(sender_node
   ${catkin_LIBRARIES}
 )
 

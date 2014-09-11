@@ -12,7 +12,9 @@ requirement.
 
 ### Usage
 
-##### sender
+##### sender\_node
 
-The path to the device is set by the private parameter ~device\_file.
+The path to the device is set by the private parameter ~device\_file.  i.e.
+
+    rosrun evdev_teleport sender_node _device_file:=/dev/input/event2
 
