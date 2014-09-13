@@ -97,20 +97,27 @@ include_directories(
 )
 
 ## Declare a cpp library
-# add_library(evdev_teleport
-#   src/${PROJECT_NAME}/evdev_teleport.cpp
-# )
+add_library(uinput_device src/uinput_device.cpp)
 
 ## Declare a cpp executable
 add_executable(sender_node src/sender.cpp)
+add_executable(receiver_node src/receiver.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 add_dependencies(sender_node evdev_teleport_generate_messages_cpp)
+add_dependencies(receiver_node
+  evdev_teleport_generate_messages_cpp
+  uinput_device
+)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(sender_node
   ${catkin_LIBRARIES}
+)
+target_link_libraries(receiver_node
+  ${catkin_LIBRARIES}
+  uinput_device
 )
 
 #############
