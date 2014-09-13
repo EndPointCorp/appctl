@@ -3,8 +3,10 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <string>
+#include <vector>
 
 #include "evdev_teleport/EvdevEvent.h"
+#include "evdev_teleport/EvdevEvents.h"
 
 const char* DEVICE_PATH_PARAM = "device_path";
 const double SLEEP_DURATION = 0.0001; // seconds
@@ -16,9 +18,6 @@ int main(int argc, char** argv) {
   ros::init(argc, argv, "evdev_teleport_sender");
 
   ros::NodeHandle n("~");
-
-  ros::Publisher evdev_pub =
-    n.advertise<evdev_teleport::EvdevEvent>("/evdev_teleport/event", 100);
 
   /* open the device */
 
@@ -40,35 +39,44 @@ int main(int argc, char** argv) {
     exit(EXIT_FAILURE);
   }
 
+  /* advertise the topic */
+
+  ros::Publisher evdev_pub =
+    n.advertise<evdev_teleport::EvdevEvents>("/evdev_teleport/event", 1);
+
   /* begin relaying from the device to the topic */
+
+  evdev_teleport::EvdevEvents events_msg;
 
   while(ros::ok()) {
     struct input_event ev;
     struct input_event *event_data = &ev;
-    evdev_teleport::EvdevEvent msg;
+    evdev_teleport::EvdevEvent event_msg;
 
     int num_read = read(device_fd, event_data, sizeof(ev));
 
     if (sizeof(ev) != num_read) {
-      // don't spin until all events have been read
-      ros::spinOnce();
       ros::Duration(SLEEP_DURATION).sleep();
       continue;
     }
 
-    if (event_data->type == EV_SYN)
-      continue; // ignore EV_SYN events
+    if (event_data->type == EV_SYN) {
+      if (!events_msg.events.empty()) {
+        evdev_pub.publish(events_msg);
+        events_msg.events.clear();
+      }
+      ros::spinOnce();
+      continue;
+    }
 
-    msg.type = event_data->type;
-    msg.code = event_data->code;
-    msg.value = event_data->value;
-
-    evdev_pub.publish(msg);
+    event_msg.type = event_data->type;
+    event_msg.code = event_data->code;
+    event_msg.value = event_data->value;
+    events_msg.events.push_back(event_msg);
 
     ROS_DEBUG(
-      "published type: %d code: %d value: %d\n",
-      event_data->type, event_data->code, event_data->value
+      "got type: %d code: %d value: %d\n",
+      event_msg.type, event_msg.code, event_msg.value
     );
-
   }
 }
