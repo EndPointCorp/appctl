@@ -14,7 +14,26 @@ requirement.
 
 ##### sender\_node
 
-The path to the device is set by the private parameter ~device\_file.  i.e.
+The path to the real device is set by the private parameter ~device\_file.
+i.e.
 
     rosrun evdev_teleport sender_node _device_file:=/dev/input/event2
 
+##### receiver\_node
+
+The name of the virtual device is set by the private parameter ~device\_name.
+i.e.
+
+    rosrun evdev_teleport receiver_node _device_name:="Virtual Thing"
+
+### Reference
+
+[Event types and codes][1]
+
+[Input interface][2]
+
+[Uinput interface][3]
+
+[1]: http://lxr.free-electrons.com/source/include/uapi/linux/input.h
+[2]: http://lxr.free-electrons.com/source/include/linux/input.h
+[3]: http://lxr.free-electrons.com/source/include/linux/uinput.h
