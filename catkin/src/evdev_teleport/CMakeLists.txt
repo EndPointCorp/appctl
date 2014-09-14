@@ -110,6 +110,7 @@ add_dependencies(receiver_node
   evdev_teleport_generate_messages_cpp
   uinput_device
 )
+add_dependencies(uinput_device evdev_teleport_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(sender_node

@@ -110,6 +110,9 @@ add_dependencies(slinky_nav
   slinky_nav_generate_messages_cpp
   joystick_navigator
 )
+add_dependencies(joystick_navigator
+  slinky_nav_generate_messages_cpp
+)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(slinky_nav
