@@ -28,12 +28,15 @@ i.e.
 
 ### Reference
 
-[Event types and codes][1]
+[Explanation of event types and codes][0]
+
+[Event types and codes (input.h)][1]
 
 [Input interface][2]
 
 [Uinput interface][3]
 
+[0]: https://www.kernel.org/doc/Documentation/input/event-codes.txt
 [1]: http://lxr.free-electrons.com/source/include/uapi/linux/input.h
 [2]: http://lxr.free-electrons.com/source/include/linux/input.h
 [3]: http://lxr.free-electrons.com/source/include/linux/uinput.h
