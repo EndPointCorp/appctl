@@ -1,6 +1,8 @@
 #include "ros/ros.h"
 #include <linux/input.h>
 #include <fcntl.h>
+#include <poll.h>
+#include <signal.h>
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -9,7 +11,6 @@
 #include "evdev_teleport/EvdevEvents.h"
 
 const char* DEVICE_PATH_PARAM = "device_path";
-const double SLEEP_DURATION = 0.0001; // seconds
 
 int main(int argc, char** argv) {
 
@@ -39,6 +40,13 @@ int main(int argc, char** argv) {
     exit(EXIT_FAILURE);
   }
 
+  /* set up fd polling */
+
+  struct pollfd poll_fd;
+  memset(&poll_fd, 0, sizeof(poll_fd));
+  poll_fd.fd = device_fd;
+  poll_fd.events = POLLIN;
+
   /* advertise the topic */
 
   ros::Publisher evdev_pub =
@@ -53,14 +61,30 @@ int main(int argc, char** argv) {
     struct input_event *event_data = &ev;
     evdev_teleport::EvdevEvent event_msg;
 
-    int num_read = read(device_fd, event_data, sizeof(ev));
+    /* read an event */
 
-    if (sizeof(ev) != num_read) {
-      ros::Duration(SLEEP_DURATION).sleep();
-      continue;
+    int status = poll(&poll_fd, 1, -1);
+    if (status == 1) {
+      // device is ready to read
+      int num_read = read(device_fd, event_data, sizeof(ev));
+
+      if (num_read != sizeof(ev)) {
+        ROS_ERROR("Error getting next event");
+        ros::shutdown();
+        exit(EXIT_FAILURE);
+      }
+
+    } else {
+      // an error has occurred
+      perror("polling device");
+      ros::shutdown();
+      exit(EXIT_FAILURE);
     }
 
+    /* handle the event */
+
     if (event_data->type == EV_SYN) {
+      // only publish when a syn event is read
       if (!events_msg.events.empty()) {
         evdev_pub.publish(events_msg);
         events_msg.events.clear();
@@ -69,6 +93,7 @@ int main(int argc, char** argv) {
       continue;
     }
 
+    // non-syn events are aggregated
     event_msg.type = event_data->type;
     event_msg.code = event_data->code;
     event_msg.value = event_data->value;
