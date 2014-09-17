@@ -15,24 +15,16 @@
 UinputDevice::UinputDevice() {}
 
 /*
- * Enables an event type and all codes on a uinput device that is still
- * being initialized.
+ * Shortcut for enabling an event type or code during virtual device setup.
+ * Returns true on success.
  */
-bool UinputDevice::EnableCodes(int fd, int typeBits, int codeBits, int codeMax) {
-  int status;
-
-  status = ioctl(fd, UI_SET_EVBIT, typeBits);
-  if (status != 0) {
-    ROS_ERROR_STREAM("failed to enable type " << typeBits);
+bool UinputDevice::EnableCode(int fd, int codeBits, int code) {
+  if (ioctl(fd, codeBits, code) != 0) {
+    ROS_ERROR_STREAM("failed to enable code " << codeBits << ":" << code);
     return false;
   }
-  for (int i = 0; i < codeMax; i++) {
-    status = ioctl(fd, codeBits, i);
-    if (status != 0) {
-      ROS_ERROR_STREAM("failed to enable type " << typeBits << " code " << i);
-      return false;
-    }
-  }
+
+  return true;
 }
 
 /*
@@ -44,12 +36,11 @@ bool UinputDevice::CreateDevice(const std::string dev_name) {
   int fd;
   int status;
 
-  // poc hardcoded <hax>
+  // poc hardcoded <hax> does this stuff matter?
+  // doesn't show up in udev, but does in xinput
   int id_vendor = 0x0001;
   int id_product = 0x0002;
   int version = 1;
-  int abs_min[] = { -1024, -1024 };
-  int abs_max[] = { 1024, 1024 };
   // </hax>
 
   // open the special uinput device
@@ -59,11 +50,21 @@ bool UinputDevice::CreateDevice(const std::string dev_name) {
     return false;
   }
 
-  // enable some codes
-  EnableCodes(fd, EV_REL, UI_SET_RELBIT, REL_MAX);
-  EnableCodes(fd, EV_ABS, UI_SET_ABSBIT, ABS_MAX);
-  EnableCodes(fd, EV_KEY, UI_SET_KEYBIT, KEY_MAX);
-  EnableCodes(fd, EV_MSC, UI_SET_MSCBIT, MSC_MAX);
+  // enable some codes for the ELO touchscreen <hax>
+  // some of these are reported from sniffed touchscreen events
+  // others i found on stack
+  // http://stackoverflow.com/questions/18544734
+  EnableCode(fd, UI_SET_EVBIT, EV_SYN);
+  EnableCode(fd, UI_SET_EVBIT, EV_KEY);
+  EnableCode(fd, UI_SET_KEYBIT, BTN_TOUCH);
+  EnableCode(fd, UI_SET_EVBIT, EV_ABS);
+  EnableCode(fd, UI_SET_ABSBIT, ABS_X);
+  EnableCode(fd, UI_SET_ABSBIT, ABS_Y);
+  EnableCode(fd, UI_SET_ABSBIT, ABS_MT_POSITION_X);
+  EnableCode(fd, UI_SET_ABSBIT, ABS_MT_POSITION_Y);
+  EnableCode(fd, UI_SET_ABSBIT, ABS_MT_TRACKING_ID);
+  EnableCode(fd, UI_SET_ABSBIT, ABS_MT_SLOT);
+  // </hax>
 
   // initialize the user device struct
   memset(&uidev, 0, sizeof(uidev));
@@ -72,20 +73,23 @@ bool UinputDevice::CreateDevice(const std::string dev_name) {
   strncpy(uidev.name, dev_name.c_str(), UINPUT_MAX_NAME_SIZE);
 
   // set more device attributes
-  uidev.id.bustype = BUS_VIRTUAL;
+  uidev.id.bustype = BUS_VIRTUAL; // good as any? not visible in udev props
   uidev.id.vendor = (__u16)id_vendor;
   uidev.id.product = (__u16)id_product;
   uidev.id.version = (__u16)version;
 
-  // set ABS min/max values
-  /*
-  for (int i = 0; i < sizeof(abs_min); i++) {
-    uidev.absmin[i] = abs_min[i];
-  }
-  for (int i = 0; i < sizeof(abs_max); i++) {
-    uidev.absmax[i] = abs_max[i];
-  }
-  */
+  // set ABS min/max values for the ELO touchscreen <hax>
+  // x/y axes, find these for your touchscreen with xinput list #ID#
+  uidev.absmax[ABS_X] = 32767;
+  uidev.absmax[ABS_Y] = 32767;
+  uidev.absmax[ABS_MT_POSITION_X] = 32767;
+  uidev.absmax[ABS_MT_POSITION_Y] = 32767;
+  // ID for tracking unique touches, constant for any touchscreen?
+  uidev.absmax[ABS_MT_TRACKING_ID] = 65535;
+  // number of touch slots (start at 0)
+  // this is also in the output of xinput list #ID#
+  uidev.absmax[ABS_MT_SLOT] = 9;
+  // </hax>
 
   // write the device information
   status = write(fd, &uidev, sizeof(uidev));

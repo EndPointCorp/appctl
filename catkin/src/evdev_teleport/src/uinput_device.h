@@ -20,7 +20,7 @@ class UinputDevice {
     bool WriteEvent(__u16 type, __u16 code, __s32 value);
 
   private:
-    static bool EnableCodes(int fd, int typeBits, int codeBits, int codeMax);
+    static bool EnableCode(int fd, int codeBits, int code);
 
     int fd_;
 };
