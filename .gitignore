@@ -17,3 +17,10 @@ docs/
 
 # osx
 .DS_Store
+
+*.pyc
+
+# untracked external repositories
+catkin/geographic_info
+catkin/src/geographic_msgs
+catkin/src/leap_motion
