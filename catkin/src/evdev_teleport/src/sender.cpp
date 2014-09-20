@@ -10,7 +10,7 @@
 #include "evdev_teleport/EvdevEvent.h"
 #include "evdev_teleport/EvdevEvents.h"
 
-const char* DEVICE_PATH_PARAM = "device_path";
+const char* DEVICE_PATH_PARAM = "~device_path";
 
 int main(int argc, char** argv) {
 
@@ -18,16 +18,15 @@ int main(int argc, char** argv) {
 
   ros::init(argc, argv, "evdev_teleport_sender");
 
-  ros::NodeHandle n("~");
+  ros::NodeHandle n;
 
   /* open the device */
 
   std::string device_path;
   int device_fd;
 
-  if (n.getParam(DEVICE_PATH_PARAM, device_path)) {
+  if (ros::param::get(DEVICE_PATH_PARAM, device_path)) {
     ROS_INFO("Using device: %s", device_path.c_str());
-    n.deleteParam(DEVICE_PATH_PARAM);
   } else {
     ROS_ERROR("Private parameter 'device_path' must be set");
     ros::shutdown();
