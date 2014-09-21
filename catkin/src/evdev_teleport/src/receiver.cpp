@@ -20,7 +20,6 @@ int main(int argc, char** argv) {
 
   if (n.getParam(DEVICE_NAME_PARAM, device_name)) {
     ROS_DEBUG("Creating device: %s", device_name.c_str());
-    n.deleteParam(DEVICE_NAME_PARAM);
   } else {
     ROS_ERROR("Private parameter 'device_name' must be set");
     ros::shutdown();
