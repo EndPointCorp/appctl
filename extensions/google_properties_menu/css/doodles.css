@@ -25,6 +25,11 @@ body {
   pointer-events: none;
 }
 
+.game>img {
+  width: 237px;
+  height: 237px;
+}
+
 #middle {
   margin-top: 160px;
   text-align: center;
