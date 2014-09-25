@@ -14,7 +14,7 @@ var displaySwitchTopic = new ROSLIB.Topic({
 // icon   - the image used for an icon, must be in the 'images' directory
 // action - (switch_display|showDoodlesPage)
 // url     - url to switch by the action switch_display
-var earthURL = 'http://www.google.com/maps/@-38.8532463,-58.1360617,35306177a,60y,0.69h/data=!3m1!1e3?esrch=Tactile::TactileAcme';
+var earthURL = 'http://lg-head/portal-loader.html';
 
 var data = [
   {
