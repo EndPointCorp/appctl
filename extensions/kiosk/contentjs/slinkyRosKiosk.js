@@ -522,9 +522,9 @@ var runwayContentClickHandler = function(e) {
   if (customData[1] && customData[1][0] == 3) {
     // disable sound on the moon
     if (customData[1][7] != Planet.MOON) {
-      soundFX.enable();
+      //soundFX.enable();
     } else {
-      soundFX.disable();
+      //soundFX.disable();
     }
     // Its a planet shift.  Allow the nav.
     runwayActionRestrictions = InputSupport_.NONE;
@@ -538,9 +538,9 @@ var runwayContentClickHandler = function(e) {
   } else {
     // disable sound if there are any special input restrictions
     if (runwayActionRestrictions == InputSupport_.NONE) {
-      soundFX.enable();
+      //soundFX.enable();
     } else {
-      soundFX.disable();
+      //soundFX.disable();
     }
     // Since this is not a planet action.  Make sure the famous
     // places content exists when we're not in space.
@@ -571,7 +571,7 @@ var runwayContentExitHandler = function(e) {
   }
   console.log('runwayContentExitHandler');
   runwayActionRestrictions = InputSupport_.NONE;
-  soundFX.enable();
+  //soundFX.enable();
 
   // TODO(daden): Generate an ESC keydown event on the large display extension.
   // AcmeKeyboard.keydown(27);
@@ -581,9 +581,9 @@ var runwayContentExitHandler = function(e) {
   runwayContentTopic.publish(runwayMsg);
 };
 
-var soundFX = new SoundFX();
+//var soundFX = new SoundFX();
 navigatorListener.subscribe(function(rosPoseStamped) {
-  soundFX.handlePoseChange(rosPoseStamped);
+  //soundFX.handlePoseChange(rosPoseStamped);
   handleRosPoseChange(rosPoseStamped);
 });
 
