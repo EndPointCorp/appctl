@@ -19,7 +19,7 @@ var earthURL = 'http://www.google.com/maps/@-38.8532463,-58.1360617,35306177a,60
 var data = [
   {
     name: 'earth',
-    desc: 'Earth',
+    desc: 'Maps',
     icon: 'icon_earth.png',
     action: 'switch_display',
     url: earthURL
