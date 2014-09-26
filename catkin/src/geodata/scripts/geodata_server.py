@@ -4,43 +4,21 @@ from geodata.srv import GeodataQuery
 import rospy
 import math
 import numpy as np
-
-DATA_HEADER_SIZE = 6
+import os
 
 class GeodataLayer():
   def __init__(self, path):
-    self.path = path
     with open(path) as f:
-      lines = f.readlines()
+      d = np.load(f)
+      params = dict(d['params'])
+      self.data = d['d']
 
-    # parse the header
-    params = map(lambda line: line.strip().split(), lines[0:DATA_HEADER_SIZE])
-
-    self.ncols = int(GeodataLayer.read_param('ncols', params))
-    self.nrows = int(GeodataLayer.read_param('nrows', params))
-    self.xllcorner = float(GeodataLayer.read_param('xllcorner', params))
-    self.yllcorner = float(GeodataLayer.read_param('yllcorner', params))
-    self.cellsize = float(GeodataLayer.read_param('cellsize', params))
-    self.nodata_value = float(GeodataLayer.read_param('NODATA_value', params))
-
-    # load data points into 2d array of floats
-    self.data = np.array(
-      map(lambda l: l.split(), lines[DATA_HEADER_SIZE:]),
-      dtype=np.float32
-    )
-
-    #self.rad = 4
-    #self.weights = np.zeros((self.rad*2,self.rad*2))
-    #yog,xog = np.ogrid[
-    #  -self.rad:self.rad,
-    #  -self.rad:self.rad
-    #]
-    #self.mask = xog*xog + yog*yog <= self.rad * self.rad
-    #self.weights[self.mask] = 1
-
-  @staticmethod
-  def read_param(key, params):
-    return filter(lambda p: p[0] == key, params)[0][1]
+    self.ncols = int(params['ncols'])
+    self.nrows = int(params['nrows'])
+    self.xllcorner = float(params['xllcorner'])
+    self.yllcorner = float(params['yllcorner'])
+    self.cellsize = float(params['cellsize'])
+    self.nodata_value = float(params['nodata_value'])
 
   def query(self, req):
     lat = req.point.latitude
@@ -65,6 +43,13 @@ class GeodataLayer():
     else:
       val = self.data[y, x]
 
+    rospy.loginfo('query for lat: {} lng: {} rad: {} yields: {}'.format(
+      lat,
+      lng,
+      rad,
+      val
+    ))
+
     return val
 
 def geodata_server():
@@ -73,7 +58,12 @@ def geodata_server():
   # load a population count layer
   # http://sedac.ciesin.columbia.edu/data/set/gpw-v3-population-count-future-estimates/data-download
   # Population Count Grid Future Estimates, v3 (2015)
-  layer = GeodataLayer('/tmp/glp15ag.asc')
+  src_path = rospy.get_param(
+    '~src',
+    '/opt/ros/{}/share/geodata_population.npz'.format(os.environ['ROS_DISTRO'])
+  )
+  layer = GeodataLayer(src_path)
+
   s = rospy.Service('geodata/population', GeodataQuery, layer.query)
 
   print 'ready.'
