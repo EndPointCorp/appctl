@@ -43,13 +43,6 @@ class GeodataLayer():
     else:
       val = self.data[y, x]
 
-    rospy.loginfo('query for lat: {} lng: {} rad: {} yields: {}'.format(
-      lat,
-      lng,
-      rad,
-      val
-    ))
-
     return val
 
 def geodata_server():
