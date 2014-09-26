@@ -1,0 +1,12 @@
+Source: ros-indigo-evdev-teleport
+Section: misc
+Priority: extra
+Maintainer: End Point Corp LG R&D <lg-rad@endpoint.com>
+Build-Depends: debhelper (>= 9.0.0), ros-indigo-catkin, ros-indigo-roscpp, ros-indigo-message-generation, linux-headers
+Homepage: http://liquid-galaxy.endpoint.com
+Standards-Version: 3.9.2
+
+Package: ros-indigo-evdev-teleport
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-roscpp
+Description: ROS interface for teleporting evdev events.

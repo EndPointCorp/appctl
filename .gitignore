@@ -24,3 +24,6 @@ docs/
 catkin/geographic_info
 catkin/src/geographic_msgs
 catkin/src/leap_motion
+
+catkin/src/*/debian/files
+catkin/src/*/obj-*-linux-gnu
