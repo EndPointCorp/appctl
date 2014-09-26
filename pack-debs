@@ -1,0 +1,27 @@
+#!/bin/bash
+# vim:set ai sts=4 ts=4 sw=4 expandtab filetype=sh:
+
+set -e
+
+MY_DIR="$( dirname "${0}" )"
+DEB_DIR="catkin"
+ROS_REL="ros-indigo"
+
+if [ "${MY_DIR}" == "." ]; then
+    MY_DIR="${PWD}"
+fi
+
+for pkgable in `find "${MY_DIR}/${DEB_DIR}" -type f -path '*/debian/rules'`; do
+    pkg_dir="$( dirname $( dirname $pkgable ) )"
+    pkg_name="$( basename ${pkg_dir} )"
+    pkg_ver="$( dpkg-parsechangelog -l${pkg_dir}/debian/changelog --show-field Version | cut -d'-' -f1 )"
+    tar -C ${pkg_dir}/.. \
+        --exclude='*/.git' \
+        --exclude="*/debian/${ROS_REL}-*" \
+        --exclude='*/obj-*-linux-gnu' \
+        -czvvf ${pkg_dir}/../${ROS_REL}-$( echo ${pkg_name} | tr '_' '-' )_${pkg_ver}.orig.tar.gz \
+        ./${pkg_name}
+    pushd ${pkg_dir}
+    dpkg-buildpackage -uc -us
+    popd
+done
