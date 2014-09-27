@@ -32,5 +32,5 @@ Runs the geodata service.
 ##### params
 
 * ~src - Path to the data file (default:
-  /opt/ros/$ROS\_DISTRO$/share/geodata\_population.npz).
+  /opt/ros/$ROS\_DISTRO$/share/geodata/geodata\_population.npz).
 

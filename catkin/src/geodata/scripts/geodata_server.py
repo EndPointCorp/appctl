@@ -53,7 +53,7 @@ def geodata_server():
   # Population Count Grid Future Estimates, v3 (2015)
   src_path = rospy.get_param(
     '~src',
-    '/opt/ros/{}/share/geodata_population.npz'.format(os.environ['ROS_DISTRO'])
+    '/opt/ros/{}/share/geodata/geodata_population.npz'.format(os.environ['ROS_DISTRO'])
   )
   layer = GeodataLayer(src_path)
 
