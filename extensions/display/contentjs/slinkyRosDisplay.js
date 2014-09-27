@@ -308,7 +308,7 @@ var populationService = new ROSLIB.Service({
 });
 
 window.addEventListener('acmePopulationQuery', function(ev) {
-  populationService.callService({
+  var populationRequest = new ROSLIB.ServiceRequest({
     layer: 'population',
     point: {
       latitude: ev.detail.latitude,
@@ -316,7 +316,15 @@ window.addEventListener('acmePopulationQuery', function(ev) {
       altitude: 0
     },
     radius: ev.detail.radius
-  }, ev.detail.callback);
+  });
+
+  populationService.callService(
+    populationRequest,
+    ev.detail.callback,
+    function(err) {
+      console.error('querying population service:', err);
+    }
+  );
 }, true);
 
 /**
