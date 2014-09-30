@@ -1,7 +1,7 @@
 /**
  * Inject the GL shaders into the page.
  */
-var SlinkyShaders = (function() {
+var PortalShaders = (function() {
   // Particle Shaders.
   var script0 = document.createElement('script');
   script0.type = 'x-shader/x-vertex';

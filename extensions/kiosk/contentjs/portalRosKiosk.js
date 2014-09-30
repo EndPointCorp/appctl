@@ -1,4 +1,4 @@
-console.log('Slinky Kiosk');
+console.log('Portal Kiosk');
 
 /* Acme Namespace */
 var acme = acme || {};
@@ -27,12 +27,12 @@ acme.Util.injectScript('contentjs/inject.js');
 /*
  * Load the style overrides.
  */
-var slinkyStyleOverrides = document.createElement('link');
-slinkyStyleOverrides.setAttribute('rel', 'stylesheet');
-slinkyStyleOverrides.setAttribute('type', 'text/css');
-slinkyStyleOverrides.setAttribute('href',
+var portalStyleOverrides = document.createElement('link');
+portalStyleOverrides.setAttribute('rel', 'stylesheet');
+portalStyleOverrides.setAttribute('type', 'text/css');
+portalStyleOverrides.setAttribute('href',
     chrome.extension.getURL('css/acme_kiosk.css'));
-document.getElementsByTagName('head')[0].appendChild(slinkyStyleOverrides);
+document.getElementsByTagName('head')[0].appendChild(portalStyleOverrides);
 
 /**
 * Keep this in sync with core:tactile.acme.InputSupport_
@@ -321,52 +321,52 @@ acme.Kiosk.prototype.createRunwayCard = function(cardData) {
 /** The ACME Kiosk object. */
 acme.kiosk = new acme.Kiosk();
 
-var slinkyRosKiosk = new ROSLIB.Ros({
+var portalRosKiosk = new ROSLIB.Ros({
   url: 'wss://42-b:9090'
 });
 
 var joystickTopic = new ROSLIB.Topic({
-  ros: slinkyRosKiosk,
+  ros: portalRosKiosk,
   name: '/joystick/twist',
   messageType: 'geometry_msgs/Twist',
   throttle_rate: 30
 });
 
 var navigatorListener = new ROSLIB.Topic({
-  ros: slinkyRosKiosk,
-  name: '/slinky_nav/kiosk_goto_pose',
+  ros: portalRosKiosk,
+  name: '/portal_nav/kiosk_goto_pose',
   messageType: 'geometry_msgs/PoseStamped',
   throttle_rate: 30,
   queue_length: 2
 });
 
-var slinkyKioskCurrentPoseTopic = new ROSLIB.Topic({
-  ros: slinkyRosKiosk,
-  name: '/slinky_kiosk/current_pose',
-  messageType: 'slinky_nav/SlinkyPose'
+var portalKioskCurrentPoseTopic = new ROSLIB.Topic({
+  ros: portalRosKiosk,
+  name: '/portal_kiosk/current_pose',
+  messageType: 'portal_nav/PortalPose'
 });
 
 var runwayContentTopic = new ROSLIB.Topic({
-  ros: slinkyRosKiosk,
-  name: '/slinky_kiosk/runway',
+  ros: portalRosKiosk,
+  name: '/portal_kiosk/runway',
   // TODO(daden): quick hack to get the string across, we should create our own
   // ROS message for passing this data across in the future.
   messageType: 'std_msgs/String'
 });
 
 var proximityPresenceTopic = new ROSLIB.Topic({
-  ros: slinkyRosKiosk,
+  ros: portalRosKiosk,
   name: '/proximity/presence',
   messageType: 'std_msgs/Bool'
 });
 
 var dumpUpdateToScreen = function(message) {
   var stringifiedMessage = JSON.stringify(message);
-  var debugArea = document.getElementById('slinkydebug');
+  var debugArea = document.getElementById('portaldebug');
   if (!debugArea) {
     debugArea = document.createElement('div');
-    debugArea.id = 'slinkydebug';
-    debugArea.className = 'acme-slinky-debug';
+    debugArea.id = 'portaldebug';
+    debugArea.className = 'acme-portal-debug';
     document.body.appendChild(debugArea);
   }
   debugArea.textContent = stringifiedMessage;
@@ -402,7 +402,7 @@ var publishKioskCurrentPose = function(pose) {
   var NOMINAL_HDG_MIN = 0.0;
   var NOMINAL_HDG_MAX = 360.0;
 
-  var slinkyPose = new ROSLIB.Message({
+  var portalPose = new ROSLIB.Message({
     current_pose: {
       position: {
         x: pose.lon,
@@ -448,52 +448,52 @@ var publishKioskCurrentPose = function(pose) {
   switch (runwayActionRestrictions) {
     case InputSupport_.DISABLED:
       // All pose settings fixed to current.
-      slinkyPose.pose_minimums.position.x =
-          slinkyPose.pose_maximums.position.x =
-          slinkyPose.current_pose.position.x;
-      slinkyPose.pose_minimums.position.y =
-          slinkyPose.pose_maximums.position.y =
-          slinkyPose.current_pose.position.y;
-      slinkyPose.pose_minimums.position.z =
-          slinkyPose.pose_maximums.position.z =
-          slinkyPose.current_pose.position.z;
-      slinkyPose.pose_minimums.orientation.x =
-          slinkyPose.pose_maximums.orientation.x =
-          slinkyPose.current_pose.orientation.x;
-      slinkyPose.pose_minimums.orientation.z =
-          slinkyPose.pose_maximums.orientation.z =
-          slinkyPose.current_pose.orientation.z;
+      portalPose.pose_minimums.position.x =
+          portalPose.pose_maximums.position.x =
+          portalPose.current_pose.position.x;
+      portalPose.pose_minimums.position.y =
+          portalPose.pose_maximums.position.y =
+          portalPose.current_pose.position.y;
+      portalPose.pose_minimums.position.z =
+          portalPose.pose_maximums.position.z =
+          portalPose.current_pose.position.z;
+      portalPose.pose_minimums.orientation.x =
+          portalPose.pose_maximums.orientation.x =
+          portalPose.current_pose.orientation.x;
+      portalPose.pose_minimums.orientation.z =
+          portalPose.pose_maximums.orientation.z =
+          portalPose.current_pose.orientation.z;
       break;
 
     case InputSupport_.NO_ZOOM:
       // Alt is fixed to current.
-      slinkyPose.pose_minimums.position.z =
-          slinkyPose.pose_maximums.position.z =
-          slinkyPose.current_pose.position.z;
+      portalPose.pose_minimums.position.z =
+          portalPose.pose_maximums.position.z =
+          portalPose.current_pose.position.z;
       break;
 
     case InputSupport_.NO_ZOOM_NO_PAN:
       // Lat, Lon, and Alt are fixed to current.
-      slinkyPose.pose_minimums.position.x =
-          slinkyPose.pose_maximums.position.x =
-          slinkyPose.current_pose.position.x;
-      slinkyPose.pose_minimums.position.y =
-          slinkyPose.pose_maximums.position.y =
-          slinkyPose.current_pose.position.y;
-      slinkyPose.pose_minimums.position.z =
-          slinkyPose.pose_maximums.position.z =
-          slinkyPose.current_pose.position.z;
+      portalPose.pose_minimums.position.x =
+          portalPose.pose_maximums.position.x =
+          portalPose.current_pose.position.x;
+      portalPose.pose_minimums.position.y =
+          portalPose.pose_maximums.position.y =
+          portalPose.current_pose.position.y;
+      portalPose.pose_minimums.position.z =
+          portalPose.pose_maximums.position.z =
+          portalPose.current_pose.position.z;
 
       // HACK(paulby) assume this is a photosphere.
       // Tilt is allowed up to 180 in a photosphere.
-      slinkyPose.pose_maximums.orientation.x = 180;
+      portalPose.pose_maximums.orientation.x = 180;
       break;
 
     default:
       break;
   }
 
-  slinkyKioskCurrentPoseTopic.publish(slinkyPose);
+  portalKioskCurrentPoseTopic.publish(portalPose);
 };
 
 /**

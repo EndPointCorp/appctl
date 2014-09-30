@@ -22,12 +22,12 @@ var initiatePacmanSpacenavHandlers = function() {
 
   var pacmanWindow = pacmanFrame.contentWindow;
 
-  var slinkyRosKiosk = new ROSLIB.Ros({
+  var portalRos = new ROSLIB.Ros({
     url: 'wss://42-b:9090'
   });
 
   var navigatorListener = new ROSLIB.Topic({
-    ros: slinkyRosKiosk,
+    ros: portalRos,
       name: '/spacenav/twist',
       messageType: 'geometry_msgs/Twist',
       throttle_rate: 30

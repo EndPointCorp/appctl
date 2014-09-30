@@ -12,12 +12,12 @@ $(document).ready(function(){
   $('#fade_overlay').fadeOut(5000, function() { $('#fade_overlay').remove(); console.log("x3"); } );
 });
 
-var slinkyRosDisplay = new ROSLIB.Ros({
+var portalRosDisplay = new ROSLIB.Ros({
   url: 'wss://42-b:9090'
 });
 
 var displaySwitchTopic = new ROSLIB.Topic({
-  ros: slinkyRosDisplay,
+  ros: portalRosDisplay,
   name: '/display/switch',
   messageType: 'std_msgs/String',
 });

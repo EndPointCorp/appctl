@@ -1,9 +1,9 @@
-var slinkyRosGoogleMenu = new ROSLIB.Ros({
+var portalRos = new ROSLIB.Ros({
   url: 'wss://42-b:9090'
 });
 
 var displaySwitchTopic = new ROSLIB.Topic({
-  ros: slinkyRosGoogleMenu,
+  ros: portalRos,
   name: '/display/switch',
   messageType: 'std_msgs/String'
 });

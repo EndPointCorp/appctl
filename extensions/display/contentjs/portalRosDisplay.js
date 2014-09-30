@@ -1,4 +1,4 @@
-console.log('Slinky Large Display');
+console.log('Portal Large Display');
 
 /* Acme Namespace */
 var acme = acme || {};
@@ -27,12 +27,12 @@ acme.Util.injectScript('contentjs/inject.js');
 /*
  * Load the style overrides.
  */
-var slinkyStyleOverrides = document.createElement('link');
-slinkyStyleOverrides.setAttribute('rel', 'stylesheet');
-slinkyStyleOverrides.setAttribute('type', 'text/css');
-slinkyStyleOverrides.setAttribute('href',
+var portalStyleOverrides = document.createElement('link');
+portalStyleOverrides.setAttribute('rel', 'stylesheet');
+portalStyleOverrides.setAttribute('type', 'text/css');
+portalStyleOverrides.setAttribute('href',
     chrome.extension.getURL('css/acme_display.css'));
-document.getElementsByTagName('head')[0].appendChild(slinkyStyleOverrides);
+document.getElementsByTagName('head')[0].appendChild(portalStyleOverrides);
 
 /**
  * @constructor
@@ -125,10 +125,10 @@ var InputSupport_ = {
 
 var dumpUpdateToScreen = function(message) {
   var stringifiedMessage = JSON.stringify(message);
-  var debugArea = document.getElementById('slinkydebug');
+  var debugArea = document.getElementById('portaldebug');
   if (!debugArea) {
     debugArea = document.createElement('div');
-    debugArea.id = 'slinkydebug';
+    debugArea.id = 'portaldebug';
     debugArea.style.position = 'fixed';
     debugArea.style.bottom = '90px';
     debugArea.style.left = '0px';
@@ -142,7 +142,7 @@ var dumpUpdateToScreen = function(message) {
 };
 
 var publishDisplayCurrentPose = function(pose) {
-  var slinkyPose = new ROSLIB.Message({
+  var portalPose = new ROSLIB.Message({
     current_pose: {
       position: {
         x: pose.lon,
@@ -161,7 +161,7 @@ var publishDisplayCurrentPose = function(pose) {
   if (handOverlay) {
     handOverlay.setCurrentCameraPose(pose);
   }
-  slinkyDisplayCurrentPoseTopic.publish(slinkyPose);
+  portalDisplayCurrentPoseTopic.publish(portalPose);
 };
 
 var cameraUpdateHandler = function(cameraEvent) {
@@ -203,23 +203,23 @@ window.addEventListener('acmeCameraCallback', cameraUpdateHandler, true);
 
 /** Add ROS Subscriptions.  These are almost last to prevent exception from
  * killing the event listeners when ROS is down. */
-var slinkyRosDisplay = new ROSLIB.Ros({
+var portalRosDisplay = new ROSLIB.Ros({
   url: 'wss://42-b:9090'
 });
 
 // Globe View Topic listens and publishes camera updates.
 var navigatorListener = new ROSLIB.Topic({
-  ros: slinkyRosDisplay,
-  name: '/slinky_nav/display_goto_pose',
+  ros: portalRosDisplay,
+  name: '/portal_nav/display_goto_pose',
   messageType: 'geometry_msgs/PoseStamped',
   throttle_rate: 30,
   queue_length: 2
 });
 
-var slinkyDisplayCurrentPoseTopic = new ROSLIB.Topic({
-  ros: slinkyRosDisplay,
-  name: '/slinky_display/current_pose',
-  messageType: 'slinky_nav/SlinkyPose'
+var portalDisplayCurrentPoseTopic = new ROSLIB.Topic({
+  ros: portalRosDisplay,
+  name: '/portal_display/current_pose',
+  messageType: 'portal_nav/PortalPose'
 });
 
 // Controls whether or not we listen to moveto events.  When on a tour
@@ -240,8 +240,8 @@ navigatorListener.subscribe(function(rosPoseStamped) {
 
 
 var runwayContentTopic = new ROSLIB.Topic({
-  ros: slinkyRosDisplay,
-  name: '/slinky_kiosk/runway',
+  ros: portalRosDisplay,
+  name: '/portal_kiosk/runway',
   // TODO(daden): quick hack to get the string across, we should create our own
   // ROS message for passing this data across in the future.
   messageType: 'std_msgs/String'
@@ -302,7 +302,7 @@ var runwayContentSubscriber = function(message) {
 runwayContentTopic.subscribe(runwayContentSubscriber);
 
 var populationService = new ROSLIB.Service({
-  ros: slinkyRosDisplay,
+  ros: portalRosDisplay,
   name: '/geodata/population',
   serviceType: 'geodata/GeodataQuery'
 });
@@ -330,10 +330,10 @@ window.addEventListener('acmePopulationQuery', function(ev) {
 /**
  * A common WebGL environment for visual modules.
  */
-acme.glEnvironment = new SlinkyGLEnvironment();
+acme.glEnvironment = new PortalGLEnvironment();
 
 var leapListener = new ROSLIB.Topic({
-  ros: slinkyRosDisplay,
+  ros: portalRosDisplay,
   name: '/leap_motion/frame',
   messageType: 'leap_motion/Frame',
   throttle_rate: 30
@@ -349,7 +349,7 @@ window.addEventListener('acmeScreenLocation',
     handOverlay.processHandGeoLocationEvent.bind(handOverlay), true);
 
 var spacenavListener = new ROSLIB.Topic({
-  ros: slinkyRosDisplay,
+  ros: portalRosDisplay,
   name: '/spacenav/twist',
   messageType: 'geometry_msgs/Twist',
   throttle_rate: 30
