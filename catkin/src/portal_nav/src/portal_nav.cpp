@@ -1,19 +1,19 @@
 // crbarker@google.com
 //
-// This is a ROS program to handle joystick-based navigation for slinky.
+// This is a ROS program to handle joystick-based navigation for portal.
 
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Twist.h>
 
 #include "joystick_navigator.h"
-#include "slinky_nav/SlinkyPose.h"
+#include "portal_nav/PortalPose.h"
 
 // #define DEBUG
 
-class SlinkyNavigatorNode {
+class PortalNavigatorNode {
  public:
-  SlinkyNavigatorNode(void) {}
+  PortalNavigatorNode(void) {}
 
   // Starts the run loop and does not return until killed.
   void Run(void);
@@ -21,7 +21,7 @@ class SlinkyNavigatorNode {
   // Callbacks for ROS topic subscriptions:
   void HandleSpaceNav(const geometry_msgs::Twist::ConstPtr& twist);
   void HandleKioskPose(
-      const slinky_nav::SlinkyPose::ConstPtr& slinky_pose);
+      const portal_nav::PortalPose::ConstPtr& portal_pose);
 
  private:
   ros::NodeHandle n_;
@@ -34,22 +34,22 @@ class SlinkyNavigatorNode {
   JoystickNavigator kiosk_joystick_navigator_;
 };
 
-void SlinkyNavigatorNode::Run(void) {
+void PortalNavigatorNode::Run(void) {
   kiosk_pub_ = n_.advertise<geometry_msgs::PoseStamped>(
-      "/slinky_nav/kiosk_goto_pose", 1);
+      "/portal_nav/kiosk_goto_pose", 1);
   display_pub_ = n_.advertise<geometry_msgs::PoseStamped>(
-      "/slinky_nav/display_goto_pose", 1);
+      "/portal_nav/display_goto_pose", 1);
 
   kiosk_joystick_navigator_.Init(&kiosk_pub_, &display_pub_);
 
   // This subscriber takes commands from the SpaceNav.
   spacenav_sub_ = n_.subscribe("/spacenav/twist", 0,
-      &SlinkyNavigatorNode::HandleSpaceNav, this);
+      &PortalNavigatorNode::HandleSpaceNav, this);
 
   // This subscriber gets camera poses back from the kiosk.
   // We have a small Rx queue to make sure we don't lose any.
-  kiosk_pose_sub_ = n_.subscribe("/slinky_kiosk/current_pose", 10,
-      &SlinkyNavigatorNode::HandleKioskPose, this);
+  kiosk_pose_sub_ = n_.subscribe("/portal_kiosk/current_pose", 10,
+      &PortalNavigatorNode::HandleKioskPose, this);
 
   // This publishes a normalized version of the SpaceNav inputs.
   joystick_pub_ = n_.advertise<geometry_msgs::Twist>("/joystick/twist", 0);
@@ -58,7 +58,7 @@ void SlinkyNavigatorNode::Run(void) {
   ros::spin();
 }
 
-void SlinkyNavigatorNode::HandleSpaceNav(
+void PortalNavigatorNode::HandleSpaceNav(
     const geometry_msgs::Twist::ConstPtr& twist) {
   // The SpaceNav twist values range [-350, 350], so it must be
   // normalized for the joystick code, which expects [-1.0, 1.0].
@@ -81,37 +81,37 @@ void SlinkyNavigatorNode::HandleSpaceNav(
   joystick_pub_.publish(normalized_joy);
 }
 
-void SlinkyNavigatorNode::HandleKioskPose(
-    const slinky_nav::SlinkyPose::ConstPtr& slinky_pose) {
+void PortalNavigatorNode::HandleKioskPose(
+    const portal_nav::PortalPose::ConstPtr& portal_pose) {
 #ifdef DEBUG
   ROS_INFO("HandleKioskPose curr lat:%lf, lon:%lf, alt:%lf, hdg:%lf, tlt:%lf",
-           slinky_pose->current_pose.position.y,
-           slinky_pose->current_pose.position.x,
-           slinky_pose->current_pose.position.z,
-           slinky_pose->current_pose.orientation.z,
-           slinky_pose->current_pose.orientation.x);
+           portal_pose->current_pose.position.y,
+           portal_pose->current_pose.position.x,
+           portal_pose->current_pose.position.z,
+           portal_pose->current_pose.orientation.z,
+           portal_pose->current_pose.orientation.x);
   ROS_INFO("HandleKioskPose min lat:%lf, lon:%lf, alt:%lf, hdg:%lf, tlt:%lf",
-           slinky_pose->pose_minimums.position.y,
-           slinky_pose->pose_minimums.position.x,
-           slinky_pose->pose_minimums.position.z,
-           slinky_pose->pose_minimums.orientation.z,
-           slinky_pose->pose_minimums.orientation.x);
+           portal_pose->pose_minimums.position.y,
+           portal_pose->pose_minimums.position.x,
+           portal_pose->pose_minimums.position.z,
+           portal_pose->pose_minimums.orientation.z,
+           portal_pose->pose_minimums.orientation.x);
   ROS_INFO("HandleKioskPose max lat:%lf, lon:%lf, alt:%lf, hdg:%lf, tlt:%lf",
-           slinky_pose->pose_maximums.position.y,
-           slinky_pose->pose_maximums.position.x,
-           slinky_pose->pose_maximums.position.z,
-           slinky_pose->pose_maximums.orientation.z,
-           slinky_pose->pose_maximums.orientation.x);
+           portal_pose->pose_maximums.position.y,
+           portal_pose->pose_maximums.position.x,
+           portal_pose->pose_maximums.position.z,
+           portal_pose->pose_maximums.orientation.z,
+           portal_pose->pose_maximums.orientation.x);
 #endif
-  kiosk_joystick_navigator_.ProcessCameraMoved(*slinky_pose);
+  kiosk_joystick_navigator_.ProcessCameraMoved(*portal_pose);
 }
 
 /*
  * main()
  */
 int main(int argc, char **argv) {
-  ros::init(argc, argv, "slinky_nav");
-  SlinkyNavigatorNode node;
+  ros::init(argc, argv, "portal_nav");
+  PortalNavigatorNode node;
   node.Run();
   return 0;
 }

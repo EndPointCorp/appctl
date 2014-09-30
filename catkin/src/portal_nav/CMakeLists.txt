@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(slinky_nav)
+project(portal_nav)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -48,7 +48,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-  SlinkyPose.msg
+  PortalPose.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -82,7 +82,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES slinky_nav
+#  LIBRARIES portal_nav
   CATKIN_DEPENDS geometry_msgs roscpp rospy std_msgs message_runtime
 #  DEPENDS system_lib
 )
@@ -102,20 +102,20 @@ include_directories(
 add_library(joystick_navigator src/joystick_navigator.cpp)
 
 ## Declare a cpp executable
-add_executable(slinky_nav src/slinky_nav.cpp)
+add_executable(portal_nav src/portal_nav.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(slinky_nav
-  slinky_nav_generate_messages_cpp
+add_dependencies(portal_nav
+  portal_nav_generate_messages_cpp
   joystick_navigator
 )
 add_dependencies(joystick_navigator
-  slinky_nav_generate_messages_cpp
+  portal_nav_generate_messages_cpp
 )
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(slinky_nav
+target_link_libraries(portal_nav
   ${catkin_LIBRARIES}
   joystick_navigator
 )
@@ -135,7 +135,7 @@ target_link_libraries(slinky_nav
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS slinky_nav joystick_navigator
+install(TARGETS portal_nav joystick_navigator
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -160,7 +160,7 @@ install(TARGETS slinky_nav joystick_navigator
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_slinky_nav.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_portal_nav.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

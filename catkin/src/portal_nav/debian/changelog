@@ -1,4 +1,4 @@
-ros-indigo-slinky-nav (1.0.0-0trusty) trusty; urgency=high
+ros-indigo-portal-nav (1.0.0-0trusty) trusty; urgency=high
 
   * First package creation for indigo release
 

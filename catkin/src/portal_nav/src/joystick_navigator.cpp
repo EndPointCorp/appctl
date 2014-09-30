@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include "slinky_nav/SlinkyPose.h"
+#include "portal_nav/PortalPose.h"
 
 static const double kPi = 3.141592653589793;
 static const double kPoleLat = 90.0 - 0.000001;
@@ -62,16 +62,16 @@ void JoystickNavigator::Init(
 }
 
 void JoystickNavigator::ProcessCameraMoved(
-    const slinky_nav::SlinkyPose& slinky_pose) {
+    const portal_nav::PortalPose& portal_pose) {
   // Allow touchscreen takeover.
   if (!under_joy_control_ &&
-        !EqualPoses(slinky_pose.current_pose, last_camera_pose_)) {
-    PublishPose(display_pub_, slinky_pose.current_pose);
+        !EqualPoses(portal_pose.current_pose, last_camera_pose_)) {
+    PublishPose(display_pub_, portal_pose.current_pose);
   }
 
-  last_camera_pose_ = slinky_pose.current_pose;
-  pose_minimums_ = slinky_pose.pose_minimums;
-  pose_maximums_ = slinky_pose.pose_maximums;
+  last_camera_pose_ = portal_pose.current_pose;
+  pose_minimums_ = portal_pose.pose_minimums;
+  pose_maximums_ = portal_pose.pose_maximums;
 }
 
 bool JoystickNavigator::EqualPoses(

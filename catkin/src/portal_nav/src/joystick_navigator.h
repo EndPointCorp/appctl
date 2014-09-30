@@ -5,15 +5,15 @@
 // nudged poses based on the previous camera pose, then sends the results to the
 // supplied CameraBuffer.
 
-#ifndef EXPERIMENTAL_ACME_SRC_SLINKY_CATKIN_SRC_SLINKY_NAV_SRC_JOYSTICK_NAVIGATOR_H_
-#define EXPERIMENTAL_ACME_SRC_SLINKY_CATKIN_SRC_SLINKY_NAV_SRC_JOYSTICK_NAVIGATOR_H_
+#ifndef EXPERIMENTAL_ACME_SRC_PORTAL_CATKIN_SRC_PORTAL_NAV_SRC_JOYSTICK_NAVIGATOR_H_
+#define EXPERIMENTAL_ACME_SRC_PORTAL_CATKIN_SRC_PORTAL_NAV_SRC_JOYSTICK_NAVIGATOR_H_
 
 #include <time.h>
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Pose.h>
 
-#include "slinky_nav/SlinkyPose.h"
+#include "portal_nav/PortalPose.h"
 
 class CameraBuffer;
 
@@ -23,7 +23,7 @@ class JoystickNavigator {
   void Init(ros::Publisher *kiosk_pub, ros::Publisher *display_pub);
 
   // Updates the nav context with the latest pose from the camera.
-  void ProcessCameraMoved(const slinky_nav::SlinkyPose& pose);
+  void ProcessCameraMoved(const portal_nav::PortalPose& pose);
 
   // Takes a normalized joystick twist and nudges the camera pose.
   void ProcessJoy(const geometry_msgs::Twist& normalized_joy);
@@ -78,4 +78,4 @@ class JoystickNavigator {
   ros::Publisher *display_pub_;
 };
 
-#endif  // EXPERIMENTAL_ACME_SRC_SLINKY_CATKIN_SRC_SLINKY_NAV_SRC_JOYSTICK_NAVIGATOR_H_
+#endif  // EXPERIMENTAL_ACME_SRC_PORTAL_CATKIN_SRC_PORTAL_NAV_SRC_JOYSTICK_NAVIGATOR_H_

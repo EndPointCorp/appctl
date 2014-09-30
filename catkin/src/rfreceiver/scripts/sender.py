@@ -28,7 +28,7 @@ def main():
       print e
       break
 
-    # TODO(mv): move this to a more general slinky system ros interface
+    # TODO(mv): move this to a more general portal system ros interface
     if button == CLEAR_BUTTON:
       subprocess.call(
         ['/home/lg/bin/lg-run-bg', 'pkill chrome'],
