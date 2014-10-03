@@ -354,6 +354,8 @@ var runwayContentTopic = new ROSLIB.Topic({
   messageType: 'std_msgs/String'
 });
 
+runwayContentTopic.advertise();
+
 var proximityPresenceTopic = new ROSLIB.Topic({
   ros: portalRosKiosk,
   name: '/proximity/presence',

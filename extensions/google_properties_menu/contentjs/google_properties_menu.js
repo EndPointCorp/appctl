@@ -8,6 +8,8 @@ var displaySwitchTopic = new ROSLIB.Topic({
   messageType: 'std_msgs/String'
 });
 
+displaySwitchTopic.advertise();
+
 // Elements are shown in this order
 // name   - used as a key
 // desc   - shown below the image
