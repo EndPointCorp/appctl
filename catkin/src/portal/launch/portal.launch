@@ -1,4 +1,4 @@
 <launch>
-  <node pkg="slinky_nav" type="slinky_nav" name="slinky_nav"></node>
+  <node pkg="portal_nav" type="portal_nav" name="portal_nav"></node>
   <node pkg="rosbridge_server" type="rosbridge_websocket" name="rosbridge_websocket"></node>
 </launch>
