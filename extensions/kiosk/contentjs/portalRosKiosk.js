@@ -375,6 +375,11 @@ var dumpUpdateToScreen = function(message) {
 var runwayActionRestrictions = InputSupport_.NONE;
 
 var handleRosPoseChange = function(rosPoseStamped) {
+  // ignore pose changes if input is supposed to be disabled
+  if (runwayActionRestrictions === InputSupport_.DISABLED) {
+    return;
+  }
+
   var pose = new Pose(rosPoseStamped.pose.position.y,  // lat
                       rosPoseStamped.pose.position.x,  // lon
                       rosPoseStamped.pose.position.z,  // alt
