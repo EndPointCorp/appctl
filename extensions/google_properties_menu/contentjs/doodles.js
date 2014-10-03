@@ -6,8 +6,8 @@ var runPacman = function(e) {
     $("#choose_game").hide();
     $("#pacman_selected").show();
 
-    // and send the ROS message
-    sendSwitchROSMessage(e);
+    // and send the essage
+    sendSwitchMessage(e);
 }
 
 var runOcean = function(e) {
@@ -18,8 +18,8 @@ var runOcean = function(e) {
     $("#choose_game").hide();
     $("#ocean_selected").show();
 
-    // and send the ROS message
-    sendSwitchROSMessage(e);
+    // and send the message
+    sendSwitchMessage(e);
 }
 
 var runCubeslam = function(e) {
@@ -30,13 +30,11 @@ var runCubeslam = function(e) {
     $("#choose_game").hide();
     $("#cubeslam_selected").show();
 
-    // and send the ROS message
-    //sendSwitchROSMessage(e); // cubeslam is a placeholder now
+    // and send the message
+    //sendSwitchessage(e); // cubeslam is a placeholder now
 }
 
 // PACMAN
-
-$('#pacman').click(runPacman);
 
 document.getElementById('pacman').addEventListener(
   'touchstart',
@@ -45,7 +43,6 @@ document.getElementById('pacman').addEventListener(
 );
 
 // OCEAN
-$('#ocean').click(runOcean);
 
 document.getElementById('ocean').addEventListener(
   'touchstart',
@@ -54,7 +51,6 @@ document.getElementById('ocean').addEventListener(
 );
 
 // CUBESLAM
-$('#cubeslam').click(runCubeslam);
 
 document.getElementById('cubeslam').addEventListener(
   'touchstart',

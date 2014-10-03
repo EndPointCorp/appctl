@@ -2,8 +2,6 @@ console.log('doodles injector');
 
 var scriptsForLoading = [
   "libs/jquery-2.1.1.min.js",
-  "libs/eventemitter2.min.js",
-  "libs/roslib.min.js",
   'contentjs/google_properties_menu.js',
   'contentjs/doodles.js'
 ];

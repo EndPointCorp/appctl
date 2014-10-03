@@ -9,8 +9,6 @@
                 "css/style.css"
             ],
             "js": [
-                "libs/eventemitter2.min.js",
-                "libs/roslib.min.js",
                 "contentjs/google_properties_menu.js"
             ],
             "matches": [

@@ -1,15 +1,3 @@
-var portalRos = new ROSLIB.Ros({
-  url: 'wss://42-b:9090'
-});
-
-var displaySwitchTopic = new ROSLIB.Topic({
-  ros: portalRos,
-  name: '/display/switch',
-  messageType: 'std_msgs/String'
-});
-
-displaySwitchTopic.advertise();
-
 // Elements are shown in this order
 // name   - used as a key
 // desc   - shown below the image
@@ -34,16 +22,15 @@ var data = [
   }
 ];
 
-// Sends ROS message to display to change the browser's URL
-var sendSwitchROSMessage = function(e) {
+// Sends message to background page to change the browser's URL
+var sendSwitchMessage = function(e) {
   var url = e.target.getAttribute('switch_url');
-  sendSwitchROSMessageURL(url);
+  sendSwitchMessageURL(url);
 };
 
-var sendSwitchROSMessageURL = function(url) {
+var sendSwitchMessageURL = function(url) {
   console.log('Trying to switch display to', url);
-  var msg = new ROSLIB.Message({data: url});
-  displaySwitchTopic.publish(msg);
+  chrome.runtime.sendMessage({url: url});
 };
 
 var showDoodlesPage = function() {
@@ -51,7 +38,7 @@ var showDoodlesPage = function() {
 };
 
 var goBackToEarthPage = function() {
-  sendSwitchROSMessageURL(earthURL);
+  sendSwitchMessageURL(earthURL);
   document.location = earthURL;
 };
 
