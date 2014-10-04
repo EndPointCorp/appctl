@@ -36,24 +36,24 @@ var runCubeslam = function(e) {
 
 // PACMAN
 
-document.getElementById('pacman').addEventListener(
-  'touchstart',
-  runPacman,
-  true
-);
+$('#pacman').bind('click', function() {
+  $('#pacman').trigger('touchstart');
+});
+
+$('#pacman').bind('touchstart', runPacman);
 
 // OCEAN
 
-document.getElementById('ocean').addEventListener(
-  'touchstart',
-  runOcean,
-  true
-);
+$('#ocean').bind('mousedown', function(ev) {
+  $(ev.target).trigger('touchstart');
+});
+
+$('#ocean').bind('touchstart', runOcean);
 
 // CUBESLAM
 
-document.getElementById('cubeslam').addEventListener(
-  'touchstart',
-  runCubeslam,
-  true
-);
+$('#cubeslam').bind('click', function() {
+  $('#cubeslam').trigger('touchstart');
+});
+
+$('#cubeslam').bind('touchstart', runCubeslam);
