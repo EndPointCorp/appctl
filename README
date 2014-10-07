@@ -27,3 +27,7 @@ Packaged Extension Files:
   * <extension>.crx - the extension itself, installable in Chrome/Chromium.
   * <extension>-upd.xml - the auto-update xml file which should be served to Chrome/Chromium.
 
+Catkin Workspace:
+
+To initialize the Catkin workspace for ROS packages, run "catkin_init_workspace" in catkin/src/ .
+You must have ROS installed.

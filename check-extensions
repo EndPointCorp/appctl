@@ -4,7 +4,7 @@
 MY_DIR="$( dirname "${0}" )"
 EXT_DIR="extensions"
 LINT_TOOL="gjslint"
-CUSTOM_JSDOC_TAGS="example,memberof,namespace,static,instance"
+CUSTOM_JSDOC_TAGS="example,memberof,namespace,static,instance,ignore"
 
 if [ "${MY_DIR}" == "." ]; then
     MY_DIR="${PWD}"
@@ -16,7 +16,7 @@ echo "= Recursive JS Lint check:"
 LINT_ABSPATH=`which ${LINT_TOOL}`
 if [ $? -eq 0 ]; then
     ${LINT_ABSPATH} --custom_jsdoc_tags "${CUSTOM_JSDOC_TAGS}" \
-        --exclude_directories ${MY_DIR}/${EXT_DIR}/kiosk/libs,${MY_DIR}/${EXT_DIR}/display/libs,${MY_DIR}/${EXT_DIR}/onboard/lib \
+        --exclude_directories ${MY_DIR}/${EXT_DIR}/kiosk/libs,${MY_DIR}/${EXT_DIR}/display/libs,${MY_DIR}/${EXT_DIR}/onboard/lib,${MY_DIR}/${EXT_DIR}/pacman/libs,${MY_DIR}/${EXT_DIR}/google_properties_menu/libs \
         -r "${MY_DIR}/${EXT_DIR}"
 else
     echo "${LINT_TOOL} not found." >&2

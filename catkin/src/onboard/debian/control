@@ -1,0 +1,12 @@
+Source: ros-indigo-onboard
+Section: misc
+Priority: extra
+Maintainer: End Point Corp LG R&D <lg-rad@endpoint.com>
+Build-Depends: debhelper (>= 9.0.0), ros-indigo-catkin, ros-indigo-std-msgs
+Homepage: http://liquid-galaxy.endpoint.com
+Standards-Version: 3.9.2
+
+Package: ros-indigo-onboard
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-std-msgs, ros-indigo-rospy
+Description: ROS interface to Onboard onscreen keyboard.

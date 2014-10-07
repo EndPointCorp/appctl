@@ -90,6 +90,7 @@ acmeExt.selectFamousPlacesButton = function() {
   poib = document.querySelector('#acme-poi-button');
   poib.classList.remove('acme-button-selected');
   fpb.classList.add('acme-button-selected');
+  acme.setKioskMode(); //TODO(kiel): temp hack to force-show runway
 };
 
 /**

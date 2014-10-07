@@ -5,7 +5,7 @@
  */
 
 var onboardRos = new ROSLIB.Ros({
-  url: 'ws://master:9090'
+  url: 'wss://42-b:9090'
 });
 
 // This topic object is used for publishing the show and hide messages.
@@ -30,18 +30,14 @@ var onboardSpacenavListener = new ROSLIB.Topic({
 });
 
 onboardSpacenavListener.subscribe(function(msg) {
-
-  if (msg.linear.x == 0 &&
-      msg.linear.y == 0 &&
-      msg.linear.z == 0 &&
-      msg.angular.x == 0 &&
-      msg.angular.y == 0 &&
-      msg.angular.z == 0) {
-
-        return;
+  if (msg.linear.x != 0 ||
+      msg.linear.y != 0 ||
+      msg.linear.z != 0 ||
+      msg.angular.x != 0 ||
+      msg.angular.y != 0 ||
+      msg.angular.z != 0) {
+    hideOnboard();
   }
-
-  hideOnboard();
 });
 
 
@@ -64,14 +60,12 @@ function addCallbacks() {
   /* This is needed because Chrome tries loading this plugin when
    * DOM is not ready yet, `even with run_at: document_end`
    */
-  if (document.readyState !== 'complete') {
-    console.log('Document is not ready yet, going to sleep for a while.');
-    setTimeout(addCallbacks, 500);
-    return;
-  }
-
   var tx = document.querySelector('#searchboxinput');
-  if (tx) {
+
+  if (document.readyState !== 'complete' || !tx) {
+    console.log('Document is not ready yet, onboard is going to sleep for a while.');
+    setTimeout(addCallbacks, 100);
+  } else {
     console.log('adding onboard event');
     tx.addEventListener('click', showOnboard);
     tx.addEventListener('blur', hideOnboard);

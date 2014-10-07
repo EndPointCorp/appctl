@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "Slinky Dog Kiosk",
+  "name": "Portal Kiosk",
   "version": "1.0",
-  "description": "Slinky Dog specific add-ons for Tactile for the Kiosk - handles things such as ROS messages and using the space nav",
+  "description": "Portal specific add-ons for Tactile for the Kiosk - handles things such as ROS messages and using the space nav",
   "background": {
     "page": "background/background.html",
     "content_security_policy": "script-src 'self' https://www.google.com/*; object-src 'self' https://www.google.com/*"
@@ -15,7 +15,7 @@
     "management"
   ],
   "web_accessible_resources": [
-    "models/*.json", "sounds/*.wav", "contentjs/inject.js"
+    "images/zoomOut.jpg", "models/*.json", "sounds/*.wav", "contentjs/inject.js", "css/*.css"
   ],
   "content_scripts": [
     {
@@ -29,11 +29,11 @@
         "libs/roslib.min.js",
         "contentjs/soundfx.js",
         "contentjs/ambient.js",
-        "contentjs/slinkyRosKiosk.js",
+        "contentjs/portalRosKiosk.js",
+        "contentjs/runwayCardsDrag.js",
+        "contentjs/famousPlaces.js",
+        "contentjs/famousPlacesCardsDrag.js",
         "contentjs/highres.js"
-      ],
-      "css": [
-        "css/acme_kiosk.css"
       ]
     }
   ]

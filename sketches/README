@@ -1,0 +1,13 @@
+These Arduino sketches are intended to be built and uploaded with INO.
+
+http://inotool.org/
+
+You will need to install the Arduino IDE first.
+
+http://arduino.cc/en/main/software
+
+Then add board and variant information for the ProMicro 5V.
+
+https://github.com/sparkfun/SF32u4_boards
+
+Use '-m promicro16' when building and uploading with ino.

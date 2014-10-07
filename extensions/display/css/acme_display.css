@@ -2,6 +2,10 @@
  * CSS rules for the mirrored display
  */
 
+body {
+  overflow: hidden;
+}
+
 /* zoom the titlecard */
 #titlecard { zoom: 250%; }
 
@@ -16,6 +20,7 @@
 }
 
 /* hide a bunch of the titlecard elements */
+#titlecard div[class="widget-timemachine-button-icon widget-timemachine-time-warp"],
 #titlecard div[class="widget-titlecard-divider"],
 #titlecard div[class="widget-titlecard-spotlightcontainer"],
 #titlecard div[class="widget-titlecard-spotlight-divider"],
@@ -23,6 +28,7 @@
   display: none;
 }
 
+#runway-expand-button,
 #butterbar {
   display: none;
 }
