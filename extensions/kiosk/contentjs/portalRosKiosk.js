@@ -346,6 +346,11 @@ var portalKioskCurrentPoseTopic = new ROSLIB.Topic({
   messageType: 'portal_nav/PortalPose'
 });
 
+portalKioskCurrentPoseTopic.prevPublish = portalKioskCurrentPoseTopic.publish;
+portalKioskCurrentPoseTopic.publish = function(obj) {
+  portalKioskCurrentPoseTopic.prevPublish(obj);
+};
+
 var runwayContentTopic = new ROSLIB.Topic({
   ros: portalRosKiosk,
   name: '/portal_kiosk/runway',
@@ -355,6 +360,11 @@ var runwayContentTopic = new ROSLIB.Topic({
 });
 
 runwayContentTopic.advertise();
+
+runwayContentTopic.prevPublish = runwayContentTopic.publish;
+runwayContentTopic.publish = function(obj) {
+  runwayContentTopic.prevPublish(obj);
+}
 
 var proximityPresenceTopic = new ROSLIB.Topic({
   ros: portalRosKiosk,
@@ -576,7 +586,6 @@ var runwayContentExitHandler = function(e) {
   if (typeof customData === 'string') {
     customData = JSON.parse(customData);
   }
-  console.log('runwayContentExitHandler');
   runwayActionRestrictions = InputSupport_.NONE;
   //soundFX.enable();
 
