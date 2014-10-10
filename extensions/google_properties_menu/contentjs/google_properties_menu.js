@@ -9,7 +9,7 @@ var earthURL = 'http://lg-head/portal-loader.html';
 var data = [
   {
     name: 'earth',
-    desc: 'Earth',
+    desc: 'Maps',
     icon: 'icon_earth.png',
     action: 'switch_display',
     url: earthURL

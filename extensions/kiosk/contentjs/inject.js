@@ -99,6 +99,7 @@ acmeExt.selectFamousPlacesButton = function() {
  */
 acmeExt.launchFamousPlacesContent = function(array) {
   console.log(array);
+  array[array.length] = 'iskiosk';
   acme.launchRunwayContent(array);
   var wireProtocol = 1;
   //TODO(kiel): when other types are introduced besides Earth Tours, implement
