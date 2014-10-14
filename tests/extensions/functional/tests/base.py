@@ -29,6 +29,9 @@ logging.getLogger('selenium.webdriver.remote').setLevel(logging.ERROR)
 # This one will be hardcoded for now
 MAPS_URL = 'https://www.google.com/maps/@8.135687,-75.0973243,17856994a,40.4y,1.23h/data=!3m1!1e3?esrch=Tactile::TactileAcme'
 
+# We need another url for zoom out button, the above one cannot be zoomed out
+ZOOMED_IN_MAPS_URL = 'https://www.google.com/maps/@8.135687,-75.0973243,178569a,40.4y,1.23h/data=!3m1!1e3?esrch=Tactile::TactileAcme'
+
 # Below directories are relative from the __file__ directory, and
 # point to those in the main directory
 EXTENSIONS_DIR = "../../../extensions"
@@ -87,6 +90,8 @@ def screenshot_on_error(test):
             raise
     return wrapper
 
+from collections import namedtuple
+Pose = namedtuple("pose", ['alt', 'lon', 'lat'])
 
 class BaseTest(object):
     """
@@ -175,6 +180,11 @@ class BaseTest(object):
 
     def teardown_method(self, _):
         self.browser.quit()
+
+    def get_camera_pose(self):
+        """ TODO: add the angles """
+        res = self.browser.execute_script('return acme.getCameraPose();')
+        return Pose(res['alt'], res['g'], res['wg'])
 
     def click(self, finder_value, finder):
         """
