@@ -1,0 +1,7 @@
+{
+    "chromedriver":
+        { "path": "FILL IN HERE ABSOLUTE CHROME DRIVER PATH",
+          "version": "ITS VERSION"
+        },
+    "run_pack-extensions": false
+}

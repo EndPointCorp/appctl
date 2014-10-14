@@ -1,0 +1,16 @@
+"""
+Show chrome with extension loaded.
+Useful for DOM HTML tree elements inspection with
+    chrome extension loaded, like when running the tests.
+
+"""
+
+from tests.base import BaseTouchscreenTest
+from tests.base import MAPS_URL
+
+
+# if browser automatically redirects to national mutation,
+# our chrome extensions are loaded, yet do not work
+# redirection doesn't happen with MAPS_URL
+browser = BaseTouchscreenTest.run_browser()
+browser.get(MAPS_URL)

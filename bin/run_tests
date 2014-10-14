@@ -1,0 +1,23 @@
+#!/bin/bash
+# we die if anything goes wrong
+set -e
+
+# expected to run from the project root (bin/run_tests)
+
+# TODO:
+# parametrize these into in the config.json file
+# and load/set at the beginning of running the test suite?
+export DISPLAY=${DISPLAY:-':0'}
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/lib/chromium-browser/libs"
+export PATH="${PATH}:${HOME}/.local/bin"
+
+# TODO:
+# parametrize a flag in the config.json file
+# to decide whether or not to run  at the beginning of running the test suite?
+# ./pack-extensions
+
+cd tests/extensions/functional/
+
+# tests discovery and run them
+# example run just 1 particular test: py.test -k test_url_change_after_search
+py.test

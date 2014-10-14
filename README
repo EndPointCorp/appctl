@@ -1,3 +1,5 @@
+├── bin                  - PLACE FOR SCRIPTS
+│   └── run_tests        - SCRIPT FOR RUNNING ALL TESTS
 ├── extensions           - PLACE EXTENSION DIRECTORIES HERE
 │   ├── crxmake          - TOOL FOR PACKING CRX FILES
 │   ├── sigs             - DIRECTORY FOR TEMPORARY FILES
@@ -13,6 +15,14 @@
 │   ├── <policy_exampleA.json>
 │   ├──  ...
 │   └── <policy_exampleZ.json>
+├── tests                         - TESTS FOR THE PROJECT
+│   ├── extensions                - TESTS FOR EXTENSIONS
+│   │   └── functional            - FUNCTIONAL TESTS USING SELENIUM
+│   │       ├── requirements.txt  - FILE FOR INSTALLING THE REQUIREMENTS WITH PIP
+│   │       └── tests
+│   │           ├── ...           - TEST FILES
+│   │           └── <test_z>
+│   └── README           - README FILE FOR TESTS
 ├── check-extensions     - USE THIS TO VERIFY ALL EXTENSIONS
 ├── doc-extensions       - USE THIS TO JSDOC ALL EXTENSIONS
 ├── pack-extensions      - USE THIS TO RE-PACKAGE ALL EXTENSIONS
