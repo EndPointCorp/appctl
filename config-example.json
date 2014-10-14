@@ -1,7 +1,36 @@
 {
-    "chromedriver":
-        { "path": "FILL IN HERE ABSOLUTE CHROME DRIVER PATH",
+    "chrome_driver":
+        { "path": "ABSOLUTE PATH TO THE CHROME DRIVER",
           "version": "ITS VERSION"
         },
-    "run_pack-extensions": false
+
+    "executables":
+        [
+            "./pack-extensions",
+            "ls -1 /tmp",
+            "echo hello"
+        ],
+
+    "extensions_dir": "ABSOLUTE PATH TO THE PORTAL CHROME EXTENTIONS",
+
+    "screenshots_dir": "ABSOLUTE PATH TO THE SCREENSHOTS / LOG FILES DIRECTORY",
+
+    "env_vars": [
+        {
+            "name": "DISPLAY",
+            "value": ":10",  THIS VALUE FOR HEADLESS TESTS
+            "extend_current": false
+        },
+        {
+            "name": "LD_LIBRARY_PATH",
+            "value": "/usr/lib/chromium-browser/libs",
+            "extend_current": true
+        },
+        {
+            "name": "PATH",
+            "value": "/home/someuser/.local/bin",
+            "extend_current": true
+        }
+    ]
+
 }
