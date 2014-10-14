@@ -1,15 +1,10 @@
 """
 Portal selenium tests base module.
 
-TODO:
-variables / constants such as MAP_URL
-directory paths should go in the config.json file, discuss
-
 """
 
 
 from selenium import webdriver
-import os
 from functools import wraps
 import traceback
 from datetime import datetime
@@ -18,6 +13,10 @@ import time
 import os
 import json
 import pprint
+from collections import namedtuple
+import re
+
+import pytest
 
 
 # The selenium logger is just too noisy, it shows the whole terribly huge
@@ -32,16 +31,12 @@ MAPS_URL = 'https://www.google.com/maps/@8.135687,-75.0973243,17856994a,40.4y,1.
 # We need another url for zoom out button, the above one cannot be zoomed out
 ZOOMED_IN_MAPS_URL = 'https://www.google.com/maps/@8.135687,-75.0973243,178569a,40.4y,1.23h/data=!3m1!1e3?esrch=Tactile::TactileAcme'
 
-# Below directories are relative from the __file__ directory, and
-# point to those in the main directory
-EXTENSIONS_DIR = "../../../extensions"
-SCREENSHOTS_DIR = "../../../tests_results"
-
-# configuration file, from the project root
-CONFIG_FILE = os.path.join("..", "..", "..", "config.json")
 # configuration data instance, keep here to have it valid
-# during the entire test suite run
+# during the entire test suite run, it's initialized just
+# once per entire run
 CONFIG = {}
+
+Pose = namedtuple("pose", ['alt', 'lon', 'lat'])
 
 
 # TODO: add function to make slingshot on purpose -
@@ -50,12 +45,13 @@ CONFIG = {}
 
 # TODO: add function to make screenshot on purpose
 
-def make_screenshot(browser, fname, index, dir=SCREENSHOTS_DIR):
+def make_screenshot(browser, fname, index):
+    ss_dir = CONFIG["screenshots_dir"]
 
-    if not os.path.exists(dir):
-        os.makedirs(dir)
+    if not os.path.exists(ss_dir):
+        os.makedirs(ss_dir)
 
-    fname = "{}{}{}_{}_{}".format(dir,
+    fname = "{}{}{}_{}_{}".format(ss_dir,
                                   os.path.sep,
                                   datetime.now().isoformat(),
                                   fname,
@@ -68,8 +64,8 @@ def screenshot_on_error(test):
     """
     Annotation for test functions to make screenshots on error.
 
-    The wrapper runs the test. When it fails, then it makes a screenshot
-    in the SCREENSHOTS_DIR
+    The wrapper runs the test. When it fails, then it makes
+    a screenshot in the CONFIG["screenshots_dir"] directory.
 
     Usage:
         @screenshot_on_error
@@ -90,8 +86,74 @@ def screenshot_on_error(test):
             raise
     return wrapper
 
-from collections import namedtuple
-Pose = namedtuple("pose", ['alt', 'lon', 'lat'])
+
+def load_configuration():
+    """
+    Read the test suite JSON configuration from a file.
+    The file path is read from a env variable.
+    Set the global CONFIG object.
+
+    :return: nothing
+
+    """
+    global CONFIG
+    portal_config_env = "PORTAL_TESTS_CONFIG"
+    try:
+        config_file = os.environ[portal_config_env]
+    except KeyError:
+        m = "Can't load tests config file, set '%s' accordingly." % portal_config_env
+        pytest.exit(m)
+
+    print ("Loading configuration from "
+           "env PORTAL_TESTS_CONFIG: '%s' ..." % config_file)
+    f = open(config_file, 'r')
+    CONFIG = json.load(f)
+    print "CONFIG: test suite configuration:"
+    pprint.pprint(CONFIG)
+
+
+def set_env_variables():
+    """
+    Sets env variables according to values from the config file.
+
+    :return: nothing
+
+    """
+    global CONFIG
+    if "env_vars" in CONFIG:
+        print "Setting env. variables ..."
+        for var in CONFIG["env_vars"]:
+            name = var["name"]
+            old = os.environ.get(name, None)
+            if var["extend_current"] and old:
+                os.environ[name] = old + ":" + var["value"]
+            else:
+                os.environ[name] = var["value"]
+            print ("Set env '%s' old value: '%s' current value: '%s'" %
+                  (name, old, os.environ[name]))
+
+
+def prepare_environment():
+    """
+    Load the test suite configuration and prepare
+    the enviroment.
+    Run executables before the test suite requires.
+
+    :return: nothing
+
+    """
+    global CONFIG
+    if CONFIG:
+        print "\nCONFIG is initialized, do not load anything ..."
+    else:
+        print "\nCONFIG is NOT initialized, running preparation ..."
+        load_configuration()
+        set_env_variables()
+        for command in CONFIG["executables"]:
+            print "Running '%s' ..." % command
+            r = os.system(command)
+            print "exit status: %s" % r
+
 
 class BaseTest(object):
     """
@@ -108,32 +170,8 @@ class BaseTest(object):
         Setup any state specific to the execution of the given module.
 
         """
-        global CONFIG_FILE, CONFIG
-        if CONFIG:
-            print "\nCONFIG is initialized, do not load"
-        else:
-            print "\nCONFIG is NOT initialized, loading from '%s' ..." % CONFIG_FILE
-            f = open(CONFIG_FILE, 'r')
-            CONFIG = json.load(f)
-            print "CONFIG: test suite configuration:"
-            pprint.pprint(CONFIG)
+        prepare_environment()
 
-    @classmethod
-    def set_environ_driver_path(cls, driver_path):
-        """
-        Sets environment variable for Chrome.
-
-        Chrome driver needs to have an environment variable set, this must be
-        set to the path to the webdrver file.
-
-        Args:
-            driver_path: path for the driver to be set
-
-        Returns:
-            Nothing
-
-        """
-        os.environ["webdriver.chrome.driver"] = driver_path
 
     @classmethod
     def get_extensions_options(cls, extensions):
@@ -155,7 +193,7 @@ class BaseTest(object):
         """
         op = webdriver.ChromeOptions()
         for ext in extensions:
-            op.add_extension('{}/{}.crx'.format(EXTENSIONS_DIR, ext))
+            op.add_extension('{}/{}.crx'.format(CONFIG["extensions_dir"], ext))
         return op
 
     @classmethod
@@ -167,12 +205,13 @@ class BaseTest(object):
             selenium driver handler
 
         """
-        driver = CONFIG["chromedriver"]["path"]
+        driver = CONFIG["chrome_driver"]["path"]
         options = cls.get_extensions_options(cls.extensions)
-
-        cls.set_environ_driver_path(driver)
-        return webdriver.Chrome(executable_path=driver,
-                                chrome_options=options)
+        # Set environment variable for Chrome.
+        # Chrome driver needs to have an environment variable set,
+        # this must be set to the path to the webdriver file.
+        os.environ["webdriver.chrome.driver"] = driver
+        return webdriver.Chrome(executable_path=driver, chrome_options=options)
 
     def setup_method(self, method):
         self.browser = self.run_browser()
@@ -259,7 +298,6 @@ class BaseTest(object):
             (int) zoom level read from the url
 
         """
-        import re
         return int(re.search("\/maps\/.*,(\d+)[am][,/]", url).groups()[0])
 
     def wait_for_url_change(self, old_value, interval=1, max_wait_time=20):

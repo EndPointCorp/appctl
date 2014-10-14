@@ -29,10 +29,16 @@ sudo Xvfb :10 -ac
 RUNNING TESTS
 ==============
 
-Run from the main project directory:
+The test suite is configured via a JSON configuration file.
+See config-example.json template for guidance
+when creating one.
+The valid config.json can live anywhere, the env
+variable PORTAL_TESTS_CONFIG need to point to it,
+the test suite fails otherwise.
 
-bin/run_tests
+Run the tests from the main project directory:
 
-or if we want to have the headless tests:
-
-DISPLAY=:10 bin/run_tests
+py.test
+py.test tests/extensions/functional/ to speed up discovery
+py.test -s to capture stdout
+py.test -k test_url_change_after_search to run only 1 particular test case
