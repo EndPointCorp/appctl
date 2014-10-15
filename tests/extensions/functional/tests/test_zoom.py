@@ -3,13 +3,13 @@ Zoom buttons tests.
 
 """
 
-from base import BaseTouchscreenTest
+from base import TestBaseTouchscreen
 import time
 from base import MAPS_URL, ZOOMED_IN_MAPS_URL
 from base import screenshot_on_error, make_screenshot
 
 
-class TestZoomButtons(BaseTouchscreenTest):
+class TestZoomButtons(TestBaseTouchscreen):
     """
     Simple test for checking the zoom buttons.
 
