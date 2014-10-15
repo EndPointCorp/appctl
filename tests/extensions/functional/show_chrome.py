@@ -5,13 +5,13 @@ Useful for DOM HTML tree elements inspection with
 
 """
 
-from tests.base import BaseTouchscreenTest
+from tests.base import TestBaseTouchscreen
 from tests.base import MAPS_URL
 
-
-BaseTouchscreenTest.setup_class()
+klass = TestBaseTouchscreen
+klass.setup_class()
 # if browser automatically redirects to national mutation,
 # our chrome extensions are loaded, yet do not work
 # redirection doesn't happen with MAPS_URL
-browser = BaseTouchscreenTest.run_browser()
+browser = klass.run_browser()
 browser.get(MAPS_URL)

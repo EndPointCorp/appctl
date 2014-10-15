@@ -137,7 +137,7 @@ def set_env_variables():
 def prepare_environment():
     """
     Load the test suite configuration and prepare
-    the enviroment.
+    the environment.
     Run executables before the test suite requires.
 
     :return: nothing
@@ -156,7 +156,7 @@ def prepare_environment():
             print "exit status: %s" % r
 
 
-class BaseTest(object):
+class TestBase(object):
     """
     Base unit test class, with all the utilities for starting Chrome.
 
@@ -173,6 +173,17 @@ class BaseTest(object):
         """
         prepare_environment()
 
+    @classmethod
+    def get_config(cls):
+        """
+        Return the configuration object.
+        If client module does just import, it will import the symbol
+        before it is initialized, hence empty.
+
+        :return: configuration object
+        """
+        global CONFIG
+        return CONFIG
 
     @classmethod
     def get_extensions_options(cls, extensions):
@@ -365,16 +376,7 @@ class BaseTest(object):
             time.sleep(interval)
 
 
-class BaseDisplayTest(BaseTest):
-    """
-    Loads default extensions for display,
-    all tests for display should inherit from this class.
-
-    """
-    extensions = ["display", ]
-
-
-class BaseTouchscreenTest(BaseTest):
+class TestBaseTouchscreen(TestBase):
     """
     Loads default extensions for touchscreen,
     all tests for touchscreen should inherit from this class.

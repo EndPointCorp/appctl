@@ -11,6 +11,8 @@
             "echo hello"
         ],
 
+    "max_load_timeout": 15,
+
     "extensions_dir": "ABSOLUTE PATH TO THE PORTAL CHROME EXTENTIONS",
 
     "screenshots_dir": "ABSOLUTE PATH TO THE SCREENSHOTS / LOG FILES DIRECTORY",

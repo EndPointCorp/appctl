@@ -6,12 +6,12 @@ Portal general selenium tests.
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
-from base import BaseTouchscreenTest
+from base import TestBaseTouchscreen
 from base import MAPS_URL
 from base import screenshot_on_error
 
 
-class TestGeneral(BaseTouchscreenTest):
+class TestGeneral(TestBaseTouchscreen):
     """
     Test cases not fitting any other placement.
 
