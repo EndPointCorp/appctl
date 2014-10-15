@@ -5,7 +5,7 @@ Zoom buttons tests.
 
 from base import BaseTouchscreenTest
 import time
-from base import MAPS_URL, ZOOMED_IN_MAPS_URL
+from base import MAPS_URL, ZOOMED_IN_MAPS_URL, Pose
 from base import screenshot_on_error, make_screenshot
 
 
@@ -36,12 +36,20 @@ class TestZoomButtons(BaseTouchscreenTest):
         self.browser.get(ZOOMED_IN_MAPS_URL)
         make_screenshot(self.browser, "zoom_out_button", 0)
 
-        time.sleep(5)
+        time.sleep(10)
         pose = self.get_camera_pose()
+
+        expected_pose = Pose(alt=620097.1867688844, lat=8.135687, lon=-75.0973243)
+
+        self.assert_pose_is_near(pose, expected_pose)
         self.click_zoom_out()
 
         make_screenshot(self.browser, "zoom_out_button", 1)
-        assert pose.alt < self.get_camera_pose().alt
+        current_pose = self.get_camera_pose()
+
+        assert pose.alt < current_pose.alt
+        self.assert_pose_is_near(pose, expected_pose, assert_alt=False)
+
 
     @screenshot_on_error
     def test_zoom_in_button_change(self):
@@ -50,12 +58,18 @@ class TestZoomButtons(BaseTouchscreenTest):
         zoom level on the browser URL changed.
 
         """
-        self.browser.get(MAPS_URL)
+        self.browser.get(ZOOMED_IN_MAPS_URL)
         make_screenshot(self.browser, "zoom_in_button", 0)
 
-        time.sleep(5)
+        time.sleep(10)
         pose = self.get_camera_pose()
+
+        expected_pose = Pose(alt=620097.1867688844, lat=8.135687, lon=-75.0973243)
+
+        self.assert_pose_is_near(pose, expected_pose)
         self.click_zoom_in()
 
         make_screenshot(self.browser, "zoom_in_button", 1)
-        assert pose.alt > self.get_camera_pose().alt
+        current_pose = self.get_camera_pose()
+        assert pose.alt > current_pose.alt
+        self.assert_pose_is_near(pose, expected_pose, assert_alt=False)

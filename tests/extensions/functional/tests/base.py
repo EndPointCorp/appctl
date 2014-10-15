@@ -36,6 +36,7 @@ ZOOMED_IN_MAPS_URL = 'https://www.google.com/maps/@8.135687,-75.0973243,178569a,
 # once per entire run
 CONFIG = {}
 
+# Class used for returning information from the acme.getCurrentPose() function
 Pose = namedtuple("pose", ['alt', 'lon', 'lat'])
 
 
@@ -224,6 +225,37 @@ class BaseTest(object):
         """ TODO: add the angles """
         res = self.browser.execute_script('return acme.getCameraPose();')
         return Pose(res['alt'], res['g'], res['wg'])
+
+    def assert_pose_is_near(self, left, right,
+                            alt_delta=1, lon_delta=0.000001, lat_delta=0.000001,
+                            assert_alt=True, assert_lon=True, assert_lat=True):
+        """
+        Asserts if one of the pose objects is near to another.
+
+        We need this function, as sometimes the maps camera moves a little bit,
+        however users still see the same place. It is caused by two factors:
+            - internal behaviour of the maps
+            - floating numbers behaviour
+
+        Arguments:
+            left                 - the first pose object to compare
+            right                - the second object to compare
+            alt_delta = 1        - the acceptable difference of alt attribute
+            lon_delta = 0.000001 - the acceptable difference of lon attribute
+            lat_delta = 0.000001 - the acceptable difference of lat attribute
+            assert_alt = True    - should the altitude be asserted
+            assert_lon = True    - should the longitude be asserted
+            assert_lat = True    - should the latitude be asserted
+
+        Returns:
+            Nothing
+
+        Throws:
+            AssertionError when checking went wrong
+        """
+        if assert_alt: assert abs(left.alt - right.alt) < alt_delta
+        if assert_lon: assert abs(left.lon - right.lon) < lon_delta
+        if assert_lat: assert abs(left.lat - right.lat) < lat_delta
 
     def click(self, finder_value, finder):
         """
