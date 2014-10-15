@@ -380,4 +380,4 @@ class BaseTouchscreenTest(BaseTest):
     all tests for touchscreen should inherit from this class.
 
     """
-    extensions = ["kiosk", ]
+    extensions = ["kiosk", "google_properties_menu", ]
