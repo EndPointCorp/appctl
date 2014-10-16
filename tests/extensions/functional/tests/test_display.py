@@ -89,6 +89,7 @@ class TestBaseKioskExtension(TestBase):
         """
         config = self.get_config()
         self.browser.get(MAPS_URL)
+        time.sleep(10)
 
         def test_elements_present(elem):
             msg = "Element '{0}' should be present (kiosk extension).".format(elem[0])
