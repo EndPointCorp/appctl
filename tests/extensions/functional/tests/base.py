@@ -151,8 +151,8 @@ def prepare_environment():
         load_configuration()
         set_env_variables()
         for command in CONFIG["executables"]:
+            print "Current working directory: '%s'" % os.getcwd()
             print "Running '%s' ..." % command
-            print "Current directory: '%s'" % os.getcwd()
             r = os.system(command)
             print "exit status: %s" % r
 
@@ -266,9 +266,12 @@ class TestBase(object):
         Throws:
             AssertionError when checking went wrong
         """
-        if assert_alt: assert abs(left.alt - right.alt) < alt_delta
-        if assert_lon: assert abs(left.lon - right.lon) < lon_delta
-        if assert_lat: assert abs(left.lat - right.lat) < lat_delta
+        if assert_alt:
+            assert abs(left.alt - right.alt) < alt_delta
+        if assert_lon:
+            assert abs(left.lon - right.lon) < lon_delta
+        if assert_lat:
+            assert abs(left.lat - right.lat) < lat_delta
 
     def click(self, finder_value, finder):
         """
@@ -384,5 +387,8 @@ class TestBaseTouchscreen(TestBase):
     all tests for touchscreen should inherit from this class.
 
     """
-    binary = "/usr/bin/google-chrome"
+    # TODO
+    # necessary? not referenced anywhere, remove if everything's
+    # all right from now on (2014-10-16)
+    #binary = "/usr/bin/google-chrome"
     extensions = ["kiosk", "google_properties_menu", ]
