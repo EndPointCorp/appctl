@@ -207,6 +207,7 @@ class TestBase(object):
         op = webdriver.ChromeOptions()
         for ext in extensions:
             op.add_extension('{}/{}.crx'.format(CONFIG["extensions_dir"], ext))
+            time.sleep(1)
         return op
 
     @classmethod
