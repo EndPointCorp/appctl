@@ -10,7 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as exp_cond
 
 from base import TestBase
-from base import MAPS_URL
+from base import MAPS_URL, ZOOMED_IN_MAPS_URL
 from base import screenshot_on_error, make_screenshot
 
 
@@ -24,8 +24,8 @@ elements = (("zoom", By.ID),
             ("searchbox_form", By.ID),
             ("searchbutton", By.CLASS_NAME),
             ("acme-poi-button", By.CLASS_NAME),
-            ("acme-points-of-interest", By.ID),
             ("widget-runway-tray-wrapper", By.CLASS_NAME),
+            ("acme-points-of-interest", By.ID),
             ("acme-famous-places-button", By.ID),
             ("widget-runway-thumbstrip-background", By.CLASS_NAME),
             ("widget-compass", By.CLASS_NAME))
@@ -89,7 +89,7 @@ class TestBaseKioskExtension(TestBase):
 
         """
         config = self.get_config()
-        self.browser.get(MAPS_URL)
+        self.browser.get(ZOOMED_IN_MAPS_URL)
 
         def test_elements_present(elem):
             msg = "Element '{0}' should be present (kiosk extension).".format(elem[0])
