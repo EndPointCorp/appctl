@@ -205,6 +205,7 @@ class TestBase(object):
 
         """
         op = webdriver.ChromeOptions()
+        op.add_argument('ignore-gpu-blacklist')
         for ext in extensions:
             op.add_extension('{}/{}.crx'.format(CONFIG["extensions_dir"], ext))
             time.sleep(1)
@@ -384,4 +385,5 @@ class TestBaseTouchscreen(TestBase):
     all tests for touchscreen should inherit from this class.
 
     """
+    binary = "/usr/bin/google-chrome"
     extensions = ["kiosk", "google_properties_menu", ]
