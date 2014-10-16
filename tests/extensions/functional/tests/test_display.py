@@ -20,7 +20,6 @@ elements = (("zoom", By.ID),
             ("widget-zoom-button", By.CLASS_NAME),
             ("widget-zoom-in", By.CLASS_NAME),
             ("widget-zoom-out", By.CLASS_NAME),
-            ("compass", By.ID),
             ("searchboxinput", By.ID),
             ("searchbox_form", By.ID),
             ("searchbutton", By.CLASS_NAME),
@@ -28,7 +27,8 @@ elements = (("zoom", By.ID),
             ("acme-points-of-interest", By.ID),
             ("widget-runway-tray-wrapper", By.CLASS_NAME),
             ("acme-famous-places-button", By.ID),
-            ("widget-runway-thumbstrip-background", By.CLASS_NAME))
+            ("widget-runway-thumbstrip-background", By.CLASS_NAME),
+            ("widget-compass", By.CLASS_NAME))
 
 
 class TestBaseDisplay(TestBase):
@@ -92,7 +92,7 @@ class TestBaseKioskExtension(TestBase):
 
         def test_elements_present(elem):
             msg = "Element '{0}' should be present (kiosk extension).".format(elem[0])
-            tester = partial(exp_cond.presence_of_element_located, (elem[1], elem[0]))
+            tester = partial(exp_cond.visibility_of_element_located, (elem[1], elem[0]))
             WebDriverWait(self.browser,
                           config["max_load_timeout"]).until(tester(), message=msg)
         map(test_elements_present, elements)
