@@ -208,7 +208,6 @@ class TestBase(object):
         op.add_argument('ignore-gpu-blacklist')
         for ext in extensions:
             op.add_extension('{}/{}.crx'.format(CONFIG["extensions_dir"], ext))
-            time.sleep(1)
         return op
 
     @classmethod
