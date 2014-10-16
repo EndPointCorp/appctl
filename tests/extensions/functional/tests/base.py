@@ -152,6 +152,7 @@ def prepare_environment():
         set_env_variables()
         for command in CONFIG["executables"]:
             print "Running '%s' ..." % command
+            print "Current directory: '%s'" % os.getcwd()
             r = os.system(command)
             print "exit status: %s" % r
 
