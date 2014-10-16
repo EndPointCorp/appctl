@@ -89,6 +89,7 @@ class TestBaseKioskExtension(TestBase):
         """
         config = self.get_config()
         self.browser.get(MAPS_URL)
+        import time
         time.sleep(10)
 
         def test_elements_present(elem):
