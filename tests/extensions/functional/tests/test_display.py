@@ -11,7 +11,7 @@ from selenium.webdriver.support import expected_conditions as exp_cond
 
 from base import TestBase
 from base import MAPS_URL
-from base import screenshot_on_error
+from base import screenshot_on_error, make_screenshot
 
 
 # these particular elements are present when the display extension is not loaded
@@ -67,6 +67,7 @@ class TestBaseDisplay(TestBase):
             WebDriverWait(self.browser,
                           config["max_load_timeout"]).until(tester(), message=msg)
         map(test_elements_not_present, elements)
+        make_screenshot(self.browser, "test_elements_not_present", 0)
 
 
 class TestBaseKioskExtension(TestBase):
@@ -96,3 +97,4 @@ class TestBaseKioskExtension(TestBase):
             WebDriverWait(self.browser,
                           config["max_load_timeout"]).until(tester(), message=msg)
         map(test_elements_present, elements)
+        make_screenshot(self.browser, "test_widgets_displayed", 0)
