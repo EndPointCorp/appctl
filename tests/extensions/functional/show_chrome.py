@@ -14,7 +14,5 @@ klass.setup_class()
 # our chrome extensions are loaded, yet do not work
 # redirection doesn't happen with MAPS_URL
 browser = klass.run_browser()
-#browser.get(MAPS_URL)
-
-
-print browser.capabilities
+print "Browser capabilities:\n%s" % browser.capabilities
+browser.get(MAPS_URL)

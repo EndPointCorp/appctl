@@ -3,13 +3,10 @@ Zoom buttons tests.
 
 """
 
-import time
-
-import pytest
-
 from base import TestBaseTouchscreen
 from base import MAPS_URL, ZOOMED_IN_MAPS_URL, Pose
 from base import screenshot_on_error, make_screenshot
+import helpers
 
 
 class TestZoomButtons(TestBaseTouchscreen):
@@ -28,53 +25,46 @@ class TestZoomButtons(TestBaseTouchscreen):
                   zoom.find_element_by_class_name('widget-zoom-out')]:
             assert z.is_displayed() is True
 
-    @pytest.mark.skipif(True, reason="assert values fails, before was: "
-                                     "'AssertionError: << <could not determine information'")
     @screenshot_on_error
     def test_zoom_out_button_change(self):
         """
-        Test clicks on the zoom in button and checks if the
-        zoom level on the browser URL changed.
+        Test clicks on the zoom in button and checks the
+        pose object coordinates (altitude, latitude, longitude)
+        according change.
 
         """
-        self.browser.get(ZOOMED_IN_MAPS_URL)
+        helpers.wait_for_loaded_page(ZOOMED_IN_MAPS_URL, self.browser)
         make_screenshot(self.browser, "zoom_out_button", 0)
-
-        time.sleep(10)
-        pose = self.get_camera_pose()
-
-        expected_pose = Pose(alt=620097.1867688844, lat=8.135687, lon=-75.0973243)
-
-        self.assert_pose_is_near(pose, expected_pose)
+        # get current values of altitude, latitude and longitude
+        pose_start = self.get_camera_pose()
         self.click_zoom_out()
-
+        pose = self.get_camera_pose()
         make_screenshot(self.browser, "zoom_out_button", 1)
-        current_pose = self.get_camera_pose()
+        # the zoom out click increases altitude by approx 100% of the initial value
+        # assume 10% difference from the target value to tolerate
+        expected_pose = Pose(alt=pose_start.alt * 2,
+                             lat=pose_start.lat,
+                             lon=pose_start.lon)
+        assert self.pose_is_near(pose, expected_pose, alt_delta=pose.alt * 0.1) is True
 
-        assert pose.alt < current_pose.alt
-        self.assert_pose_is_near(pose, expected_pose, assert_alt=False)
-
-    @pytest.mark.skipif(True, reason="assert values fails, before was: "
-                                     "'AssertionError: << <could not determine information'")
     @screenshot_on_error
     def test_zoom_in_button_change(self):
         """
-        Test clicks on the zoom in button and checks if the
-        zoom level on the browser URL changed.
+        Test clicks on the zoom out button and checks the
+        pose object coordinates (altitude, latitude, longitude)
+        according change.
 
         """
-        self.browser.get(ZOOMED_IN_MAPS_URL)
+        helpers.wait_for_loaded_page(ZOOMED_IN_MAPS_URL, self.browser)
         make_screenshot(self.browser, "zoom_in_button", 0)
-
-        time.sleep(10)
-        pose = self.get_camera_pose()
-
-        expected_pose = Pose(alt=620097.1867688844, lat=8.135687, lon=-75.0973243)
-
-        self.assert_pose_is_near(pose, expected_pose)
+        # get current values of altitude, latitude and longitude
+        pose_start = self.get_camera_pose()
         self.click_zoom_in()
-
+        pose = self.get_camera_pose()
         make_screenshot(self.browser, "zoom_in_button", 1)
-        current_pose = self.get_camera_pose()
-        assert pose.alt > current_pose.alt
-        self.assert_pose_is_near(pose, expected_pose, assert_alt=False)
+        # the zoom in click decreases altitude by approx 50% of the initial value
+        # assume 10% difference from the target value to tolerate
+        expected_pose = Pose(alt=pose_start.alt * 0.5,
+                             lat=pose_start.lat,
+                             lon=pose_start.lon)
+        assert self.pose_is_near(pose, expected_pose, alt_delta=pose.alt * 0.1) is True
