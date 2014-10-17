@@ -39,7 +39,7 @@ def listen():
 
   handler = StatsDHandler(statsd_host, statsd_port)
 
-  rospy.Subscriber('statistics/render', StatsD, handler.handle)
+  rospy.Subscriber('statistics/statsd', StatsD, handler.handle)
 
   rospy.spin()
 

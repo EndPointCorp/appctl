@@ -23,7 +23,7 @@ var RenderStatisticsApp = (function() {
 
   var statsTopic = new ROSLIB.Topic({
     ros: ros,
-    name: '/statistics/render',
+    name: '/statistics/statsd',
     messageType: 'statistics/StatsD'
   });
   statsTopic.advertise();
