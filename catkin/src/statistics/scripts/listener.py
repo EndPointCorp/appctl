@@ -4,7 +4,7 @@ import rospy
 import socket
 from statistics.msg import StatsD
 
-class StatsHandler():
+class StatsDHandler():
   def __init__(self, statsd_host, statsd_port):
     self.statsd_target = (statsd_host, statsd_port)
     self.sock = socket.socket(
@@ -37,7 +37,7 @@ def listen():
     8125
   )
 
-  handler = StatsHandler(statsd_host, statsd_port)
+  handler = StatsDHandler(statsd_host, statsd_port)
 
   rospy.Subscriber('statistics/render', StatsD, handler.handle)
 
