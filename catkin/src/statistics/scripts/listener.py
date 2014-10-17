@@ -16,7 +16,7 @@ class StatsDHandler():
     self.sock.sendto(statsd_msg, self.statsd_target)
 
   def handle(self, msg):
-    statsd_msg = 'display.{name}:{value}|{type}|@{rate}'.format(
+    statsd_msg = '{name}:{value}|{type}|@{rate}'.format(
       name=msg.name,
       value=msg.value,
       type=msg.type,
