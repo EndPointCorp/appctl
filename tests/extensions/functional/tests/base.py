@@ -145,7 +145,7 @@ def prepare_environment():
     """
     global CONFIG
     if CONFIG:
-        print "\nCONFIG is initialized, do not load anything ..."
+        print "\nCONFIG is initialized, not loading anything ..."
     else:
         print "\nCONFIG is NOT initialized, running preparation ..."
         load_configuration()
@@ -369,7 +369,7 @@ class TestBase(object):
         If the function runs for more than the {max_wait_time} then it returns.
 
         Arguments:
-            old_value - old value for the url, checked agains the current url
+            old_value - old value for the url, checked again the current url
             interval  - sleep time between checks
             max_wait_time - maximum time for the function to run
 
