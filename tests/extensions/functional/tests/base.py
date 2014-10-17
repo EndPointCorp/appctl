@@ -31,6 +31,9 @@ MAPS_URL = 'https://www.google.com/maps/@8.135687,-75.0973243,17856994a,40.4y,1.
 # We need another url for zoom out button, the above one cannot be zoomed out
 ZOOMED_IN_MAPS_URL = 'https://www.google.com/maps/@8.135687,-75.0973243,178569a,40.4y,1.23h/data=!3m1!1e3?esrch=Tactile::TactileAcme'
 
+# Chrome GPU data url
+CHROME_GPU_URL = 'chrome://gpu'
+
 # configuration data instance, keep here to have it valid
 # during the entire test suite run, it's initialized just
 # once per entire run
@@ -205,7 +208,9 @@ class TestBase(object):
 
         """
         op = webdriver.ChromeOptions()
-        op.add_argument('ignore-gpu-blacklist')
+
+        for chrome_argument in CONFIG["chrome"]["arguments"]:
+            op.add_argument(chrome_argument)
 
         for ext_name in extensions:
             ext_dir = CONFIG["extensions_dir"]
@@ -392,3 +397,11 @@ class TestBaseTouchscreen(TestBase):
 
     """
     extensions = ["kiosk", "google_properties_menu"]
+
+
+class TestBaseGeneric(TestBase):
+    """
+    No extensions are loaded
+
+    """
+    extensions = []
