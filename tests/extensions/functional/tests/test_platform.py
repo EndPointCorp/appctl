@@ -3,11 +3,10 @@ Browser platform tests (webgl, drivers etc)
 """
 
 from base import TestBaseGeneric
-from base import screenshot_on_error
 from base import CHROME_GPU_URL
-from base import CONFIG
-from helpers import filter_list_of_dicts
-from exceptions import ConfigException
+from helpers import TestHelpers as th
+from exception import ConfigException
+from base import load_configuration
 
 
 class TestPlatform(TestBaseGeneric):
@@ -20,33 +19,30 @@ class TestPlatform(TestBaseGeneric):
     gpu_data.clientInfo.version => Chrome/37.0.2062.120
     gpu_data.gpuInfo.basic_info[n] => description : 'Direct Rendering'
 
-    Get:
+    Log:
     gpu_data.gpuInfo.basic_info[n] => description : GL_VERSION
     """
 
-    def __init__(self):
-        self.chrome_gpu_data = self.get_chrome_gpu_data()
-        print "CHROME GPU DATA {}".format(self.chrome_gpu_data) #removeme
+    def test_get_chrome_gpu_data(self):
+        self.browser.get(CHROME_GPU_URL)
+        config = load_configuration()
+        gpu_js = 'window.setTimeout("browserBridge = new gpu.BrowserBridge();\
+                 ",1000); return browserBridge'
+        self.chrome_gpu_data = self.browser.execute_script(gpu_js)
+
         try:
-            self.chrome_version = CONFIG['chrome']['version']
+            chrome_version = config['chrome']['version']
         except ConfigException, e:
             print "%s => you must provide chrome version in config.json" % e
-            print "e.g. config['chrome']['version'] == 'Chrome/38.0'"
+            print "e.g. config['chrome']['version'] == 'Chrome/30'"
 
-        if "ignore-gpu-blacklist" in CONFIG["chrome"]["arguments"]:
-            self.gpu_present = False
+        if "ignore-gpu-blacklist" in config["chrome"]["arguments"]:
+            direct_rendering = False
         else:
-            self.gpu_present = True
+            direct_rendering = True
 
-    def get_chrome_gpu_data(self):
-        self.browser.get(CHROME_GPU_URL)
-        return self.browser.execute_script('gpu_data = new gpu.BrowserBridge();\
-                                                            return gpu_data;')
+        config_chrome_version = str(self.chrome_gpu_data['clientInfo']['version'].split('.')[0])
+        direct_rendering_enabled = th().filter_list_of_dicts(self.chrome_gpu_data['gpuInfo']['basic_info'], 'Direct rendering', 'Yes')
 
-    @screenshot_on_error
-    def direct_rendering_enabled(self):
-        pass
-
-    @screenshot_on_error
-    def chrome_version_is_correct(self):
-        assert self.chrome_gpu_data['clientInfo']['version'].split('.')[0] is self.chrome_version
+        assert (direct_rendering == direct_rendering_enabled)
+        assert (chrome_version == config_chrome_version)

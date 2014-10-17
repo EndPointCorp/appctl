@@ -114,6 +114,7 @@ def load_configuration():
     CONFIG = json.load(f)
     print "CONFIG: test suite configuration:"
     pprint.pprint(CONFIG)
+    return CONFIG
 
 
 def set_env_variables():
