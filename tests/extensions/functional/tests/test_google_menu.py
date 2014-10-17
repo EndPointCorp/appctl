@@ -3,13 +3,13 @@ Google Menu tests
 """
 
 
-from base import BaseTouchscreenTest
+from base import TestBaseTouchscreen
 import time
 from base import MAPS_URL, ZOOMED_IN_MAPS_URL, Pose
 from base import screenshot_on_error, make_screenshot
 import re
 
-class TestGoogleMenu(BaseTouchscreenTest):
+class TestGoogleMenu(TestBaseTouchscreen):
 
     @screenshot_on_error
     def test_google_menu_is_visible(self):
