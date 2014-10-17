@@ -11,6 +11,11 @@
             "echo hello"
         ],
 
+    "chrome" : {
+      "version" : "Chrome/38",
+      "arguments" : []
+    },
+
     "max_load_timeout": 15,
 
     "extensions_dir": "ABSOLUTE PATH TO THE PORTAL CHROME EXTENTIONS",
