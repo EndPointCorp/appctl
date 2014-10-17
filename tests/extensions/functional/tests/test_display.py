@@ -23,6 +23,7 @@ elements = (("zoom", By.ID),
             ("searchboxinput", By.ID),
             ("searchbox_form", By.ID),
             ("searchbutton", By.CLASS_NAME),
+            ("morefun", By.ID),
             ("acme-poi-button", By.CLASS_NAME),
             ("widget-runway-tray-wrapper", By.CLASS_NAME),
             ("acme-points-of-interest", By.ID),
@@ -45,7 +46,7 @@ class TestBaseDisplay(TestBase):
     runway panel
 
     """
-    extensions = ["display", ]
+    extensions = ["display"]
 
     @screenshot_on_error
     def test_widgets_not_displayed(self):
@@ -76,7 +77,7 @@ class TestBaseKioskExtension(TestBase):
     against them not displayed with the display extension.
 
     """
-    extensions = ["kiosk", ]
+    extensions = ["kiosk", "google_properties_menu"]
 
     @screenshot_on_error
     def test_widgets_displayed(self):
