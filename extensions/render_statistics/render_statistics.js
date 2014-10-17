@@ -131,7 +131,6 @@ var RenderStatisticsApp = (function() {
    * @param {object} msg A statsd message.
    */
   function handleStatsMessage(msg) {
-    console.log(msg);
     // TODO(mv): get source name from preferences
     msg.name = ['display', msg.name].join('.');
     statsTopic.publish(new ROSLIB.Message(msg));
