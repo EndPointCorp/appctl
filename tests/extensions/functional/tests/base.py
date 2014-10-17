@@ -40,12 +40,6 @@ CONFIG = {}
 Pose = namedtuple("pose", ['alt', 'lon', 'lat'])
 
 
-# TODO: add function to make slingshot on purpose -
-# maybe modify the lg-grap-screens
-# the slingshot is at /tmp/montage/lg-montage.png
-
-# TODO: add function to make screenshot on purpose
-
 def make_screenshot(browser, fname, index):
     ss_dir = CONFIG["screenshots_dir"]
 
@@ -243,11 +237,15 @@ class TestBase(object):
         res = self.browser.execute_script('return acme.getCameraPose();')
         return Pose(res['alt'], res['g'], res['wg'])
 
-    def assert_pose_is_near(self, left, right,
-                            alt_delta=1, lon_delta=0.000001, lat_delta=0.000001,
-                            assert_alt=True, assert_lon=True, assert_lat=True):
+    def pose_is_near(self,
+                     left,
+                     right,
+                     alt_delta=1,
+                     lon_delta=0.000001,
+                     lat_delta=0.000001,
+                     assert_alt=True, assert_lon=True, assert_lat=True):
         """
-        Asserts if one of the pose objects is near to another.
+        Checks if one of the pose objects is near to another.
 
         We need this function, as sometimes the maps camera moves a little bit,
         however users still see the same place. It is caused by two factors:
@@ -271,11 +269,19 @@ class TestBase(object):
             AssertionError when checking went wrong
         """
         if assert_alt:
-            assert abs(left.alt - right.alt) < alt_delta
+            alt = abs(left.alt - right.alt) < alt_delta
+        else:
+            alt = True
         if assert_lon:
-            assert abs(left.lon - right.lon) < lon_delta
+            lon = abs(left.lon - right.lon) < lon_delta
+        else:
+            lon = True
         if assert_lat:
-            assert abs(left.lat - right.lat) < lat_delta
+            lat = abs(left.lat - right.lat) < lat_delta
+        else:
+            lat = True
+        return alt and lon and lat
+
 
     def click(self, finder_value, finder):
         """
@@ -332,6 +338,9 @@ class TestBase(object):
         """
         Get the current zoom level from the browser's url.
 
+        TODO:
+        this method is not needed anymore, remove?
+
         """
         return self._get_zoom_level_from_url(self.browser.current_url)
 
@@ -348,6 +357,9 @@ class TestBase(object):
 
         Returns:
             (int) zoom level read from the url
+
+        TODO:
+        this method is not needed anymore, remove?
 
         """
         return int(re.search("\/maps\/.*,(\d+)[am][,/]", url).groups()[0])
