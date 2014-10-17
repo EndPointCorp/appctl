@@ -128,6 +128,7 @@ var RenderStatisticsApp = (function() {
 
   /**
    * Handles a statistics message from a tab.
+   * @param {object} msg A statsd message.
    */
   function handleStatsMessage(msg) {
     console.log(msg);
