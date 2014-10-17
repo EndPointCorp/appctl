@@ -9,4 +9,4 @@ Standards-Version: 3.9.2
 Package: ros-indigo-statistics
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-rospy
-Description: ROS interface to statsd.
+Description: ROS interface to statistics sinks.
