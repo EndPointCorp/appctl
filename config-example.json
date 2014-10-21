@@ -13,7 +13,8 @@
 
     "chrome" : {
       "version" : "Chrome/38",
-      "arguments" : []
+      "arguments" : [],
+      "binary_path" : "/usr/bin/google-chrome"
     },
 
     "max_load_timeout": 15,
