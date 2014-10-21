@@ -5,10 +5,15 @@ Useful for DOM HTML tree elements inspection with
 
 """
 
+import time
+
 from tests.base import TestBaseTouchscreen
+from tests.base import TestBase
 from tests.base import MAPS_URL
 
-klass = TestBaseTouchscreen
+#klass = TestBaseTouchscreen
+klass = TestBase
+klass.extensions = ["kiosk"]
 klass.setup_class()
 # if browser automatically redirects to national mutation,
 # our chrome extensions are loaded, yet do not work
