@@ -185,6 +185,14 @@ class TestBase(object):
         return CONFIG
 
     @classmethod
+    def get_capabilities(cls):
+        """
+        Returns DesiredCapabilities object
+        """
+        capabilities = webdriver.DesiredCapabilities.CHROME.copy()
+        return capabilities
+
+    @classmethod
     def get_extensions_options(cls, extensions):
         """
         Returns ChromeOptions object with extensions paths.
@@ -203,6 +211,11 @@ class TestBase(object):
 
         """
         op = webdriver.ChromeOptions()
+        try:
+            op.binary_location = CONFIG["chrome"]["binary_path"]
+        except KeyError, e:
+            print "Not ['chrome']['binary_path'] in config.json - using defaults"
+            op.binary_location = '/usr/bin/google-chrome'
 
         for chrome_argument in CONFIG["chrome"]["arguments"]:
             op.add_argument(chrome_argument)
@@ -225,11 +238,15 @@ class TestBase(object):
         """
         driver = CONFIG["chrome_driver"]["path"]
         options = cls.get_extensions_options(cls.extensions)
+        capabilities = cls.get_capabilities()
+        print "Chrome capabilities: {}".format(capabilities)
         # Set environment variable for Chrome.
         # Chrome driver needs to have an environment variable set,
         # this must be set to the path to the webdriver file.
         os.environ["webdriver.chrome.driver"] = driver
-        return webdriver.Chrome(executable_path=driver, chrome_options=options)
+        return webdriver.Chrome(executable_path=driver,
+                                chrome_options=options,
+                                desired_capabilities=capabilities)
 
     def setup_method(self, method):
         self.browser = self.run_browser()
