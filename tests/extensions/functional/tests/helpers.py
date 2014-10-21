@@ -27,17 +27,32 @@ def filter_list_of_dicts(lyst, key, value):
 
 
 
-def wait_for_loaded_page(url, browser, elem_class_name="widget-compass"):
+def wait_for_loaded_page(url,
+                         browser,
+                         elem_identifier_kind=By.CLASS_NAME,
+                         elem_identifier_name="widget-compass"):
     """
     Waits for a page to load URL.
     Now it seems to suffice to wait until 'widget-compass' element appears.
-    Generally a tricky operation.
+    This is default on pages with compass widget loaded.
+
+    Waits specified pause and time outs if the element does not appear.
+
+    browser: web browser instance
+    elem_identifier_kind: kind of element identification, can be
+        either By.CLASS_NAME or By.ID
+    elem_identifier_name: particular element class name or ID (according
+        to which is chosen by the elem_identifier_kind argument.
+
+    returns:
+        Nothing
 
     """
     config = TestBase.get_config()
     browser.get(url)
     # wait for compass to appear, then start testing by taking a screenshot
-    tester = partial(exp_cond.visibility_of_element_located, (By.CLASS_NAME, elem_class_name))
-    msg = "Element identified by '%s' did not appear." % elem_class_name
+    tester = partial(exp_cond.visibility_of_element_located,
+                     (elem_identifier_kind, elem_identifier_name))
+    msg = "Element identified by '%s' did not appear." % elem_identifier_name
     WebDriverWait(browser,
                   config["max_load_timeout"]).until(tester(), message=msg)
