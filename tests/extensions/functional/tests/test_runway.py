@@ -128,10 +128,7 @@ class TestRunway(TestBase):
         for p in points:
             action = webdriver.ActionChains(self.browser)
             action.move_to_element(p).click().perform()
-            time.sleep(3)
-            eb = self.browser.find_element_by_class_name("widget-titlecard-exitcontainer")
-            action = webdriver.ActionChains(self.browser)
-            action.move_to_element(eb).click().perform()
+            time.sleep(2)
             if c > 5:
                 break
             c += 1

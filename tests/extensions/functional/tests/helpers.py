@@ -1,5 +1,6 @@
 """
-Helpers used by tests
+Helpers used by tests.
+
 """
 
 from exception import HelperException
@@ -26,6 +27,7 @@ def filter_list_of_dicts(lyst, key, value):
         return False
     else:
         raise HelperException("Error filtering list")
+
 
 def wait_for_loaded_page(url,
                          browser,

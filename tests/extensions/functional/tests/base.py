@@ -4,7 +4,6 @@ Portal selenium tests base module.
 """
 
 
-from selenium import webdriver
 from functools import wraps
 import traceback
 from datetime import datetime
@@ -16,6 +15,7 @@ import pprint
 from collections import namedtuple
 import re
 
+from selenium import webdriver
 import pytest
 
 
