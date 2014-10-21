@@ -15,10 +15,23 @@ docs/
 .project
 .settings
 
+# PyCharm
+.idea
+
 # osx
 .DS_Store
 
 *.pyc
+__pycache__
+
+# local files not tracked by the source control
+.local_cache
+
+# local, customized tests configuration file
+config.json
+
+# product of running test suite (log files, screenshots)
+tests_results/
 
 # untracked external repositories
 catkin/geographic_info
