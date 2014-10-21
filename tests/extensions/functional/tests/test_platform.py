@@ -36,13 +36,8 @@ class TestPlatform(TestBaseGeneric):
             print "%s => you must provide chrome version in config.json" % e
             print "e.g. config['chrome']['version'] == 'Chrome/30'"
 
-        if "ignore-gpu-blacklist" in config["chrome"]["arguments"]:
-            direct_rendering = False
-        else:
-            direct_rendering = True
-
         config_chrome_version = str(self.chrome_gpu_data['clientInfo']['version'].split('.')[0])
         direct_rendering_enabled = filter_list_of_dicts(self.chrome_gpu_data['gpuInfo']['basic_info'], 'Direct rendering', 'Yes')
 
-        assert (direct_rendering == direct_rendering_enabled)
+        assert (direct_rendering_enabled == True)
         assert (chrome_version == config_chrome_version)
