@@ -22,10 +22,10 @@ def filter_list_of_dicts(lyst, key, value):
 
     if len(filtered_list) == 1:
         return True
+    elif len(filtered_list) == 0:
+        return False
     else:
         raise HelperException("Error filtering list")
-
-
 
 def wait_for_loaded_page(url,
                          browser,
