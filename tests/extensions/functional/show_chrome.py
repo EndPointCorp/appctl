@@ -7,6 +7,8 @@ Useful for DOM HTML tree elements inspection with
 
 import time
 
+from selenium import webdriver
+
 from tests.base import TestBaseTouchscreen
 from tests.base import TestBase
 from tests.base import MAPS_URL
