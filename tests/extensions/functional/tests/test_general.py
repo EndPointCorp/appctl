@@ -3,6 +3,8 @@ Portal general selenium tests.
 
 """
 
+
+import pytest
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -89,3 +91,36 @@ class TestSearch(TestBaseTouchscreen):
         msg = "Waiting for position change timed out."
         WebDriverWait(self.browser,
                       config["max_load_timeout"]).until_not(tester, message=msg)
+
+
+class TestMiscellaneous(TestBaseTouchscreen):
+    """
+    Various other tests.
+
+    """
+    @pytest.skip(msg="Patch hiding the EU cookies message bar not yet merged.")
+    @screenshot_on_error
+    def test_eu_cookies_info_bar_is_hidden(self):
+        """
+        Make sure that the cookie bar is invisible.
+        And the map canvas has set top=0px,
+        because the cookie container is 30 px higher,
+        and the canvas is moved 30 px down.
+        https://redmine.endpoint.com/issues/2517
+        Related patch:
+        https://github.com/EndPointCorp/portal/commit/f7c89fecedd5bcaa94b03289b01393d8cfd9d692
+
+        """
+        helpers.wait_for_loaded_page(MAPS_URL, self.browser)
+        # info bar is of class "pushdown", should be hidden
+        bar = self.browser.find_element_by_id("pushdown")
+        assert bar.is_displayed() is False
+        # NB:
+        # when info bar is displayed, both the info bar as well
+        # as the widget-scene-canvas (class) have the same location:
+        # {'y': 0, 'x': 0}
+        # "content-container" (ID) is however shifted when the info
+        # bar is present by 30 px, this is should not be now
+        content = self.browser.find_element_by_id("content-container")
+        assert content.location['x'] == 0
+        assert content.location['y'] == 0
