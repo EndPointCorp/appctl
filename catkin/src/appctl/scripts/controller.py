@@ -18,8 +18,8 @@ class AppController:
     """
 
     def __init__(self):
-        self.mode = self._get_initial_mode()
         self.node = self._init_node()
+        self.mode = self._get_initial_mode()
         self.service = self._init_service()
         self.publisher = self._init_publisher()
         self.subscriber = self._init_subscriber()
@@ -41,18 +41,18 @@ class AppController:
         self.mode = data.mode
 
     def _get_initial_mode(self):
-        initial_mode = rospy.get_param('initial_mode')
+        initial_mode = rospy.get_param('~initial_mode')
         return initial_mode
 
     def _init_node(self):
         rospy.init_node('appctl', anonymous=True)
 
     def _init_subscriber(self):
-        subscriber = rospy.Publisher('/appctl/mode', Mode, self._set_mode)
+        subscriber = rospy.Subscriber('/appctl/mode', Mode, self._set_mode)
         return subscriber
 
     def _init_publisher(self):
-        publisher = rospy.Publisher('/appctl/mode', Mode)
+        publisher = rospy.Publisher('/appctl/mode', Mode, queue_size = 3)
         rospy.loginfo("Publishing initial mode")
         msg = Mode()
         self.mode = self._get_initial_mode()

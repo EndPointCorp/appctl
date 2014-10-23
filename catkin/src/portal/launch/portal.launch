@@ -2,6 +2,6 @@
   <node pkg="portal_nav" type="portal_nav" name="portal_nav"></node>
   <node pkg="rosbridge_server" type="rosbridge_websocket" name="rosbridge_websocket"></node>
   <node pkg="appctl" type="controller.py" name="controller">
-   <param name="initial_mode" value="tactile"/>
+   <param name="~initial_mode" value="tactile"/>
   </node>
 </launch>
