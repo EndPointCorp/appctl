@@ -12,33 +12,52 @@ class AppController:
         - provides default mode on startup
     - subscribes to /appctl/mode
         - provides Query.msg
+    - publishes on /appctl/mode
+        - does a one-time only msg publish when launched
     - provides initial_mode parameter
     """
 
     def __init__(self):
-        self.default_mode = 'tactile'
         self.mode = self._get_initial_mode()
         self.service = self._init_service()
+        self.publisher = self._init_publisher()
+        self.subscriber = self._init_subscriber()
+
         pass
 
     def run(self):
+        rospy.loginfo("Starting Appcontroller service")
         while not rospy.is_shutdown():
             rospy.spin()
             pass
         pass
 
-    def _get_current_mode(self):
+    def _get_mode(self):
         return self.mode
 
+    def _set_mode(self, mode):
+        rospy.loginfo("Received new mode => {}".format(mode))
+        self.mode = mode
+
     def _get_initial_mode(self):
-        initial_mode = rospy.get_param('~initial_mode', self.default_mode)
+        initial_mode = rospy.get_param('~initial_mode')
         return initial_mode
 
     def _init_node(self):
-        rospy.init_node('appctl')
+        rospy.init_node('appctl', anonymous=True)
 
-    def _init_subscribers(self):
-        pass
+    def _init_subscriber(self):
+        subscriber = rospy.Publisher('/appctl/mode', Mode, self._set_mode)
+        return subscriber
+
+    def _init_publisher(self):
+        publisher = rospy.Publisher('/appctl/mode', Mode)
+        rospy.loginfo("Publishing initial mode")
+        msg = Mode()
+        self.mode = self._get_initial_mode()
+        msg.mode = self.mode
+        publisher.publish(msg)
+        return publisher
 
     def _init_service(self):
         service = rospy.Service('appctl/query',
