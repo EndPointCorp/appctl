@@ -131,3 +131,34 @@ class TestRunway(TestBase):
             if c > 5:
                 break
             c += 1
+
+    @screenshot_on_error
+    def test_runway_check_earth_is_healthy(self):
+        """
+        The Earth icon (most left picture), clicking it should bring the
+        view to the original position. Check the Earth is always there.
+
+        """
+        helpers.wait_for_loaded_page(MAPS_URL,
+                                     self.browser,
+                                     elem_identifier_kind=By.ID,
+                                     elem_identifier_name="acme-poi-button")
+        earth = self.browser.find_element_by_class_name("acme-zoom-out-earth")
+        assert earth.is_displayed() is True
+        earth.click()
+        time.sleep(1)
+        # search for some location, waits already
+        self.prepare_poi()
+        earth = self.browser.find_element_by_class_name("acme-zoom-out-earth")
+        assert earth.is_displayed() is True
+        # don't have access to the Pose (position object) to check ...
+        # after 3 clicks on the Earth icon, the zoom out button gets disabled
+        zoom_out_button = self.browser.find_element_by_class_name("widget-zoom-out")
+        for i in range(3):
+            earth.click()
+            time.sleep(1)
+            assert earth.is_displayed() is True
+            if i < 2:
+                assert zoom_out_button.is_enabled() is True
+            else:
+                assert zoom_out_button.is_enabled() is False
