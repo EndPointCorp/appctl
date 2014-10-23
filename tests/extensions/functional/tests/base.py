@@ -305,14 +305,18 @@ class TestBase(object):
             lat = True
         return alt and lon and lat
 
-
     def click(self, finder_value, finder):
         """
         Performs javascript click on the element.
 
         Arguments:
-            finder_value: string to find
-            finder: "by_class"
+            finder_value: string to find (class name or id
+                according to finder)
+            finder: "by_class" or "by_id"
+
+        Usage:
+            self.click("searchbutton", finder="by_class")
+            self.click("acme-famous-places-button", finder="by_id")
 
         A kind of workaround to a bug:
         https://code.google.com/p/selenium/issues/detail?id=6218
@@ -326,11 +330,17 @@ class TestBase(object):
                 return;
             }}
             """.format(finder_value)
+        elif finder == "by_id":
+            finder_script = """
+            var element = document.getElementById('{0}');
+            if (element == null) {{
+                alert('Didn\\'t find the element with ID = {0}');
+                return;
+            }}
+            """.format(finder_value)
         else:
-            raise ValueError("Wrong finder value")
-
-        event_script = "(function(){{ {0} ; element.click(); }}());" \
-                       .format(finder_script)
+            raise ValueError("Wrong finder value: '%s'" % finder)
+        event_script = "(function(){{ {0} ; element.click(); }}());".format(finder_script)
         self.browser.execute_script(event_script)
 
     def click_zoom_in(self):
