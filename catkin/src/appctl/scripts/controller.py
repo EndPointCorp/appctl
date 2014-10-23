@@ -24,7 +24,7 @@ class AppController:
         self.publisher = self._init_publisher()
         self.subscriber = self._init_subscriber()
 
-        pass
+        self._publish_initial_state()
 
     def run(self):
         rospy.loginfo("Starting Appcontroller service")
@@ -32,6 +32,11 @@ class AppController:
             rospy.spin()
             pass
         pass
+
+    def _publish_initial_state(self):
+        rospy.loginfo("Publishing initial mode")
+        msg = Mode(mode=self._get_initial_mode())
+        self.publisher.publish(msg)
 
     def _get_mode(self):
         return self.mode
@@ -45,25 +50,27 @@ class AppController:
         return initial_mode
 
     def _init_node(self):
-        rospy.init_node('appctl', anonymous=True)
+        rospy.init_node('appctl')
 
     def _init_subscriber(self):
         subscriber = rospy.Subscriber('/appctl/mode', Mode, self._set_mode)
         return subscriber
 
     def _init_publisher(self):
-        publisher = rospy.Publisher('/appctl/mode', Mode, queue_size = 3)
-        rospy.loginfo("Publishing initial mode")
-        msg = Mode()
-        self.mode = self._get_initial_mode()
-        msg.mode = self.mode
-        publisher.publish(msg)
+        publisher = rospy.Publisher('/appctl/mode', Mode, queue_size=3)
         return publisher
+
+    def _process_service_request(self, req):
+        """
+        Callback for service requests. We always return mode
+        """
+        rospy.loginfo("Received Query service request {}".format(req))
+        return self.mode
 
     def _init_service(self):
         service = rospy.Service('appctl/query',
                                 Query,
-                                self._get_mode())
+                                self._process_service_request)
         return service
 
 
