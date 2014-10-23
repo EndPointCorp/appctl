@@ -35,9 +35,9 @@ class AppController:
     def _get_mode(self):
         return self.mode
 
-    def _set_mode(self, mode):
-        rospy.loginfo("Received new mode => {}".format(mode))
-        self.mode = mode
+    def _set_mode(self, data):
+        rospy.loginfo("Received new mode => {}".format(data.mode))
+        self.mode = data.mode
 
     def _get_initial_mode(self):
         initial_mode = rospy.get_param('~initial_mode')
@@ -62,7 +62,7 @@ class AppController:
     def _init_service(self):
         service = rospy.Service('appctl/query',
                                 Query,
-                                self._get_current_mode())
+                                self._get_mode())
         return service
 
 
