@@ -19,6 +19,7 @@ class AppController:
 
     def __init__(self):
         self.mode = self._get_initial_mode()
+        self.node = self._init_node()
         self.service = self._init_service()
         self.publisher = self._init_publisher()
         self.subscriber = self._init_subscriber()
@@ -40,7 +41,7 @@ class AppController:
         self.mode = data.mode
 
     def _get_initial_mode(self):
-        initial_mode = rospy.get_param('~initial_mode')
+        initial_mode = rospy.get_param('initial_mode')
         return initial_mode
 
     def _init_node(self):
