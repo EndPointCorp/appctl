@@ -42,3 +42,43 @@ py.test
 py.test tests/extensions/functional/ to speed up discovery
 py.test -s to capture stdout
 py.test -k test_url_change_after_search to run only 1 particular test case
+
+### ROS enabled tests (developer version)
+
+Requirements:
+
+- add 'deb http://packages.ros.org/ros/ubuntu trusty main'
+- apt-get install ros-indigo-rosbridge-server ros-indigo-ros-base ros-indigo-geographic-msgs
+- add following line to ~/.bashrc for convenience
+- modify /etc/hosts so 42-b is pointing to localhost
+
+```
+if [ -f /opt/ros/indigo/setup.bash ] ; then
+    . /opt/ros/indigo/setup.bash
+fi
+```
+
+Scenario:
+
+- build ros nodes:
+
+```
+cd catkin
+catkin_make
+source portal/catkin/devel/setup.bash
+```
+
+- roslaunch catkin/src/portal/<test_suite_name>.launch
+
+- make asserts on whether specific topics/publishers/subscribers exist
+- make other ros specific basic asserts
+- launch browser
+- make sure that browsers are connected (selenium wss or ros object is connected to a wss socket/port/whatever)
+- perform browsers actions that result in ROS traffic and make asserts on that traffic
+- make some google/tactile/portal specific scenarios tests
+
+- teardown
+
+### ROS enabled tests (ci box version)
+
+raise NotImplementedException
