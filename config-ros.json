@@ -1,0 +1,34 @@
+{
+  "chrome_driver":
+    { "path": "/home/wojtek/bin/chromedriver_2.10",
+      "version": "2.10"
+  },
+  "chrome" :
+    {
+    "version" : "Chrome/39",
+    "arguments" : [],
+    "binary_path" : "/usr/bin/google-chrome"
+  },
+  "executables":
+    [
+    "./pack-extensions"
+  ],
+
+  "max_load_timeout": 10,
+  "extensions_dir": "extensions",
+  "screenshots_dir": "tests_results",
+
+  "env_vars": [
+    {
+    "name": "DISPLAY",
+    "value": ":0",
+    "extend_current": false
+  },
+  {
+    "name": "LD_LIBRARY_PATH",
+    "value": "/usr/lib/chromium-browser/libs",
+    "extend_current": true
+  }
+  ]
+
+}

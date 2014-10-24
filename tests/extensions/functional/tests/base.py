@@ -435,3 +435,36 @@ class TestBaseGeneric(TestBase):
 
     """
     extensions = []
+
+
+class TestBaseROS(TestBase):
+    """
+
+    """
+    def setup_method(self, name, method):
+        self.browsers = self.run_browser()
+        self.current_method = method.__name__
+
+    def teardown_method(self, _):
+        self.browser.quit()
+
+    @classmethod
+    def run_browser(cls, name):
+        """
+        Runs browser with proper driver path and extensions.
+
+        Returns:
+            selenium driver handler
+
+        """
+        driver = CONFIG["chrome_driver"]["path"]
+        options = cls.get_extensions_options(cls.extensions)
+        capabilities = cls.get_capabilities()
+        print "Chrome capabilities: {}".format(capabilities)
+        # Set environment variable for Chrome.
+        # Chrome driver needs to have an environment variable set,
+        # this must be set to the path to the webdriver file.
+        os.environ["webdriver.chrome.driver"] = driver
+        return webdriver.Chrome(executable_path=driver,
+                                chrome_options=options,
+                                desired_capabilities=capabilities)
