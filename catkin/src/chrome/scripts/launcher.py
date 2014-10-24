@@ -7,7 +7,8 @@ import signal
 import subprocess
 import time
 
-from std_msgs.msg import String
+from appctl.msg import Mode
+from appctl.srv import Query
 
 DEVNULL = open(os.devnull, 'rw')
 
@@ -87,7 +88,7 @@ class ModeSelector():
     self.controller = AppController(B)
 
   def mode_change(self, mode_msg):
-    mode = mode_msg.data
+    mode = mode_msg.mode
     rospy.loginfo('got mode {}'.format(mode))
 
     if mode in self.modes:
@@ -107,7 +108,7 @@ def main():
 
   selector = ModeSelector(modes)
 
-  rospy.Subscriber('/appctl/mode', String, selector.mode_change)
+  rospy.Subscriber('/appctl/mode', Mode, selector.mode_change)
 
   # TODO(mv): check /appctl/query
 
