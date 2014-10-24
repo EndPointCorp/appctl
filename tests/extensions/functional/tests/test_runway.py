@@ -15,6 +15,7 @@ Tickets: Redmine #2511, Github: #133
 import time
 from functools import partial
 
+import pytest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -162,6 +163,7 @@ class TestRunway(TestBase):
                 break
             c += 1
 
+    @pytest.skip(msg="Patch hiding the EU cookies message bar not yet merged.")
     @screenshot_on_error
     def test_runway_check_earth_is_healthy(self):
         """
@@ -169,26 +171,40 @@ class TestRunway(TestBase):
         view to the original position. Check the Earth is always there.
 
         """
+        # position object is available after the browser loads
+        # our special URL, failing otherwise:
+        # WebDriverException: Message: u'unknown error: acme is not defined\n
         helpers.wait_for_loaded_page(MAPS_URL,
                                      self.browser,
                                      elem_identifier_kind=By.ID,
                                      elem_identifier_name="acme-poi-button")
+        print "initial: ", self.get_camera_pose()
         earth = self.browser.find_element_by_class_name("acme-zoom-out-earth")
         assert earth.is_displayed() is True
         earth.click()
-        time.sleep(1)
+        time.sleep(4)
+        print "1 earth click: ", self.get_camera_pose()
+
         # search for some location, waits already
         self.prepare_poi()
+        # retrieve the object again, getting otherwise:
+        # StaleElementReferenceException: Message: u'stale element reference:
+        #   element is not attached to the page document
         earth = self.browser.find_element_by_class_name("acme-zoom-out-earth")
         assert earth.is_displayed() is True
-        # don't have access to the Pose (position object) to check ...
-        # after 3 clicks on the Earth icon, the zoom out button gets disabled
-        zoom_out_button = self.browser.find_element_by_class_name("widget-zoom-out")
-        for i in range(3):
-            earth.click()
-            time.sleep(1)
-            assert earth.is_displayed() is True
-            if i < 2:
-                assert zoom_out_button.is_enabled() is True
-            else:
-                assert zoom_out_button.is_enabled() is False
+        print "after search: ", self.get_camera_pose()
+        earth.click()
+        time.sleep(4)
+        print "2 earth click: ", self.get_camera_pose()
+
+        earth = self.browser.find_element_by_class_name("acme-zoom-out-earth")
+        assert earth.is_displayed() is True
+        earth.click()
+        time.sleep(4)
+        print "3 earth click: ", self.get_camera_pose()
+
+        earth = self.browser.find_element_by_class_name("acme-zoom-out-earth")
+        assert earth.is_displayed() is True
+        earth.click()
+        time.sleep(4)
+        print "4 earth click: ", self.get_camera_pose()
