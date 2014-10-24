@@ -43,44 +43,43 @@ py.test tests/extensions/functional/ to speed up discovery
 py.test -s to capture stdout
 py.test -k test_url_change_after_search to run only 1 particular test case
 
-ROS enabled selenium tests vs. ordinary selenium tests
-======================================================
+### ROS enabled tests (developer version)
 
-* vagrant tests (developer PC version)
- * boxes: headnode, display, kiosk
- * requirements: a development box with min. 4Gigs of free RAM - min.
-   1.5GB per displaynode and prolly about 1-2 gigs per heanode
-* vagrant + physical box tests (e.g. Mountain View version)
- * boxes: physical headnode, physical display, vagrant kiosk
- * requirements: physical headnode, one display node with nvidia K5000,
-   vagrant installed on headnode
+Requirements:
 
-### ROS enabled tests (developer/vagrant version)
+- add 'deb http://packages.ros.org/ros/ubuntu trusty main'
+- apt-get install ros-indigo-rosbridge-server ros-indigo-ros-base ros-indigo-geographic-msgs
+- add following line to ~/.bashrc for convenience
+- modify /etc/hosts so 42-b is pointing to localhost
+- generate 
+
+```
+if [ -f /opt/ros/indigo/setup.bash ] ; then
+    . /opt/ros/indigo/setup.bash
+fi
+```
 
 Scenario:
 
-* WE CAN SET UP ROS + BROWSERS ON ONE MACHINE 
+- build ros nodes:
 
-* checkout lg_chef
-* build your display nodes and headnode
-  * first render the test/vagrant/Vagrantfile and test/scripts/run_tests.sh by executing a following command in lg_chef repo root directory:
-    rake render_tests[<path to test json template>,chef_zero,<path to node definition>]
+```
+cd catkin
+catkin_make
+source portal/catkin/devel/setup.bash
+```
 
-    ```
-    rake render_tests[test/vagrant/json/portal-selenium-pure-vagrant.json,chef_zero,nodes/lg-head-portaltest.json]
-    ```
-  * then converge the boxes by 
-  *
-*
+- roslaunch catkin/src/portal/<test_suite_name>.launch
 
-Requirements:
-* Vagrant (http://www.vagrantup.com)
-* VirtualBox:
- * echo 'deb http://download.virtualbox.org/virtualbox/debian trusty contrib' | sudo tee /etc/apt/sources.list.d/virtualbox.list
- * wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add -
- * sudo apt-get update -q && sudo apt-get install virtualbox-4.3 dkms
-* lg_chef.git checked out somewhere in the
+- make asserts on whether specific topics/publishers/subscribers exist
+- make other ros specific basic asserts
+- launch browser
+- make sure that browsers are connected (selenium wss or ros object is connected to a wss socket/port/whatever)
+- perform browsers actions that result in ROS traffic and make asserts on that traffic
+- make some google/tactile/portal specific scenarios tests
 
-### ROS TODO:
+- teardown
 
-*
+### ROS enabled tests (ci box version)
+
+raise NotImplementedException
