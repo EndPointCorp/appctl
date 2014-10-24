@@ -13,10 +13,12 @@ Tickets: Redmine #2511, Github: #133
 
 
 import time
+from functools import partial
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
 
 from base import MAPS_URL, ZOOMED_IN_MAPS_URL
 from base import screenshot_on_error, make_screenshot
@@ -63,28 +65,42 @@ class TestRunway(TestBase):
         # the zoom button, gives: unknown error: Element is not clickable at point (423, 420) ...
         zoom_out_button = self.browser.find_element_by_class_name("widget-zoom-out")
         assert zoom_out_button.is_enabled() is False
-        time.sleep(1)
         # now select Points of Interest and check the planets are shown
         poi = self.browser.find_element_by_id("acme-poi-button")
         poi.click()
+        # The first 3 positions are set in POIs tray with planets icons.
+        # also it takes some time until the planets appear, wait for the
+        # first one in explicit wait ...
+        config = self.get_config()
+
+        def tester(browser):
+            tray = browser.find_element_by_class_name("widget-runway-tray-wrapper")
+            planets = tray.find_elements_by_class_name("widget-runway-card-button")
+            for i in range(0, 3):
+                if planets[i].text not in ("Earth", "Moon", "Mars"):
+                    return False
+            else:
+                return True
+
+        msg = "Planets did not appear within the timeout."
+        my_test = partial(tester)
+        WebDriverWait(self.browser,
+                      config["max_load_timeout"]).until(my_test, message=msg)
+
         tray = self.browser.find_element_by_class_name("widget-runway-tray-wrapper")
         planets = tray.find_elements_by_class_name("widget-runway-card-button")
-        # since the other tab, Famous Places currently has 22 items, this tested
-        # Points of Interest tab/tray has 22 items too.
-        # Only the first 3 are set though with planets icons.
+
         for i in range(0, 3):
             try:
-                assert planets[i].text in ("Earth", "Moon", "Mars")
                 # test selecting planets, zoom stays maximal
                 planets[i].click()
-                time.sleep(1)
+                time.sleep(3)
                 assert zoom_out_button.is_enabled() is False
             except AssertionError:
-                print "AssertionError"
+                print "AssertionError, len(planets): %s" % len(planets)
                 for ii in range(len(planets)):
-                    print "%s .. %s" % (ii, planets[ii].text)
-                    # let it fail again:
-                    assert planets[i].text in ("Earth", "Moon", "Mars")
+                    print "%s .. '%s'" % (ii, planets[ii].text)
+                    raise
 
     def prepare_poi(self):
         """
@@ -110,7 +126,21 @@ class TestRunway(TestBase):
         # after changing to the target location
         poi = self.browser.find_element_by_id("acme-poi-button")
         poi.click()
-        time.sleep(4)
+
+        # it takes some time until they appear, wait explicitly
+        def tester(browser):
+            tray = browser.find_element_by_class_name("widget-runway-tray-wrapper")
+            pois = tray.find_elements_by_class_name("widget-runway-card-button")
+            if len(pois) > 0 and pois[0].text != '':
+                return True
+            else:
+                return False
+
+        msg = "POIs did not appear within the timeout."
+        my_test = partial(tester)
+        config = self.get_config()
+        WebDriverWait(self.browser,
+                      config["max_load_timeout"]).until(my_test, message=msg)
 
     @screenshot_on_error
     def test_runway_points_of_interest(self):
@@ -122,7 +152,7 @@ class TestRunway(TestBase):
         self.prepare_poi()
         tray = self.browser.find_element_by_class_name("widget-runway-tray-wrapper")
         points = tray.find_elements_by_class_name("widget-runway-subview-card-view-container")
-        print "Found %s POIs" % len(points)
+        assert len(points) > 0
         c = 0
         for p in points:
             action = webdriver.ActionChains(self.browser)
