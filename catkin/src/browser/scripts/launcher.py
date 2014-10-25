@@ -9,7 +9,7 @@ from appctl.srv import Query
 BROWSER_LAUNCHER = '/home/lg/bin/lg-browser'
 
 def main():
-  rospy.init_node('chrome', anonymous=True)
+  rospy.init_node('browser', anonymous=True)
 
   modes = rospy.get_param('~modes').split(',')
   window = rospy.get_param('~window', 'lgS0')
