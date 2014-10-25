@@ -40,7 +40,7 @@ class WatcherThread(threading.Thread):
   def shutdown(self, *args, **kwargs):
     self.done = True
     if self.proc is not None and self.proc.returncode is None:
-      self.proc.kill()
+      self.proc.terminate()
       self.proc.communicate()
 
 class AppController():
