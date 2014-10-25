@@ -1,0 +1,3 @@
+<launch>
+  <test test-name="test_proc_runner" pkg="appctl" type="test_proc_runner.py" />
+</launch>
