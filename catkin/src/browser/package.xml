@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <package>
-  <name>chrome</name>
+  <name>browser</name>
   <version>0.0.0</version>
-  <description>The chrome package</description>
+  <description>Launches a browser on demand</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="galadmin@todo.todo">galadmin</maintainer>
+  <maintainer email="lg@endpoint.com">End Point LG</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -25,7 +25,7 @@
   <!-- Author tags are optional, mutiple are allowed, one per tag -->
   <!-- Authors do not have to be maintianers, but could be -->
   <!-- Example: -->
-  <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
+  <author email="matt@endpoint.com">Matt Vollrath</author>
 
 
   <!-- The *_depend tags are used to specify dependencies -->
