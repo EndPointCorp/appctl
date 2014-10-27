@@ -5,14 +5,6 @@ from appctl.srv import Query
 from appctl.msg import Mode
 
 
-class AppctlSubscribeListener(rospy.SubscribeListener):
-    def __init__(self, initial_state_method):
-        self.initial_state_method = initial_state_method
-
-    def peer_subscribe(self, topic_name, topic_publish, peer_publish):
-        rospy.loginfo("Peer subscribed to topic %s - sending last state" % topic_name)
-        self.initial_state_method()
-
 class AppController:
     """
     - provides service /appctl/query
@@ -45,11 +37,6 @@ class AppController:
         msg = Mode(mode=self._get_initial_mode())
         self.publisher.publish(msg)
 
-    def _publish_state(self):
-        rospy.loginfo("Publishing mode")
-        msg = Mode(mode=self.mode)
-        self.publisher.publish(msg)
-
     def _get_mode(self):
         return self.mode
 
@@ -71,8 +58,7 @@ class AppController:
     def _init_publisher(self):
         publisher = rospy.Publisher('/appctl/mode',
                                     Mode,
-                                    queue_size=3,
-                                    subscriber_listener=AppctlSubscribeListener(self._publish_state))
+                                    queue_size=3)
         return publisher
 
     def _process_service_request(self, req):
