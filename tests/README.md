@@ -63,7 +63,7 @@ Requirements:
 
   ```
   certutil -d sql:${HOME}/.pki/nssdb -N --empty-password
-  certutil -d sql:${HOME}/.pki/nssdb -A -t "P,," -n rosbridge -i $(basename ${LG_ROSBRIDGE_CRT_URL} )
+  certutil -d sql:${HOME}/.pki/nssdb -A -t "P,," -n rosbridge -i 
   ```
 
 - add following line to ~/.bashrc for convenience

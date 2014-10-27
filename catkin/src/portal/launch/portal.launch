@@ -1,4 +1,8 @@
 <launch>
   <node pkg="portal_nav" type="portal_nav" name="portal_nav"></node>
-  <node pkg="rosbridge_server" type="rosbridge_websocket" name="rosbridge_websocket"></node>
+  <node name="onboard" pkg="onboard" type="listener.py"/>
+  <node name="rosbridge" pkg="rosbridge_server" type="rosbridge_websocket">
+    <param name="certfile" value="ros.crt"/>
+    <param name="keyfile" value="ros.key"/>
+  </node>
 </launch>
