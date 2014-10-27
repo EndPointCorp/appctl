@@ -56,14 +56,9 @@ Requirements:
   ```
   sudo apt-get install libnss3-tools
   ```
-  - generate the ssl key
+  - generate the ssl key and import it to browser's nssdb
   ```
-  /usr/bin/openssl req -nodes -new -x509 -keyout ros.key -out ros.crt -days 3650 -config catkin/src/portal/launch/ssl/ros-openssl.cfg
-  ```
-
-  ```
-  certutil -d sql:${HOME}/.pki/nssdb -N --empty-password
-  certutil -d sql:${HOME}/.pki/nssdb -A -t "P,," -n rosbridge -i 
+  ./catkin/src/portal/launch/bin/manage_ssl.sh
   ```
 
 - add following line to ~/.bashrc for convenience
@@ -73,17 +68,17 @@ if [ -f /opt/ros/indigo/setup.bash ] ; then
 fi
 ```
 
-#### Scenario:
+#### Test Scenario:
 
-- build ros nodes:
+- build and launch ros nodes:
 
 ```
 cd catkin
 catkin_make
-source portal/catkin/devel/setup.bash
+source catkin/devel/setup.bash
+bash catkin/src/portal/launch/bin/manage_ssl.sh
+roslaunch catkin/src/portal/portal.launch
 ```
-
-- roslaunch catkin/src/portal/<test_suite_name>.launch
 
 - make asserts on whether specific topics/publishers/subscribers exist
 - make other ros specific basic asserts

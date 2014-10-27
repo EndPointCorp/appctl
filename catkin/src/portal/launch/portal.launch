@@ -2,7 +2,7 @@
   <node pkg="portal_nav" type="portal_nav" name="portal_nav"></node>
   <node name="onboard" pkg="onboard" type="listener.py"/>
   <node name="rosbridge" pkg="rosbridge_server" type="rosbridge_websocket">
-    <param name="certfile" value="ros.crt"/>
-    <param name="keyfile" value="ros.key"/>
+    <param name="certfile" value="/home/wojtek/src/portal/ros.crt"/>
+    <param name="keyfile" value="/home/wojtek/src/portal/ros.key"/>
   </node>
 </launch>
