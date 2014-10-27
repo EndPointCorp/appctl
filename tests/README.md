@@ -47,19 +47,33 @@ py.test -k test_url_change_after_search to run only 1 particular test case
 
 Requirements:
 
+- proper config.json with multiple chrome instances
 - add 'deb http://packages.ros.org/ros/ubuntu trusty main'
 - apt-get install ros-indigo-rosbridge-server ros-indigo-ros-base ros-indigo-geographic-msgs
-- add following line to ~/.bashrc for convenience
 - modify /etc/hosts so 42-b is pointing to localhost
-- generate 
+- manage SSL for secure websocket connection
+  - install package that provides certutil
+  ```
+  sudo apt-get install libnss3-tools
+  ```
+  - generate the ssl key
+  ```
+  /usr/bin/openssl req -nodes -new -x509 -keyout ros.key -out ros.crt -days 3650 -config catkin/src/portal/launch/ssl/ros-openssl.cfg
+  ```
 
+  ```
+  certutil -d sql:${HOME}/.pki/nssdb -N --empty-password
+  certutil -d sql:${HOME}/.pki/nssdb -A -t "P,," -n rosbridge -i $(basename ${LG_ROSBRIDGE_CRT_URL} )
+  ```
+
+- add following line to ~/.bashrc for convenience
 ```
 if [ -f /opt/ros/indigo/setup.bash ] ; then
     . /opt/ros/indigo/setup.bash
 fi
 ```
 
-Scenario:
+#### Scenario:
 
 - build ros nodes:
 

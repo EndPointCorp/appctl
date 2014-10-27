@@ -441,15 +441,12 @@ class TestBaseTouchscreen(TestBase):
 
 class TestBaseGeneric(TestBase):
     """
-    No extensions are loaded
-
     """
     extensions = []
 
 
 class TestBaseROS(TestBase):
     """
-
     """
     def setup_method(self, name, method):
         self.browsers = self.run_browser()

@@ -5,21 +5,19 @@ Useful for DOM HTML tree elements inspection with
 
 """
 
-import time
-
-from selenium import webdriver
-
-from tests.base import TestBaseTouchscreen
-from tests.base import TestBase
 from tests.base import MAPS_URL
 
+
+from tests.base import TestBase
+from tests.base import TestBaseTouchscreen
+from tests.base import TestBaseROS
+
+
+# - read config
+# - based on the config 'chrome' attrib spawn proper browsers
+
 #klass = TestBaseTouchscreen
-klass = TestBase
-klass.extensions = ["kiosk"]
-klass.setup_class()
-# if browser automatically redirects to national mutation,
-# our chrome extensions are loaded, yet do not work
-# redirection doesn't happen with MAPS_URL
-browser = klass.run_browser()
-print "Browser capabilities:\n%s" % browser.capabilities
-browser.get(MAPS_URL)
+#klass.setup_class()
+#browser = klass.run_browser()
+#print "Browser capabilities:\n%s" % browser.capabilities
+#browser.get(MAPS_URL)
