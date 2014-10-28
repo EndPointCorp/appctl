@@ -123,6 +123,7 @@ include_directories(
 install(PROGRAMS
   scripts/controller.py
   scripts/evdev_teleport_switcher.py
+  scripts/rfreceiver_mode_select.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
