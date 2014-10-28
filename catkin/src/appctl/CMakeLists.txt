@@ -6,6 +6,7 @@ project(appctl)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   rospy
+  std_msgs
   message_generation
 )
 
@@ -121,6 +122,7 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 install(PROGRAMS
   scripts/controller.py
+  scripts/evdev_teleport_switcher.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
