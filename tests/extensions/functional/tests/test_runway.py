@@ -163,48 +163,70 @@ class TestRunway(TestBase):
                 break
             c += 1
 
-    @pytest.skip(msg="Patch hiding the EU cookies message bar not yet merged.")
     @screenshot_on_error
-    def test_runway_check_earth_is_healthy(self):
+    def test_runway_check_earth_icon_click(self):
         """
         The Earth icon (most left picture), clicking it should bring the
-        view to the original position. Check the Earth is always there.
+        view to a considerably zoomed out position.
+        NB: position object value differ between subsequent runs.
 
         """
+        config = self.get_config()
         # position object is available after the browser loads
-        # our special URL, failing otherwise:
+        # our special URL, otherwise failing with:
         # WebDriverException: Message: u'unknown error: acme is not defined\n
         helpers.wait_for_loaded_page(MAPS_URL,
                                      self.browser,
                                      elem_identifier_kind=By.ID,
                                      elem_identifier_name="acme-poi-button")
-        print "initial: ", self.get_camera_pose()
+        init_pose = self.get_camera_pose()
         earth = self.browser.find_element_by_class_name("acme-zoom-out-earth")
         assert earth.is_displayed() is True
         earth.click()
-        time.sleep(4)
-        print "1 earth click: ", self.get_camera_pose()
-
-        # search for some location, waits already
+        # just wait until the position changes
+        tester = lambda _: self.pose_is_near(init_pose,
+                                             self.get_camera_pose(),
+                                             alt_delta=init_pose.alt * 0.1)
+        msg = "Waiting for position change timed out."
+        WebDriverWait(self.browser,
+                      config["max_load_timeout"]).until_not(tester, message=msg)
+        earth = self.browser.find_element_by_class_name("acme-zoom-out-earth")
+        assert earth.is_displayed() is True
+        earth_click_pose = self.get_camera_pose()
+        # now search for something, that is very much zoomed in view,
+        # this call waits already
         self.prepare_poi()
         # retrieve the object again, getting otherwise:
         # StaleElementReferenceException: Message: u'stale element reference:
         #   element is not attached to the page document
         earth = self.browser.find_element_by_class_name("acme-zoom-out-earth")
         assert earth.is_displayed() is True
-        print "after search: ", self.get_camera_pose()
-        earth.click()
-        time.sleep(4)
-        print "2 earth click: ", self.get_camera_pose()
-
+        # since the view is zoomed in, the altitude of the before view
+        # should still be 1000 greater than now
+        after_search_pose = self.get_camera_pose()
+        assert earth_click_pose.alt > after_search_pose.alt * 1000
+        # click again now, should how into large altitude,
+        # comparable to earth_click_pose
         earth = self.browser.find_element_by_class_name("acme-zoom-out-earth")
         assert earth.is_displayed() is True
         earth.click()
-        time.sleep(4)
-        print "3 earth click: ", self.get_camera_pose()
-
+        # just wait until the position changes, wait for the final
+        # asserted condition. waiting for first pose change is not the
+        # final position and the subsequent assertion fails
+        tester = lambda _: self.pose_is_near(earth_click_pose,
+                                             self.get_camera_pose(),
+                                             alt_delta=earth_click_pose.alt * 0.2,
+                                             assert_lon=False,
+                                             assert_lat=False)
+        msg = "Waiting for position change timed out."
+        WebDriverWait(self.browser,
+                      config["max_load_timeout"]).until(tester, message=msg)
         earth = self.browser.find_element_by_class_name("acme-zoom-out-earth")
         assert earth.is_displayed() is True
-        earth.click()
-        time.sleep(4)
-        print "4 earth click: ", self.get_camera_pose()
+        earth_2nd_click_pose = self.get_camera_pose()
+        # tolerate 20% difference from the target altitude value
+        assert self.pose_is_near(earth_click_pose,
+                                 earth_2nd_click_pose,
+                                 alt_delta=earth_2nd_click_pose.alt * 0.2,
+                                 assert_lon=False,
+                                 assert_lat=False)
