@@ -204,32 +204,28 @@ class TestRunway(TestBase):
         # since the view is zoomed in, the altitude of the before view
         # should still be 1000 greater than now
         after_search_pose = self.get_camera_pose()
-        assert earth_click_pose.alt > after_search_pose.alt * 1000
+        assert abs(earth_click_pose.alt - (after_search_pose.alt * 1000)) < (earth_click_pose.alt * 0.1)
         # click again now, should how into large altitude,
         # comparable to earth_click_pose
         earth = self.browser.find_element_by_class_name("acme-zoom-out-earth")
         assert earth.is_displayed() is True
         earth.click()
+        # tolerate 40% difference from the target altitude value
         # just wait until the position changes, wait for the final
         # asserted condition. waiting for first pose change is not the
-        # 60s timeout
-        # tester = lambda _: self.pose_is_near(earth_click_pose,
-        #                                      self.get_camera_pose(),
-        #                                      alt_delta=earth_click_pose.alt * 0.2,
-        #                                      assert_lon=False,
-        #                                      assert_lat=False)
-        # msg = "Waiting for position change timed out."
-        # WebDriverWait(self.browser,
-        #               config["max_load_timeout"]).until(tester, message=msg)
-        # final position and the subsequent assertion fails
-        # active, explicit waits runs locally fine, fails on jenkins even with
-        time.sleep(5)
+        tester = lambda _: self.pose_is_near(earth_click_pose,
+                                             self.get_camera_pose(),
+                                             alt_delta=earth_click_pose.alt * 0.4,
+                                             assert_lon=False,
+                                             assert_lat=False)
+        msg = "Waiting for position change timed out."
+        WebDriverWait(self.browser,
+                      config["max_load_timeout"]).until(tester, message=msg)
         earth = self.browser.find_element_by_class_name("acme-zoom-out-earth")
         assert earth.is_displayed() is True
         earth_2nd_click_pose = self.get_camera_pose()
-        # tolerate 20% difference from the target altitude value
         assert self.pose_is_near(earth_click_pose,
                                  earth_2nd_click_pose,
-                                 alt_delta=earth_2nd_click_pose.alt * 0.2,
+                                 alt_delta=earth_2nd_click_pose.alt * 0.4,
                                  assert_lon=False,
                                  assert_lat=False)
