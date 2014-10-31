@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 
 import rospy
 from appctl.srv import Query
@@ -13,7 +14,7 @@ class AppController:
     - subscribes to /appctl/mode
         - provides Query.msg
     - publishes on /appctl/mode
-        - does a one-time only msg publish when launched
+        - TODO (wz) does a one-time only msg publish when launched
     - provides initial_mode parameter
     """
 
