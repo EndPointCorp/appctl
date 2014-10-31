@@ -48,8 +48,14 @@ py.test -k test_url_change_after_search to run only 1 particular test case
 Requirements:
 
 - proper config.json with multiple chrome instances
-- add 'deb http://packages.ros.org/ros/ubuntu trusty main'
-- apt-get install ros-indigo-rosbridge-server ros-indigo-ros-base ros-indigo-geographic-msgs
+
+    ```
+    sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
+    wget https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -O - | sudo apt-key add -
+    sudo apt-get update
+    sudo apt-get install ros-indigo-ros-base ros-indigo-rosbridge-server ros-indigo-geographic-msgs
+    ```
+
 - modify /etc/hosts so 42-b is pointing to localhost
 - manage SSL for secure websocket connection
   - install package that provides certutil
@@ -75,10 +81,14 @@ fi
 ```
 cd catkin
 catkin_make
+cd ..
 source catkin/devel/setup.bash
 bash catkin/src/portal/launch/bin/manage_ssl.sh
-roslaunch catkin/src/portal/portal.launch
+edit catkin/src/portal/launch/portal.launch accordingly (key paths, have to be full paths)
+roslaunch catkin/src/portal/launch/portal.launch
 ```
+
+
 
 - make asserts on whether specific topics/publishers/subscribers exist
 - make other ros specific basic asserts
