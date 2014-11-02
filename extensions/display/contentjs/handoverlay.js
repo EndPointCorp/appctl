@@ -636,18 +636,16 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     this.handOrigin.position.copy(this.hudPos);
     this.calloutOrigin.position.copy(this.hudPos);
 
-    if (currentCameraPose) {
-      this.handOrigin.rotation.set(
-          (Math.PI / 2 - camTilt) - interNormal.y,
-          0,
-          -interNormal.x
-      );
-      this.popCalloutOrigin.rotation.set(
-          0,
-          interNormal.x,
-          0
-      );
-    }
+    this.handOrigin.rotation.set(
+        (Math.PI / 2 - camTilt) - interNormal.y,
+        0,
+        -interNormal.x
+    );
+    this.popCalloutOrigin.rotation.set(
+        0,
+        interNormal.x,
+        0
+    );
 
     // TODO(mv): flush out magic numbers
     var distanceMod = distance / 24;
@@ -987,7 +985,9 @@ HandOverlay.prototype.processHandMoved = function(
   var timeMs = Date.now();
   hand.lastLeapTimeMs = timeMs;
 
-  hand.setPositionFromLeap(leapData, timeMs, this.currentCameraPose);
+  if (this.currentCameraPose) {
+    hand.setPositionFromLeap(leapData, timeMs, this.currentCameraPose);
+  }
 };
 
 /**
