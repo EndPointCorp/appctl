@@ -28,10 +28,7 @@ body {
   display: none;
 }
 
-#runway-expand-button div[class="widget-expand-button-pegman"] {
-  display: none;
-}
-
+#runway-expand-button,
 #butterbar {
   display: none;
 }

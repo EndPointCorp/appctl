@@ -16,10 +16,10 @@ var ELEVATION_REQ_RATE = 30; // Hz
 
 var dumpUpdateToScreen = function(message) {
   var stringifiedMessage = JSON.stringify(message);
-  var debugArea = document.getElementById('slinkydebug');
+  var debugArea = document.getElementById('portaldebug');
   if (!debugArea) {
     debugArea = document.createElement('div');
-    debugArea.id = 'slinkydebug';
+    debugArea.id = 'portaldebug';
     debugArea.style.position = 'fixed';
     debugArea.style.bottom = '0px';
     debugArea.style.left = '0px';
@@ -90,7 +90,7 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
   this.hudSpanEastingId = 'hudEasting' + handId;
 
   this.hudDiv = document.createElement('div');
-  this.hudDiv.id = 'slinkyhud' + handId;
+  this.hudDiv.id = 'portalhud' + handId;
   this.hudDiv.style.position = 'absolute';
   this.hudDiv.style.height = 'auto';
   this.hudDiv.style.width = 'auto';
@@ -109,7 +109,7 @@ var Hand = function(handOverlay, leapInteractionBox, handId) {
 
 
   this.popDiv = document.createElement('div');
-  this.popDiv.id = 'slinkypop' + handId;
+  this.popDiv.id = 'portalpop' + handId;
   this.popDiv.style.position = 'absolute';
   this.popDiv.style.height = 'auto';
   this.popDiv.style.width = '20%';
@@ -624,18 +624,16 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     this.handOrigin.position.copy(this.hudPos);
     this.calloutOrigin.position.copy(this.hudPos);
 
-    if (currentCameraPose) {
-      this.handOrigin.rotation.set(
-          (Math.PI / 2 - camTilt) - interNormal.y,
-          0,
-          -interNormal.x
-      );
-      this.popCalloutOrigin.rotation.set(
-          0,
-          interNormal.x,
-          0
-      );
-    }
+    this.handOrigin.rotation.set(
+        (Math.PI / 2 - camTilt) - interNormal.y,
+        0,
+        -interNormal.x
+    );
+    this.popCalloutOrigin.rotation.set(
+        0,
+        interNormal.x,
+        0
+    );
 
     // TODO(mv): flush out magic numbers
     var distanceMod = distance / 24;
@@ -672,10 +670,10 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
 
 /**
  * @constructor
- * @param {SlinkyGLEnvironment} glEnvironment Shared WebGL environment.
+ * @param {PortalGLEnvironment} glEnvironment Shared WebGL environment.
  */
 var HandOverlay = function(glEnvironment) {
-  /** @type {SlinkyGLEnvironment} */
+  /** @type {PortalGLEnvironment} */
   this.glEnvironment = glEnvironment;
 
   /** @type {THREE.Scene} */
@@ -993,7 +991,9 @@ HandOverlay.prototype.processHandMoved = function(
   var timeMs = Date.now();
   hand.lastLeapTimeMs = timeMs;
 
-  hand.setPositionFromLeap(leapData, timeMs, this.currentCameraPose);
+  if (this.currentCameraPose) {
+    hand.setPositionFromLeap(leapData, timeMs, this.currentCameraPose);
+  }
 };
 
 /**

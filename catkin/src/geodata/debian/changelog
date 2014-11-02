@@ -1,0 +1,6 @@
+ros-indigo-geodata (1.0.0-0trusty) trusty; urgency=high
+
+  * First package creation for indigo release
+
+ -- End Point Corp LG R&D <lg-rad@endpoint.com>  Sat, 27 Sep 2014 14:54:17 -0400
+

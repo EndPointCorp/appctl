@@ -1,4 +1,4 @@
-var SlinkyGLEnvironment = function() {
+var PortalGLEnvironment = function() {
   var self = this;
 
   this.scene = new THREE.Scene();
@@ -51,7 +51,7 @@ var SlinkyGLEnvironment = function() {
 /**
  * Runs all registered animation methds and renders the scene.
  */
-SlinkyGLEnvironment.prototype.animate = function() {
+PortalGLEnvironment.prototype.animate = function() {
   var self = this;
   function _animate() {
     self.animate();
@@ -71,6 +71,6 @@ SlinkyGLEnvironment.prototype.animate = function() {
  * Registers an animation method.
  * @param {function} callback
  */
-SlinkyGLEnvironment.prototype.addAnimation = function(callback) {
+PortalGLEnvironment.prototype.addAnimation = function(callback) {
   this.animations.push(callback);
 };

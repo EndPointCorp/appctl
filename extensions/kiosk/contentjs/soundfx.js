@@ -237,7 +237,7 @@ SoundFX = function() {
 
 /**
  * Respond to the incoming pose message, with sound if appropriate.
- * @param {Object} stampedPose The slinky stamped pose msg object.
+ * @param {Object} stampedPose The portal stamped pose msg object.
  */
 SoundFX.prototype.handlePoseChange = function(stampedPose) {
 

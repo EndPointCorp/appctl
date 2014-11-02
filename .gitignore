@@ -15,5 +15,36 @@ docs/
 .project
 .settings
 
+# PyCharm
+.idea
+
 # osx
 .DS_Store
+
+*.pyc
+__pycache__
+
+# local files not tracked by the source control
+.local_cache
+
+# local, customized tests configuration file
+config.json
+
+# product of running test suite (log files, screenshots)
+tests_results/
+
+# untracked external repositories
+catkin/geographic_info
+catkin/src/geographic_msgs
+catkin/src/leap_motion
+
+catkin/src/ros-indigo*.build
+catkin/src/ros-indigo*.changes
+catkin/src/ros-indigo*.deb
+catkin/src/ros-indigo*.debian.tar.gz
+catkin/src/ros-indigo*.dsc
+catkin/src/ros-indigo*.orig.tar.gz
+
+catkin/src/*/debian/files
+catkin/src/*/debian/ros-indigo*
+catkin/src/*/obj-*-linux-gnu

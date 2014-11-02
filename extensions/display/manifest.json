@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "Slinky Dog Large Display",
+  "name": "Portal Large Display",
   "version": "1.0",
-  "description": "Slinky Dog specific add-ons for Tactile for the Large Display - handles things such as ROS messages and showing the hand",
+  "description": "Portal specific add-ons for Tactile for the Large Display - handles things such as ROS messages and showing the hand",
   "background": {
     "page": "background/background.html",
     "content_security_policy": "script-src 'self' https://www.google.com/*; object-src 'self' https://www.google.com/*"
@@ -29,14 +29,26 @@
         "libs/roslib.min.js",
         "libs/three.min.js",
         "libs/TweenMax.js",
+				"libs/jquery-2.1.1.min.js",
         "contentjs/fonts.js",
         "contentjs/texture_src.js",
         "contentjs/shaders.js",
         "contentjs/glenvironment.js",
         "contentjs/handoverlay.js",
         "contentjs/spacenav_feedback.js",
-        "contentjs/slinkyRosDisplay.js"
+        "contentjs/portalRosDisplay.js"
       ]
+    },
+	  {
+      "matches": ["*://*/*"],
+      "js": [
+        "libs/eventemitter2.min.js",
+        "libs/roslib.min.js",
+        "libs/jquery-2.1.1.min.js",
+        "contentjs/display_switch.js"
+        ],
+      "all_frames": true,
+      "run_at": "document_start"
     }
   ]
 }
