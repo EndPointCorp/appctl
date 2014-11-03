@@ -19,7 +19,13 @@ if [ "${PACK_STAGE,,}" = "stage2" ]; then
     REGEX_MOD='!'
 fi
 
+O_IFS="${IFS}"
+IFS=$'\n'
 for pkg_able in `find "${MY_DIR}/${DEB_DIR}" -type f -path '*/debian/rules' ${REGEX_MOD} -iregex "${DEPS_REGEX}"`; do
+
+    # reset IFS to Original IFS and quote pkg_able variable usage everywhere
+    IFS="${O_IFS}"
+
     pkg_dir="$( dirname $( dirname $pkg_able ) )"
     pkg_name="$( basename ${pkg_dir} )"
     pkg_ver="$( dpkg-parsechangelog -l${pkg_dir}/debian/changelog --show-field Version | cut -d'-' -f1 )"
