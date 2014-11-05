@@ -24,6 +24,7 @@ def main():
     browser_bin = rospy.get_param('~browser_bin', None)
     scale_factor = rospy.get_param('~scale_factor', None)
     user_agent = rospy.get_param('~user_agent', None)
+    extensions = rospy.get_param('~extensions', None)
 
     rospy.loginfo('running on modes {}'.format(modes))
 
@@ -43,6 +44,9 @@ def main():
         cmd.extend(('-s', scale_factor))
     if user_agent is not None:
         cmd.extend(('-U', user_agent))
+    if extensions is not None:
+        for extension in extensions.split(','):
+            cmd.extend(('-E', extension))
 
     sanitized_cmd = map(lambda arg: str(arg), cmd)
 

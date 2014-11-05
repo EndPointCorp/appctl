@@ -4,17 +4,32 @@
 set -e
 
 MY_DIR="$( dirname "${0}" )"
-DEB_DIR="catkin"
-ROS_REL="ros-indigo"
-
 if [ "${MY_DIR}" == "." ]; then
     MY_DIR="${PWD}"
 fi
 
-for pkgable in `find "${MY_DIR}/${DEB_DIR}" -type f -path '*/debian/rules'`; do
-    pkg_dir="$( dirname $( dirname $pkgable ) )"
+DEB_DIR="catkin"
+ROS_REL="ros-indigo"
+
+PACK_STAGE="${1:-stage1}"
+DEPS_REGEX='.*/\(appctl\|onboard\)/.*'
+REGEX_MOD=''
+
+if [ "${PACK_STAGE,,}" = "stage2" ]; then
+    REGEX_MOD='!'
+fi
+
+O_IFS="${IFS}"
+IFS=$'\n'
+for pkg_able in `find "${MY_DIR}/${DEB_DIR}" -type f -path '*/debian/rules' ${REGEX_MOD} -iregex "${DEPS_REGEX}"`; do
+
+    # reset IFS to Original IFS and quote pkg_able variable usage everywhere
+    IFS="${O_IFS}"
+
+    pkg_dir="$( dirname $( dirname $pkg_able ) )"
     pkg_name="$( basename ${pkg_dir} )"
     pkg_ver="$( dpkg-parsechangelog -l${pkg_dir}/debian/changelog --show-field Version | cut -d'-' -f1 )"
+    #echo "pkg_dir: $pkg_dir, pkg_name: $pkg_name, pkg_ver: $pkg_ver" && continue # debugging
     tar -C ${pkg_dir}/.. \
         --exclude='*/.git' \
         --exclude='*/data/*.npz' \
@@ -25,4 +40,11 @@ for pkgable in `find "${MY_DIR}/${DEB_DIR}" -type f -path '*/debian/rules'`; do
     pushd ${pkg_dir}
     dpkg-buildpackage -uc -us
     popd
+    if [ "${PACK_STAGE,,}" = "stage1" ]; then
+        sudo dpkg -i ${pkg_dir}/../${ROS_REL}-$( echo ${pkg_name} | tr '_' '-' )_${pkg_ver}*.deb
+    fi
 done
+
+if [ "${PACK_STAGE,,}" = "stage1" ]; then
+    exec ${0} stage2
+fi
