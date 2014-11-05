@@ -30,3 +30,19 @@ Launches a browser during specified appctl modes.  Presently, this is a wrapper 
 * `user_agent` : Spoof a UserAgent.
 
 * `extensions` : Comma-separated list of paths to unpacked extensions to be loaded.
+
+### monitor.py
+
+Launches a browser monitor during specified appctl modes.
+
+##### Parameters
+
+* `modes` : Comma-separated list of modes to run the monitor in
+
+* `window` : The window name, defaults to lgS0.
+
+* `app` : The app name, defaults to appctl.
+
+* `debug_port` : Use a specific debug port.  This is normally auto-detected ephemerally in lg-browser.
+
+* `names` : Comma-separated list of names to look for. If not specified, the list is pulled from /lg/personavars.txt
