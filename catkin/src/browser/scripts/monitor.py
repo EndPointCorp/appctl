@@ -16,7 +16,7 @@ def main():
     window = rospy.get_param('~window', 'lgS0')
     app = rospy.get_param('~app', 'appctl')
     debug_port = rospy.get_param('~debug_port', None)
-    names = rospy.get_param('~names', None).split(',')
+    names = rospy.get_param('~names', None)
     rospy.loginfo('running on modes {}'.format(modes))
 
     cmd = [BROWSER_PAGE_MONITOR]
@@ -25,7 +25,7 @@ def main():
     if debug_port is not None:
         cmd.extend(('-p', debug_port))
     if names is not None:
-        for name in names:
+        for name in names.split(','):
             cmd.extend(('-n', name))
 
     sanitized_cmd = map(lambda arg: str(arg), cmd)
