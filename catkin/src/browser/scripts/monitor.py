@@ -13,7 +13,6 @@ def main():
     rospy.init_node('browser_page_monitor', anonymous=True)
 
     modes = rospy.get_param('~modes').split(',')
-    window = rospy.get_param('~window', 'lgS0')
     app = rospy.get_param('~app', 'appctl')
     debug_port = rospy.get_param('~debug_port', None)
     names = rospy.get_param('~names', None)
@@ -21,7 +20,6 @@ def main():
 
     cmd = [BROWSER_PAGE_MONITOR]
     cmd.extend(('-a', app))
-    cmd.extend(('-w', window))
     if debug_port is not None:
         cmd.extend(('-p', debug_port))
     if names is not None:
