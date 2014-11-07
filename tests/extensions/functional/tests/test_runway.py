@@ -132,9 +132,14 @@ class TestRunway(TestBase):
         def tester(browser):
             tray = browser.find_element_by_class_name("widget-runway-tray-wrapper")
             pois = tray.find_elements_by_class_name("widget-runway-card-button")
-            if len(pois) > 0 and pois[0].text != '':
-                return True
-            else:
+            try:
+                if len(pois) > 0 and pois[0].text != '':
+                    return True
+                else:
+                    return False
+            # StaleElementReferenceException: Message: u'stale element reference:
+            # element is not attached to the page document
+            except:
                 return False
 
         msg = "POIs did not appear within the timeout."
