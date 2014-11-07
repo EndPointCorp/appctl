@@ -258,7 +258,8 @@ class TestBase(object):
     def get_camera_pose(self):
         """ TODO: add the angles """
         res = self.browser.execute_script('return acme.getCameraPose();')
-        return Pose(res['alt'], res['g'], res['wg'])
+        return Pose(res['alt'], res['g'], res['tg'])
+
 
     def pose_is_near(self,
                      left,
