@@ -105,7 +105,8 @@ var initializeMoreFun = function() {
   s.id = 'morefun';
   var span = document.createElement('span');
   span.innerText = 'More fun';
-  s.onclick = onclick;
+  s.addEventListener('click', onclick, true);
+  s.addEventListener('touchstart', onclick, true);
   s.appendChild(span);
   s.appendChild(i);
 
@@ -126,22 +127,12 @@ var initializeMoreFun = function() {
   document.body.appendChild(d);
 
   // and we should close the morefun_items window when clicked anywhere else...
-  document.body.addEventListener(
-      'click',
-      function(e) {
-        if (e.target.id != 'morefun_items')
-          document.getElementById('morefun_items').style.visibility = 'hidden';
-      },
-      true
-  );
-  document.body.addEventListener(
-      'touchstart',
-      function(e) {
-        if (e.target.id != 'morefun_items')
-          document.getElementById('morefun_items').style.visibility = 'hidden';
-      },
-      true
-  );
+  var closeHandler = function(e) {
+    if (e.target.id != 'morefun_items')
+      document.getElementById('morefun_items').style.visibility = 'hidden';
+  };
+  document.body.addEventListener('click', closeHandler, true);
+  document.body.addEventListener('touchstart', closeHandler, true);
 };
 
 initializeMoreFun();
