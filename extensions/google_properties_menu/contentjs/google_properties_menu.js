@@ -5,6 +5,7 @@
 // action - (switch_display|showDoodlesPage)
 // url     - url to switch by the action switch_display
 var earthURL = 'http://lg-head/portal-loader.html';
+var timelapseURL = 'file:///mnt/earthtime/data-visualization-tools/examples/webgl-timemachine/landsat.html';
 
 var data = [
   {
@@ -19,6 +20,12 @@ var data = [
     desc: 'Arcade',
     icon: 'doodles.png',
     action: 'showDoodlesPage'
+  },
+  {
+    name: 'timelapse',
+    desc: 'Timelapse',
+    icon: 'icon_earth.png',
+    action: 'gotoTimelapse'
   }
 ];
 
@@ -40,6 +47,11 @@ var showDoodlesPage = function() {
 var goBackToEarthPage = function() {
   sendSwitchMessageURL(earthURL);
   document.location = earthURL;
+};
+
+var gotoTimelapse = function() {
+  sendSwitchMessageURL(timelapseURL);
+  document.location = timelapseURL;
 };
 
 var createElementsList = function() {
@@ -81,6 +93,14 @@ var createElementsList = function() {
       li.addEventListener(
         'touchstart',
         showDoodlesPage,
+        true
+      );
+    }
+    if (action == 'gotoTimelapse') {
+      li.onclick = gotoTimelapse;
+      li.addEventListener(
+        'touchstart',
+        gotoTimelapse,
         true
       );
     }
