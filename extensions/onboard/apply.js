@@ -15,6 +15,8 @@ var onboardPublisher = new ROSLIB.Topic({
   messageType: 'std_msgs/Bool'
 });
 
+onboardPublisher.advertise();
+
 // Messages to be sent by onboardPublisher, they show and hide onboard.
 var onboardShowMsg = new ROSLIB.Message({data: true});
 var onboardHideMsg = new ROSLIB.Message({data: false});
