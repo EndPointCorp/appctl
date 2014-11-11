@@ -15,17 +15,20 @@ var data = [
     action: 'switch_display',
     url: earthURL
   },
+  /*
   {
     name: 'doodles',
     desc: 'Arcade',
     icon: 'doodles.png',
     action: 'showDoodlesPage'
   },
+  */
   {
     name: 'timelapse',
     desc: 'Timelapse',
-    icon: 'icon_earth.png',
-    action: 'gotoTimelapse'
+    icon: 'timelapse.png',
+    action: 'gotoTimelapse',
+    url: timelapseURL
   }
 ];
 
@@ -46,12 +49,10 @@ var showDoodlesPage = function() {
 
 var goBackToEarthPage = function() {
   sendSwitchMessageURL(earthURL);
-  document.location = earthURL;
 };
 
 var gotoTimelapse = function() {
   sendSwitchMessageURL(timelapseURL);
-  document.location = timelapseURL;
 };
 
 var createElementsList = function() {
