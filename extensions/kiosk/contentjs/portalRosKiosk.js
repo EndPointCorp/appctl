@@ -346,6 +346,8 @@ var portalKioskCurrentPoseTopic = new ROSLIB.Topic({
   messageType: 'portal_nav/PortalPose'
 });
 
+portalKioskCurrentPoseTopic.advertise();
+
 var runwayContentTopic = new ROSLIB.Topic({
   ros: portalRosKiosk,
   name: '/portal_kiosk/runway',

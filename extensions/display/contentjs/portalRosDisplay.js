@@ -222,6 +222,8 @@ var portalDisplayCurrentPoseTopic = new ROSLIB.Topic({
   messageType: 'portal_nav/PortalPose'
 });
 
+portalDisplayCurrentPoseTopic.advertise();
+
 // Controls whether or not we listen to moveto events.  When on a tour
 // we should not listen to moveto events.
 var ignoreCameraUpdates = false;
