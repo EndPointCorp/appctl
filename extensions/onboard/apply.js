@@ -11,7 +11,7 @@ var onboardRos = new ROSLIB.Ros({
 // This topic object is used for publishing the show and hide messages.
 var onboardPublisher = new ROSLIB.Topic({
   ros: onboardRos,
-  name: 'onboard/visibility',
+  name: '/onboard/visibility',
   messageType: 'std_msgs/Bool'
 });
 
@@ -26,7 +26,7 @@ var onboardHideMsg = new ROSLIB.Message({data: false});
 // and react when there is something else than zero anywhere.
 var onboardSpacenavListener = new ROSLIB.Topic({
   ros: onboardRos,
-  name: 'spacenav/twist',
+  name: '/spacenav/twist',
   messageType: 'geometry_msgs/Twist',
   throttle_rate: 250
 });
