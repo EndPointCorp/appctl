@@ -29,7 +29,7 @@ class ProcRunner(threading.Thread):
     _run()
     while not self.done:
       if self.proc.returncode is not None:
-        rospy.logwarn('respawning process')
+        rospy.logwarn('respawning process: {}'.format(' '.join(self.cmd)))
         _run()
 
       time.sleep(RESPAWN_POLL_DELAY)
