@@ -1,7 +1,8 @@
 import rospy
+from controller import BaseController
 from proc_runner import ProcRunner
 
-class ProcController():
+class ProcController(BaseController):
   """
   Controls startup and shutdown of a ProcRunner.
   """

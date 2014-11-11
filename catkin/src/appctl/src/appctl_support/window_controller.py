@@ -2,8 +2,9 @@
 
 import rospy
 from awesome import WindowManager
+from controller import BaseController
 
-class WindowController():
+class WindowController(BaseController):
     """
     Controls visibility of a window.
     """
