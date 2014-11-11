@@ -9,9 +9,9 @@ A set of Python support modules for implementing basic application control nodes
 
 ##### appctl\_support.ModeHandler
 
-Wraps an `AppController` and provides a mode message handler.  This is a convenience class for writing nodes that start a process when certain modes are activated.  It wraps `ProcController` and provides a message handling method.
+Wraps a `BaseController` subclass and provides a mode message handler.  This is a convenience class for writing nodes that start something when certain modes are activated.
 
-Initialize with a list of mode strings and a list of command+args.  Pass `handle_mode_msg` to a `rospy.Subscriber` on `/appctl/mode`.
+Initialize with a list of mode strings and a controller instance.  Pass `handle_mode_msg` to a `rospy.Subscriber` on `/appctl/mode`.
 
 ##### appctl\_support.ProcController
 
@@ -41,6 +41,7 @@ Consider this example netcat control node which runs a netcat listener on a conf
     """A simple appctl node for /bin/nc"""
     
     import rospy
+    from appctl_support import ProcController
     from appctl_support import ModeHandler
     from appctl.msg import Mode
     
@@ -56,8 +57,11 @@ Consider this example netcat control node which runs a netcat listener on a conf
         # Build the command+args list.
         cmd = ['/bin/nc', '-l', str(port)]
     
+        # Instantiate the ProcController.
+        proc_controller = ProcController(cmd)
+    
         # Create and subscribe the ModeHandler.
-        mode_handler = ModeHandler(modes, cmd)
+        mode_handler = ModeHandler(modes, proc_controller)
         rospy.Subscriber('/appctl/mode', Mode, mode_handler.handle_mode_msg)
     
         # TODO: Add example of /appctl/query

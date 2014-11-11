@@ -41,7 +41,8 @@ def main():
 
   cmd.extend(args)
 
-  mode_handler = appctl_support.ModeHandler(modes, cmd)
+  proc_controller = appctl_support.ProcController(cmd)
+  mode_handler = appctl_support.ModeHandler(modes, proc_controller)
 
   rospy.Subscriber('/appctl/mode', Mode, mode_handler.handle_mode_msg)
 

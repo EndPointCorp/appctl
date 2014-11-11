@@ -28,7 +28,8 @@ def main():
 
     sanitized_cmd = map(lambda arg: str(arg), cmd)
 
-    mode_handler = appctl_support.ModeHandler(modes, sanitized_cmd)
+    proc_controller = appctl_support.ProcController(sanitized_cmd)
+    mode_handler = appctl_support.ModeHandler(modes, proc_controller)
     rospy.Subscriber('/appctl/mode', Mode, mode_handler.handle_mode_msg)
     rospy.spin()
     mode_handler.shutdown()

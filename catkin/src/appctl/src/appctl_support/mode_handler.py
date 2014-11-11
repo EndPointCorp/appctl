@@ -1,13 +1,15 @@
 import rospy
-from proc_controller import ProcController
+from controller import BaseController
 
 class ModeHandler():
   """
-  Wraps an AppController and provides a mode message handler.
+  Wraps a Controller and provides a mode message handler.
   """
-  def __init__(self, modes, cmd):
+  def __init__(self, modes, controller):
+    assert isinstance(controller, BaseController)
+
     self.modes = modes
-    self.controller = ProcController(cmd)
+    self.controller = controller
 
   def handle_mode_msg(self, mode_msg):
     mode = mode_msg.mode
