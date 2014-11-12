@@ -523,6 +523,11 @@ var runwayContentClickHandler = function(e) {
     customData = JSON.parse(customData);
   }
 
+  // discard broken search actions
+  if (customData[1] && customData[1][0] == 3 && !customData[1][7]) {
+    return;
+  }
+
   console.log('runwayContentClickedHandler');
   runwayActionRestrictions = customData[2];
 
