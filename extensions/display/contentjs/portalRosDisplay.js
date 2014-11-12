@@ -10,19 +10,31 @@ acme.Util = function() {
 };
 
 /**
- * @param {string} filePath The location of the file to inject.
+ * Inject a script into this page.
+ * @param {string} url The location of the script to inject.
  */
-acme.Util.injectScript = function(filePath) {
-  // Inject content script.
+acme.Util.injectScript = function(url) {
   var s = document.createElement('script');
-  s.src = chrome.extension.getURL(filePath);
+  s.src = url;
   (document.head || document.documentElement).appendChild(s);
   s.onload = function() {
       s.parentNode.removeChild(s);
   };
 };
 
-acme.Util.injectScript('contentjs/inject.js');
+/**
+ * Inject a script from this extension into the page.
+ * @param {string} filePath The location of the script to inject.
+ */
+acme.Util.injectExtensionScript = function(filePath) {
+  var url = chrome.extension.getURL(filePath);
+  acme.Util.injectScript(url);
+};
+
+acme.Util.injectScript(
+  'https://maps.googleapis.com/maps/api/js?v=3.exp&callback=acme.MapsV3Init'
+);
+acme.Util.injectExtensionScript('contentjs/inject.js');
 
 /*
  * Load the style overrides.
@@ -363,3 +375,17 @@ spacenavListener.subscribe(
   spacenavFeedback.processSpacenavMessage.bind(spacenavFeedback)
 );
 
+window.addEventListener('acmeElevationQuery', function(ev) {
+  var lat = ev.detail.lat;
+  var lon = ev.detail.lon;
+  acme.Util.sendCustomEvent({
+    method: 'elevationQuery',
+    args: [lat, lon]
+  });
+}, true);
+
+window.addEventListener('acmeElevationResult', function(ev) {
+  var rText = document.getElementById('acmeElevationResult').innerText;
+  var result = JSON.parse(rText.replace('//', ''));
+  handOverlay.processElevationResult(result.elevation);
+}, true);
