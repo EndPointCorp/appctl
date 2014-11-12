@@ -567,7 +567,13 @@ var runwayContentClickHandler = function(e) {
   var runwayMsg = new ROSLIB.Message({
     data: 'click!!' + JSON.stringify(customData)
   });
-  runwayContentTopic.publish(runwayMsg);
+  if (customData[1][3] && customData[1][3][0] && customData[1][3][0][0]) {
+    if (customData[1][3][0][0][1] != "spotlight") {
+      runwayContentTopic.publish(runwayMsg);
+    };
+  } else {
+    runwayContentTopic.publish(runwayMsg);
+  };
 };
 
 var runwayContentExitHandler = function(e) {
