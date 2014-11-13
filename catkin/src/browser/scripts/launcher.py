@@ -4,7 +4,6 @@
 import rospy
 
 import appctl_support
-from appctl.msg import Mode
 
 BROWSER_LAUNCHER = '/home/lg/bin/lg-browser'
 
@@ -53,9 +52,7 @@ def main():
     proc_controller = appctl_support.ProcController(sanitized_cmd)
     mode_handler = appctl_support.ModeHandler(modes, proc_controller)
 
-    rospy.Subscriber('/appctl/mode', Mode, mode_handler.handle_mode_msg)
-
-    # TODO(mv): check /appctl/query
+    mode_handler.begin_handling_modes()
 
     rospy.spin()
 

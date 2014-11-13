@@ -43,7 +43,6 @@ Consider this example netcat control node which runs a netcat listener on a conf
     import rospy
     from appctl_support import ProcController
     from appctl_support import ModeHandler
-    from appctl.msg import Mode
     
     if __name__=='__main__':
         rospy.init_node('netcat_listener', anonymous=True)
@@ -62,9 +61,9 @@ Consider this example netcat control node which runs a netcat listener on a conf
     
         # Create and subscribe the ModeHandler.
         mode_handler = ModeHandler(modes, proc_controller)
-        rospy.Subscriber('/appctl/mode', Mode, mode_handler.handle_mode_msg)
     
-        # TODO: Add example of /appctl/query
+        # Begin handling mode changes, starting with a query.
+        mode_handler.begin_handling_modes()
     
         rospy.spin()
         mode_handler.shutdown()

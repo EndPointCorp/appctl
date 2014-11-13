@@ -4,7 +4,6 @@
 import rospy
 
 import appctl_support
-from appctl.msg import Mode
 
 BROWSER_PAGE_MONITOR = '/home/lg/bin/chromium-page-monitor'
 
@@ -30,7 +29,7 @@ def main():
 
     proc_controller = appctl_support.ProcController(sanitized_cmd)
     mode_handler = appctl_support.ModeHandler(modes, proc_controller)
-    rospy.Subscriber('/appctl/mode', Mode, mode_handler.handle_mode_msg)
+    mode_handler.begin_handling_modes()
     rospy.spin()
     mode_handler.shutdown()
 
