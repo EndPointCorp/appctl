@@ -84,7 +84,6 @@ catkin_make
 cd ..
 source catkin/devel/setup.bash
 bash catkin/src/portal/launch/bin/manage_ssl.sh
-edit catkin/src/portal/launch/portal.launch accordingly (key paths, have to be full paths)
 roslaunch catkin/src/portal/launch/portal.launch
 ```
 
