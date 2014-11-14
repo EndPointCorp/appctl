@@ -1,3 +1,4 @@
+setTimeout(function() {
 console.log('Portal Large Display');
 
 /* Acme Namespace */
@@ -383,3 +384,4 @@ window.addEventListener('acmeElevationResult', function(ev) {
   var result = JSON.parse(rText.replace('//', ''));
   handOverlay.processElevationResult(result.elevation);
 }, true);
+}, 1000);
