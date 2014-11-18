@@ -98,7 +98,8 @@ class TestMiscellaneous(TestBaseTouchscreen):
     Various other tests.
 
     """
-    @pytest.skip(msg="Patch hiding the EU cookies message bar not yet merged.")
+
+    @pytest.mark.skipif(True, reason="Patch hiding the EU cookies message bar not yet merged.")
     @screenshot_on_error
     def test_eu_cookies_info_bar_is_hidden(self):
         """
