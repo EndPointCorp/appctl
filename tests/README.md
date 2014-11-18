@@ -85,6 +85,8 @@ cd ..
 source catkin/devel/setup.bash
 bash catkin/src/portal/launch/bin/manage_ssl.sh
 roslaunch catkin/src/portal/launch/portal.launch
+
+py.test -s -k test_ros_basic
 ```
 
 

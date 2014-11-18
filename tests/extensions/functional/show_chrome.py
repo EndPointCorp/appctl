@@ -11,7 +11,6 @@ from tests.base import MAPS_URL
 from tests.base import TestBase
 from tests.base import TestBaseTouchscreen
 from tests.base import TestBaseGeneric
-from tests.base import TestBaseROS
 
 
 klass = TestBaseGeneric
