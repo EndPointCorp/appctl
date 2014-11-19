@@ -12,6 +12,8 @@ from base import TestBaseTouchscreen
 from base import MAPS_URL
 from base import screenshot_on_error
 import helpers
+import time
+from selenium.webdriver.common.by import By
 
 
 class TestSearch(TestBaseTouchscreen):
@@ -97,14 +99,20 @@ class TestSearch(TestBaseTouchscreen):
         """
         The searchbox should not be visible on other planets.
         """
+        helpers.wait_for_loaded_page(MAPS_URL,
+                                     self.browser,
+                                     elem_identifier_kind=By.ID,
+                                     elem_identifier_name="acme-poi-button")
+        self.click_zoom_out()
         tray = self.browser.find_element_by_class_name("widget-runway-tray-wrapper")
         planets = tray.find_elements_by_class_name("widget-runway-card-button")
 
         for i in range(1, 3):
             planets[i].click()
-            time.sleep(3)
-            box = self.browser.find_element_by_id("searchboxinput")
-            assert box.is_visible() is False
+            time.sleep(5)
+            box = self.browser.find_element_by_id("searchbox")
+            assert box.is_displayed() is False
+
 
 class TestMiscellaneous(TestBaseTouchscreen):
     """
