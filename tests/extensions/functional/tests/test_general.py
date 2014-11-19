@@ -109,9 +109,9 @@ class TestSearch(TestBaseTouchscreen):
         self.click_zoom_out()
         tray = self.browser.find_element_by_class_name("widget-runway-tray-wrapper")
         planets = tray.find_elements_by_class_name("widget-runway-card-button")
-        for i in range(1, 3):
+        for i in [1, 2]:
             planets[i].click()
-            time.sleep(25)
+            time.sleep(60)
             box = self.browser.find_element_by_id("searchbox")
             assert box.is_displayed() is False
 
