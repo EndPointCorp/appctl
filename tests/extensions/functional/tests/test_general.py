@@ -22,6 +22,7 @@ class TestSearch(TestBaseTouchscreen):
 
     """
 
+    @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
     def test_search_hitting_return_on_search_box(self):
         """
@@ -43,7 +44,7 @@ class TestSearch(TestBaseTouchscreen):
         WebDriverWait(self.browser,
                       config["max_load_timeout"]).until_not(tester, message=msg)
 
-
+    @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
     def test_search_hitting_return_on_search_button(self):
         """
@@ -75,6 +76,7 @@ class TestSearch(TestBaseTouchscreen):
         WebDriverWait(self.browser,
                       config["max_load_timeout"]).until_not(tester, message=msg)
 
+    @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
     def test_search_clicking_search_button(self):
         """
@@ -98,6 +100,7 @@ class TestSearch(TestBaseTouchscreen):
     def test_no_searchbox_on_other_planets(self):
         """
         The searchbox should not be visible on other planets.
+
         """
         helpers.wait_for_loaded_page(MAPS_URL,
                                      self.browser,
@@ -106,7 +109,6 @@ class TestSearch(TestBaseTouchscreen):
         self.click_zoom_out()
         tray = self.browser.find_element_by_class_name("widget-runway-tray-wrapper")
         planets = tray.find_elements_by_class_name("widget-runway-card-button")
-
         for i in range(1, 3):
             planets[i].click()
             time.sleep(5)

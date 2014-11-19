@@ -5,6 +5,8 @@ Zoom buttons tests.
 
 import time
 
+import pytest
+
 from base import TestBaseTouchscreen
 from base import MAPS_URL, ZOOMED_IN_MAPS_URL, Pose
 from base import screenshot_on_error, make_screenshot
@@ -27,6 +29,7 @@ class TestZoomButtons(TestBaseTouchscreen):
                   zoom.find_element_by_class_name('widget-zoom-out')]:
             assert z.is_displayed() is True
 
+    @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
     def test_zoom_out_button_change(self):
         """
@@ -50,6 +53,7 @@ class TestZoomButtons(TestBaseTouchscreen):
                              lon=pose_start.lon)
         assert self.pose_is_near(pose, expected_pose, alt_delta=pose.alt * 0.1) is True
 
+    @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
     def test_zoom_in_button_change(self):
         """
