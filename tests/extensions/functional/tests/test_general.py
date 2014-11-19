@@ -92,6 +92,19 @@ class TestSearch(TestBaseTouchscreen):
         WebDriverWait(self.browser,
                       config["max_load_timeout"]).until_not(tester, message=msg)
 
+    @screenshot_on_error
+    def test_no_searchbox_on_other_planets(self):
+        """
+        The searchbox should not be visible on other planets.
+        """
+        tray = self.browser.find_element_by_class_name("widget-runway-tray-wrapper")
+        planets = tray.find_elements_by_class_name("widget-runway-card-button")
+
+        for i in range(1, 3):
+            planets[i].click()
+            time.sleep(3)
+            box = self.browser.find_element_by_id("searchboxinput")
+            assert box.is_visible() is False
 
 class TestMiscellaneous(TestBaseTouchscreen):
     """
