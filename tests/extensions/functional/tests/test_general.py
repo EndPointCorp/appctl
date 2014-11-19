@@ -14,6 +14,8 @@ from base import screenshot_on_error
 import helpers
 import time
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as exp_cond
 
 
 class TestSearch(TestBaseTouchscreen):
@@ -107,6 +109,15 @@ class TestSearch(TestBaseTouchscreen):
                                      elem_identifier_kind=By.ID,
                                      elem_identifier_name="acme-poi-button")
         self.click_zoom_out()
+        self.click_zoom_out()
+        self.click_zoom_out()
+        #tester = partial(exp_cond.visibility_of_element_located,
+        #            (By.CLASS_NAME, "widget-runway-card-button"))
+        time.sleep(5*60)
+        #WebDriverWait(self.browser, config["max_load_timeout"]) \
+        #    .until(tester(),
+        #        message="Cannot find widget-runway-card-button element")
+
         tray = self.browser.find_element_by_class_name("widget-runway-tray-wrapper")
         planets = tray.find_elements_by_class_name("widget-runway-card-button")
         for i in [1, 2]:
