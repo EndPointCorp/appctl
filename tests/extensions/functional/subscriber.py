@@ -1,5 +1,12 @@
 """
 Helper rostopic subscriber script.
+Useful to investigate ROS traffic, analogous to rostopic echo /portal_kiosk/current_pose
+Need to adjust topic name and message format class:
+    rospy.Subscriber("/portal_kiosk/current_pose", PortalPose, callback)
+
+Running:
+    source catkin/devel/setup.bash (makes message format class available)
+    python tests/extensions/functional/subscriber.py
 
 """
 
