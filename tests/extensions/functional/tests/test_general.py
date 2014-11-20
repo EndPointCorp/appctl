@@ -128,8 +128,9 @@ class TestSearch(TestBaseTouchscreen):
         # not sure what to hook the condition to since the Mars, Moon labeled elements
         # are there but clicking them does nothing (without this delay)
         time.sleep(5)
-        tray = self.browser.find_element_by_class_name("widget-runway-tray-wrapper")
-        planets = tray.find_elements_by_class_name("widget-runway-card-button")
+
+        planets_container = self.browser.find_element_by_id("acme-points-of-interest")
+        planets = planets_container.find_elements_by_class_name("widget-runway-card-button")
 
         # we should have exactly three items in the planets list
         assert len(planets) == 3
