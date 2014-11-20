@@ -3,19 +3,19 @@ Portal general selenium tests.
 
 """
 
+import time
+from functools import partial
 
 import pytest
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as exp_cond
 
 from base import TestBaseTouchscreen
 from base import MAPS_URL
 from base import screenshot_on_error
 import helpers
-import time
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as exp_cond
 
 
 class TestSearch(TestBaseTouchscreen):
@@ -101,30 +101,66 @@ class TestSearch(TestBaseTouchscreen):
     @screenshot_on_error
     def test_no_searchbox_on_other_planets(self):
         """
-        The searchbox should not be visible on other planets.
+        The search box should not be visible when Moon, Mars are clicked.
+        Start with out default maps URL, from there 1x click on zoom out
+        button makes other universe objects (Mars, Moon) appear. Then
+        clicking on Mars, Moon makes search box disappear, clicking on
+        Earth back makes the search box appear.
 
         """
+        config = self.get_config()
         helpers.wait_for_loaded_page(MAPS_URL,
                                      self.browser,
                                      elem_identifier_kind=By.ID,
                                      elem_identifier_name="acme-poi-button")
         self.click_zoom_out()
-        self.click_zoom_out()
-        self.click_zoom_out()
-        #tester = partial(exp_cond.visibility_of_element_located,
-        #            (By.CLASS_NAME, "widget-runway-card-button"))
-        time.sleep(5*60)
-        #WebDriverWait(self.browser, config["max_load_timeout"]) \
-        #    .until(tester(),
-        #        message="Cannot find widget-runway-card-button element")
-
+        # planets should appear, wait
+        # "widget-runway-card-button" does not appear if the zoom out button
+        # is not clicked
+        tester = partial(exp_cond.visibility_of_element_located,
+                         (By.CLASS_NAME, "widget-runway-card-button"))
+        msg = "Waiting for element (class: '%s') to appear timed out." % "widget-runway-card-button"
+        WebDriverWait(self.browser,
+                      config["max_load_timeout"]).until(tester(), message=msg)
+        # without this additional delay, clicking the planet just
+        # doesn't seem to have effect (like if element is not fully loaded in DOM ...?)
+        # not sure what to hook the condition to since the Mars, Moon labeled elements
+        # are there but clicking them does nothing (without this delay)
+        time.sleep(5)
         tray = self.browser.find_element_by_class_name("widget-runway-tray-wrapper")
         planets = tray.find_elements_by_class_name("widget-runway-card-button")
-        for i in [1, 2]:
-            planets[i].click()
-            time.sleep(60)
-            box = self.browser.find_element_by_id("searchbox")
-            assert box.is_displayed() is False
+        # planets: 0: Earth, 1: Moon, 2: Mars
+        planets[1].click()
+        # although planets[i].text shows the correct text, clicking the element
+        # does not happen if the above additional delay is not there
+        # no difference using actions events
+        tester = partial(exp_cond.visibility_of_element_located,
+                         (By.ID, "searchbox"))
+        msg = "Waiting for searchbox to disappear (click on Moon) timed out."
+        WebDriverWait(self.browser,
+                      config["max_load_timeout"]).until_not(tester(), message=msg)
+        box = self.browser.find_element_by_id("searchbox")
+        assert box.is_displayed() is False
+        # click on Earth now to make it appear
+        # without this delay, the following click won't happen and the
+        # explicit wait times out
+        time.sleep(5)
+        planets[0].click()
+        msg = "Waiting for searchbox to appear (click on Earth) timed out."
+        WebDriverWait(self.browser,
+                      config["max_load_timeout"]).until(tester(), message=msg)
+        box = self.browser.find_element_by_id("searchbox")
+        assert box.is_displayed() is True
+        # click on Mars now to make it disappear
+        # without this delay, the following click won't happen and the
+        # explicit wait times out
+        time.sleep(5)
+        planets[2].click()
+        msg = "Waiting for searchbox to disappear (click on Mars) timed out."
+        WebDriverWait(self.browser,
+                      config["max_load_timeout"]).until_not(tester(), message=msg)
+        box = self.browser.find_element_by_id("searchbox")
+        assert box.is_displayed() is False
 
 
 class TestMiscellaneous(TestBaseTouchscreen):
