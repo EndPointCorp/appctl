@@ -122,6 +122,7 @@ class TestSearch(TestBaseTouchscreen):
         msg = "Waiting for element (class: '%s') to appear timed out." % "widget-runway-card-button"
         WebDriverWait(self.browser,
                       config["max_load_timeout"]).until(tester(), message=msg)
+
         # without this additional delay, clicking the planet just
         # doesn't seem to have effect (like if element is not fully loaded in DOM ...?)
         # not sure what to hook the condition to since the Mars, Moon labeled elements
@@ -129,6 +130,10 @@ class TestSearch(TestBaseTouchscreen):
         time.sleep(5)
         tray = self.browser.find_element_by_class_name("widget-runway-tray-wrapper")
         planets = tray.find_elements_by_class_name("widget-runway-card-button")
+
+        # we should have exactly three items in the planets list
+        assert len(planets) == 3
+
         # planets: 0: Earth, 1: Moon, 2: Mars
         planets[1].click()
         # although planets[i].text shows the correct text, clicking the element
