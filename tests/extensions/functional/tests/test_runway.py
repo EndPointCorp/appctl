@@ -77,8 +77,11 @@ class TestRunway(TestBase):
         def tester(browser):
             planets_container = self.browser.find_element_by_id("acme-points-of-interest")
             planets = planets_container.find_elements_by_class_name("widget-runway-card-button")
-            for i in range(0, 3):
-                if planets[i].text not in ("Earth", "Moon", "Mars"):
+            # sometimes the container is empty, wait for cup full
+            if len(planets) < 3:
+                return False
+            for p in range(0, 3):
+                if planets[p].text not in ("Earth", "Moon", "Mars"):
                     return False
             else:
                 return True
