@@ -75,8 +75,8 @@ class TestRunway(TestBase):
         config = self.get_config()
 
         def tester(browser):
-            tray = browser.find_element_by_class_name("widget-runway-tray-wrapper")
-            planets = tray.find_elements_by_class_name("widget-runway-card-button")
+            planets_container = self.browser.find_element_by_id("acme-points-of-interest")
+            planets = planets_container.find_elements_by_class_name("widget-runway-card-button")
             for i in range(0, 3):
                 if planets[i].text not in ("Earth", "Moon", "Mars"):
                     return False
@@ -88,8 +88,10 @@ class TestRunway(TestBase):
         WebDriverWait(self.browser,
                       config["max_load_timeout"]).until(my_test, message=msg)
 
-        tray = self.browser.find_element_by_class_name("widget-runway-tray-wrapper")
-        planets = tray.find_elements_by_class_name("widget-runway-card-button")
+        planets_container = self.browser.find_element_by_id("acme-points-of-interest")
+        planets = planets_container.find_elements_by_class_name("widget-runway-card-button")
+
+        assert len(planets) == 3
 
         for i in range(0, 3):
             try:
@@ -130,8 +132,8 @@ class TestRunway(TestBase):
 
         # it takes some time until they appear, wait explicitly
         def tester(browser):
-            tray = browser.find_element_by_class_name("widget-runway-tray-wrapper")
-            pois = tray.find_elements_by_class_name("widget-runway-card-button")
+            poi_container = self.browser.find_element_by_id("acme-points-of-interest")
+            pois = poi_container.find_elements_by_class_name("widget-runway-card-button")
             try:
                 if len(pois) > 0 and pois[0].text != '':
                     return True
@@ -156,8 +158,8 @@ class TestRunway(TestBase):
 
         """
         self.prepare_poi()
-        tray = self.browser.find_element_by_class_name("widget-runway-tray-wrapper")
-        points = tray.find_elements_by_class_name("widget-runway-subview-card-view-container")
+        poi_container = self.browser.find_element_by_id("acme-points-of-interest")
+        points = poi_container.find_elements_by_class_name("widget-runway-card-button")
         assert len(points) > 0
         c = 0
         for p in points:
@@ -232,3 +234,5 @@ class TestRunway(TestBase):
                       config["max_load_timeout"]).until(tester, message=msg)
         earth = self.browser.find_element_by_class_name("acme-zoom-out-earth")
         assert earth.is_displayed() is True
+
+# TODO: add test for the Famous Places items, they are in the list (id='acme-famous-places')
