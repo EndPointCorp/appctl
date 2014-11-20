@@ -53,3 +53,6 @@ catkin/src/*/obj-*-linux-gnu
 # don't track websocket ssl stuff
 ros.key
 ros.crt
+
+# don't store the pylint report file
+pylint_report.html
