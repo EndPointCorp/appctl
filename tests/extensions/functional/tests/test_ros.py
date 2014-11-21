@@ -24,7 +24,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 
 from base import TestBase
-from base import TestBaseTouchscreen
 from base import MAPS_URL
 from base import screenshot_on_error
 import helpers
@@ -101,8 +100,14 @@ class TestBaseSingleBrowserROS(TestBase):
         box.send_keys("babice nad svitavou, czech republic")
         self.click("searchbutton", finder="by_class")
         # delay necessary, otherwise only first messages are caught
-        # should be made deterministically though
-        time.sleep(5)
+        count = 0
+        while True:
+            if status.value == "OK":
+                break
+            time.sleep(1)
+            count += 1
+            if count > 30:
+                pytest.fail("Waiting for correct position ROS msg timed out.")
         subs.terminate()
         assert status.value == "OK"
 
@@ -153,30 +158,31 @@ class TestBaseTwoBrowsersROS(TestBase):
         Search something in kiosk one, the display one has to adjust.
         Assert on final state.
 
-        TODO:
-            blunt time.sleep() not nice
-
         """
         config = self.get_config()
         helpers.wait_for_loaded_page(MAPS_URL, self.browser_1)
         # browser_2 remains blank ... acme is not defined when trying get_camera_pose, so ...
         # loading the right URL makes acme available
         self.browser_2.get(MAPS_URL)
+        # TODO
         #  helpers.wait_for_loaded_page is hooked to compass element which
         #  is not there in display extension ... so just blunt wait
         time.sleep(5)
 
-        pose_start = self.get_camera_pose(self.browser_1)
         box = self.browser_1.find_element_by_id("searchboxinput")
         box.send_keys("babice nad svitavou, czech republic")
         box.send_keys(Keys.RETURN)
-        tester = lambda _: self.pose_is_near(pose_start,
-                                             self.get_camera_pose(self.browser_1),
-                                             assert_alt=False)
-        msg = "Waiting for position change timed out."
+        babice_pose = Pose(alt=18925.2298526623, lon=16.69756065, lat=49.28254545)
+        tester = lambda _: self.pose_is_near(babice_pose,
+                                             self.get_camera_pose(self.browser_1))
+        msg = "Waiting for position change in the kiosk browser timed out."
         WebDriverWait(self.browser_1,
-                      config["max_load_timeout"]).until_not(tester, message=msg)
-        # need to wait a bit for the 'display' browser to finish adjusting itself
-        time.sleep(5)
+                      config["max_load_timeout"]).until(tester, message=msg)
+        # wait for the 'display' browser to finish adjusting itself
+        tester = lambda _: self.pose_is_near(babice_pose,
+                                             self.get_camera_pose(self.browser_2))
+        msg = "Waiting for position change in the display browser timed out."
+        WebDriverWait(self.browser_2,
+                      config["max_load_timeout"]).until(tester, message=msg)
         assert self.pose_is_near(self.get_camera_pose(self.browser_1),
                                  self.get_camera_pose(self.browser_2))
