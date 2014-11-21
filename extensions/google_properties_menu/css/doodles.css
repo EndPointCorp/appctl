@@ -1,0 +1,137 @@
+#top {
+  font-family: 'Roboto';
+  font-weight: 300;
+  padding-top: 30px;
+  padding-left: 20px;
+  color: white;
+  padding-bottom: 20px;
+  background-color: #292929;
+  color: rgb(207, 205, 205);
+}
+
+body {
+  -webkit-user-select: none;
+  /* this will work for QtWebKit in future */
+  -webkit-user-drag: none;
+  -webkit-touch-callout; none;
+  font-size: 30pt;
+  font-family: 'Roboto';
+  font-weight: 300;
+  margin: 0px;
+  background-color: #2C2C2C;
+}
+
+.no-pointer {
+  pointer-events: none;
+}
+
+.game>img {
+  width: 237px;
+  height: 237px;
+}
+
+#middle {
+  margin-top: 160px;
+  text-align: center;
+  display: table;
+  color: white;
+  background-color: #4B4C4D;
+  padding-bottom: 40px;
+  padding-top: 20px;
+  font-size: 41pt;
+  width: 100%;
+}
+
+#middle div {
+  display: inline-block;
+}
+
+#middle .game {
+  width: 300px;
+  margin-left: 50px;
+  float: left;
+  vertical-align: middle;
+}
+
+#bottom {
+  text-align: center;
+  width: 100%;
+  color: #696969;
+  display: table;
+  margin-top: 80px;
+  font-size: 38pt;
+}
+
+#choose_game {
+  margin: 0 auto;
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.selected {
+  background-color: #545557;
+}
+
+#spacenavigator {
+  margin-top: 30px;
+}
+/*
+#morefun {
+  display: table;
+  font-family: 'Roboto', sans-serif;
+  position:absolute;
+  z-index: 1234;
+  right: 10px;
+  top: 10px;
+  color: #737373;
+}
+
+#morefun_items {
+  position: absolute;
+  top: 120px;
+  right: 40px;
+  height: 246px;
+  width: 402px;
+  font-family: 'Roboto', sans-serif;
+  z-index: 1234;
+  background: white;
+  padding: 20px;
+}
+
+
+#morefun_items li {
+  display: block;
+}
+
+#morefun span {
+  display: table-cell;
+  vertical-align:middle;
+}
+
+#morefun img {
+  display: table-cell;
+  vertical-align:middle;
+  width: 60px;
+}
+
+#morefun_items ul {
+}
+
+#morefun_items li {
+  width: 64px;
+  float: left;
+  margin-right: 20px;
+  margin-left: 20px;
+  text-align: middle;
+}
+
+#morefun_items span {
+  width: 100%;
+}
+
+#morefun_items img {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 20px;
+}
+*/

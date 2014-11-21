@@ -9,8 +9,14 @@ if [ "${MY_DIR}" == "." ]; then
     MY_DIR="${PWD}"
 fi
 
+# capture Original IFS and set a new one so our "for" loop can handle spaces
+O_IFS="${IFS}"
+IFS=$'\n'
 # excluding sigs+keys just in case - but they actually live outside the "extensions" dir
 for ext_dir in `find "${MY_DIR}/${EXT_DIR}" -mindepth 1 -maxdepth 1 -regextype posix-egrep -type d \! -iregex "${MY_DIR}/${EXT_DIR}/(sigs|keys)"`; do
+
+    # reset IFS to Original IFS and quote ext_dir variable usage everywhere
+    IFS="${O_IFS}"
 
     echo "FOUND ${ext_dir}"
     extension="$( basename "${ext_dir}" )"

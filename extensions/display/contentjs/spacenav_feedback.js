@@ -3,7 +3,7 @@
  * Shows two independent webgl models that should immitate spacenav movement.
  * Object should fade in and fade out on spacenav use.
  * @constructor
- * @param {SlinkyGLEnvironment} glEnvironment shared WebGL context
+ * @param {PortalGLEnvironment} glEnvironment shared WebGL context
  */
 var SpacenavFeedback = function(glEnvironment) {
   this.glEnvironment = glEnvironment;
