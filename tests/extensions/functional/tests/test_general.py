@@ -24,7 +24,7 @@ class TestSearch(TestBaseTouchscreen):
 
     """
 
-    @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
+    #@pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
     def test_search_hitting_return_on_search_box(self):
         """
@@ -46,7 +46,7 @@ class TestSearch(TestBaseTouchscreen):
         WebDriverWait(self.browser,
                       config["max_load_timeout"]).until_not(tester, message=msg)
 
-    @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
+    #@pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
     def test_search_hitting_return_on_search_button(self):
         """
@@ -78,7 +78,7 @@ class TestSearch(TestBaseTouchscreen):
         WebDriverWait(self.browser,
                       config["max_load_timeout"]).until_not(tester, message=msg)
 
-    @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
+    #@pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
     def test_search_clicking_search_button(self):
         """

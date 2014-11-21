@@ -3,10 +3,22 @@ Test involving ROS communication between browsers.
 
 """
 
+import os
+import pytest
+
+# this is basic ROS check, there needs to be more to run the ROS
+# tests from this module (README.md):
+#   catkin workspace setup file sourced
+#   roslaunch running
+if not os.environ.get("ROS_DISTRO", None):
+    msg = "ROS is not configured, skipping ROS tests ..."
+    print "\n%s" % msg
+    pytest.skip(msg="ROS is not configured, skipping ROS tests ...")
+print "\nROS - running tests"
+
 import time
 from multiprocessing import Process, Array
 
-import pytest
 import rospy
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
