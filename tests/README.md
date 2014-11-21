@@ -109,5 +109,5 @@ Run the tests in another terminal (PORTAL_TESTS_CONFIG has to be set):
 
 ```
 source catkin/devel/setup.bash
-py.test -s -k test_ros_position_after_search
+py.test -s -k test_ros  # run all cases with 'test_ros' prefix (should be all ROS tests)
 ```
