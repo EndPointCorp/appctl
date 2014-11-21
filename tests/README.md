@@ -59,7 +59,7 @@ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt
 wget https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -O - | sudo apt-key add -
 sudo apt-get update
 sudo apt-get install ros-indigo-ros-base ros-indigo-rosbridge-server ros-indigo-geographic-msgs
-    ```
+```
 
 - modify /etc/hosts so 42-b is pointing to localhost
 - manage SSL for secure websocket connection
@@ -70,7 +70,7 @@ sudo apt-get install libnss3-tools
 - generate the ssl key and import it to browser's nssdb
 ```
 ./catkin/src/portal/launch/bin/manage_ssl.sh
-  ```
+```
 
 - add following line to ~/.bashrc for convenience
 ```
@@ -78,6 +78,11 @@ if [ -f /opt/ros/indigo/setup.bash ] ; then
     . /opt/ros/indigo/setup.bash
 fi
 ```
+
+>>>> For the above lines I get: 
+λ ymon portal → λ git topic/selenium* → source /opt/ros/indigo/setup.bash 
+/opt/ros/indigo/setup.bash:.:8: no such file or directory: /home/szymon/projects/ep/portal/setup.sh
+>>>>
 
 - following commands are run just once or if something changes in the catkin workspace
 ```
