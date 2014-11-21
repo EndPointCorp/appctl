@@ -39,7 +39,7 @@ CHROME_GPU_URL = 'chrome://gpu'
 # once per entire run
 CONFIG = {}
 
-# Class used for returning information from the acme.getCurrentPose() function
+# Class used for runing information from the acme.getCurrentPose() function
 Pose = namedtuple("pose", ['alt', 'lon', 'lat'])
 
 
@@ -228,7 +228,7 @@ class TestBase(object):
         return op
 
     @classmethod
-    def run_browser(cls):
+    def run_browser(cls, extentions=[]):
         """
         Runs browser with proper driver path and extensions.
 
@@ -237,7 +237,8 @@ class TestBase(object):
 
         """
         driver = CONFIG["chrome_driver"]["path"]
-        options = cls.get_extensions_options(cls.extensions)
+        extens = extentions if extentions else cls.extensions
+        options = cls.get_extensions_options(extens)
         capabilities = cls.get_capabilities()
         print "Chrome capabilities: {}".format(capabilities)
         # Set environment variable for Chrome.
@@ -442,7 +443,5 @@ class TestBaseTouchscreen(TestBase):
 
 class TestBaseGeneric(TestBase):
     """
-    No extensions are loaded
-
     """
     extensions = []
