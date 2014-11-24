@@ -508,7 +508,7 @@ var publishKioskCurrentPose = function(pose) {
       break;
   }
 
-  if (runwayActionRestrictions == InputSupport_.None) acme.kiosk.showZoomButtons();
+  if (runwayActionRestrictions == InputSupport_.NONE) acme.kiosk.showZoomButtons();
   else acme.kiosk.hideZoomButtons();
 
   portalKioskCurrentPoseTopic.publish(portalPose);
