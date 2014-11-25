@@ -4,7 +4,6 @@ Portal selenium tests base module.
 """
 
 
-from selenium import webdriver
 from functools import wraps
 import traceback
 from datetime import datetime
@@ -16,6 +15,7 @@ import pprint
 from collections import namedtuple
 import re
 
+from selenium import webdriver
 import pytest
 
 
@@ -39,7 +39,7 @@ CHROME_GPU_URL = 'chrome://gpu'
 # once per entire run
 CONFIG = {}
 
-# Class used for returning information from the acme.getCurrentPose() function
+# Class used for runing information from the acme.getCurrentPose() function
 Pose = namedtuple("pose", ['alt', 'lon', 'lat'])
 
 
@@ -228,7 +228,7 @@ class TestBase(object):
         return op
 
     @classmethod
-    def run_browser(cls):
+    def run_browser(cls, extentions=[]):
         """
         Runs browser with proper driver path and extensions.
 
@@ -237,7 +237,8 @@ class TestBase(object):
 
         """
         driver = CONFIG["chrome_driver"]["path"]
-        options = cls.get_extensions_options(cls.extensions)
+        extens = extentions if extentions else cls.extensions
+        options = cls.get_extensions_options(extens)
         capabilities = cls.get_capabilities()
         print "Chrome capabilities: {}".format(capabilities)
         # Set environment variable for Chrome.
@@ -258,7 +259,8 @@ class TestBase(object):
     def get_camera_pose(self):
         """ TODO: add the angles """
         res = self.browser.execute_script('return acme.getCameraPose();')
-        return Pose(res['alt'], res['g'], res['wg'])
+        return Pose(res['alt'], res['g'], res['yg'])
+
 
     def pose_is_near(self,
                      left,
@@ -305,14 +307,18 @@ class TestBase(object):
             lat = True
         return alt and lon and lat
 
-
     def click(self, finder_value, finder):
         """
         Performs javascript click on the element.
 
         Arguments:
-            finder_value: string to find
-            finder: "by_class"
+            finder_value: string to find (class name or id
+                according to finder)
+            finder: "by_class" or "by_id"
+
+        Usage:
+            self.click("searchbutton", finder="by_class")
+            self.click("acme-famous-places-button", finder="by_id")
 
         A kind of workaround to a bug:
         https://code.google.com/p/selenium/issues/detail?id=6218
@@ -326,11 +332,17 @@ class TestBase(object):
                 return;
             }}
             """.format(finder_value)
+        elif finder == "by_id":
+            finder_script = """
+            var element = document.getElementById('{0}');
+            if (element == null) {{
+                alert('Didn\\'t find the element with ID = {0}');
+                return;
+            }}
+            """.format(finder_value)
         else:
-            raise ValueError("Wrong finder value")
-
-        event_script = "(function(){{ {0} ; element.click(); }}());" \
-                       .format(finder_script)
+            raise ValueError("Wrong finder value: '%s'" % finder)
+        event_script = "(function(){{ {0} ; element.click(); }}());".format(finder_script)
         self.browser.execute_script(event_script)
 
     def click_zoom_in(self):
@@ -431,7 +443,5 @@ class TestBaseTouchscreen(TestBase):
 
 class TestBaseGeneric(TestBase):
     """
-    No extensions are loaded
-
     """
     extensions = []

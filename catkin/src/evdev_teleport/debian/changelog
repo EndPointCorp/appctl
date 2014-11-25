@@ -1,3 +1,9 @@
+ros-indigo-evdev-teleport (1.0.0-1trusty) trusty; urgency=high
+
+  * Add route for receiver activation
+
+ -- Matt Vollrath <matt@endpoint.com>  Tue, 28 Oct 2014 18:08:31 -0400
+
 ros-indigo-evdev-teleport (1.0.0-0trusty) trusty; urgency=high
 
   * First package creation for indigo release

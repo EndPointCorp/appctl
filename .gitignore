@@ -29,6 +29,7 @@ __pycache__
 
 # local, customized tests configuration file
 config.json
+config-ros.json
 
 # product of running test suite (log files, screenshots)
 tests_results/
@@ -48,3 +49,10 @@ catkin/src/ros-indigo*.orig.tar.gz
 catkin/src/*/debian/files
 catkin/src/*/debian/ros-indigo*
 catkin/src/*/obj-*-linux-gnu
+
+# don't track websocket ssl stuff
+ros.key
+ros.crt
+
+# don't track the pylint report file
+pylint_report.html
