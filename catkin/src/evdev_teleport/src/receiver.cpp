@@ -4,6 +4,7 @@
 #include "uinput_device.h"
 
 const char* DEVICE_NAME_PARAM = "device_name";
+const std::string ACTIVATION_TOPIC_BASE = "/evdev_teleport/activation";
 
 int main(int argc, char** argv) {
 
@@ -34,8 +35,27 @@ int main(int argc, char** argv) {
 
   /* begin relaying from the topic to the device */
 
-  ros::Subscriber evdev_sub =
-    n.subscribe("/evdev_teleport/event", 1, &UinputDevice::HandleMessage, uinput_device);
+  ros::Subscriber evdev_sub = n.subscribe(
+    "/evdev_teleport/event",
+    1,
+    &UinputDevice::HandleEventMessage,
+    uinput_device
+  );
+
+  /* listen for activation/deactivation messages */
+
+  std::string activation_topic = std::string(ACTIVATION_TOPIC_BASE);
+  activation_topic.append(ros::this_node::getName());
+
+  ROS_DEBUG_STREAM("Listening for activation on " << activation_topic);
+  ros::Subscriber activation_sub = n.subscribe(
+    activation_topic,
+    1,
+    &UinputDevice::HandleActivationMessage,
+    uinput_device
+  );
+
+  /* react until termination */
 
   ros::spin();
 }

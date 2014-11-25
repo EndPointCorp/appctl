@@ -29,6 +29,7 @@ __pycache__
 
 # local, customized tests configuration file
 config.json
+config-ros.json
 
 # product of running test suite (log files, screenshots)
 tests_results/
@@ -51,3 +52,10 @@ catkin/src/*/obj-*-linux-gnu
 
 # REAPER meta
 *.reapeaks
+
+# don't track websocket ssl stuff
+ros.key
+ros.crt
+
+# don't track the pylint report file
+pylint_report.html

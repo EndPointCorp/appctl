@@ -5,10 +5,28 @@
  * @author Matt Vollrath <matt@endpoint.com>
  */
 var RenderStatisticsApp = (function() {
-  /**
-   * The extension id of the statistics sink.
-   */
-  var SINK_ID = 'gpdloooncmepbcfklhgbjiodfnamgjdj';
+  var ros = new ROSLIB.Ros({
+    url: 'wss://42-b:9090'
+  });
+
+  ros.on('connection', function() {
+    console.log('Connected to websocket server.');
+  });
+
+  ros.on('error', function(error) {
+    console.log('Error connecting to websocket server: ', error);
+  });
+
+  ros.on('close', function() {
+    console.log('Connection to websocket server closed.');
+  });
+
+  var statsTopic = new ROSLIB.Topic({
+    ros: ros,
+    name: '/statistics/statsd',
+    messageType: 'statistics/StatsD'
+  });
+  statsTopic.advertise();
 
   /**
    * Validates a tab as something we want to track rendering on.
@@ -108,6 +126,16 @@ var RenderStatisticsApp = (function() {
     });
   }
 
+  /**
+   * Handles a statistics message from a tab.
+   * @param {object} msg A statsd message.
+   */
+  function handleStatsMessage(msg) {
+    // TODO(mv): get source name from preferences
+    msg.name = ['display', msg.name].join('.');
+    statsTopic.publish(new ROSLIB.Message(msg));
+  }
+
   // Handle tab creation.
   chrome.tabs.onCreated.addListener(function(tab) {
     initRenderStatistics(tab, function() {
@@ -132,9 +160,7 @@ var RenderStatisticsApp = (function() {
   // Listen for statistics messages from tabs.
   chrome.runtime.onConnect.addListener(function(port) {
     console.log('connected', port);
-    port.onMessage.addListener(function(msg) {
-      chrome.runtime.sendMessage(SINK_ID, msg);
-    });
+    port.onMessage.addListener(handleStatsMessage);
   });
 
   // Initialize all tabs.

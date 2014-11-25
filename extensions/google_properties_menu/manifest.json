@@ -12,7 +12,7 @@
                 "contentjs/google_properties_menu.js"
             ],
             "matches": [
-                "*://*.google.com/maps/*"
+                "<all_urls>"
             ]
         }
     ],

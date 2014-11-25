@@ -1,3 +1,4 @@
+setTimeout(function() {
 console.log('Portal Large Display');
 
 /* Acme Namespace */
@@ -234,22 +235,17 @@ var portalDisplayCurrentPoseTopic = new ROSLIB.Topic({
   messageType: 'portal_nav/PortalPose'
 });
 
-// Controls whether or not we listen to moveto events.  When on a tour
-// we should not listen to moveto events.
-var ignoreCameraUpdates = false;
+portalDisplayCurrentPoseTopic.advertise();
 
 navigatorListener.subscribe(function(rosPoseStamped) {
-  if (!ignoreCameraUpdates) {
-    var pose = new Pose(rosPoseStamped.pose.position.y,  // lat
-                        rosPoseStamped.pose.position.x,  // lon
-                        rosPoseStamped.pose.position.z,  // alt
-                        rosPoseStamped.pose.orientation.z,  // heading
-                        rosPoseStamped.pose.orientation.x,  // tilt
-                        rosPoseStamped.pose.orientation.y);  // roll
-    acme.display.moveCamera(pose, false);
-  }
+  var pose = new Pose(rosPoseStamped.pose.position.y,  // lat
+                      rosPoseStamped.pose.position.x,  // lon
+                      rosPoseStamped.pose.position.z,  // alt
+                      rosPoseStamped.pose.orientation.z,  // heading
+                      rosPoseStamped.pose.orientation.x,  // tilt
+                      rosPoseStamped.pose.orientation.y);  // roll
+  acme.display.moveCamera(pose, false);
 });
-
 
 var runwayContentTopic = new ROSLIB.Topic({
   ros: portalRosDisplay,
@@ -260,7 +256,6 @@ var runwayContentTopic = new ROSLIB.Topic({
 });
 
 var runwayContentSubscriber = function(message) {
-  console.log(message);
   var runwayContentEvents = {
     CLICK: 'click!!',
     EXIT: 'exit!!'
@@ -275,13 +270,15 @@ var runwayContentSubscriber = function(message) {
 
     var planetChange = sceneContentArray[7];
 
+    /*
     // Check to see if this is the type of runway element that should
     // not use the pose information coming from anywhere.
     if (!planetChange && runwayImageType == InputSupport_.DISABLED) {
-      ignoreCameraUpdates = true;
+      console.log("Ignoring updates.");
     } else {
-      ignoreCameraUpdates = false;
+      console.log("Listening to updates.");
     }
+    */
 
     // disable HUD unless changing planet to Earth
     if (planetChange && planetChange == Planet.EARTH) {
@@ -303,7 +300,7 @@ var runwayContentSubscriber = function(message) {
     // we assume there is no runway content on Moon or Mars
     handOverlay.enabled = true;
     spacenavFeedback.enabled = true;
-    ignoreCameraUpdates = false;
+    console.log("Listening to updates from EXIT.");
     acme.Util.sendCustomEvent({
         method: 'exitTitleCard'
     });
@@ -387,3 +384,4 @@ window.addEventListener('acmeElevationResult', function(ev) {
   var result = JSON.parse(rText.replace('//', ''));
   handOverlay.processElevationResult(result.elevation);
 }, true);
+}, 1000);
