@@ -34,14 +34,12 @@ window.AudioContext = window.AudioContext || window.webkitAudioContext;
 SoundEffect = function(context, src_file, begin, end, loop) {
 
   this.context = context;
-  this.source = this.context.createBufferSource();
   this.loaded = false;
 
   this.gainNode = this.context.createGain();
   this.panNode = this.context.createPanner();
 
   // source -> gain -> pan -> destination
-  this.source.connect(this.gainNode);
   this.gainNode.connect(this.panNode);
   this.panNode.connect(this.context.destination);
 
@@ -57,9 +55,9 @@ SoundEffect = function(context, src_file, begin, end, loop) {
   var self = this;
   request.onload = function() {
     self.context.decodeAudioData(request.response, function(buffer) {
-      self.source.buffer = buffer;
+      self.buffer = buffer;
       self.loaded = true;
-      if (self.source.loop) {
+      if (self.loop) {
         self.start();
       }
     },
@@ -70,8 +68,8 @@ SoundEffect = function(context, src_file, begin, end, loop) {
 
   request.send();
 
-  this.source.loop = loop;
-  this.loop = false;
+  this.loop = loop;
+  //this.loop = false;
   this.event_thread = 0;
   this.playing = false;
 
@@ -187,7 +185,15 @@ SoundEffect.prototype.start_ = function() {
     }
   }, this.durationMs);
   */
+  this.source = this.context.createBufferSource();
+  this.source.buffer = this.buffer;
+  this.source.connect(this.gainNode);
+  this.source.loop = this.loop;
   this.source.start(0);
+  var self = this;
+  this.source.onended = function() {
+    self.playing = false;
+  }
 };
 
 /**
