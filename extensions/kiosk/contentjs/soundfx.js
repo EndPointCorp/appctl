@@ -5,6 +5,8 @@
 var EARTH_RADIUS = 6371000; // meters from center
 var EARTH_ATMOSPHERE_CEILING = 480000; // meters from surface
 var ATMOSPHERE_FALLOFF = 6; // exponential falloff rate for atmospheric density
+var BOOST_LEVEL = 0.5; // play boost when level exceeds this value
+var BOOST_GAIN = 0.7; // gain level of boost effect
 var HOVER_TIMEOUT = 200; // ms, hover fx after no movement for this interval
 var HOVER_LEVEL = 0.12; // ambient level
 var HUM_GAIN_MIN = 0.1; // minimum hum level
@@ -218,6 +220,7 @@ SoundFX = function() {
   this.lastUpdateTime = 0;
   this.lastSeq = 0;
   this.hoverTimer = null;
+  this.boosting = false;
   this.enabled = true;
 
   this.hum = new ToneGenerator(this.context);
@@ -230,18 +233,24 @@ SoundFX = function() {
     this.context,
     chrome.extension.getURL('sounds/largestart.wav'),
                             0, 1217, false);
+  this.largestart.setVolume(BOOST_GAIN);
+
   this.largeidle = new SoundEffect(
     this.context,
     chrome.extension.getURL('sounds/largeidle.wav'),
                             0, 27282, true);
+
   this.smallstart = new SoundEffect(
     this.context,
     chrome.extension.getURL('sounds/smallstart.wav'),
                             0, 2000, false);
+  this.smallstart.setVolume(BOOST_GAIN);
+
   this.smallidle = new SoundEffect(
     this.context,
     chrome.extension.getURL('sounds/smallidle.wav'),
                              0, 14003, true);
+
   this.cutoff = new SoundEffect(
     this.context,
     chrome.extension.getURL('sounds/cutoff.wav'),
@@ -357,6 +366,16 @@ SoundFX.prototype.handleNavTwist = function(twist) {
 SoundFX.prototype.update = function(level, panX, panY, panZ) {
   this.largeidle.setVolume(level);
   this.largeidle.setPan(panX, panY, panZ);
+
+  if (level > BOOST_LEVEL) {
+    if (!this.boosting) {
+      this.boosting = true;
+      this.largestart.start();
+    }
+  } else if (this.boosting) {
+    this.boosting = false;
+    this.largestart.stop();
+  }
 
   if (level > HOVER_LEVEL) {
     clearTimeout(this.hoverTimer);
