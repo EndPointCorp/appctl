@@ -130,16 +130,19 @@ class TestRunway(TestBase):
         # just kiosk extension loaded it fails that acme object is not defined
         # another thing: it takes some time until POIs tray is filled even
         # after changing to the target location
-        poi = self.browser.find_element_by_id("acme-poi-button")
-        poi.click()
+        poi_button = self.browser.find_element_by_id("acme-poi-button")
+        poi_button.click()
 
         # it takes some time until they appear, wait explicitly
         def tester(browser):
             poi_container = self.browser.find_element_by_id("acme-points-of-interest")
             pois = poi_container.find_elements_by_class_name("widget-runway-card-button")
+            # sometimes the first POI has no label (.text), if there are more items
+            # check their .text labels
             try:
-                if len(pois) > 0 and pois[0].text != '':
-                    return True
+                for poi in pois:
+                    if poi.text != '':
+                        return True
                 else:
                     return False
             # StaleElementReferenceException: Message: u'stale element reference:
