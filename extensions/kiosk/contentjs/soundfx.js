@@ -7,6 +7,12 @@ var EARTH_ATMOSPHERE_CEILING = 480000; // meters from surface
 var ATMOSPHERE_FALLOFF = 6; // exponential falloff rate for atmospheric density
 var HOVER_TIMEOUT = 200; // ms, hover fx after no movement for this interval
 var HOVER_LEVEL = 0.12; // ambient level
+var HUM_GAIN_MIN = 0.1; // minimum hum level
+var HUM_GAIN_MAX = 0.8; // maximum hum level
+var HUM_GAIN_SCALE = 0.4; // multiply hum gain by this factor
+var HUM_PAN_SCALE = 0.5; // scale hum panning by this factor
+var HUM_FREQ_MIN = 40; // minimum (idle) hum frequency
+var HUM_FREQ_FACTOR = 10; // multiply hum frequency by this factor
 
 /** Shim for audio context.
  * @ignore
@@ -208,6 +214,10 @@ SoundFX = function() {
   this.hoverTimer = null;
   this.enabled = true;
 
+  this.hum = new ToneGenerator(this.context);
+  this.hum.setFreq(HUM_FREQ_MIN);
+  this.hum.start();
+
   // Preload the sound clips.
   // TODO(arshan): Better to load these out of a config file?
   this.largestart = new SoundEffect(
@@ -308,8 +318,32 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
 };
 
 /**
+ * Handles incoming SpaceNav updates.
+ * @param {object} twist
+ */
+SoundFX.prototype.handleNavTwist = function(twist) {
+  if (!this.enabled) {
+    this.hum.setGain(0);
+    return;
+  }
+
+  var x = twist.linear.x;
+  var y = twist.linear.y;
+  var z = twist.linear.z;
+  var val = Math.sqrt(z * z + Math.sqrt(x * x + y * y));
+
+  var humFreq = HUM_FREQ_MIN + val * HUM_FREQ_FACTOR;
+  var humPan = x * HUM_PAN_SCALE;
+  var humGain = Math.min(HUM_GAIN_MIN + val, HUM_GAIN_MAX) * HUM_GAIN_SCALE;
+
+  this.hum.setFreq(humFreq);
+  this.hum.setPan(humPan);
+  this.hum.setGain(humGain);
+};
+
+/**
  * Plays appropriate sound effects for the incoming speed.
- * @param {float} level The rate of movement around the globe [0, 1]
+ * @param {float} level The amount of air friction [0, 1]
  * @param {float} panX Side to side panning component [-1, 1]
  * @param {float} panY Up to down panning component [-1, 1]
  * @param {float} panZ Forward to back panning component [-1, 1]
@@ -325,11 +359,6 @@ SoundFX.prototype.update = function(level, panX, panY, panZ) {
       self.hover();
     }, HOVER_TIMEOUT);
 
-    /*
-    if (!this.largeidle.playing) {
-      this.largeidle.start();
-    }
-    */
   } else {
     clearTimeout(this.hoverTimer);
     this.hover();
@@ -337,22 +366,19 @@ SoundFX.prototype.update = function(level, panX, panY, panZ) {
 };
 
 /**
- * Silences all sound effects.
- */
-SoundFX.prototype.silence = function() {
-  this.largeidle.setVolume(0);
-};
-
-/**
  * Sets hover gain.
  */
 SoundFX.prototype.hover = function() {
+  if (!this.enabled) {
+    return;
+  }
+
   // only play hover sound within the atmosphere
   if (this.lastPose.position.z < EARTH_ATMOSPHERE_CEILING) {
     this.largeidle.setVolume(HOVER_LEVEL);
     this.largeidle.setPan(0, 1.0, 0);
   } else {
-    this.silence();
+    this.largeidle.setVolume(0);
   }
 };
 
@@ -368,7 +394,8 @@ SoundFX.prototype.enable = function() {
  */
 SoundFX.prototype.disable = function() {
   this.enabled = false;
-  this.silence();
+  this.hum.setGain(0);
+  this.largeidle.setVolume(0);
 };
 
 /*

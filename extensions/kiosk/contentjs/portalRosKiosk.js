@@ -594,6 +594,10 @@ navigatorListener.subscribe(function(rosPoseStamped) {
   handleRosPoseChange(rosPoseStamped);
 });
 
+joystickTopic.subscribe(function(twist) {
+  soundFX.handleNavTwist(twist);
+});
+
 /*
 var ambient = new Ambient();
 proximityPresenceTopic.subscribe(ambient.handlePresenceMessage.bind(ambient));
