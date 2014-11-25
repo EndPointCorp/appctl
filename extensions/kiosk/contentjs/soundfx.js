@@ -40,7 +40,6 @@ SoundEffect = function(context, src_file, begin, end, loop) {
   this.panNode.connect(this.context.destination);
 
   this.gainNode.gain.value = 0;
-  this.panNode.panningModel = 'equalpower';
 
   this.startMs = begin;
   this.durationMs = end - begin;
@@ -208,7 +207,6 @@ SoundFX = function() {
   this.lastSeq = 0;
   this.hoverTimer = null;
   this.enabled = true;
-  this.lastTilt = 0;
 
   // Preload the sound clips.
   // TODO(arshan): Better to load these out of a config file?
@@ -297,14 +295,16 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
   // panning away from movement vectors
   var tiltular = toRadians(pose.orientation.x) + Math.atan2(dLateral, dAlt);
   var lateral = toRadians(pose.orientation.z) + Math.atan2(dLat, dLng);
-  var panX = -Math.cos(lateral);
-  var panZ = Math.sin(lateral) * Math.cos(tiltular);
-  var panY = -Math.sin(tiltular);
+  // 3D pan values, poorly supported irl
+  //var panX = -Math.cos(lateral);
+  //var panZ = Math.sin(lateral) * Math.cos(tiltular);
+  //var panY = Math.sin(lateral) * Math.cos(tiltular);
 
-  this.lastTilt = toRadians(pose.orientation.x);
+  // simple stereo pan
+  var stereoPan = -Math.cos(lateral) * Math.sin(tiltular);
 
   // Now play the corresponding sound effects.
-  this.update(val, panX, panY, panZ);
+  this.update(val, stereoPan, 1.0, 0);
 };
 
 /**
@@ -350,9 +350,7 @@ SoundFX.prototype.hover = function() {
   // only play hover sound within the atmosphere
   if (this.lastPose.position.z < EARTH_ATMOSPHERE_CEILING) {
     this.largeidle.setVolume(HOVER_LEVEL);
-    var downY = -Math.sin(this.lastTilt);
-    var downZ = Math.cos(this.lastTilt);
-    this.largeidle.setPan(0, downY, downZ);
+    this.largeidle.setPan(0, 1.0, 0);
   } else {
     this.silence();
   }
