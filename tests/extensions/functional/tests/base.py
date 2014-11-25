@@ -256,19 +256,29 @@ class TestBase(object):
     def teardown_method(self, _):
         self.browser.quit()
 
-    def get_camera_pose(self):
-        """ TODO: add the angles """
-        res = self.browser.execute_script('return acme.getCameraPose();')
-        return Pose(res['alt'], res['g'], res['yg'])
+    def get_camera_pose(self, browser=None):
+        curr_browser = browser if browser else self.browser
+        res = curr_browser.execute_script('return acme.getCameraPose();')
+        # today is not 'vg', it's 'yg' ...
+        try:
+            p = Pose(res['alt'], res['g'], res['yg'])
+        except KeyError as ex:
+            print "get_camera_pose(): KeyError: %s" % ex
+            print "get_camera_pose():", res.keys()
+            raise
+        else:
+            print "get_camera_pose():", res.keys()
+            return p
 
-
-    def pose_is_near(self,
-                     left,
+    @staticmethod
+    def pose_is_near(left,
                      right,
                      alt_delta=1,
                      lon_delta=0.000001,
                      lat_delta=0.000001,
-                     assert_alt=True, assert_lon=True, assert_lat=True):
+                     assert_alt=True,
+                     assert_lon=True,
+                     assert_lat=True):
         """
         Checks if one of the pose objects is near to another.
 

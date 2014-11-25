@@ -134,23 +134,6 @@ class TestBaseTwoBrowsersROS(TestBase):
         self.browser_1.quit()
         self.browser_2.quit()
 
-    def get_camera_pose(self, browser):
-        """
-        TODO:
-            having browser attribute as part of the test case doesn't seem
-            to be ideal, they should be separated.
-            Most common operations like this one should be separated from
-            test case. Perhaps into helpers for starters.
-            Move this method accordingly.
-            Wait until
-                topic/selenium_tests branch is wiped
-                topic/selenium is merged with topic/ros_selenium
-
-        """
-        res = browser.execute_script('return acme.getCameraPose();')
-        # today is not 'vg', it's 'yg' ...
-        return Pose(res['alt'], res['g'], res['yg'])
-
     def test_ros_positions_in_browsers_aligned_after_kiosk_search(self):
         """
         Start 2 browsers.
