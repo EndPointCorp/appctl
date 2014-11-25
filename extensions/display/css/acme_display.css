@@ -32,3 +32,7 @@ body {
 #butterbar {
   display: none;
 }
+
+/* hide the european info about cookies */
+#pushdown { display:none; }
+#content-container { top:0px !important; }
