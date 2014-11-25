@@ -95,6 +95,14 @@ acme.Kiosk = function() {
   this.hasInitialized = false;
 };
 
+acme.Kiosk.prototype.hideZoomButtons = function() {
+  document.getElementById('zoom').style.visibility="hidden";
+}
+
+acme.Kiosk.prototype.showZoomButtons = function() {
+  document.getElementById('zoom').style.visibility="visible";
+}
+
 /**
  * Zoom out all to put the whole earth in the view.
  */
@@ -499,6 +507,9 @@ var publishKioskCurrentPose = function(pose) {
     default:
       break;
   }
+
+  if (runwayActionRestrictions == InputSupport_.NONE) acme.kiosk.showZoomButtons();
+  else acme.kiosk.hideZoomButtons();
 
   portalKioskCurrentPoseTopic.publish(portalPose);
 };
