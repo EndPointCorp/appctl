@@ -354,6 +354,8 @@ var portalKioskCurrentPoseTopic = new ROSLIB.Topic({
   messageType: 'portal_nav/PortalPose'
 });
 
+portalKioskCurrentPoseTopic.advertise();
+
 portalKioskCurrentPoseTopic.prevPublish = portalKioskCurrentPoseTopic.publish;
 portalKioskCurrentPoseTopic.publish = function(obj) {
   portalKioskCurrentPoseTopic.prevPublish(obj);
@@ -542,6 +544,11 @@ var runwayContentClickHandler = function(e) {
     customData = JSON.parse(customData);
   }
 
+  // discard broken search actions
+  if (customData[1] && customData[1][0] == 3 && !customData[1][7]) {
+    return;
+  }
+
   console.log('runwayContentClickedHandler');
   runwayActionRestrictions = customData[2];
 
@@ -586,7 +593,13 @@ var runwayContentClickHandler = function(e) {
   var runwayMsg = new ROSLIB.Message({
     data: 'click!!' + JSON.stringify(customData)
   });
-  runwayContentTopic.publish(runwayMsg);
+  if (customData[1][3] && customData[1][3][0] && customData[1][3][0][0]) {
+    if (customData[1][3][0][0][1] != "spotlight") {
+      runwayContentTopic.publish(runwayMsg);
+    };
+  } else {
+    runwayContentTopic.publish(runwayMsg);
+  };
 };
 
 var runwayContentExitHandler = function(e) {

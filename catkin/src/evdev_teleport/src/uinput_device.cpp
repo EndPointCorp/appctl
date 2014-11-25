@@ -11,6 +11,7 @@
 
 #include "evdev_teleport/EvdevEvent.h"
 #include "evdev_teleport/EvdevEvents.h"
+#include "std_msgs/Bool.h"
 
 UinputDevice::UinputDevice() {}
 
@@ -112,13 +113,44 @@ bool UinputDevice::CreateDevice(const std::string dev_name) {
 
   // fd is now a handle for the user device
   fd_ = fd;
+  // by default, start active
+  active_ = true;
   return true;
+}
+
+/*
+ * Getter, returns true if the device is active.
+ */
+bool UinputDevice::IsActive() {
+  return active_;
+}
+
+/*
+ * Setter, tells the receiver to either handle messages or ignore them.
+ */
+void UinputDevice::SetActive(bool active) {
+  active_ = active;
+}
+
+/*
+ * Handles a ROS message activating or deactivating the receiver.
+ */
+void UinputDevice::HandleActivationMessage(const std_msgs::Bool::Ptr& msg) {
+  SetActive(msg->data);
+  ROS_DEBUG("activation: %s", msg->data ? "true" : "false");
 }
 
 /*
  * Handles a ROS message containing a vector of events.
  */
-void UinputDevice::HandleMessage(const evdev_teleport::EvdevEvents::Ptr& msg) {
+void UinputDevice::HandleEventMessage(
+  const evdev_teleport::EvdevEvents::Ptr& msg) {
+
+  // Ignore messages if the receiver is not activated.
+  if (!IsActive()) {
+    return;
+  }
+
   for (int i = 0; i < msg->events.size(); i++) {
 
     evdev_teleport::EvdevEvent ev = msg->events[i];

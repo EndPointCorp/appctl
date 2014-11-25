@@ -5,6 +5,7 @@
 // action - (switch_display|showDoodlesPage)
 // url     - url to switch by the action switch_display
 var earthURL = 'http://lg-head/portal-loader.html';
+var timelapseURL = 'file:///mnt/earthtime/data-visualization-tools/examples/webgl-timemachine/landsat.html';
 
 var data = [
   {
@@ -14,11 +15,20 @@ var data = [
     action: 'switch_display',
     url: earthURL
   },
+  /*
   {
     name: 'doodles',
     desc: 'Arcade',
     icon: 'doodles.png',
     action: 'showDoodlesPage'
+  },
+  */
+  {
+    name: 'timelapse',
+    desc: 'Timelapse',
+    icon: 'timelapse.png',
+    action: 'gotoTimelapse',
+    url: timelapseURL
   }
 ];
 
@@ -39,7 +49,10 @@ var showDoodlesPage = function() {
 
 var goBackToEarthPage = function() {
   sendSwitchMessageURL(earthURL);
-  document.location = earthURL;
+};
+
+var gotoTimelapse = function() {
+  sendSwitchMessageURL(timelapseURL);
 };
 
 var createElementsList = function() {
@@ -84,6 +97,14 @@ var createElementsList = function() {
         true
       );
     }
+    if (action == 'gotoTimelapse') {
+      li.onclick = gotoTimelapse;
+      li.addEventListener(
+        'touchstart',
+        gotoTimelapse,
+        true
+      );
+    }
 
     ul.appendChild(li);
   }
@@ -105,7 +126,8 @@ var initializeMoreFun = function() {
   s.id = 'morefun';
   var span = document.createElement('span');
   span.innerText = 'More fun';
-  s.onclick = onclick;
+  s.addEventListener('click', onclick, true);
+  s.addEventListener('touchstart', onclick, true);
   s.appendChild(span);
   s.appendChild(i);
 
@@ -126,22 +148,12 @@ var initializeMoreFun = function() {
   document.body.appendChild(d);
 
   // and we should close the morefun_items window when clicked anywhere else...
-  document.body.addEventListener(
-      'click',
-      function(e) {
-        if (e.target.id != 'morefun_items')
-          document.getElementById('morefun_items').style.visibility = 'hidden';
-      },
-      true
-  );
-  document.body.addEventListener(
-      'touchstart',
-      function(e) {
-        if (e.target.id != 'morefun_items')
-          document.getElementById('morefun_items').style.visibility = 'hidden';
-      },
-      true
-  );
+  var closeHandler = function(e) {
+    if (e.target.id != 'morefun_items')
+      document.getElementById('morefun_items').style.visibility = 'hidden';
+  };
+  document.body.addEventListener('click', closeHandler, true);
+  document.body.addEventListener('touchstart', closeHandler, true);
 };
 
 initializeMoreFun();

@@ -5,6 +5,7 @@
 #include <string>
 
 #include "evdev_teleport/EvdevEvents.h"
+#include "std_msgs/Bool.h"
 
 namespace UinputDeviceConstants {
   const char* UINPUT_PATH = "/dev/uinput";
@@ -16,13 +17,18 @@ class UinputDevice {
 
     bool CreateDevice(const std::string dev_name);
 
-    void HandleMessage(const evdev_teleport::EvdevEvents::Ptr& msg);
+    void HandleEventMessage(const evdev_teleport::EvdevEvents::Ptr& msg);
     bool WriteEvent(__u16 type, __u16 code, __s32 value);
+
+    void HandleActivationMessage(const std_msgs::Bool::Ptr& msg);
+    bool IsActive();
+    void SetActive(bool active);
 
   private:
     static bool EnableCode(int fd, int codeBits, int code);
 
     int fd_;
+    bool active_;
 };
 
 #endif // _UINPUT_DEVICE_H_

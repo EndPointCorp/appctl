@@ -234,6 +234,8 @@ var portalDisplayCurrentPoseTopic = new ROSLIB.Topic({
   messageType: 'portal_nav/PortalPose'
 });
 
+portalDisplayCurrentPoseTopic.advertise();
+
 navigatorListener.subscribe(function(rosPoseStamped) {
   var pose = new Pose(rosPoseStamped.pose.position.y,  // lat
                       rosPoseStamped.pose.position.x,  // lon
@@ -243,7 +245,6 @@ navigatorListener.subscribe(function(rosPoseStamped) {
                       rosPoseStamped.pose.orientation.y);  // roll
   acme.display.moveCamera(pose, false);
 });
-
 
 var runwayContentTopic = new ROSLIB.Topic({
   ros: portalRosDisplay,
