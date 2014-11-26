@@ -5,4 +5,7 @@
     <param name="certfile" value="$(optenv PWD)/ros.crt"/>
     <param name="keyfile" value="$(optenv PWD)/ros.key"/>
   </node>
+  <node pkg="appctl" type="controller.py" name="controller" respawn="true">
+    <param name="~initial_mode" value="tactile"/>
+  </node>
 </launch>

@@ -95,6 +95,14 @@ acme.Kiosk = function() {
   this.hasInitialized = false;
 };
 
+acme.Kiosk.prototype.hideZoomButtons = function() {
+  document.getElementById('zoom').style.visibility="hidden";
+}
+
+acme.Kiosk.prototype.showZoomButtons = function() {
+  document.getElementById('zoom').style.visibility="visible";
+}
+
 /**
  * Zoom out all to put the whole earth in the view.
  */
@@ -346,6 +354,13 @@ var portalKioskCurrentPoseTopic = new ROSLIB.Topic({
   messageType: 'portal_nav/PortalPose'
 });
 
+portalKioskCurrentPoseTopic.advertise();
+
+portalKioskCurrentPoseTopic.prevPublish = portalKioskCurrentPoseTopic.publish;
+portalKioskCurrentPoseTopic.publish = function(obj) {
+  portalKioskCurrentPoseTopic.prevPublish(obj);
+};
+
 var runwayContentTopic = new ROSLIB.Topic({
   ros: portalRosKiosk,
   name: '/portal_kiosk/runway',
@@ -355,6 +370,11 @@ var runwayContentTopic = new ROSLIB.Topic({
 });
 
 runwayContentTopic.advertise();
+
+runwayContentTopic.prevPublish = runwayContentTopic.publish;
+runwayContentTopic.publish = function(obj) {
+  runwayContentTopic.prevPublish(obj);
+}
 
 var proximityPresenceTopic = new ROSLIB.Topic({
   ros: portalRosKiosk,
@@ -500,6 +520,9 @@ var publishKioskCurrentPose = function(pose) {
       break;
   }
 
+  if (runwayActionRestrictions == InputSupport_.NONE) acme.kiosk.showZoomButtons();
+  else acme.kiosk.hideZoomButtons();
+
   portalKioskCurrentPoseTopic.publish(portalPose);
 };
 
@@ -519,6 +542,11 @@ var runwayContentClickHandler = function(e) {
   // TODO(paulby) remove once the tactile is pushed.
   if (typeof customData === 'string') {
     customData = JSON.parse(customData);
+  }
+
+  // discard broken search actions
+  if (customData[1] && customData[1][0] == 3 && !customData[1][7]) {
+    return;
   }
 
   console.log('runwayContentClickedHandler');
@@ -565,7 +593,13 @@ var runwayContentClickHandler = function(e) {
   var runwayMsg = new ROSLIB.Message({
     data: 'click!!' + JSON.stringify(customData)
   });
-  runwayContentTopic.publish(runwayMsg);
+  if (customData[1][3] && customData[1][3][0] && customData[1][3][0][0]) {
+    if (customData[1][3][0][0][1] != "spotlight") {
+      runwayContentTopic.publish(runwayMsg);
+    };
+  } else {
+    runwayContentTopic.publish(runwayMsg);
+  };
 };
 
 var runwayContentExitHandler = function(e) {
@@ -576,7 +610,6 @@ var runwayContentExitHandler = function(e) {
   if (typeof customData === 'string') {
     customData = JSON.parse(customData);
   }
-  console.log('runwayContentExitHandler');
   runwayActionRestrictions = InputSupport_.NONE;
   //soundFX.enable();
 

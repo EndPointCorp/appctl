@@ -1,3 +1,4 @@
+setTimeout(function() {
 console.log('Portal Large Display');
 
 /* Acme Namespace */
@@ -10,19 +11,31 @@ acme.Util = function() {
 };
 
 /**
- * @param {string} filePath The location of the file to inject.
+ * Inject a script into this page.
+ * @param {string} url The location of the script to inject.
  */
-acme.Util.injectScript = function(filePath) {
-  // Inject content script.
+acme.Util.injectScript = function(url) {
   var s = document.createElement('script');
-  s.src = chrome.extension.getURL(filePath);
+  s.src = url;
   (document.head || document.documentElement).appendChild(s);
   s.onload = function() {
       s.parentNode.removeChild(s);
   };
 };
 
-acme.Util.injectScript('contentjs/inject.js');
+/**
+ * Inject a script from this extension into the page.
+ * @param {string} filePath The location of the script to inject.
+ */
+acme.Util.injectExtensionScript = function(filePath) {
+  var url = chrome.extension.getURL(filePath);
+  acme.Util.injectScript(url);
+};
+
+acme.Util.injectScript(
+  'https://maps.googleapis.com/maps/api/js?v=3.exp&callback=acme.MapsV3Init'
+);
+acme.Util.injectExtensionScript('contentjs/inject.js');
 
 /*
  * Load the style overrides.
@@ -222,22 +235,17 @@ var portalDisplayCurrentPoseTopic = new ROSLIB.Topic({
   messageType: 'portal_nav/PortalPose'
 });
 
-// Controls whether or not we listen to moveto events.  When on a tour
-// we should not listen to moveto events.
-var ignoreCameraUpdates = false;
+portalDisplayCurrentPoseTopic.advertise();
 
 navigatorListener.subscribe(function(rosPoseStamped) {
-  if (!ignoreCameraUpdates) {
-    var pose = new Pose(rosPoseStamped.pose.position.y,  // lat
-                        rosPoseStamped.pose.position.x,  // lon
-                        rosPoseStamped.pose.position.z,  // alt
-                        rosPoseStamped.pose.orientation.z,  // heading
-                        rosPoseStamped.pose.orientation.x,  // tilt
-                        rosPoseStamped.pose.orientation.y);  // roll
-    acme.display.moveCamera(pose, false);
-  }
+  var pose = new Pose(rosPoseStamped.pose.position.y,  // lat
+                      rosPoseStamped.pose.position.x,  // lon
+                      rosPoseStamped.pose.position.z,  // alt
+                      rosPoseStamped.pose.orientation.z,  // heading
+                      rosPoseStamped.pose.orientation.x,  // tilt
+                      rosPoseStamped.pose.orientation.y);  // roll
+  acme.display.moveCamera(pose, false);
 });
-
 
 var runwayContentTopic = new ROSLIB.Topic({
   ros: portalRosDisplay,
@@ -248,7 +256,6 @@ var runwayContentTopic = new ROSLIB.Topic({
 });
 
 var runwayContentSubscriber = function(message) {
-  console.log(message);
   var runwayContentEvents = {
     CLICK: 'click!!',
     EXIT: 'exit!!'
@@ -263,13 +270,15 @@ var runwayContentSubscriber = function(message) {
 
     var planetChange = sceneContentArray[7];
 
+    /*
     // Check to see if this is the type of runway element that should
     // not use the pose information coming from anywhere.
     if (!planetChange && runwayImageType == InputSupport_.DISABLED) {
-      ignoreCameraUpdates = true;
+      console.log("Ignoring updates.");
     } else {
-      ignoreCameraUpdates = false;
+      console.log("Listening to updates.");
     }
+    */
 
     // disable HUD unless changing planet to Earth
     if (planetChange && planetChange == Planet.EARTH) {
@@ -291,7 +300,7 @@ var runwayContentSubscriber = function(message) {
     // we assume there is no runway content on Moon or Mars
     handOverlay.enabled = true;
     spacenavFeedback.enabled = true;
-    ignoreCameraUpdates = false;
+    console.log("Listening to updates from EXIT.");
     acme.Util.sendCustomEvent({
         method: 'exitTitleCard'
     });
@@ -361,3 +370,18 @@ spacenavListener.subscribe(
   spacenavFeedback.processSpacenavMessage.bind(spacenavFeedback)
 );
 
+window.addEventListener('acmeElevationQuery', function(ev) {
+  var lat = ev.detail.lat;
+  var lon = ev.detail.lon;
+  acme.Util.sendCustomEvent({
+    method: 'elevationQuery',
+    args: [lat, lon]
+  });
+}, true);
+
+window.addEventListener('acmeElevationResult', function(ev) {
+  var rText = document.getElementById('acmeElevationResult').innerText;
+  var result = JSON.parse(rText.replace('//', ''));
+  handOverlay.processElevationResult(result.elevation);
+}, true);
+}, 1000);

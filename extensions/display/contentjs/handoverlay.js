@@ -12,7 +12,7 @@ var TACTILE_LO_ALT = 17000000; // meters, low altitude of the fov change band
 var TACTILE_HI_ALT = 17500000; // meters, high altitude of the fov change band
 var TACTILE_LO_FOV = 20;
 var TACTILE_HI_FOV = 60;
-var ELEVATION_REQ_RATE = 5; // Hz
+var ELEVATION_REQ_RATE = 30; // Hz
 
 var dumpUpdateToScreen = function(message) {
   var stringifiedMessage = JSON.stringify(message);
@@ -159,7 +159,6 @@ Hand.prototype.updateHudMessage = function(pose) {
   var easting = handPose.lon >= 0 ? 'E' : 'W';
 
   // TODO(mv): cache these lookups
-  var hudSpanAlt = document.getElementById(this.hudSpanAltId);
   var hudSpanLat = document.getElementById(this.hudSpanLatId);
   var hudSpanLng = document.getElementById(this.hudSpanLngId);
   var hudSpanNorthing = document.getElementById(this.hudSpanNorthingId);
@@ -186,8 +185,6 @@ Hand.prototype.updateHudMessage = function(pose) {
     }
   }));
 
-  // async elevation request from Google elevation api
-
   // limit elevation request rate
   var now = Date.now();
   if (now < this.nextElevationRequest) {
@@ -195,31 +192,22 @@ Hand.prototype.updateHudMessage = function(pose) {
   }
   this.nextElevationRequest = now + 1000 / ELEVATION_REQ_RATE;
 
-  // TODO(mv): API key
-  var url =
-    'https://maps.googleapis.com/maps/api/elevation/json?locations={loc}';
-  //var url =
-  //  'http://maps.googleapis.com/maps/api/elevation/json?loations={loc}&key={key}';
-  url = url.replace('{loc}', [handPose.lat, handPose.lon].join(','));
-  //url = url.replace('{key}', API_KEY);
+  // async elevation data request
+  window.dispatchEvent(new CustomEvent('acmeElevationQuery', {
+    detail: {
+      lat: handPose.lat,
+      lon: handPose.lon
+    }
+  }));
+};
 
-  var elevationRequest = new XMLHttpRequest();
-  elevationRequest.overrideMimeType('application/json');
-  elevationRequest.open('GET', url, true);
-  elevationRequest.onload = function() {
-    if (elevationRequest.status != 200) {
-      console.error('elevation request returned', elevationRequest.status);
-      return;
-    }
-    var response = JSON.parse(elevationRequest.responseText);
-    if (response.status == 'OK') {
-      var elevation = response.results[0].elevation;
-      hudSpanAlt.innerHTML = elevation.toFixed(3);
-    } else {
-      console.error('elevation request status:', response.status);
-    }
-  };
-  elevationRequest.send();
+/**
+ * Updates elevation message.
+ * @param {Number} elevation
+ */
+Hand.prototype.updateHudElevation = function(elevation) {
+  var hudSpanAlt = document.getElementById(this.hudSpanAltId);
+  hudSpanAlt.innerHTML = elevation.toFixed(3);
 };
 
 /**
@@ -636,18 +624,16 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     this.handOrigin.position.copy(this.hudPos);
     this.calloutOrigin.position.copy(this.hudPos);
 
-    if (currentCameraPose) {
-      this.handOrigin.rotation.set(
-          (Math.PI / 2 - camTilt) - interNormal.y,
-          0,
-          -interNormal.x
-      );
-      this.popCalloutOrigin.rotation.set(
-          0,
-          interNormal.x,
-          0
-      );
-    }
+    this.handOrigin.rotation.set(
+        (Math.PI / 2 - camTilt) - interNormal.y,
+        0,
+        -interNormal.x
+    );
+    this.popCalloutOrigin.rotation.set(
+        0,
+        interNormal.x,
+        0
+    );
 
     // TODO(mv): flush out magic numbers
     var distanceMod = distance / 24;
@@ -929,6 +915,24 @@ HandOverlay.prototype.processHandGeoLocationEvent = function(pose) {
 };
 
 /**
+ * Handle elevation results, this is the elevation of the center of the hand.
+ * @param {Number} elevation
+ */
+HandOverlay.prototype.processElevationResult = function(elevation) {
+  if (this.currentHand == -1) {
+    return;
+  }
+
+  var hand = this.hands_[this.currentHand];
+
+  if (!hand) {
+    return;
+  }
+
+  hand.updateHudElevation(elevation);
+};
+
+/**
  * Called when the leap motion has new hand data.
  *
  * @typedef {{
@@ -987,7 +991,9 @@ HandOverlay.prototype.processHandMoved = function(
   var timeMs = Date.now();
   hand.lastLeapTimeMs = timeMs;
 
-  hand.setPositionFromLeap(leapData, timeMs, this.currentCameraPose);
+  if (this.currentCameraPose) {
+    hand.setPositionFromLeap(leapData, timeMs, this.currentCameraPose);
+  }
 };
 
 /**
