@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 
 import rospy
 from appctl.srv import Query
@@ -81,3 +80,5 @@ if __name__ == '__main__':
         AppController().run()
     except rospy.ROSInterruptException:
         pass
+
+# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
