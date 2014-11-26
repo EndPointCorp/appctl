@@ -106,6 +106,15 @@ def load_configuration():
            "env PORTAL_TESTS_CONFIG: '%s' ..." % config_file)
     f = open(config_file, 'r')
     CONFIG = json.load(f)
+    # for jenkins, the following variables are missing from the configuration
+    # file, so figure them out and set into CONFIG accordingly
+    config_vars = dict(extensions_dir="extensions", screenshots_dir="tests_results")
+    for var_key, var_value in config_vars.items():
+        if not CONFIG.get(var_key, None):
+            # this will fail if not set up properly
+            workspace = os.environ["WORKSPACE"]
+            CONFIG[var_key] = os.path.join(workspace, var_value)
+
     print "CONFIG: test suite configuration:"
     pprint.pprint(CONFIG)
     return CONFIG
