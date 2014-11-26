@@ -11,7 +11,7 @@ A set of Python support modules for implementing basic application control nodes
 
 Wraps a `BaseController` subclass and provides a mode message handler.  This is a convenience class for writing nodes that start something when certain modes are activated.
 
-Initialize with a list of mode strings and a controller instance.  Pass `handle_mode_msg` to a `rospy.Subscriber` on `/appctl/mode`.
+Initialize with a list of mode strings and a controller instance.  Use `begin_handling_modes()` after initializing your node to start tracking mode changes.
 
 ##### appctl\_support.ProcController
 
@@ -33,7 +33,7 @@ The philosophy behind appctl is that the units of application control should be 
 
 2. Run the application while a recognized mode is set.
 
-Basically, the only work to be done by each control node is initializing the ROS node and turning its parameters into a command which is then fed into a `ModeHandler` class.  That `ModeHandler` is then hooked into a `Subscriber` for business times.
+Basically, the only work to be done by each control node is initializing the ROS node and turning its parameters into a command which is then fed into a `ModeHandler` class.  That `ModeHandler` will request the current mode and subscribe to future mode changes for business times.
 
 Consider this example netcat control node which runs a netcat listener on a configurable port while in a recognized mode.
 
@@ -102,6 +102,10 @@ This node is intended as a state manager for appctl mode selection.  Since Mode 
 ##### Services
 
 * `/appctl/query` : `appctl.srv.Query` : A service for querying the currently selected Mode.
+
+You can query the current mode for troubleshooting:
+
+    $ rosservice call /appctl/query
 
 ### Tests
 
