@@ -6,6 +6,7 @@ Google Menu tests.
 
 import re
 
+import pytest
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 
@@ -35,7 +36,7 @@ class TestGoogleMenu(TestBaseTouchscreen):
         items = self.browser.find_element_by_id('morefun_items')
         assert items.is_displayed() is True
 
-
+    @pytest.mark.skipif(True, reason="More fun -> Maps, Timelapse click doesn't do anything, #200")
     @screenshot_on_error
     def test_clicking_doodle_item(self):
         """
@@ -57,6 +58,7 @@ class TestGoogleMenu(TestBaseTouchscreen):
         doodle.click()
 
         def tester(_):
+            print self.browser.current_url
             if re.match(r'chrome-extension:\/\/[a-z]+\/pages\/doodles.html',
                         self.browser.current_url):
                 return True
