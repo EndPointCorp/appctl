@@ -1,11 +1,11 @@
 Browser
-=======
+-------
 
-This package contains a ROS node for launching a browser.
+This package contains ROS nodes for launching and monitoring a browser.  The `appctl` support library is used for mode activation.
 
 ### launcher.py
 
-Launches a browser during specified appctl modes.  Presently, this is a wrapper around lg-browser.
+Launches a browser during specified appctl modes.  Presently this is a wrapper around lg-browser, and thus gets defaults from persona.
 
 ##### Parameters
 
@@ -33,7 +33,7 @@ Launches a browser during specified appctl modes.  Presently, this is a wrapper 
 
 ### monitor.py
 
-Launches a browser monitor during specified appctl modes.
+Launches a browser monitor during specified appctl modes.  Presently this launches chromium-page-monitor, and thus gets defaults from persona.
 
 ##### Parameters
 

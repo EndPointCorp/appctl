@@ -1,56 +1,10 @@
 ### Installation, tests setup
 
+There are 3 kinds of tests available to run.
 
-#### Python Packages
-
-```
-pip install --user -r tests/requirements.txt
-```
-
-#### Chrome
-
-```
-wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-sudo sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
-sudo apt-get update
-sudo apt-get install google-chrome-stable
-```
-
-
-#### Xfvb
-
-``` 
-sudo apt-get install xvfb
-```
-
-For the headless tests we need to have the xvfb running. This can be achieved with a command: 
-
-```
-sudo Xvfb :10 -ac
-```
-
-
-### Running tests
-
-The test suite is configured via a JSON configuration file
-See `config-example.json` template for guidance
-when creating one.
-The valid config.json can live anywhere, the env
-variable `PORTAL_TESTS_CONFIG` need to point to it,
-the test suite fails otherwise.
-
-Run the tests from the main project directory:
-
-```
-py.test
-py.test tests/extensions/functional/ to speed up discovery
-py.test -s  # to see stdout
-py.test -k test_url_change_after_search  # to run only 1 particular test case
-```
-
-
-### ROS enabled tests (developer version)
-
+* Chrome - Selenium type tests
+* ROS Chrome - Selenium + ROS tests
+* Catkin - pure ROS unit tests
 
 #### ROS installation
 
@@ -89,8 +43,55 @@ cd catkin
 catkin_make
 ```
 
+#### Python Packages
 
-#### Test Scenario:
+```
+pip install --user -r tests/requirements.txt
+```
+
+#### Chrome
+
+```
+wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+sudo sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+sudo apt-get update
+sudo apt-get install google-chrome-stable
+```
+
+
+#### Xfvb
+
+```
+sudo apt-get install xvfb
+```
+
+For the headless tests we need to have the xvfb running. This can be achieved with a command:
+
+```
+sudo Xvfb :10 -ac
+```
+
+### Running tests
+
+#### Chrome extensions tests
+
+The test suite is configured via a JSON configuration file
+See `config-example.json` template for guidance
+when creating one.
+The valid config.json can live anywhere, the env
+variable `PORTAL_TESTS_CONFIG` need to point to it,
+the test suite fails otherwise.
+
+Run the tests from the main project directory:
+
+```
+py.test
+py.test tests/extensions/functional/ to speed up discovery
+py.test -s  # to see stdout
+py.test -k test_url_change_after_search  # to run only 1 particular test case
+```
+
+#### ROS enabled chrome tests
 
 Like above, need to have `PORTAL_TESTS_CONFIG` variable set and pointing
 to the JSON config file.
@@ -111,3 +112,36 @@ Run the tests in another terminal (PORTAL_TESTS_CONFIG has to be set):
 source catkin/devel/setup.bash
 py.test -s -k test_ros  # run all cases with 'test_ros' prefix (should be all ROS tests)
 ```
+
+#### Catkin ROS tests
+
+Remove cmakelists with possibly wrong paths:
+
+```
+cd catkin/src
+rm CMakeLists.txt
+```
+
+Source the goodness to have all ctkin stuff in PATH
+
+```
+source /opt/ros/indigo/setup.bash
+```
+
+Re-init the workspace by creating CMakeLists.txt
+
+```
+catkin_init_workspace
+```
+Build
+
+```
+cd ../
+catkin_make
+```
+Run tests
+
+```
+catkin_make run_tests
+```
+
