@@ -163,5 +163,5 @@ install(PROGRAMS
 
 if (CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
-  add_rostest(test/test_all.test)
+  add_rostest(test/test_appctl.test)
 endif()
