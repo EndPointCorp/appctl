@@ -1,0 +1,3 @@
+<launch>
+  <test test-name="test_onboard" pkg="onboard" type="test_onboard.py" />
+</launch>
