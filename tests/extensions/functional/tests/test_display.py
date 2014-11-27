@@ -52,9 +52,10 @@ class TestBaseDisplay(TestBase):
     def test_widgets_not_displayed(self):
         """
         After the browser loads the URL, it takes some time until
-        also the extensions are fully loaded and the modify already
-        loaded DOM. E.g. the graphical widgets (elements) in question
-        are removed.
+        also the extensions are fully loaded and until the DOM is
+        modified accordingly.
+        Test that the graphical widgets (elements) are not displayed
+        in display extension browser.
 
         """
         config = self.get_config()
