@@ -5,6 +5,7 @@ Tests for the display interface (display chrome extension).
 
 from functools import partial
 
+import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as exp_cond
@@ -48,6 +49,8 @@ class TestBaseDisplay(TestBase):
     """
     extensions = ["display"]
 
+    @pytest.mark.skipif(True, reason=("Fails sometimes. Need explanation of the display "
+                                      "loading. Details on #201"))
     @screenshot_on_error
     def test_widgets_not_displayed(self):
         """
@@ -67,7 +70,7 @@ class TestBaseDisplay(TestBase):
             # invisible or not present on the DOM.
             tester = partial(exp_cond.invisibility_of_element_located, (elem[1], elem[0]))
             WebDriverWait(self.browser,
-                          60).until(tester(), message=msg)
+                          config["max_load_timeout"]).until(tester(), message=msg)
         map(test_elements_not_present, elements)
         make_screenshot(self.browser, "test_elements_not_present", 0)
 
