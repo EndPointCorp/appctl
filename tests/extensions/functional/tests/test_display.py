@@ -67,7 +67,7 @@ class TestBaseDisplay(TestBase):
             # invisible or not present on the DOM.
             tester = partial(exp_cond.invisibility_of_element_located, (elem[1], elem[0]))
             WebDriverWait(self.browser,
-                          config["max_load_timeout"]).until(tester(), message=msg)
+                          60).until(tester(), message=msg)
         map(test_elements_not_present, elements)
         make_screenshot(self.browser, "test_elements_not_present", 0)
 
