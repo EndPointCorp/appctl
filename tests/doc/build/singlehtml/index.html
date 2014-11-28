@@ -1,0 +1,400 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Portal Selenium Tests 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="None" href="index.html#document-index" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li><a href="index.html#document-index">Portal Selenium Tests 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="portal-selenium-tests-s-documentation">
+<h1>Portal Selenium Tests&#8217;s documentation<a class="headerlink" href="#portal-selenium-tests-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Description of the test modules and classes grouping and particular test cases
+in the <strong>tests/extensions/functional/tests</strong> portal project package.</p>
+<p>The test cases have <strong>test_</strong> prefix in their names.</p>
+<div class="toctree-wrapper compound">
+<span id="document-modules"></span><div class="section" id="tests-extensions-functional-tests-package">
+<h2>tests/extensions/functional/tests package<a class="headerlink" href="#tests-extensions-functional-tests-package" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<span id="document-test_display_kiosk"></span><div class="section" id="module-test_display_kiosk">
+<span id="test-display-kiosk-module"></span><h3>test_display_kiosk module<a class="headerlink" href="#module-test_display_kiosk" title="Permalink to this headline">¶</a></h3>
+<p>The display extension tests.</p>
+<p>The kiosk extension tests.</p>
+<p>Cross-verification of DOM elements between the display and kiosk extensions.</p>
+<dl class="class">
+<dt id="test_display_kiosk.TestBaseDisplay">
+<em class="property">class </em><code class="descclassname">test_display_kiosk.</code><code class="descname">TestBaseDisplay</code><a class="headerlink" href="#test_display_kiosk.TestBaseDisplay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests related to the display extension.</p>
+<dl class="method">
+<dt id="test_display_kiosk.TestBaseDisplay.test_widgets_not_displayed">
+<code class="descname">test_widgets_not_displayed</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_display_kiosk.TestBaseDisplay.test_widgets_not_displayed" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Test that the following graphical widgets (elements) are not displayed:</dt>
+<dd><ul class="first last simple">
+<li>zoom in/out buttons,</li>
+<li>compass,</li>
+<li>google More Fun menu,</li>
+<li>search field,</li>
+<li>search button,</li>
+<li>runway panel (Points of Interest, Famous Places).</li>
+</ul>
+</dd>
+</dl>
+<p>After the browser loads the initial URL, it takes some time
+until also the extensions are fully loaded and until the DOM is
+modified accordingly.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="test_display_kiosk.TestBaseKioskExtension">
+<em class="property">class </em><code class="descclassname">test_display_kiosk.</code><code class="descname">TestBaseKioskExtension</code><a class="headerlink" href="#test_display_kiosk.TestBaseKioskExtension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests related to the kiosk extension.</p>
+<dl class="method">
+<dt id="test_display_kiosk.TestBaseKioskExtension.test_widgets_displayed">
+<code class="descname">test_widgets_displayed</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_display_kiosk.TestBaseKioskExtension.test_widgets_displayed" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Test that the following graphical widgets (elements) are displayed:</dt>
+<dd><ul class="first last simple">
+<li>zoom in/out buttons,</li>
+<li>compass,</li>
+<li>google More Fun menu,</li>
+<li>search field,</li>
+<li>search button,</li>
+<li>runway panel (Points of Interest, Famous Places).</li>
+</ul>
+</dd>
+</dl>
+<p>If elements from the elements list are renamed, the test
+<strong>test_widgets_not_displayed()</strong> would just test that they are not present,
+however they might be, but under a different name.
+Test that exactly the same are present when the display
+extension is not loaded, i.e. with kiosk extension loaded.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<span id="document-test_general"></span><div class="section" id="module-test_general">
+<span id="test-general-module"></span><h3>test_general module<a class="headerlink" href="#module-test_general" title="Permalink to this headline">¶</a></h3>
+<p>General Portal selenium tests.</p>
+<dl class="class">
+<dt id="test_general.TestMiscellaneous">
+<em class="property">class </em><code class="descclassname">test_general.</code><code class="descname">TestMiscellaneous</code><a class="headerlink" href="#test_general.TestMiscellaneous" title="Permalink to this definition">¶</a></dt>
+<dd><p>Other test cases not fitting any other current category.</p>
+<dl class="method">
+<dt id="test_general.TestMiscellaneous.test_eu_cookies_info_bar_is_hidden">
+<code class="descname">test_eu_cookies_info_bar_is_hidden</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_general.TestMiscellaneous.test_eu_cookies_info_bar_is_hidden" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that the EU cookies info bar is invisible.</p>
+<p>And the map canvas has set top=0px,
+because the cookie container is 30 px higher,
+and the canvas is moved 30 px down.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="test_general.TestSearch">
+<em class="property">class </em><code class="descclassname">test_general.</code><code class="descname">TestSearch</code><a class="headerlink" href="#test_general.TestSearch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test class related to the search box, search button.
+Various interaction scenarios.</p>
+<dl class="method">
+<dt id="test_general.TestSearch.test_no_searchbox_on_other_planets">
+<code class="descname">test_no_searchbox_on_other_planets</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_general.TestSearch.test_no_searchbox_on_other_planets" title="Permalink to this definition">¶</a></dt>
+<dd><p>The test loads the initial MAPS_URL and zooms out. After this zoom
+out, the universe objects appear (Earth, Moon, Mars).</p>
+<p>The search box should not be visible when Moon, Mars are clicked.</p>
+<p>First Moon is clicked, disappearance of search box is verified.
+Second, the Earth is clicked, verify search box appeared.
+Last, Mars is clicked, disappearance of search box is verified.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test_general.TestSearch.test_search_clicking_search_button">
+<code class="descname">test_search_clicking_search_button</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_general.TestSearch.test_search_clicking_search_button" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that camera coordinates were changed from the initial
+position to something different after performing the search.</p>
+<p>Interacts with search box and clicks on the search button.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test_general.TestSearch.test_search_hitting_return_on_search_box">
+<code class="descname">test_search_hitting_return_on_search_box</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_general.TestSearch.test_search_hitting_return_on_search_box" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that camera coordinates were changed from the initial
+position to something different after performing the search.</p>
+<p>Interacts with search box and hits the return key on on the
+search box.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test_general.TestSearch.test_search_hitting_return_on_search_button">
+<code class="descname">test_search_hitting_return_on_search_button</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_general.TestSearch.test_search_hitting_return_on_search_button" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that camera coordinates were changed from the initial
+position to something different after performing the search.</p>
+<p>Interacts with search box and sends return key event on the
+search button.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<span id="document-test_google_menu"></span><div class="section" id="module-test_google_menu">
+<span id="test-google-menu-module"></span><h3>test_google_menu module<a class="headerlink" href="#module-test_google_menu" title="Permalink to this headline">¶</a></h3>
+<p>Google Menu related tests.</p>
+<dl class="class">
+<dt id="test_google_menu.TestGoogleMenu">
+<em class="property">class </em><code class="descclassname">test_google_menu.</code><code class="descname">TestGoogleMenu</code><a class="headerlink" href="#test_google_menu.TestGoogleMenu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Google Menu tests.</p>
+<dl class="method">
+<dt id="test_google_menu.TestGoogleMenu.test_clicking_doodle_item">
+<code class="descname">test_clicking_doodle_item</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_google_menu.TestGoogleMenu.test_clicking_doodle_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that clicking on the doodle item changes the URL to the
+doodles page.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test_google_menu.TestGoogleMenu.test_google_items_are_visible_on_click">
+<code class="descname">test_google_items_are_visible_on_click</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_google_menu.TestGoogleMenu.test_google_items_are_visible_on_click" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that Google Menu (More fun) items are visible after clicking it.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test_google_menu.TestGoogleMenu.test_google_menu_is_visible">
+<code class="descname">test_google_menu_is_visible</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_google_menu.TestGoogleMenu.test_google_menu_is_visible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that Google Menu (More fun) is displayed along with some items.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<span id="document-test_platform"></span><div class="section" id="module-test_platform">
+<span id="test-platform-module"></span><h3>test_platform module<a class="headerlink" href="#module-test_platform" title="Permalink to this headline">¶</a></h3>
+<p>Browser platform tests (webgl, drivers etc).</p>
+<dl class="class">
+<dt id="test_platform.TestPlatform">
+<em class="property">class </em><code class="descclassname">test_platform.</code><code class="descname">TestPlatform</code><a class="headerlink" href="#test_platform.TestPlatform" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Following tests will check whether:</dt>
+<dd><ul class="first last simple">
+<li>version of the browser matches the version in config.json</li>
+</ul>
+</dd>
+<dt>Check:</dt>
+<dd><ul class="first last simple">
+<li>gpu_data.clientInfo.version =&gt; Chrome/37.0.2062.120</li>
+<li>gpu_data.gpuInfo.basic_info[n] =&gt; description : &#8216;Direct Rendering&#8217;</li>
+</ul>
+</dd>
+<dt>Log:</dt>
+<dd><ul class="first last simple">
+<li>gpu_data.gpuInfo.basic_info[n] =&gt; description : GL_VERSION</li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="test_platform.TestPlatform.test_get_chrome_gpu_data">
+<code class="descname">test_get_chrome_gpu_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#test_platform.TestPlatform.test_get_chrome_gpu_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the chrome supports GPU.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<span id="document-test_ros"></span><div class="section" id="module-test_ros">
+<span id="test-ros-module"></span><h3>test_ros module<a class="headerlink" href="#module-test_ros" title="Permalink to this headline">¶</a></h3>
+<p>Tests involving ROS communication between browsers.</p>
+<dl class="class">
+<dt id="test_ros.TestBaseSingleBrowserROS">
+<em class="property">class </em><code class="descclassname">test_ros.</code><code class="descname">TestBaseSingleBrowserROS</code><a class="headerlink" href="#test_ros.TestBaseSingleBrowserROS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests involving single browser.</p>
+<p>Listening and asserting ROS traffic based on the actions performed in
+the (kiosk extension) browser. Browser runs in one process, another
+process is ROS topic listener.</p>
+<dl class="method">
+<dt id="test_ros.TestBaseSingleBrowserROS.test_ros_position_after_search">
+<code class="descname">test_ros_position_after_search</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_ros.TestBaseSingleBrowserROS.test_ros_position_after_search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run browser and type something in the search box, a place with
+a known position.</p>
+<p>Helper background process listening on <strong>/portal_kiosk/current_pose</strong>
+ROS topic and checks ROS position messages until the one expected
+arrives (within certain timeout).</p>
+<p>Pass/fail flag is set accordingly by the listener process via
+shared memory value which this test cases evaluates eventually.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="test_ros.TestBaseTwoBrowsersROS">
+<em class="property">class </em><code class="descclassname">test_ros.</code><code class="descname">TestBaseTwoBrowsersROS</code><a class="headerlink" href="#test_ros.TestBaseTwoBrowsersROS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests involving two browsers.</p>
+<p>General idea is to selenium-manipulate one browser (with kiosk
+extension) and assert accordingly adjusted state (as propagated
+through ROS) in the other browser (display extension).</p>
+<dl class="method">
+<dt id="test_ros.TestBaseTwoBrowsersROS.test_ros_positions_in_browsers_aligned_after_kiosk_search">
+<code class="descname">test_ros_positions_in_browsers_aligned_after_kiosk_search</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#test_ros.TestBaseTwoBrowsersROS.test_ros_positions_in_browsers_aligned_after_kiosk_search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform search in the kiosk browser and assert on the automatically
+synchronized final position in the display browser.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<span id="document-test_runway"></span><div class="section" id="module-test_runway">
+<span id="test-runway-module"></span><h3>test_runway module<a class="headerlink" href="#module-test_runway" title="Permalink to this headline">¶</a></h3>
+<p>Tests related to Runway elements.</p>
+<p>The Runway is the element at to bottom of the touchscreen browser,
+it contains a list of Points of Interests
+(if the camera is zoomed in to some level, and there are some
+interesting places around) or the list consisting of the Earth, Moon, Mars.</p>
+<p>There is also a list of Famous Places (Earth tours), which is always
+filled (loaded by a static list of entries read from a file).</p>
+<dl class="class">
+<dt id="test_runway.TestRunway">
+<em class="property">class </em><code class="descclassname">test_runway.</code><code class="descname">TestRunway</code><a class="headerlink" href="#test_runway.TestRunway" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runway element interaction tests.</p>
+<dl class="method">
+<dt id="test_runway.TestRunway.prepare_poi">
+<code class="descname">prepare_poi</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#test_runway.TestRunway.prepare_poi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare for Points of Interest tests.</p>
+<p>Load browser, search for a location with POIs and wait
+some time for the runway tray to populate.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test_runway.TestRunway.test_runway_buttons_basic">
+<code class="descname">test_runway_buttons_basic</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_runway.TestRunway.test_runway_buttons_basic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that Point of Interest and Famous Places are displayed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test_runway.TestRunway.test_runway_check_earth_icon_click">
+<code class="descname">test_runway_check_earth_icon_click</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_runway.TestRunway.test_runway_check_earth_icon_click" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Earth icon (most left picture), clicking it should bring the
+view to a considerably zoomed out position.</p>
+<p>NB: position object values differ between subsequent runs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test_runway.TestRunway.test_runway_planets_on_max_zoom_out">
+<code class="descname">test_runway_planets_on_max_zoom_out</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_runway.TestRunway.test_runway_planets_on_max_zoom_out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test there is Mars, Earth, Moon loaded
+in Points of Interest tray on maximal zoom out.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test_runway.TestRunway.test_runway_points_of_interest">
+<code class="descname">test_runway_points_of_interest</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_runway.TestRunway.test_runway_points_of_interest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Points of Interest is loaded, we can load one, exit it and
+and load another Point of Interest.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<span id="document-test_zoom"></span><div class="section" id="module-test_zoom">
+<span id="test-zoom-module"></span><h3>test_zoom module<a class="headerlink" href="#module-test_zoom" title="Permalink to this headline">¶</a></h3>
+<p>Tests related to Zoom buttons, zoom operation.</p>
+<dl class="class">
+<dt id="test_zoom.TestZoomButtons">
+<em class="property">class </em><code class="descclassname">test_zoom.</code><code class="descname">TestZoomButtons</code><a class="headerlink" href="#test_zoom.TestZoomButtons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests for checking the zoom buttons are functional.</p>
+<dl class="method">
+<dt id="test_zoom.TestZoomButtons.test_zoom_buttons">
+<code class="descname">test_zoom_buttons</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_zoom.TestZoomButtons.test_zoom_buttons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that the zoom in and out buttons are displayed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test_zoom.TestZoomButtons.test_zoom_in_button_change">
+<code class="descname">test_zoom_in_button_change</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_zoom.TestZoomButtons.test_zoom_in_button_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test clicks on the zoom out button and checks the
+pose object coordinates (altitude, latitude, longitude)
+according change.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test_zoom.TestZoomButtons.test_zoom_out_button_change">
+<code class="descname">test_zoom_out_button_change</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_zoom.TestZoomButtons.test_zoom_out_button_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test clicks on the zoom in button and checks the
+pose object coordinates (altitude, latitude, longitude)
+according change.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html#document-index">Table Of Contents</a></h3>
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html#document-modules">tests/extensions/functional/tests package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-test_display_kiosk">test_display_kiosk module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-test_general">test_general module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-test_google_menu">test_google_menu module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-test_platform">test_platform module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-test_ros">test_ros module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-test_runway">test_runway module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-test_zoom">test_zoom module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li><a href="index.html#document-index">Portal Selenium Tests 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, End Point.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+    </div>
+  </body>
+</html>
