@@ -3,12 +3,12 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Portal Selenium Tests's documentation
-=====================================
+Portal Selenium Tests documentation
+===================================
 
 .. Contents:
 
-Description of the test modules and classes grouping and particular test cases
+Description of the test modules, classes and particular test cases
 in the **tests/extensions/functional/tests** portal project package.
 
 The test cases have **test_** prefix in their names.
@@ -28,4 +28,4 @@ The test cases have **test_** prefix in their names.
    * :ref:`genindex`
    * :ref:`modindex`
    * :ref:`search`
-
+   
