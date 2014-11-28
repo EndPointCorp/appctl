@@ -1,8 +1,7 @@
 """
-Google Menu tests.
+Google Menu related tests.
 
 """
-
 
 import re
 
@@ -11,16 +10,24 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 
 from base import TestBaseTouchscreen
-from base import MAPS_URL, ZOOMED_IN_MAPS_URL, Pose
-from base import screenshot_on_error, make_screenshot
+from base import MAPS_URL, ZOOMED_IN_MAPS_URL
+from base import screenshot_on_error
 from base import TestBase
 import helpers
 
 
 class TestGoogleMenu(TestBaseTouchscreen):
+    """
+    Google Menu tests.
+
+    """
 
     @screenshot_on_error
     def test_google_menu_is_visible(self):
+        """
+        Test that Google Menu (More fun) is displayed along with some items.
+
+        """
         self.browser.get(MAPS_URL)
         morefun = self.browser.find_element_by_id('morefun')
         assert morefun.is_displayed() is True
@@ -29,6 +36,10 @@ class TestGoogleMenu(TestBaseTouchscreen):
 
     @screenshot_on_error
     def test_google_items_are_visible_on_click(self):
+        """
+        Test that Google Menu (More fun) items are visible after clicking it.
+
+        """
         self.browser.get(MAPS_URL)
         morefun = self.browser.find_element_by_id('morefun')
         morefun.click()
@@ -40,7 +51,7 @@ class TestGoogleMenu(TestBaseTouchscreen):
     @screenshot_on_error
     def test_clicking_doodle_item(self):
         """
-        Clicking on the doodle item should change the url to the
+        Test that clicking on the doodle item changes the URL to the
         doodles page.
 
         """

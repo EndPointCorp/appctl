@@ -1,5 +1,5 @@
 """
-Zoom buttons tests.
+Tests related to Zoom buttons, zoom operation.
 
 """
 
@@ -15,12 +15,16 @@ import helpers
 
 class TestZoomButtons(TestBaseTouchscreen):
     """
-    Simple test for checking the zoom buttons.
+    Tests for checking the zoom buttons are functional.
 
     """
 
     @screenshot_on_error
     def test_zoom_buttons(self):
+        """
+        Test that the zoom in and out buttons are displayed.
+
+        """
         self.browser.get(MAPS_URL)
         # this is the container for the two zoom buttons
         zoom = self.browser.find_element_by_id('zoom')

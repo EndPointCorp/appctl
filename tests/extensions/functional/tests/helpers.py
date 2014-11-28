@@ -17,7 +17,8 @@ def filter_list_of_dicts(lyst, key, value):
     """
     filter dict from list of two value dicts - helpful for javascript objects
     when you've got "X" and "Y"
-    [{"Description": "X", "Value": "Y"},{...}
+    [{"Description": "X", "Value": "Y"},{...}]
+
     """
     filtered_list = filter(lambda x: key in x.values() and value in x.values(), lyst)
 
@@ -42,12 +43,10 @@ def wait_for_loaded_page(url,
 
     browser: web browser instance
     elem_identifier_kind: kind of element identification, can be
-        either By.CLASS_NAME or By.ID
-    elem_identifier_name: particular element class name or ID (according
-        to which is chosen by the elem_identifier_kind argument.
+    either By.CLASS_NAME or By.ID
 
-    returns:
-        Nothing
+    elem_identifier_name: particular element class name or ID (according
+    to which is chosen by the elem_identifier_kind argument.
 
     """
     config = TestBase.get_config()

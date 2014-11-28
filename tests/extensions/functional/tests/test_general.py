@@ -1,5 +1,5 @@
 """
-Portal general selenium tests.
+General Portal selenium tests.
 
 """
 
@@ -20,7 +20,8 @@ import helpers
 
 class TestSearch(TestBaseTouchscreen):
     """
-    Search tests (search box, search button, etc).
+    Test class related to the search box, search button.
+    Various interaction scenarios.
 
     """
 
@@ -28,8 +29,11 @@ class TestSearch(TestBaseTouchscreen):
     @screenshot_on_error
     def test_search_hitting_return_on_search_box(self):
         """
-        Test that positions were changed after
-        putting something into the search box and hitting the return key.
+        Test that camera coordinates were changed from the initial
+        position to something different after performing the search.
+
+        Interacts with search box and hits the return key on on the
+        search box.
 
         """
         config = self.get_config()
@@ -50,11 +54,11 @@ class TestSearch(TestBaseTouchscreen):
     @screenshot_on_error
     def test_search_hitting_return_on_search_button(self):
         """
-        Test that positions were changed after
-        putting something into the search box and clicking the search button.
-        Well, this is idea, as commented below, clicking is actually not working
-        likely to inability to get search button focus, so it's just sending
-        enter key on the search button.
+        Test that camera coordinates were changed from the initial
+        position to something different after performing the search.
+
+        Interacts with search box and sends return key event on the
+        search button.
 
         """
         config = self.get_config()
@@ -82,7 +86,10 @@ class TestSearch(TestBaseTouchscreen):
     @screenshot_on_error
     def test_search_clicking_search_button(self):
         """
-        Click event on the search button.
+        Test that camera coordinates were changed from the initial
+        position to something different after performing the search.
+
+        Interacts with search box and clicks on the search button.
 
         """
         config = self.get_config()
@@ -101,11 +108,14 @@ class TestSearch(TestBaseTouchscreen):
     @screenshot_on_error
     def test_no_searchbox_on_other_planets(self):
         """
+        The test loads the initial MAPS_URL and zooms out. After this zoom
+        out, the universe objects appear (Earth, Moon, Mars).
+
         The search box should not be visible when Moon, Mars are clicked.
-        Start with out default maps URL, from there 1x click on zoom out
-        button makes other universe objects (Mars, Moon) appear. Then
-        clicking on Mars, Moon makes search box disappear, clicking on
-        Earth back makes the search box appear.
+
+        First Moon is clicked, disappearance of search box is verified.
+        Second, the Earth is clicked, verify search box appeared.
+        Last, Mars is clicked, disappearance of search box is verified.
 
         """
         config = self.get_config()
@@ -171,22 +181,24 @@ class TestSearch(TestBaseTouchscreen):
 
 class TestMiscellaneous(TestBaseTouchscreen):
     """
-    Various other tests.
+    Other test cases not fitting any other current category.
 
     """
 
     @screenshot_on_error
     def test_eu_cookies_info_bar_is_hidden(self):
         """
-        Make sure that the cookie bar is invisible.
+        Test that the EU cookies info bar is invisible.
+
         And the map canvas has set top=0px,
         because the cookie container is 30 px higher,
         and the canvas is moved 30 px down.
-        https://redmine.endpoint.com/issues/2517
-        Related patch:
-        https://github.com/EndPointCorp/portal/commit/f7c89fecedd5bcaa94b03289b01393d8cfd9d692
 
         """
+        # related info:
+        # https://redmine.endpoint.com/issues/2517
+        # Related patch:
+        # https://github.com/EndPointCorp/portal/commit/f7c89fecedd5bcaa94b03289b01393d8cfd9d692
         helpers.wait_for_loaded_page(MAPS_URL, self.browser)
         # info bar is of class "pushdown", should be hidden
         bar = self.browser.find_element_by_id("pushdown")

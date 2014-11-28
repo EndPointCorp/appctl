@@ -60,15 +60,10 @@ def make_screenshot(browser, fname, index):
 
 def screenshot_on_error(test):
     """
-    Annotation for test functions to make screenshots on error.
+    Decorator for test functions to make screenshots on error.
 
     The wrapper runs the test. When it fails, then it makes
     a screenshot in the CONFIG["screenshots_dir"] directory.
-
-    Usage:
-        @screenshot_on_error
-        def test_something(self):
-            pass
 
     """
     @wraps(test)
@@ -90,8 +85,6 @@ def load_configuration():
     Read the test suite JSON configuration from a file.
     The file path is read from a env variable.
     Set the global CONFIG object.
-
-    :return: nothing
 
     """
     global CONFIG
@@ -124,8 +117,6 @@ def set_env_variables():
     """
     Sets env variables according to values from the config file.
 
-    :return: nothing
-
     """
     global CONFIG
     if "env_vars" in CONFIG:
@@ -146,8 +137,6 @@ def prepare_environment():
     Load the test suite configuration and prepare
     the environment.
     Run executables before the test suite requires.
-
-    :return: nothing
 
     """
     global CONFIG
@@ -188,7 +177,9 @@ class TestBase(object):
         If client module does just import, it will import the symbol
         before it is initialized, hence empty.
 
-        :return: configuration object
+        Returns:
+            configuration object
+
         """
         global CONFIG
         return CONFIG
@@ -196,7 +187,11 @@ class TestBase(object):
     @classmethod
     def get_capabilities(cls):
         """
-        Returns DesiredCapabilities object
+        Return selenium webdriver desired capability object.
+
+        Returns:
+            capability object
+
         """
         capabilities = webdriver.DesiredCapabilities.CHROME.copy()
         return capabilities
@@ -222,7 +217,7 @@ class TestBase(object):
         op = webdriver.ChromeOptions()
         try:
             op.binary_location = CONFIG["chrome"]["binary_path"]
-        except KeyError, e:
+        except KeyError:
             print "Not ['chrome']['binary_path'] in config.json - using defaults"
             op.binary_location = '/usr/bin/google-chrome'
 
@@ -242,7 +237,7 @@ class TestBase(object):
         Runs browser with proper driver path and extensions.
 
         Returns:
-            selenium driver handler
+            selenium browser driver handler
 
         """
         driver = CONFIG["chrome_driver"]["path"]
@@ -259,13 +254,34 @@ class TestBase(object):
                                 desired_capabilities=capabilities)
 
     def setup_method(self, method):
+        """
+        Base method called before every test case method is called.
+
+        Args:
+            test case method reference
+
+        """
         self.browser = self.run_browser()
         self.current_method = method.__name__
 
     def teardown_method(self, _):
+        """
+        Base method called always after the test case method was
+        performed regardless of its result.
+
+        """
         self.browser.quit()
 
     def get_camera_pose(self, browser=None):
+        """
+        Return current camera pose object by calling the acme object.
+        It either takes default instance member browser reference
+        or the one provided by the argument
+
+        Kwargs:
+            options browser reference
+
+        """
         curr_browser = browser if browser else self.browser
         res = curr_browser.execute_script('return acme.getCameraPose();')
         # today is not 'vg', it's 'yg' ...
@@ -293,10 +309,10 @@ class TestBase(object):
 
         We need this function, as sometimes the maps camera moves a little bit,
         however users still see the same place. It is caused by two factors:
-            - internal behaviour of the maps
-            - floating numbers behaviour
+        - internal behaviour of the maps
+        - floating numbers behaviour
 
-        Arguments:
+        Args:
             left                 - the first pose object to compare
             right                - the second object to compare
             alt_delta = 1        - the acceptable difference of alt attribute
@@ -307,10 +323,8 @@ class TestBase(object):
             assert_lat = True    - should the latitude be asserted
 
         Returns:
-            Nothing
+            boolean based on the comparison result
 
-        Throws:
-            AssertionError when checking went wrong
         """
         if assert_alt:
             alt = abs(left.alt - right.alt) < alt_delta
@@ -330,10 +344,9 @@ class TestBase(object):
         """
         Performs javascript click on the element.
 
-        Arguments:
-            finder_value: string to find (class name or id
-                according to finder)
-            finder: "by_class" or "by_id"
+        Args:
+            finder_value: string to find (class name or id according to finder kind)
+            finder: 'by_class' or 'by_id'
 
         Usage:
             self.click("searchbutton", finder="by_class")
@@ -406,8 +419,8 @@ class TestBase(object):
             https://www.google.com/maps/@8.135687,-75.0973243,17856994a,40.4y,1.23h/data=!3m1!1e3
             https://www.google.com/maps/@8.135687,-75.0973243,18207688m/data=!3m1!1e3
 
-        Arguments:
-            url - url taken from the browser on maps.google.com
+        Argus:
+            url taken from the browser on maps.google.com
 
         Returns:
             (int) zoom level read from the url
@@ -434,13 +447,10 @@ class TestBase(object):
 
         If the function runs for more than the {max_wait_time} then it returns.
 
-        Arguments:
+        Args:
             old_value - old value for the url, checked again the current url
             interval  - sleep time between checks
             max_wait_time - maximum time for the function to run
-
-        Returns:
-            None
 
         """
         start = time.time()

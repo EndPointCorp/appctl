@@ -11,22 +11,23 @@ from exception import ConfigException
 
 class TestPlatform(TestBaseGeneric):
     """
-    Following tests will check whether
-    - version of the browser
-    - matches the version in config.json
+    Following tests will check whether:
+        * version of the browser matches the version in config.json
 
     Check:
-    gpu_data.clientInfo.version => Chrome/37.0.2062.120
-    gpu_data.gpuInfo.basic_info[n] => description : 'Direct Rendering'
+        * gpu_data.clientInfo.version => Chrome/37.0.2062.120
+        * gpu_data.gpuInfo.basic_info[n] => description : 'Direct Rendering'
 
     Log:
-    gpu_data.gpuInfo.basic_info[n] => description : GL_VERSION
+        * gpu_data.gpuInfo.basic_info[n] => description : GL_VERSION
 
     """
 
     def test_get_chrome_gpu_data(self):
-        """ Check if the chrome supports gpu."""
+        """
+        Check if the chrome supports GPU.
 
+        """
         self.browser.get(CHROME_GPU_URL)
         config = self.get_config()
         gpu_js = 'window.setTimeout("browserBridge = new gpu.BrowserBridge();\
@@ -41,10 +42,9 @@ class TestPlatform(TestBaseGeneric):
             print "e.g. config['chrome']['version'] == 'Chrome/30'"
 
         config_chrome_version = str(self.chrome_gpu_data['clientInfo']['version'].split('.')[0])
-        direct_rendering_enabled = filter_list_of_dicts(
-            self.chrome_gpu_data['gpuInfo']['basic_info'],
-            'Direct rendering',
-            'Yes')
-
+        direct_rendering_enabled = \
+            filter_list_of_dicts(self.chrome_gpu_data['gpuInfo']['basic_info'],
+                                 'Direct rendering',
+                                 'Yes')
         assert direct_rendering_enabled is True
         assert chrome_version == config_chrome_version

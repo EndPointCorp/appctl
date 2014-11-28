@@ -1,5 +1,5 @@
 """
-Test involving ROS communication between browsers.
+Tests involving ROS communication between browsers.
 
 """
 
@@ -34,7 +34,10 @@ from base import Pose
 class TestBaseSingleBrowserROS(TestBase):
     """
     Tests involving single browser.
-    Listening on ROS traffic and asserting on it.
+
+    Listening and asserting ROS traffic based on the actions performed in
+    the (kiosk extension) browser. Browser runs in one process, another
+    process is ROS topic listener.
 
     """
 
@@ -44,10 +47,9 @@ class TestBaseSingleBrowserROS(TestBase):
     processes = []
 
     def teardown_method(self, _):
-        """
-        Cleans up running processes. Conducted even if the test fails.
-
-        """
+        # have no doscrings so that the method doesn't appear in the sphinx
+        # generated documentation
+        # Cleans up running processes. Conducted even if the test fails.
         for p in self.processes:
             if p.is_alive():
                 p.terminate()
@@ -85,12 +87,18 @@ class TestBaseSingleBrowserROS(TestBase):
     @screenshot_on_error
     def test_ros_position_after_search(self):
         """
-        Run browser and type something in the search box.
-        Helper processes subscriber follows ROS traffic
-        and asserts according to the known final values,
-        communicates back to this test case the status message.
+        Run browser and type something in the search box, a place with
+        a known position.
+
+        Helper background process listening on **/portal_kiosk/current_pose**
+        ROS topic and checks ROS position messages until the one expected
+        arrives (within certain timeout).
+
+        Pass/fail flag is set accordingly by the listener process via
+        shared memory value which this test cases evaluates eventually.
 
         """
+        config = self.get_config()
         status = Array('c', "ERROR")
         subs = Process(target=self.subscriber, args=(status, ))
         subs.start()
@@ -107,7 +115,7 @@ class TestBaseSingleBrowserROS(TestBase):
                 break
             time.sleep(1)
             count += 1
-            if count > 30:
+            if count > config["max_load_timeout"]:
                 pytest.fail("Waiting for correct position ROS msg timed out.")
         subs.terminate()
         assert status.value == "OK"
@@ -116,9 +124,10 @@ class TestBaseSingleBrowserROS(TestBase):
 class TestBaseTwoBrowsersROS(TestBase):
     """
     Tests involving two browsers.
-    General idea is to selenium-manipulate one browser and assert
-    accordingly adjusted state (as propagated through ROS) in the
-    other browser.
+
+    General idea is to selenium-manipulate one browser (with kiosk
+    extension) and assert accordingly adjusted state (as propagated
+    through ROS) in the other browser (display extension).
 
     """
 
@@ -138,12 +147,11 @@ class TestBaseTwoBrowsersROS(TestBase):
     @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     def test_ros_positions_in_browsers_aligned_after_kiosk_search(self):
         """
-        Start 2 browsers.
-        Both need to load MAPS_URL to make acme stuff available.
-        Search something in kiosk one, the display one has to adjust.
-        Assert on final state.
+        Perform search in the kiosk browser and assert on the automatically
+        synchronized final position in the display browser.
 
         """
+        # both browsers need to load MAPS_URL to make acme stuff available.
         config = self.get_config()
         helpers.wait_for_loaded_page(MAPS_URL, self.browser_1)
         # browser_2 remains blank ... acme is not defined when trying get_camera_pose, so ...
