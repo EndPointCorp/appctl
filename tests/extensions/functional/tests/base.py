@@ -244,7 +244,6 @@ class TestBase(object):
         extens = extentions if extentions else cls.extensions
         options = cls.get_extensions_options(extens)
         capabilities = cls.get_capabilities()
-        print "Chrome capabilities: {}".format(capabilities)
         # Set environment variable for Chrome.
         # Chrome driver needs to have an environment variable set,
         # this must be set to the path to the webdriver file.
