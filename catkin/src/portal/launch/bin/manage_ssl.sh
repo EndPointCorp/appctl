@@ -2,7 +2,15 @@
 
 # This script should idempotently regenerate and import the ssl certificate to nssdb
 NSSDB=${HOME}/.pki/nssdb
-imported=`certutil -d sql:$NSSDB -L | grep -c rosbridge`
+if [ -z "$JOB_NAME" ] ; then
+  SSL_NAME='rosbridge'
+  echo "Not running inside jenkins"
+else
+  SSL_NAME=`echo $JOB_NAME | sed -e 's/\s/\-/g'`
+  echo "Running inside jenkins - JOB_NAME = $SSL_NAME"
+fi
+
+imported=`certutil -d sql:$NSSDB -L | grep -c $SSL_NAME`
 force=${1:-0}
 
 if [[ $imported -ge 1 && $force != "force" ]] ; then
@@ -17,5 +25,5 @@ else
     echo "nssdb database was not initialized - initializing.."
     certutil -d sql:$NSSDB -N --empty-password
   fi
-  certutil -d sql:$NSSDB -A -t "P,," -n rosbridge -i ros.crt
+  certutil -d sql:$NSSDB -A -t "P,," -n $SSL_NAME -i ros.crt
 fi
