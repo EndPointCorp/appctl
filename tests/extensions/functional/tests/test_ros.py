@@ -22,6 +22,7 @@ from multiprocessing import Process, Array
 import rospy
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
 
 from base import TestBase
 from base import MAPS_URL
@@ -151,16 +152,19 @@ class TestBaseTwoBrowsersROS(TestBase):
         synchronized final position in the display browser.
 
         """
-        # both browsers need to load MAPS_URL to make acme stuff available.
+        # both browsers need to load MAPS_URL to make acme stuff available,
+        # otherwise browser remains blank
         config = self.get_config()
         helpers.wait_for_loaded_page(MAPS_URL, self.browser_1)
-        # browser_2 remains blank ... acme is not defined when trying get_camera_pose, so ...
-        # loading the right URL makes acme available
-        self.browser_2.get(MAPS_URL)
-        # TODO
-        #  helpers.wait_for_loaded_page is hooked to compass element which
-        #  is not there in display extension ... so just blunt wait
-        time.sleep(5)
+
+        # browser_2, with display extension which has HTML elements displayed,
+        # continue when widget-mylocation-button disappears BUT at that point,
+        # the page is still not yet fully loaded
+        helpers.wait_for_loaded_page(MAPS_URL,
+                                     self.browser_2,
+                                     elem_identifier_kind=By.CLASS_NAME,
+                                     elem_identifier_name="widget-mylocation-button",
+                                     elem_presence=False)
 
         box = self.browser_1.find_element_by_id("searchboxinput")
         box.send_keys("babice nad svitavou, czech republic")
