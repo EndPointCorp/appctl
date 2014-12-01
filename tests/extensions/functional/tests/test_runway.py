@@ -1,13 +1,13 @@
 """
-The runway is the element at to bottom of the touchscreen browser,
+Tests related to Runway elements.
+
+The Runway is the element at to bottom of the touchscreen browser,
 it contains a list of Points of Interests
 (if the camera is zoomed in to some level, and there are some
-interesting places around) or the list of planets to load (Earth, Moon, Mars).
+interesting places around) or the list consisting of the Earth, Moon, Mars.
 
-There is also a list of Famous Places, which is always filled,
-as we load there a static list of entries read from a file.
-
-Tickets: Redmine #2511, Github: #133
+There is also a list of Famous Places (Earth tours), which is always
+filled (loaded by a static list of entries read from a file).
 
 """
 
@@ -21,20 +21,24 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 
-from base import MAPS_URL, ZOOMED_IN_MAPS_URL
-from base import screenshot_on_error, make_screenshot
+from base import MAPS_URL
+from base import screenshot_on_error
 from base import TestBase
 import helpers
 
 
 class TestRunway(TestBase):
+    """
+    Runway element interaction tests.
+
+    """
 
     extensions = ["kiosk"]
 
     @screenshot_on_error
     def test_runway_buttons_basic(self):
         """
-        Test Point of Interest and Famous Places are there
+        Test that Point of Interest and Famous Places are displayed.
 
         """
         helpers.wait_for_loaded_page(MAPS_URL,
@@ -111,6 +115,7 @@ class TestRunway(TestBase):
     def prepare_poi(self):
         """
         Prepare for Points of Interest tests.
+
         Load browser, search for a location with POIs and wait
         some time for the runway tray to populate.
 
@@ -130,16 +135,19 @@ class TestRunway(TestBase):
         # just kiosk extension loaded it fails that acme object is not defined
         # another thing: it takes some time until POIs tray is filled even
         # after changing to the target location
-        poi = self.browser.find_element_by_id("acme-poi-button")
-        poi.click()
+        poi_button = self.browser.find_element_by_id("acme-poi-button")
+        poi_button.click()
 
         # it takes some time until they appear, wait explicitly
         def tester(browser):
             poi_container = self.browser.find_element_by_id("acme-points-of-interest")
             pois = poi_container.find_elements_by_class_name("widget-runway-card-button")
+            # sometimes the first POI has no label (.text), if there are more items
+            # check their .text labels
             try:
-                if len(pois) > 0 and pois[0].text != '':
-                    return True
+                for poi in pois:
+                    if poi.text != '':
+                        return True
                 else:
                     return False
             # StaleElementReferenceException: Message: u'stale element reference:
@@ -173,13 +181,14 @@ class TestRunway(TestBase):
                 break
             c += 1
 
-    #@pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
+    @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
     def test_runway_check_earth_icon_click(self):
         """
         The Earth icon (most left picture), clicking it should bring the
         view to a considerably zoomed out position.
-        NB: position object value differ between subsequent runs.
+
+        NB: position object values differ between subsequent runs.
 
         """
         config = self.get_config()
@@ -237,5 +246,3 @@ class TestRunway(TestBase):
                       config["max_load_timeout"]).until(tester, message=msg)
         earth = self.browser.find_element_by_class_name("acme-zoom-out-earth")
         assert earth.is_displayed() is True
-
-# TODO: add test for the Famous Places items, they are in the list (id='acme-famous-places')

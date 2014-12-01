@@ -1,5 +1,6 @@
 """
-Exceptions for tests
+Exceptions for tests.
+
 """
 
 
