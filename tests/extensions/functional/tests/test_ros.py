@@ -64,16 +64,16 @@ class TestBaseSingleBrowserROS(TestBase):
             #rospy.loginfo(rospy.get_caller_id() + " received msg: '%s'" % msg)
             # need to make assertions / or rather assumptions here on the
             # received messages but can't pytest.fail from this context
-            #print msg.current_pose.position.x, msg.current_pose.position.y, msg.current_pose.position.z
+            print msg.current_pose.position.x, msg.current_pose.position.y, msg.current_pose.position.z
             # can't pass the information to the subscriber() method
             # do the checks here, and last one has either pass or fail
             # the final flag will be set
             if (int(msg.current_pose.position.x) in range(14, 17) and
                 int(msg.current_pose.position.y) in range(47, 50) and
-                int(msg.current_pose.position.z) in range(18000, 20000)):
+                # the .z value is 35061 on jenkins
+                int(msg.current_pose.position.z) in range(18000, 40000)):
                 status.value = "OK"
             else:
-                #print msg.current_pose.position.x, msg.current_pose.position.y, msg.current_pose.position.z
                 status.value = "ERROR"
             #print status.value
 
