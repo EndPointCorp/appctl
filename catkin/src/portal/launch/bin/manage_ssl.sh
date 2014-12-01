@@ -23,6 +23,7 @@ else
     echo "nssdb file exists. carry on..."
   else
     echo "nssdb database was not initialized - initializing.."
+    mkdir -p ${NSSDB}
     certutil -d sql:$NSSDB -N --empty-password
   fi
   certutil -d sql:$NSSDB -A -t "P,," -n $SSL_NAME -i ros.crt
