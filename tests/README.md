@@ -163,5 +163,5 @@ cd tests/doc
 
 The resulting single file *HTML* and *PDF* documents are located as follows:
 
-- `tests/doc/build/singlehtml/index.html`
-- `tests/doc/build/latex/PortalSeleniumTests.pdf`
+-`tests/doc/build/singlehtml/index.html`
+-`tests/doc/build/latex/PortalSeleniumTests.pdf`
