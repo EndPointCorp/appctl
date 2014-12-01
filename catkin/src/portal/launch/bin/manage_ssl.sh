@@ -15,7 +15,7 @@ force=${1:-0}
 
 if [[ $imported -ge 1 && $force != "force" ]] ; then
   echo "SSL key is already imported to sql:$NSSDB"
-  echo "If you want force-regenerate it, run this script with force: '`basename $0` force'"
+  echo "If you want force-regenerate it, run this script with force: '`basename "$0"` force'"
 else
   echo "Generating ros.crt and key"
   /usr/bin/openssl req -nodes -new -x509 -keyout ros.key -out ros.crt -days 3650 -config catkin/src/portal/launch/ssl/ros-openssl.cfg
