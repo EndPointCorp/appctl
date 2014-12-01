@@ -49,6 +49,7 @@ var showDoodlesPage = function() {
 
 var goBackToEarthPage = function() {
   sendSwitchMessageURL(earthURL);
+  document.location = earthURL;
 };
 
 var gotoTimelapse = function() {
