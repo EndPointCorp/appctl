@@ -662,6 +662,7 @@ window.addEventListener('acmeContentClicked', runwayContentClickHandler, true);
 window.addEventListener('acmeContentOnExit', runwayContentExitHandler, true);
 
 var zoomOutToEarth = function() {
+  exitContent();
   acme.kiosk.moveCamera(Pose.SPACE_POSE, true);
 };
 // document.dispatchEvent(new CustomEvent('acmeZoomOutToEarth'))
