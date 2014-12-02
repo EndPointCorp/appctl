@@ -136,6 +136,8 @@ var InputSupport_ = {
   NO_ZOOM_NO_PAN: 3
 };
 
+var runwayActionRestrictions = InputSupport_.NONE;
+
 var dumpUpdateToScreen = function(message) {
   var stringifiedMessage = JSON.stringify(message);
   var debugArea = document.getElementById('portaldebug');
@@ -238,6 +240,11 @@ var portalDisplayCurrentPoseTopic = new ROSLIB.Topic({
 portalDisplayCurrentPoseTopic.advertise();
 
 navigatorListener.subscribe(function(rosPoseStamped) {
+  // ignore pose changes if input is supposed to be disabled
+  if (runwayActionRestrictions === InputSupport_.DISABLED) {
+    return;
+  }
+
   var pose = new Pose(rosPoseStamped.pose.position.y,  // lat
                       rosPoseStamped.pose.position.x,  // lon
                       rosPoseStamped.pose.position.z,  // alt
@@ -266,19 +273,9 @@ var runwayContentSubscriber = function(message) {
         runwayContentEvents.CLICK.length, data.length);
     var customData = JSON.parse(customDataStr);
     var sceneContentArray = customData[1];
-    var runwayImageType = customData[2];
+    runwayActionRestrictions = customData[2];
 
     var planetChange = sceneContentArray[7];
-
-    /*
-    // Check to see if this is the type of runway element that should
-    // not use the pose information coming from anywhere.
-    if (!planetChange && runwayImageType == InputSupport_.DISABLED) {
-      console.log("Ignoring updates.");
-    } else {
-      console.log("Listening to updates.");
-    }
-    */
 
     // disable HUD unless changing planet to Earth
     if (planetChange && planetChange == Planet.EARTH) {
@@ -288,7 +285,7 @@ var runwayContentSubscriber = function(message) {
     }
 
     // disable spacenav feedback unless changing planets
-    if (runwayImageType != InputSupport_.NONE && !planetChange) {
+    if (runwayActionRestrictions != InputSupport_.NONE && !planetChange) {
       acme.spacenavFeedback.enabled = false;
     }
 
