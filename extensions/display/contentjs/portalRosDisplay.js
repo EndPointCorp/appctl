@@ -295,6 +295,7 @@ var runwayContentSubscriber = function(message) {
     });
   } else if (startsWith(data, runwayContentEvents.EXIT)) {
     // we assume there is no runway content on Moon or Mars
+    runwayActionRestrictions = InputSupport_.NONE;
     acme.handOverlay.enabled = true;
     acme.spacenavFeedback.enabled = true;
     console.log("Listening to updates from EXIT.");
