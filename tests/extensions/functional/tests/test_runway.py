@@ -21,7 +21,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 
-from base import MAPS_URL
 from base import screenshot_on_error
 from base import TestBase
 import helpers
@@ -41,7 +40,8 @@ class TestRunway(TestBase):
         Test that Point of Interest and Famous Places are displayed.
 
         """
-        helpers.wait_for_loaded_page(MAPS_URL,
+        config = self.get_config()
+        helpers.wait_for_loaded_page(config["maps_url"],
                                      self.browser,
                                      elem_identifier_kind=By.ID,
                                      elem_identifier_name="acme-poi-button")
@@ -60,7 +60,8 @@ class TestRunway(TestBase):
         in Points of Interest tray on maximal zoom out.
 
         """
-        helpers.wait_for_loaded_page(MAPS_URL,
+        config = self.get_config()
+        helpers.wait_for_loaded_page(config["maps_url"],
                                      self.browser,
                                      elem_identifier_kind=By.ID,
                                      elem_identifier_name="acme-poi-button")
@@ -120,10 +121,11 @@ class TestRunway(TestBase):
         some time for the runway tray to populate.
 
         """
+        config = self.get_config()
         # beware, with URL copied from chrome, our extensions may not be present
         # better to stick to the tested URLs ... (buttons Points of Interest and
         # Famous Places are not there, though Points of Interest tray is filled)
-        helpers.wait_for_loaded_page(MAPS_URL,
+        helpers.wait_for_loaded_page(config["maps_url"],
                                      self.browser,
                                      elem_identifier_kind=By.ID,
                                      elem_identifier_name="acme-poi-button")
@@ -195,7 +197,7 @@ class TestRunway(TestBase):
         # position object is available after the browser loads
         # our special URL, otherwise failing with:
         # WebDriverException: Message: u'unknown error: acme is not defined\n
-        helpers.wait_for_loaded_page(MAPS_URL,
+        helpers.wait_for_loaded_page(config["maps_url"],
                                      self.browser,
                                      elem_identifier_kind=By.ID,
                                      elem_identifier_name="acme-poi-button")

@@ -13,7 +13,6 @@ python -i show_ros_chromes.py
 
 """
 
-from tests.base import MAPS_URL
 from tests.base import TestBaseGeneric
 
 
@@ -21,12 +20,13 @@ klass_kiosk = TestBaseGeneric
 klass_kiosk.extensions = ["kiosk"]
 # reading of the configuration happens here, necessary just once
 klass_kiosk.setup_class()
+config = klass_kiosk.get_config()
 browser_kiosk = klass_kiosk.run_browser()
-browser_kiosk.get(MAPS_URL)
+browser_kiosk.get(config["maps_url"])
 print "chrome browser kiosk up ..."
 
 klass_display = TestBaseGeneric
 klass_display.extensions = ["display"]
 browser_display = klass_display.run_browser()
-browser_display.get(MAPS_URL)
+browser_display.get(config["maps_url"])
 print "chrome browser display up ..."

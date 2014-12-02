@@ -15,7 +15,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as exp_cond
 
 from base import TestBase
-from base import MAPS_URL, ZOOMED_IN_MAPS_URL
 from base import screenshot_on_error, make_screenshot
 
 
@@ -63,7 +62,7 @@ class TestBaseDisplay(TestBase):
 
         """
         config = self.get_config()
-        self.browser.get(MAPS_URL)
+        self.browser.get(config["maps_url"])
 
         def test_elements_not_present(elem):
             msg = "Element '{0}' should not be present (extension display).".format(elem[0])
@@ -102,7 +101,7 @@ class TestBaseKioskExtension(TestBase):
 
         """
         config = self.get_config()
-        self.browser.get(ZOOMED_IN_MAPS_URL)
+        self.browser.get(config["zoomed_in_maps_url"])
 
         def test_elements_present(elem):
             msg = "Element '{0}' should be present (kiosk extension).".format(elem[0])

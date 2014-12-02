@@ -25,7 +25,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 
 from base import TestBase
-from base import MAPS_URL
 from base import screenshot_on_error
 import helpers
 from portal_nav.msg import PortalPose
@@ -105,7 +104,7 @@ class TestBaseSingleBrowserROS(TestBase):
         subs.start()
         self.processes.append(subs)
         # start browser now
-        helpers.wait_for_loaded_page(MAPS_URL, self.browser)
+        helpers.wait_for_loaded_page(config["maps_url"], self.browser)
         box = self.browser.find_element_by_id("searchboxinput")
         box.send_keys("babice nad svitavou, czech republic")
         self.click("searchbutton", finder="by_class")
@@ -152,15 +151,15 @@ class TestBaseTwoBrowsersROS(TestBase):
         synchronized final position in the display browser.
 
         """
-        # both browsers need to load MAPS_URL to make acme stuff available,
+        # both browsers need to load config["maps_url"] to make acme stuff available,
         # otherwise browser remains blank
         config = self.get_config()
-        helpers.wait_for_loaded_page(MAPS_URL, self.browser_1)
+        helpers.wait_for_loaded_page(config["maps_url"], self.browser_1)
 
         # browser_2, with display extension which has HTML elements displayed,
         # continue when widget-mylocation-button disappears BUT at that point,
         # the page is still not yet fully loaded
-        helpers.wait_for_loaded_page(MAPS_URL,
+        helpers.wait_for_loaded_page(config["maps_url"],
                                      self.browser_2,
                                      elem_identifier_kind=By.CLASS_NAME,
                                      elem_identifier_name="widget-mylocation-button",

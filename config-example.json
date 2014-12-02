@@ -4,6 +4,10 @@
           "version": "ITS VERSION"
         },
 
+    "maps_url": "https://www.google.com/maps/@8.135687,-75.0973243,17856994a,40.4y,1.23h/data=!3m1!1e3?esrch=Tactile::TactileAcme",
+
+    "zoomed_in_maps_url": "https://www.google.com/maps/@8.135687,-75.0973243,178569a,40.4y,1.23h/data=!3m1!1e3?esrch=Tactile::TactileAcme",
+
     "executables":
         [
             "./pack-extensions",

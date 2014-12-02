@@ -13,7 +13,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as exp_cond
 
 from base import TestBaseTouchscreen
-from base import MAPS_URL
 from base import screenshot_on_error
 import helpers
 
@@ -37,7 +36,7 @@ class TestSearch(TestBaseTouchscreen):
 
         """
         config = self.get_config()
-        helpers.wait_for_loaded_page(MAPS_URL, self.browser)
+        helpers.wait_for_loaded_page(config["maps_url"], self.browser)
         pose_start = self.get_camera_pose()
         box = self.browser.find_element_by_id("searchboxinput")
         box.send_keys("babice nad svitavou, czech republic")
@@ -62,7 +61,7 @@ class TestSearch(TestBaseTouchscreen):
 
         """
         config = self.get_config()
-        helpers.wait_for_loaded_page(MAPS_URL, self.browser)
+        helpers.wait_for_loaded_page(config["maps_url"], self.browser)
         pose_start = self.get_camera_pose()
         box = self.browser.find_element_by_id("searchboxinput")
         box.send_keys("babice nad svitavou, czech republic")
@@ -93,7 +92,7 @@ class TestSearch(TestBaseTouchscreen):
 
         """
         config = self.get_config()
-        helpers.wait_for_loaded_page(MAPS_URL, self.browser)
+        helpers.wait_for_loaded_page(config["maps_url"], self.browser)
         pose_start = self.get_camera_pose()
         box = self.browser.find_element_by_id("searchboxinput")
         box.send_keys("babice nad svitavou, czech republic")
@@ -108,8 +107,8 @@ class TestSearch(TestBaseTouchscreen):
     @screenshot_on_error
     def test_no_searchbox_on_other_planets(self):
         """
-        The test loads the initial MAPS_URL and zooms out. After this zoom
-        out, the universe objects appear (Earth, Moon, Mars).
+        The test loads the initial config["maps_url"] and zooms out.
+        After this zoom out, the universe objects appear (Earth, Moon, Mars).
 
         The search box should not be visible when Moon, Mars are clicked.
 
@@ -119,7 +118,7 @@ class TestSearch(TestBaseTouchscreen):
 
         """
         config = self.get_config()
-        helpers.wait_for_loaded_page(MAPS_URL,
+        helpers.wait_for_loaded_page(config["maps_url"],
                                      self.browser,
                                      elem_identifier_kind=By.ID,
                                      elem_identifier_name="acme-poi-button")
@@ -199,7 +198,8 @@ class TestMiscellaneous(TestBaseTouchscreen):
         # https://redmine.endpoint.com/issues/2517
         # Related patch:
         # https://github.com/EndPointCorp/portal/commit/f7c89fecedd5bcaa94b03289b01393d8cfd9d692
-        helpers.wait_for_loaded_page(MAPS_URL, self.browser)
+        config = self.get_config()
+        helpers.wait_for_loaded_page(config["maps_url"], self.browser)
         # info bar is of class "pushdown", should be hidden
         bar = self.browser.find_element_by_id("pushdown")
         assert bar.is_displayed() is False

@@ -25,12 +25,6 @@ import pytest
 # The huge info is shown as logging.DEBUG message.
 logging.getLogger('selenium.webdriver.remote').setLevel(logging.ERROR)
 
-# This one will be hardcoded for now
-MAPS_URL = 'https://www.google.com/maps/@8.135687,-75.0973243,17856994a,40.4y,1.23h/data=!3m1!1e3?esrch=Tactile::TactileAcme'
-
-# We need another url for zoom out button, the above one cannot be zoomed out
-ZOOMED_IN_MAPS_URL = 'https://www.google.com/maps/@8.135687,-75.0973243,178569a,40.4y,1.23h/data=!3m1!1e3?esrch=Tactile::TactileAcme'
-
 # Chrome GPU data url
 CHROME_GPU_URL = 'chrome://gpu'
 
