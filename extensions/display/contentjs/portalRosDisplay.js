@@ -289,7 +289,7 @@ var runwayContentSubscriber = function(message) {
 
     // disable spacenav feedback unless changing planets
     if (runwayImageType != InputSupport_.NONE && !planetChange) {
-      spacenavFeedback.enabled = false;
+      acme.spacenavFeedback.enabled = false;
     }
 
     acme.Util.sendCustomEvent({
@@ -299,7 +299,7 @@ var runwayContentSubscriber = function(message) {
   } else if (startsWith(data, runwayContentEvents.EXIT)) {
     // we assume there is no runway content on Moon or Mars
     acme.handOverlay.enabled = true;
-    spacenavFeedback.enabled = true;
+    acme.spacenavFeedback.enabled = true;
     console.log("Listening to updates from EXIT.");
     acme.Util.sendCustomEvent({
         method: 'exitTitleCard'
@@ -365,10 +365,10 @@ leapListener.subscribe(acme.handOverlay.processLeapMessage.bind(acme.handOverlay
 window.addEventListener('acmeScreenLocation',
     acme.handOverlay.processHandGeoLocationEvent.bind(acme.handOverlay), true);
 
-var spacenavFeedback = new SpacenavFeedback(acme.glEnvironment);
-spacenavFeedback.init();
+acme.spacenavFeedback = new SpacenavFeedback(acme.glEnvironment);
+acme.spacenavFeedback.init();
 spacenavListener.subscribe(
-  spacenavFeedback.processSpacenavMessage.bind(spacenavFeedback)
+  acme.spacenavFeedback.processSpacenavMessage.bind(acme.spacenavFeedback)
 );
 
 window.addEventListener('acmeElevationQuery', function(ev) {
