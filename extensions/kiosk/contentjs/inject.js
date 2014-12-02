@@ -98,17 +98,6 @@ acmeExt.selectFamousPlacesButton = function() {
  * @param {Array} array Famous Places content, lifted from Tactile.
  */
 acmeExt.launchFamousPlacesContent = function(array) {
-  console.log(array);
+  array[array.length] = 'iskiosk';
   acme.launchRunwayContent(array);
-  var wireProtocol = 1;
-  //TODO(kiel): when other types are introduced besides Earth Tours, implement
-  //  the appropriate type handlers.
-  var inputType = 1; // 1 means disabled
-  var contentClickedEvent = new CustomEvent('acmeContentClicked', {
-    'detail': {'customData': [wireProtocol, array, inputType]},
-    'canBubble': false,
-    'cancelable': false
-  });
-
-  document.dispatchEvent(contentClickedEvent);
 };

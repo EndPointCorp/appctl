@@ -64,7 +64,6 @@ a.gsst_a {
   -webkit-transition-duration: 0.4s;
   transition-duration: 0.4s;
   display: inline-block !important;
-  width: 100%;
 }
 
 .acme-famous-places-button {
@@ -150,3 +149,8 @@ button.widget-play-button.widget-play-right {
 .app-vertical-widget-holder { bottom: 21px; }
 .widget-runway-thumbstrip-background { top: -13px; }
 .omnibox-cards-context-mode #omnibox { padding-bottom: 0px; }
+.widget-titlecard-subheader { height: 25px; }
+
+/* hide the european info about cookies */
+#pushdown { display:none; }
+#content-container { top:0px !important; }

@@ -1,0 +1,55 @@
+\begin{theindex}
+\def\bigletter#1{{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
+
+  \bigletter P
+  \item prepare\_poi() (test\_runway.TestRunway method), \hyperpage{6}
+
+  \indexspace
+  \bigletter T
+  \item test\_clicking\_doodle\_item() (test\_google\_menu.TestGoogleMenu method), \hyperpage{4}
+  \item test\_display\_kiosk (module), \hyperpage{3}
+  \item test\_eu\_cookies\_info\_bar\_is\_hidden() (test\_general.TestMiscellaneous method), 
+		\hyperpage{4}
+  \item test\_general (module), \hyperpage{4}
+  \item test\_get\_chrome\_gpu\_data() (test\_platform.TestPlatform method), \hyperpage{5}
+  \item test\_google\_items\_are\_visible\_on\_click() (test\_google\_menu.TestGoogleMenu method), 
+		\hyperpage{4}
+  \item test\_google\_menu (module), \hyperpage{4}
+  \item test\_google\_menu\_is\_visible() (test\_google\_menu.TestGoogleMenu method), \hyperpage{5}
+  \item test\_no\_searchbox\_on\_other\_planets() (test\_general.TestSearch method), \hyperpage{4}
+  \item test\_platform (module), \hyperpage{5}
+  \item test\_ros (module), \hyperpage{5}
+  \item test\_ros\_position\_after\_search() (test\_ros.TestBaseSingleBrowserROS method), 
+		\hyperpage{5}
+  \item test\_ros\_positions\_in\_browsers\_aligned\_after\_kiosk\_search() (test\_ros.TestBaseTwoBrowsersROS method), 
+		\hyperpage{5}
+  \item test\_runway (module), \hyperpage{6}
+  \item test\_runway\_buttons\_basic() (test\_runway.TestRunway method), \hyperpage{6}
+  \item test\_runway\_check\_earth\_icon\_click() (test\_runway.TestRunway method), \hyperpage{6}
+  \item test\_runway\_planets\_on\_max\_zoom\_out() (test\_runway.TestRunway method), \hyperpage{6}
+  \item test\_runway\_points\_of\_interest() (test\_runway.TestRunway method), \hyperpage{6}
+  \item test\_search\_clicking\_search\_button() (test\_general.TestSearch method), \hyperpage{4}
+  \item test\_search\_hitting\_return\_on\_search\_box() (test\_general.TestSearch method), 
+		\hyperpage{4}
+  \item test\_search\_hitting\_return\_on\_search\_button() (test\_general.TestSearch method), 
+		\hyperpage{4}
+  \item test\_widgets\_displayed() (test\_display\_kiosk.TestBaseKioskExtension method), 
+		\hyperpage{3}
+  \item test\_widgets\_not\_displayed() (test\_display\_kiosk.TestBaseDisplay method), 
+		\hyperpage{3}
+  \item test\_zoom (module), \hyperpage{6}
+  \item test\_zoom\_buttons() (test\_zoom.TestZoomButtons method), \hyperpage{6}
+  \item test\_zoom\_in\_button\_change() (test\_zoom.TestZoomButtons method), \hyperpage{6}
+  \item test\_zoom\_out\_button\_change() (test\_zoom.TestZoomButtons method), \hyperpage{6}
+  \item TestBaseDisplay (class in test\_display\_kiosk), \hyperpage{3}
+  \item TestBaseKioskExtension (class in test\_display\_kiosk), \hyperpage{3}
+  \item TestBaseSingleBrowserROS (class in test\_ros), \hyperpage{5}
+  \item TestBaseTwoBrowsersROS (class in test\_ros), \hyperpage{5}
+  \item TestGoogleMenu (class in test\_google\_menu), \hyperpage{4}
+  \item TestMiscellaneous (class in test\_general), \hyperpage{4}
+  \item TestPlatform (class in test\_platform), \hyperpage{5}
+  \item TestRunway (class in test\_runway), \hyperpage{6}
+  \item TestSearch (class in test\_general), \hyperpage{4}
+  \item TestZoomButtons (class in test\_zoom), \hyperpage{6}
+
+\end{theindex}

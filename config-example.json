@@ -1,0 +1,44 @@
+{
+    "chrome_driver":
+        { "path": "ABSOLUTE PATH TO THE CHROME DRIVER",
+          "version": "ITS VERSION"
+        },
+
+    "executables":
+        [
+            "./pack-extensions",
+            "ls -1 /tmp",
+            "echo hello"
+        ],
+
+    "chrome" : {
+      "version" : "Chrome/38",
+      "arguments" : [],
+      "binary_path" : "/usr/bin/google-chrome"
+    },
+
+    "max_load_timeout": 15,
+
+    "extensions_dir": "ABSOLUTE PATH TO THE PORTAL CHROME EXTENTIONS",
+
+    "screenshots_dir": "ABSOLUTE PATH TO THE SCREENSHOTS / LOG FILES DIRECTORY",
+
+    "env_vars": [
+        {
+            "name": "DISPLAY",
+            "value": ":10",  THIS VALUE FOR HEADLESS TESTS
+            "extend_current": false
+        },
+        {
+            "name": "LD_LIBRARY_PATH",
+            "value": "/usr/lib/chromium-browser/libs",
+            "extend_current": true
+        },
+        {
+            "name": "PATH",
+            "value": "/home/someuser/.local/bin",
+            "extend_current": true
+        }
+    ]
+
+}

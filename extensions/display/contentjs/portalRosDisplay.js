@@ -10,19 +10,31 @@ acme.Util = function() {
 };
 
 /**
- * @param {string} filePath The location of the file to inject.
+ * Inject a script into this page.
+ * @param {string} url The location of the script to inject.
  */
-acme.Util.injectScript = function(filePath) {
-  // Inject content script.
+acme.Util.injectScript = function(url) {
   var s = document.createElement('script');
-  s.src = chrome.extension.getURL(filePath);
+  s.src = url;
   (document.head || document.documentElement).appendChild(s);
   s.onload = function() {
       s.parentNode.removeChild(s);
   };
 };
 
-acme.Util.injectScript('contentjs/inject.js');
+/**
+ * Inject a script from this extension into the page.
+ * @param {string} filePath The location of the script to inject.
+ */
+acme.Util.injectExtensionScript = function(filePath) {
+  var url = chrome.extension.getURL(filePath);
+  acme.Util.injectScript(url);
+};
+
+acme.Util.injectScript(
+  'https://maps.googleapis.com/maps/api/js?v=3.exp&callback=acme.MapsV3Init'
+);
+acme.Util.injectExtensionScript('contentjs/inject.js');
 
 /*
  * Load the style overrides.
@@ -93,6 +105,7 @@ acme.Display.prototype.initOnce = function() {
 
   console.log('Display initialized.');
   this.setLargeDisplayMode();
+  this.initGL();
 
   this.hasInitialized = true;
 };
@@ -158,8 +171,8 @@ var publishDisplayCurrentPose = function(pose) {
     }
   });
 
-  if (handOverlay) {
-    handOverlay.setCurrentCameraPose(pose);
+  if (acme.handOverlay) {
+    acme.handOverlay.setCurrentCameraPose(pose);
   }
   portalDisplayCurrentPoseTopic.publish(portalPose);
 };
@@ -222,22 +235,17 @@ var portalDisplayCurrentPoseTopic = new ROSLIB.Topic({
   messageType: 'portal_nav/PortalPose'
 });
 
-// Controls whether or not we listen to moveto events.  When on a tour
-// we should not listen to moveto events.
-var ignoreCameraUpdates = false;
+portalDisplayCurrentPoseTopic.advertise();
 
 navigatorListener.subscribe(function(rosPoseStamped) {
-  if (!ignoreCameraUpdates) {
-    var pose = new Pose(rosPoseStamped.pose.position.y,  // lat
-                        rosPoseStamped.pose.position.x,  // lon
-                        rosPoseStamped.pose.position.z,  // alt
-                        rosPoseStamped.pose.orientation.z,  // heading
-                        rosPoseStamped.pose.orientation.x,  // tilt
-                        rosPoseStamped.pose.orientation.y);  // roll
-    acme.display.moveCamera(pose, false);
-  }
+  var pose = new Pose(rosPoseStamped.pose.position.y,  // lat
+                      rosPoseStamped.pose.position.x,  // lon
+                      rosPoseStamped.pose.position.z,  // alt
+                      rosPoseStamped.pose.orientation.z,  // heading
+                      rosPoseStamped.pose.orientation.x,  // tilt
+                      rosPoseStamped.pose.orientation.y);  // roll
+  acme.display.moveCamera(pose, false);
 });
-
 
 var runwayContentTopic = new ROSLIB.Topic({
   ros: portalRosDisplay,
@@ -248,7 +256,6 @@ var runwayContentTopic = new ROSLIB.Topic({
 });
 
 var runwayContentSubscriber = function(message) {
-  console.log(message);
   var runwayContentEvents = {
     CLICK: 'click!!',
     EXIT: 'exit!!'
@@ -263,24 +270,26 @@ var runwayContentSubscriber = function(message) {
 
     var planetChange = sceneContentArray[7];
 
+    /*
     // Check to see if this is the type of runway element that should
     // not use the pose information coming from anywhere.
     if (!planetChange && runwayImageType == InputSupport_.DISABLED) {
-      ignoreCameraUpdates = true;
+      console.log("Ignoring updates.");
     } else {
-      ignoreCameraUpdates = false;
+      console.log("Listening to updates.");
     }
+    */
 
     // disable HUD unless changing planet to Earth
     if (planetChange && planetChange == Planet.EARTH) {
-      handOverlay.enabled = true;
+      acme.handOverlay.enabled = true;
     } else {
-      handOverlay.enabled = false;
+      acme.handOverlay.enabled = false;
     }
 
     // disable spacenav feedback unless changing planets
     if (runwayImageType != InputSupport_.NONE && !planetChange) {
-      spacenavFeedback.enabled = false;
+      acme.spacenavFeedback.enabled = false;
     }
 
     acme.Util.sendCustomEvent({
@@ -289,9 +298,9 @@ var runwayContentSubscriber = function(message) {
     });
   } else if (startsWith(data, runwayContentEvents.EXIT)) {
     // we assume there is no runway content on Moon or Mars
-    handOverlay.enabled = true;
-    spacenavFeedback.enabled = true;
-    ignoreCameraUpdates = false;
+    acme.handOverlay.enabled = true;
+    acme.spacenavFeedback.enabled = true;
+    console.log("Listening to updates from EXIT.");
     acme.Util.sendCustomEvent({
         method: 'exitTitleCard'
     });
@@ -327,26 +336,12 @@ window.addEventListener('acmePopulationQuery', function(ev) {
   );
 }, true);
 
-/**
- * A common WebGL environment for visual modules.
- */
-acme.glEnvironment = new PortalGLEnvironment();
-
 var leapListener = new ROSLIB.Topic({
   ros: portalRosDisplay,
   name: '/leap_motion/frame',
   messageType: 'leap_motion/Frame',
   throttle_rate: 30
 });
-
-// TODO(daden): detect if webGL is available before trying
-// to load the hand.  If webGL isn't available this code crashes.
-// Init the hand last so if it fails to load it doesn't crash.
-var handOverlay = new HandOverlay(acme.glEnvironment);
-handOverlay.init3js();
-leapListener.subscribe(handOverlay.processLeapMessage);
-window.addEventListener('acmeScreenLocation',
-    handOverlay.processHandGeoLocationEvent.bind(handOverlay), true);
 
 var spacenavListener = new ROSLIB.Topic({
   ros: portalRosDisplay,
@@ -355,9 +350,39 @@ var spacenavListener = new ROSLIB.Topic({
   throttle_rate: 30
 });
 
-var spacenavFeedback = new SpacenavFeedback(acme.glEnvironment);
-spacenavFeedback.init();
+acme.Display.prototype.initGL = function() {
+/**
+ * A common WebGL environment for visual modules.
+ */
+acme.glEnvironment = new PortalGLEnvironment();
+
+// TODO(daden): detect if webGL is available before trying
+// to load the hand.  If webGL isn't available this code crashes.
+// Init the hand last so if it fails to load it doesn't crash.
+acme.handOverlay = new HandOverlay(acme.glEnvironment);
+acme.handOverlay.init3js();
+leapListener.subscribe(acme.handOverlay.processLeapMessage.bind(acme.handOverlay));
+window.addEventListener('acmeScreenLocation',
+    acme.handOverlay.processHandGeoLocationEvent.bind(acme.handOverlay), true);
+
+acme.spacenavFeedback = new SpacenavFeedback(acme.glEnvironment);
+acme.spacenavFeedback.init();
 spacenavListener.subscribe(
-  spacenavFeedback.processSpacenavMessage.bind(spacenavFeedback)
+  acme.spacenavFeedback.processSpacenavMessage.bind(acme.spacenavFeedback)
 );
 
+window.addEventListener('acmeElevationQuery', function(ev) {
+  var lat = ev.detail.lat;
+  var lon = ev.detail.lon;
+  acme.Util.sendCustomEvent({
+    method: 'elevationQuery',
+    args: [lat, lon]
+  });
+}, true);
+
+window.addEventListener('acmeElevationResult', function(ev) {
+  var rText = document.getElementById('acmeElevationResult').innerText;
+  var result = JSON.parse(rText.replace('//', ''));
+  acme.handOverlay.processElevationResult(result.elevation);
+}, true);
+};

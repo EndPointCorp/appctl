@@ -2,3 +2,4 @@
 src/CMakeLists.txt
 build/
 devel/
+install/

@@ -1,3 +1,15 @@
+ros-indigo-rfreceiver (1.0.0-2trusty) trusty; urgency=high
+
+  * Include kill_browser script in package
+
+ -- Matt Vollrath <matt@endpoint.com>  Mon, 01 Dec 2014 13:32:00 -0800
+
+ros-indigo-rfreceiver (1.0.0-1trusty) trusty; urgency=high
+
+  * Split browser kill into separate script
+
+ -- Matt Vollrath <matt@endpoint.com>  Tue, 28 Oct 2014 18:09:13 -0400
+
 ros-indigo-rfreceiver (1.0.0-0trusty) trusty; urgency=high
 
   * First package creation for indigo release
