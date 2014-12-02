@@ -1,0 +1,5 @@
+#!/bin/bash
+
+pylint --rcfile=./.pylintrc tests/extensions/functional/tests > pylint_report.html
+
+echo "The html report is in the file pylint_report.html"

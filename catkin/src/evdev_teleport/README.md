@@ -1,5 +1,5 @@
 evdev\_teleport
-===============
+---------------
 
 #### Cross-device input device replication
 
@@ -25,6 +25,17 @@ The name of the virtual device is set by the private parameter ~device\_name.
 i.e.
 
     rosrun evdev_teleport receiver_node _device_name:="Virtual Thing"
+
+Receivers have a special activation topic at
+`/evdev_teleport/activation/<node_name>`.  The `evdev_teleport_switcher.py`
+script in the `appctl` package can be used to make the receiver mode-aware.
+
+##### TODO / Limitations
+
+Receivers use hard-coded device capabilities for an ELO touchscreen.  Ideally
+the sender should provide a service for querying the capabilities of the
+teleported device.  An intermediate step would be to parameterize the absolute
+min/max axis values and max touches.
 
 ### Reference
 
