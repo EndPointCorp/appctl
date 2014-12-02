@@ -1,4 +1,3 @@
-setTimeout(function() {
 console.log('Portal Large Display');
 
 /* Acme Namespace */
@@ -106,6 +105,7 @@ acme.Display.prototype.initOnce = function() {
 
   console.log('Display initialized.');
   this.setLargeDisplayMode();
+  this.initGL();
 
   this.hasInitialized = true;
 };
@@ -171,8 +171,8 @@ var publishDisplayCurrentPose = function(pose) {
     }
   });
 
-  if (handOverlay) {
-    handOverlay.setCurrentCameraPose(pose);
+  if (acme.handOverlay) {
+    acme.handOverlay.setCurrentCameraPose(pose);
   }
   portalDisplayCurrentPoseTopic.publish(portalPose);
 };
@@ -282,9 +282,9 @@ var runwayContentSubscriber = function(message) {
 
     // disable HUD unless changing planet to Earth
     if (planetChange && planetChange == Planet.EARTH) {
-      handOverlay.enabled = true;
+      acme.handOverlay.enabled = true;
     } else {
-      handOverlay.enabled = false;
+      acme.handOverlay.enabled = false;
     }
 
     // disable spacenav feedback unless changing planets
@@ -298,7 +298,7 @@ var runwayContentSubscriber = function(message) {
     });
   } else if (startsWith(data, runwayContentEvents.EXIT)) {
     // we assume there is no runway content on Moon or Mars
-    handOverlay.enabled = true;
+    acme.handOverlay.enabled = true;
     spacenavFeedback.enabled = true;
     console.log("Listening to updates from EXIT.");
     acme.Util.sendCustomEvent({
@@ -336,11 +336,6 @@ window.addEventListener('acmePopulationQuery', function(ev) {
   );
 }, true);
 
-/**
- * A common WebGL environment for visual modules.
- */
-acme.glEnvironment = new PortalGLEnvironment();
-
 var leapListener = new ROSLIB.Topic({
   ros: portalRosDisplay,
   name: '/leap_motion/frame',
@@ -348,21 +343,27 @@ var leapListener = new ROSLIB.Topic({
   throttle_rate: 30
 });
 
-// TODO(daden): detect if webGL is available before trying
-// to load the hand.  If webGL isn't available this code crashes.
-// Init the hand last so if it fails to load it doesn't crash.
-var handOverlay = new HandOverlay(acme.glEnvironment);
-handOverlay.init3js();
-leapListener.subscribe(handOverlay.processLeapMessage);
-window.addEventListener('acmeScreenLocation',
-    handOverlay.processHandGeoLocationEvent.bind(handOverlay), true);
-
 var spacenavListener = new ROSLIB.Topic({
   ros: portalRosDisplay,
   name: '/spacenav/twist',
   messageType: 'geometry_msgs/Twist',
   throttle_rate: 30
 });
+
+acme.Display.prototype.initGL = function() {
+/**
+ * A common WebGL environment for visual modules.
+ */
+acme.glEnvironment = new PortalGLEnvironment();
+
+// TODO(daden): detect if webGL is available before trying
+// to load the hand.  If webGL isn't available this code crashes.
+// Init the hand last so if it fails to load it doesn't crash.
+acme.handOverlay = new HandOverlay(acme.glEnvironment);
+acme.handOverlay.init3js();
+leapListener.subscribe(acme.handOverlay.processLeapMessage.bind(acme.handOverlay));
+window.addEventListener('acmeScreenLocation',
+    acme.handOverlay.processHandGeoLocationEvent.bind(acme.handOverlay), true);
 
 var spacenavFeedback = new SpacenavFeedback(acme.glEnvironment);
 spacenavFeedback.init();
@@ -382,6 +383,6 @@ window.addEventListener('acmeElevationQuery', function(ev) {
 window.addEventListener('acmeElevationResult', function(ev) {
   var rText = document.getElementById('acmeElevationResult').innerText;
   var result = JSON.parse(rText.replace('//', ''));
-  handOverlay.processElevationResult(result.elevation);
+  acme.handOverlay.processElevationResult(result.elevation);
 }, true);
-}, 1000);
+};
