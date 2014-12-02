@@ -662,8 +662,11 @@ window.addEventListener('acmeContentClicked', runwayContentClickHandler, true);
 window.addEventListener('acmeContentOnExit', runwayContentExitHandler, true);
 
 var zoomOutToEarth = function() {
-  exitContent();
-  acme.kiosk.moveCamera(Pose.SPACE_POSE, true);
+  if (runwayActionRestrictions == InputSupport_.NONE) {
+    acme.kiosk.moveCamera(Pose.SPACE_POSE, true);
+  } else {
+    exitContent();
+  }
 };
 // document.dispatchEvent(new CustomEvent('acmeZoomOutToEarth'))
 window.addEventListener('acmeZoomOutToEarth', zoomOutToEarth, true);
