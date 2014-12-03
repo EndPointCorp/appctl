@@ -277,6 +277,11 @@ var runwayContentSubscriber = function(message) {
 
     var planetChange = sceneContentArray[7];
 
+    // override input restrictions on planet change
+    if (planetChange) {
+      runwayActionRestrictions = InputSupport_.NONE;
+    }
+
     // disable HUD unless changing planet to Earth
     if (planetChange && planetChange == Planet.EARTH) {
       acme.handOverlay.enabled = true;
