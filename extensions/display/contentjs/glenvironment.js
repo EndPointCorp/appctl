@@ -1,3 +1,6 @@
+var CANVAS_SCALE_FACTOR = 1;
+var RENDER_SCALE_FACTOR = 1/8;
+
 var PortalGLEnvironment = function() {
   var self = this;
 
@@ -11,8 +14,6 @@ var PortalGLEnvironment = function() {
     this.canvas.style.position = 'fixed';
     this.canvas.style.bottom = '0px';
     this.canvas.style.left = '0px';
-    this.canvas.style.height = '100%';
-    this.canvas.style.width = '100%';
     this.canvas.style.zIndex = '99999';
     this.canvas.style.backgroundColor = 'rgba(255, 255, 255, 0.0)';
     this.canvas.style.pointerEvents = 'none';
@@ -24,7 +25,6 @@ var PortalGLEnvironment = function() {
     alpha: true,
     antialiasing: true
   });
-  this.renderer.setSize(window.innerWidth, window.innerHeight);
   this.renderer.setClearColor(new THREE.Color(0x000000), 0);
 
   this.camera = new THREE.PerspectiveCamera(
@@ -36,12 +36,21 @@ var PortalGLEnvironment = function() {
   this.camera.position.set(0, 0, 0);
   this.scene.add(this.camera);
 
-  window.addEventListener('resize', function() {
-    self.renderer.setSize(window.innerWidth, window.innerHeight);
+  function handleResize() {
+    self.canvas.style.width =
+        (window.innerWidth * CANVAS_SCALE_FACTOR) + 'px';
+    self.canvas.style.height =
+        (window.innerHeight * CANVAS_SCALE_FACTOR) + 'px';
+    self.renderer.setSize(
+      window.innerWidth * RENDER_SCALE_FACTOR,
+      window.innerHeight * RENDER_SCALE_FACTOR
+    );
     self.camera.aspect = window.innerWidth / window.innerHeight;
 
     self.camera.updateProjectionMatrix();
-  });
+  }
+  window.addEventListener('resize', handleResize);
+  handleResize();
 
   this.animations = [];
 
