@@ -6,26 +6,20 @@ var PortalGLEnvironment = function() {
 
   this.scene = new THREE.Scene();
 
-  this.canvas = document.getElementById('glCanvas');
-
-  if (!this.canvas) {
-    this.canvas = document.createElement('canvas');
-    this.canvas.id = 'glCanvas';
-    this.canvas.style.position = 'fixed';
-    this.canvas.style.bottom = '0px';
-    this.canvas.style.left = '0px';
-    this.canvas.style.zIndex = '99999';
-    this.canvas.style.backgroundColor = 'rgba(255, 255, 255, 0.0)';
-    this.canvas.style.pointerEvents = 'none';
-    document.body.appendChild(this.canvas);
-  }
-
   this.renderer = new THREE.WebGLRenderer({
-    canvas: this.canvas,
     alpha: true,
-    antialiasing: true
+    antialiasing: false
   });
   this.renderer.setClearColor(new THREE.Color(0x000000), 0);
+
+  this.canvas = this.renderer.domElement;
+  this.canvas.style.position = 'fixed';
+  this.canvas.style.bottom = '0px';
+  this.canvas.style.left = '0px';
+  this.canvas.style.zIndex = '99999';
+  this.canvas.style.backgroundColor = 'rgba(255, 255, 255, 0.0)';
+  this.canvas.style.pointerEvents = 'none';
+  document.body.appendChild(this.canvas);
 
   this.camera = new THREE.PerspectiveCamera(
     45,
