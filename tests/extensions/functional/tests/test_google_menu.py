@@ -9,16 +9,21 @@ import pytest
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 
-from base import TestBaseTouchscreen
+from base import TestBase
 from base import screenshot_on_error
 import helpers
 
 
-class TestGoogleMenu(TestBaseTouchscreen):
+class TestGoogleMenu(TestBase):
     """
     Google Menu tests.
 
     """
+
+    def setup_method(self, method):
+        config = self.get_config()
+        self.browser = self.run_browser(config["chromes"]["kiosk_google_menu_local"])
+        self.current_method = method.__name__
 
     @screenshot_on_error
     def test_google_menu_is_visible(self):

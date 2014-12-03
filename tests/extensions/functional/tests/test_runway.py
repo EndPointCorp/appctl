@@ -32,7 +32,10 @@ class TestRunway(TestBase):
 
     """
 
-    extensions = ["kiosk"]
+    def setup_method(self, method):
+        config = self.get_config()
+        self.browser = self.run_browser(config["chromes"]["kiosk_local"])
+        self.current_method = method.__name__
 
     @screenshot_on_error
     def test_runway_buttons_basic(self):

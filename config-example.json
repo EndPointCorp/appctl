@@ -1,12 +1,10 @@
 {
-    "chrome_driver":
-        { "path": "ABSOLUTE PATH TO THE CHROME DRIVER",
-          "version": "ITS VERSION"
-        },
-
     "maps_url": "https://www.google.com/maps/@8.135687,-75.0973243,17856994a,40.4y,1.23h/data=!3m1!1e3?esrch=Tactile::TactileAcme",
-
     "zoomed_in_maps_url": "https://www.google.com/maps/@8.135687,-75.0973243,178569a,40.4y,1.23h/data=!3m1!1e3?esrch=Tactile::TactileAcme",
+    "chrome_gpu_url": "chrome://gpu",
+    "max_load_timeout": 15,
+    "extensions_dir": "ABSOLUTE PATH TO THE PORTAL CHROME EXTENTIONS",
+    "screenshots_dir": "ABSOLUTE PATH TO THE SCREENSHOTS / LOG FILES DIRECTORY",
 
     "executables":
         [
@@ -15,17 +13,75 @@
             "echo hello"
         ],
 
-    "chrome" : {
-      "version" : "Chrome/38",
-      "arguments" : [],
-      "binary_path" : "/usr/bin/google-chrome"
+    "chromes":
+    {
+        "generic":
+        {
+            "version": "Chrome/39",
+            "arguments": [],
+            "binary_path" : "ABSOLUTE PATH TO THE CHROME BROWSER",
+            "extensions": [],
+            "remote" : false,
+            "chrome_driver":
+            {
+                "path": "ABSOLUTE PATH TO THE CHROME DRIVER",
+                "version": "CHROME DRIVER VERSION"
+            }
+        },
+        "display_local":
+        {
+            "version": "Chrome/39",
+            "arguments": [],
+            "binary_path" : "ABSOLUTE PATH TO THE CHROME BROWSER",
+            "extensions": ["display"],
+            "remote" : false,
+            "chrome_driver":
+            {
+                "path": "ABSOLUTE PATH TO THE CHROME DRIVER",
+                "version": "CHROME DRIVER VERSION"
+            }
+        },
+        "display_remote":
+        {
+            "version": "Chrome/39",
+            "arguments": [],
+            "binary_path" : "ABSOLUTE PATH TO THE CHROME BROWSER",
+            "extensions": ["display"],
+            "remote" : true,
+            "uri" : "http://42-a:4444/wd/hub",
+            "chrome_driver":
+            {
+                "path": "ABSOLUTE PATH TO THE CHROME DRIVER",
+                "version": "CHROME DRIVER VERSION"
+            }
+        },
+        "kiosk_local":
+        {
+            "version": "Chrome/39",
+            "arguments": [],
+            "binary_path" : "ABSOLUTE PATH TO THE CHROME BROWSER",
+            "extensions": ["kiosk"],
+            "remote" : false,
+            "chrome_driver":
+            {
+                "path": "ABSOLUTE PATH TO THE CHROME DRIVER",
+                "version": "CHROME DRIVER VERSION"
+            }
+        },
+        "kiosk_google_menu_local":
+        {
+            "version": "Chrome/39",
+            "arguments": [],
+            "binary_path" : "ABSOLUTE PATH TO THE CHROME BROWSER",
+            "extensions": ["kiosk", "google_properties_menu"],
+            "remote" : false,
+            "chrome_driver":
+            {
+                "path": "ABSOLUTE PATH TO THE CHROME DRIVER",
+                "version": "CHROME DRIVER VERSION"
+            }
+        }
     },
-
-    "max_load_timeout": 15,
-
-    "extensions_dir": "ABSOLUTE PATH TO THE PORTAL CHROME EXTENTIONS",
-
-    "screenshots_dir": "ABSOLUTE PATH TO THE SCREENSHOTS / LOG FILES DIRECTORY",
 
     "env_vars": [
         {

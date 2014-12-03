@@ -7,17 +7,22 @@ import time
 
 import pytest
 
-from base import TestBaseTouchscreen
+from base import TestBase
 from base import Pose
 from base import screenshot_on_error, make_screenshot
 import helpers
 
 
-class TestZoomButtons(TestBaseTouchscreen):
+class TestZoomButtons(TestBase):
     """
     Tests for checking the zoom buttons are functional.
 
     """
+
+    def setup_method(self, method):
+        config = self.get_config()
+        self.browser = self.run_browser(config["chromes"]["kiosk_google_menu_local"])
+        self.current_method = method.__name__
 
     @screenshot_on_error
     def test_zoom_buttons(self):

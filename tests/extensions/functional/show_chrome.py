@@ -6,13 +6,10 @@ Useful for DOM HTML tree elements inspection with
 """
 
 from tests.base import TestBase
-from tests.base import TestBaseTouchscreen
-from tests.base import TestBaseGeneric
 
-
-klass = TestBaseGeneric
-klass.extensions = ["kiosk"]
-klass.setup_class()  # reading of the configuration happens here
+klass = TestBase
+klass.setup_class()  # sets the configuration
 config = klass.get_config()
-browser = klass.run_browser()
+# 3 - the number of the chrome configuration within the "chromes" section
+browser = klass.run_browser(config["chromes"]["kiosk_local"])
 browser.get(config["maps_url"])

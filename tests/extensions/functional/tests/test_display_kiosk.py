@@ -41,7 +41,11 @@ class TestBaseDisplay(TestBase):
     Tests related to the display extension.
 
     """
-    extensions = ["display"]
+
+    def setup_method(self, method):
+        config = self.get_config()
+        self.browser = self.run_browser(config["chromes"]["display_local"])
+        self.current_method = method.__name__
 
     @pytest.mark.skipif(True, reason=("Fails sometimes. Need explanation of the display "
                                       "loading. Details on #201"))
@@ -75,12 +79,16 @@ class TestBaseDisplay(TestBase):
         make_screenshot(self.browser, "test_elements_not_present", 0)
 
 
-class TestBaseKioskExtension(TestBase):
+class TestBaseKiosk(TestBase):
     """
     Tests related to the kiosk extension.
 
     """
-    extensions = ["kiosk", "google_properties_menu"]
+
+    def setup_method(self, method):
+        config = self.get_config()
+        self.browser = self.run_browser(config["chromes"]["kiosk_google_menu_local"])
+        self.current_method = method.__name__
 
     @screenshot_on_error
     def test_widgets_displayed(self):

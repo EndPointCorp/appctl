@@ -12,17 +12,22 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as exp_cond
 
-from base import TestBaseTouchscreen
+from base import TestBase
 from base import screenshot_on_error
 import helpers
 
 
-class TestSearch(TestBaseTouchscreen):
+class TestSearch(TestBase):
     """
     Test class related to the search box, search button.
     Various interaction scenarios.
 
     """
+
+    def setup_method(self, method):
+        config = self.get_config()
+        self.browser = self.run_browser(config["chromes"]["kiosk_local"])
+        self.current_method = method.__name__
 
     @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
@@ -178,11 +183,16 @@ class TestSearch(TestBaseTouchscreen):
         assert box.is_displayed() is False
 
 
-class TestMiscellaneous(TestBaseTouchscreen):
+class TestMiscellaneous(TestBase):
     """
     Other test cases not fitting any other current category.
 
     """
+
+    def setup_method(self, method):
+        config = self.get_config()
+        self.browser = self.run_browser(config["chromes"]["kiosk_google_menu_local"])
+        self.current_method = method.__name__
 
     @screenshot_on_error
     def test_eu_cookies_info_bar_is_hidden(self):

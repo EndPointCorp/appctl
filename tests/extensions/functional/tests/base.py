@@ -25,9 +25,6 @@ import pytest
 # The huge info is shown as logging.DEBUG message.
 logging.getLogger('selenium.webdriver.remote').setLevel(logging.ERROR)
 
-# Chrome GPU data url
-CHROME_GPU_URL = 'chrome://gpu'
-
 # configuration data instance, keep here to have it valid
 # during the entire test suite run, it's initialized just
 # once per entire run
@@ -51,6 +48,7 @@ def make_screenshot(browser, fname, index):
     #print "Making screenshot: " + fname
     browser.save_screenshot('{}.png'.format(fname))
     return fname
+
 
 def screenshot_on_error(test):
     """
@@ -179,19 +177,7 @@ class TestBase(object):
         return CONFIG
 
     @classmethod
-    def get_capabilities(cls):
-        """
-        Return selenium webdriver desired capability object.
-
-        Returns:
-            capability object
-
-        """
-        capabilities = webdriver.DesiredCapabilities.CHROME.copy()
-        return capabilities
-
-    @classmethod
-    def get_extensions_options(cls, extensions):
+    def _get_extensions_options(cls, config_chrome_section):
         """
         Returns ChromeOptions object with extensions paths.
 
@@ -202,60 +188,65 @@ class TestBase(object):
         The path can be relative, however it needs to load packed extensions.
 
         Args:
-            extensions: extension names to be loaded
+            config_chrome_section: corresponding chrome section from the
+                configuration file describing the chrome configuration
+                we want to load
 
         Returns:
             ChromeOptions object with extensions declarations
 
         """
         op = webdriver.ChromeOptions()
-        try:
-            op.binary_location = CONFIG["chrome"]["binary_path"]
-        except KeyError:
-            print "Not ['chrome']['binary_path'] in config.json - using defaults"
-            op.binary_location = '/usr/bin/google-chrome'
+        # if the path doesn't exist, let it fail, being clever here
+        # could lead to some unexpected surprises of picking up undesired browser
+        op.binary_location = config_chrome_section["binary_path"]
 
-        for chrome_argument in CONFIG["chrome"]["arguments"]:
+        for chrome_argument in config_chrome_section["arguments"]:
             op.add_argument(chrome_argument)
 
-        for ext_name in extensions:
+        for ext_name in config_chrome_section["extensions"]:
             ext_dir = CONFIG["extensions_dir"]
             print "Loading extension {} from {}".format(ext_name, ext_dir)
             op.add_extension('{}/{}.crx'.format(ext_dir, ext_name))
-
         return op
 
     @classmethod
-    def run_browser(cls, extentions=[]):
+    def run_browser(cls, config_chrome_section):
         """
         Runs browser with proper driver path and extensions.
+
+        Args:
+            config_chrome_section: corresponding chrome section from the
+                configuration file describing the chrome configuration
+                we want to load
 
         Returns:
             selenium browser driver handler
 
         """
-        driver = CONFIG["chrome_driver"]["path"]
-        extens = extentions if extentions else cls.extensions
-        options = cls.get_extensions_options(extens)
-        capabilities = cls.get_capabilities()
+        #print "Starting browser for configuration (from \"chromes\" section):"
+        #pprint.pprint(config_chrome_section)
+        driver = config_chrome_section["chrome_driver"]["path"]
+        options = cls._get_extensions_options(config_chrome_section)
+        capabilities = webdriver.DesiredCapabilities.CHROME.copy()
         # Set environment variable for Chrome.
         # Chrome driver needs to have an environment variable set,
         # this must be set to the path to the webdriver file.
         os.environ["webdriver.chrome.driver"] = driver
-        return webdriver.Chrome(executable_path=driver,
-                                chrome_options=options,
-                                desired_capabilities=capabilities)
+        browser = webdriver.Chrome(executable_path=driver,
+                                   chrome_options=options,
+                                   desired_capabilities=capabilities)
+        return browser
 
     def setup_method(self, method):
         """
         Base method called before every test case method is called.
 
-        Args:
-            test case method reference
+        Since we do not want any direct TestBase instances in tests,
+        make sure that this method is actually never called.
 
         """
-        self.browser = self.run_browser()
-        self.current_method = method.__name__
+        raise RuntimeError("Implement setup_method in the child class.")
 
     def teardown_method(self, _):
         """
@@ -452,18 +443,3 @@ class TestBase(object):
             if old_value != self.browser.current_url:
                 return
             time.sleep(interval)
-
-
-class TestBaseTouchscreen(TestBase):
-    """
-    Loads default extensions for touchscreen,
-    all tests for touchscreen should inherit from this class.
-
-    """
-    extensions = ["kiosk", "google_properties_menu"]
-
-
-class TestBaseGeneric(TestBase):
-    """
-    """
-    extensions = []

@@ -3,13 +3,12 @@ Browser platform tests (webgl, drivers etc).
 
 """
 
-from base import TestBaseGeneric
-from base import CHROME_GPU_URL
+from tests.base import TestBase
 from helpers import filter_list_of_dicts
 from exception import ConfigException
 
 
-class TestPlatform(TestBaseGeneric):
+class TestPlatform(TestBase):
     """
     Following tests will check whether:
         * version of the browser matches the version in config.json
@@ -23,20 +22,25 @@ class TestPlatform(TestBaseGeneric):
 
     """
 
+    def setup_method(self, method):
+        config = self.get_config()
+        self.browser = self.run_browser(config["chromes"]["generic"])
+        self.current_method = method.__name__
+
     def test_get_chrome_gpu_data(self):
         """
         Check if the chrome supports GPU.
 
         """
-        self.browser.get(CHROME_GPU_URL)
         config = self.get_config()
+        self.browser.get(config["chrome_gpu_url"])
         gpu_js = 'window.setTimeout("browserBridge = new gpu.BrowserBridge();\
                  ",1000); return browserBridge'
         self.chrome_gpu_data = self.browser.execute_script(gpu_js)
 
         chrome_version = None
         try:
-            chrome_version = config['chrome']['version']
+            chrome_version = config["chromes"]["generic"]["version"]
         except ConfigException, e:
             print "%s => you must provide chrome version in config.json" % e
             print "e.g. config['chrome']['version'] == 'Chrome/30'"

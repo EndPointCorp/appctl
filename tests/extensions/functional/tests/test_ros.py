@@ -41,10 +41,13 @@ class TestBaseSingleBrowserROS(TestBase):
 
     """
 
-    # extensions to load in the browser
-    extensions = ["kiosk"]
     # helper background processes tracking
     processes = []
+
+    def setup_method(self, method):
+        config = self.get_config()
+        self.browser = self.run_browser(config["chromes"]["kiosk_local"])
+        self.current_method = method.__name__
 
     def teardown_method(self, _):
         # have no doscrings so that the method doesn't appear in the sphinx
@@ -131,13 +134,10 @@ class TestBaseTwoBrowsersROS(TestBase):
 
     """
 
-    # extensions to load in browsers
-    extensions_browser_1 = ["kiosk"]
-    extensions_browser_2 = ["display"]
-
     def setup_method(self, method):
-        self.browser_1 = self.run_browser(self.extensions_browser_1)
-        self.browser_2 = self.run_browser(self.extensions_browser_2)
+        config = self.get_config()
+        self.browser_1 = self.run_browser(config["chromes"]["kiosk_google_menu_local"])
+        self.browser_2 = self.run_browser(config["chromes"]["display_local"])
         self.current_method = method.__name__
 
     def teardown_method(self, _):
