@@ -43,9 +43,8 @@ class TestBaseDisplay(TestBase):
     """
 
     def setup_method(self, method):
-        config = self.get_config()
-        self.browser = self.run_browser(config["chromes"]["display_local"])
-        self.current_method = method.__name__
+        super(TestBaseDisplay, self).setup_method(method)
+        self.browser = self.run_browser(self.config["chromes"]["display"])
 
     @pytest.mark.skipif(True, reason=("Fails sometimes. Need explanation of the display "
                                       "loading. Details on #201"))
@@ -65,7 +64,6 @@ class TestBaseDisplay(TestBase):
         modified accordingly.
 
         """
-        config = self.get_config()
         self.browser.get(config["maps_url"])
 
         def test_elements_not_present(elem):
@@ -74,7 +72,7 @@ class TestBaseDisplay(TestBase):
             # invisible or not present on the DOM.
             tester = partial(exp_cond.invisibility_of_element_located, (elem[1], elem[0]))
             WebDriverWait(self.browser,
-                          config["max_load_timeout"]).until(tester(), message=msg)
+                          self.config["max_load_timeout"]).until(tester(), message=msg)
         map(test_elements_not_present, elements)
         make_screenshot(self.browser, "test_elements_not_present", 0)
 
@@ -86,9 +84,8 @@ class TestBaseKiosk(TestBase):
     """
 
     def setup_method(self, method):
-        config = self.get_config()
-        self.browser = self.run_browser(config["chromes"]["kiosk_google_menu_local"])
-        self.current_method = method.__name__
+        super(TestBaseKiosk, self).setup_method(method)
+        self.browser = self.run_browser(self.config["chromes"]["kiosk"])
 
     @screenshot_on_error
     def test_widgets_displayed(self):
@@ -108,13 +105,12 @@ class TestBaseKiosk(TestBase):
         extension is not loaded, i.e. with kiosk extension loaded.
 
         """
-        config = self.get_config()
-        self.browser.get(config["zoomed_in_maps_url"])
+        self.browser.get(self.config["zoomed_in_maps_url"])
 
         def test_elements_present(elem):
             msg = "Element '{0}' should be present (kiosk extension).".format(elem[0])
             tester = partial(exp_cond.visibility_of_element_located, (elem[1], elem[0]))
             WebDriverWait(self.browser,
-                          config["max_load_timeout"]).until(tester(), message=msg)
+                          self.config["max_load_timeout"]).until(tester(), message=msg)
         map(test_elements_present, elements)
         make_screenshot(self.browser, "test_widgets_displayed", 0)

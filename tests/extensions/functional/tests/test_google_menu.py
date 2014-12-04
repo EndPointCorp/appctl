@@ -21,9 +21,8 @@ class TestGoogleMenu(TestBase):
     """
 
     def setup_method(self, method):
-        config = self.get_config()
-        self.browser = self.run_browser(config["chromes"]["kiosk_google_menu_local"])
-        self.current_method = method.__name__
+        super(TestGoogleMenu, self).setup_method(method)
+        self.browser = self.run_browser(self.config["chromes"]["kiosk"])
 
     @screenshot_on_error
     def test_google_menu_is_visible(self):
@@ -31,8 +30,7 @@ class TestGoogleMenu(TestBase):
         Test that Google Menu (More fun) is displayed along with some items.
 
         """
-        config = self.get_config()
-        self.browser.get(config["maps_url"])
+        self.browser.get(self.config["maps_url"])
         morefun = self.browser.find_element_by_id('morefun')
         assert morefun.is_displayed() is True
         items = self.browser.find_element_by_id('morefun_items')
@@ -44,8 +42,7 @@ class TestGoogleMenu(TestBase):
         Test that Google Menu (More fun) items are visible after clicking it.
 
         """
-        config = self.get_config()
-        self.browser.get(config["maps_url"])
+        self.browser.get(self.config["maps_url"])
         morefun = self.browser.find_element_by_id('morefun')
         morefun.click()
         assert morefun.is_displayed() is True
@@ -60,8 +57,7 @@ class TestGoogleMenu(TestBase):
         doodles page.
 
         """
-        config = self.get_config()
-        helpers.wait_for_loaded_page(config["zoomed_in_maps_url"],
+        helpers.wait_for_loaded_page(self.config["zoomed_in_maps_url"],
                                      self.browser,
                                      elem_identifier_kind=By.ID,
                                      elem_identifier_name="morefun")
@@ -84,4 +80,4 @@ class TestGoogleMenu(TestBase):
         # need to wait, sometimes it's not there immediately
         msg = "Waiting for doodle URL to appear timed-out."
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until(tester, message=msg)
+                      self.config["max_load_timeout"]).until(tester, message=msg)

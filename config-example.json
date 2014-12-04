@@ -28,25 +28,31 @@
                 "version": "CHROME DRIVER VERSION"
             }
         },
-        "display_local":
+        "display":
         {
             "version": "Chrome/39",
             "arguments": [],
             "binary_path" : "ABSOLUTE PATH TO THE CHROME BROWSER",
-            "extensions": ["display"],
+            "extensions": ["display", "pacman"],
             "remote" : false,
+                OR
+            "remote" : true,
+            "uri" : "http://42-a:4444/wd/hub",
+
             "chrome_driver":
             {
                 "path": "ABSOLUTE PATH TO THE CHROME DRIVER",
                 "version": "CHROME DRIVER VERSION"
             }
         },
-        "display_remote":
+        "kiosk":
         {
             "version": "Chrome/39",
             "arguments": [],
             "binary_path" : "ABSOLUTE PATH TO THE CHROME BROWSER",
-            "extensions": ["display"],
+            "extensions": ["kiosk", "google_properties_menu", "onboard", "no_right_click"],
+            "remote" : false,
+                OR
             "remote" : true,
             "uri" : "http://42-a:4444/wd/hub",
             "chrome_driver":
@@ -55,32 +61,6 @@
                 "version": "CHROME DRIVER VERSION"
             }
         },
-        "kiosk_local":
-        {
-            "version": "Chrome/39",
-            "arguments": [],
-            "binary_path" : "ABSOLUTE PATH TO THE CHROME BROWSER",
-            "extensions": ["kiosk"],
-            "remote" : false,
-            "chrome_driver":
-            {
-                "path": "ABSOLUTE PATH TO THE CHROME DRIVER",
-                "version": "CHROME DRIVER VERSION"
-            }
-        },
-        "kiosk_google_menu_local":
-        {
-            "version": "Chrome/39",
-            "arguments": [],
-            "binary_path" : "ABSOLUTE PATH TO THE CHROME BROWSER",
-            "extensions": ["kiosk", "google_properties_menu"],
-            "remote" : false,
-            "chrome_driver":
-            {
-                "path": "ABSOLUTE PATH TO THE CHROME DRIVER",
-                "version": "CHROME DRIVER VERSION"
-            }
-        }
     },
 
     "env_vars": [

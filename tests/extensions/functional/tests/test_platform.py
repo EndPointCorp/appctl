@@ -3,7 +3,7 @@ Browser platform tests (webgl, drivers etc).
 
 """
 
-from tests.base import TestBase
+from base import TestBase
 from helpers import filter_list_of_dicts
 from exception import ConfigException
 
@@ -23,24 +23,22 @@ class TestPlatform(TestBase):
     """
 
     def setup_method(self, method):
-        config = self.get_config()
-        self.browser = self.run_browser(config["chromes"]["generic"])
-        self.current_method = method.__name__
+        super(TestPlatform, self).setup_method(method)
+        self.browser = self.run_browser(self.config["chromes"]["generic"])
 
     def test_get_chrome_gpu_data(self):
         """
         Check if the chrome supports GPU.
 
         """
-        config = self.get_config()
-        self.browser.get(config["chrome_gpu_url"])
+        self.browser.get(self.config["chrome_gpu_url"])
         gpu_js = 'window.setTimeout("browserBridge = new gpu.BrowserBridge();\
                  ",1000); return browserBridge'
         self.chrome_gpu_data = self.browser.execute_script(gpu_js)
 
         chrome_version = None
         try:
-            chrome_version = config["chromes"]["generic"]["version"]
+            chrome_version = self.config["chromes"]["generic"]["version"]
         except ConfigException, e:
             print "%s => you must provide chrome version in config.json" % e
             print "e.g. config['chrome']['version'] == 'Chrome/30'"

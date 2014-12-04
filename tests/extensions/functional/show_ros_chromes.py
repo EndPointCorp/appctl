@@ -21,10 +21,10 @@ klass = TestBase
 klass.setup_class()
 config = klass.get_config()
 
-browser_kiosk = klass.run_browser(config["chromes"]["kiosk_local"])
+browser_kiosk = klass.run_browser(config["chromes"]["kiosk"])
 browser_kiosk.get(config["maps_url"])
 print "chrome browser kiosk up ..."
 
-browser_display = klass.run_browser(config["chromes"]["display_local"])
+browser_display = klass.run_browser(config["chromes"]["display"])
 browser_display.get(config["maps_url"])
 print "chrome browser display up ..."

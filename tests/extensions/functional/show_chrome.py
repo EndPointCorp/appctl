@@ -11,5 +11,5 @@ klass = TestBase
 klass.setup_class()  # sets the configuration
 config = klass.get_config()
 # 3 - the number of the chrome configuration within the "chromes" section
-browser = klass.run_browser(config["chromes"]["kiosk_local"])
+browser = klass.run_browser(config["chromes"]["kiosk"])
 browser.get(config["maps_url"])

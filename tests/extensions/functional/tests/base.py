@@ -206,7 +206,8 @@ class TestBase(object):
 
         for ext_name in config_chrome_section["extensions"]:
             ext_dir = CONFIG["extensions_dir"]
-            print "Loading extension {} from {}".format(ext_name, ext_dir)
+            # be less verbose now
+            # print "Loading extension {} from {}".format(ext_name, ext_dir)
             op.add_extension('{}/{}.crx'.format(ext_dir, ext_name))
         return op
 
@@ -226,27 +227,35 @@ class TestBase(object):
         """
         #print "Starting browser for configuration (from \"chromes\" section):"
         #pprint.pprint(config_chrome_section)
-        driver = config_chrome_section["chrome_driver"]["path"]
-        options = cls._get_extensions_options(config_chrome_section)
         capabilities = webdriver.DesiredCapabilities.CHROME.copy()
-        # Set environment variable for Chrome.
-        # Chrome driver needs to have an environment variable set,
-        # this must be set to the path to the webdriver file.
-        os.environ["webdriver.chrome.driver"] = driver
-        browser = webdriver.Chrome(executable_path=driver,
-                                   chrome_options=options,
-                                   desired_capabilities=capabilities)
+        # remote or local chrome
+        if config_chrome_section["remote"]:
+            # TODO
+            # UNTESTED
+            # e.g. 'http://localhost:4444/wd/hub'
+            uri = config_chrome_section["uri"]
+            browser = webdriver.chrome.webdriver.RemoteWebDriver(uri,
+                                                                 desired_capabilities=capabilities)
+        else:
+            driver = config_chrome_section["chrome_driver"]["path"]
+            # Set environment variable for Chrome.
+            # Chrome driver needs to have an environment variable set,
+            # this must be set to the path to the webdriver file.
+            os.environ["webdriver.chrome.driver"] = driver
+            options = cls._get_extensions_options(config_chrome_section)
+            browser = webdriver.Chrome(executable_path=driver,
+                                       chrome_options=options,
+                                       desired_capabilities=capabilities)
         return browser
 
     def setup_method(self, method):
         """
         Base method called before every test case method is called.
 
-        Since we do not want any direct TestBase instances in tests,
-        make sure that this method is actually never called.
-
         """
-        raise RuntimeError("Implement setup_method in the child class.")
+        self.config = self.get_config()
+        self.current_method = method.__name__
+        print "current test: %s" % self.current_method
 
     def teardown_method(self, _):
         """

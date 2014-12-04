@@ -45,9 +45,8 @@ class TestBaseSingleBrowserROS(TestBase):
     processes = []
 
     def setup_method(self, method):
-        config = self.get_config()
-        self.browser = self.run_browser(config["chromes"]["kiosk_local"])
-        self.current_method = method.__name__
+        super(TestBaseSingleBrowserROS, self).setup_method(method)
+        self.browser = self.run_browser(self.config["chromes"]["kiosk"])
 
     def teardown_method(self, _):
         # have no doscrings so that the method doesn't appear in the sphinx
@@ -101,13 +100,12 @@ class TestBaseSingleBrowserROS(TestBase):
         shared memory value which this test cases evaluates eventually.
 
         """
-        config = self.get_config()
         status = Array('c', "ERROR")
         subs = Process(target=self.subscriber, args=(status, ))
         subs.start()
         self.processes.append(subs)
         # start browser now
-        helpers.wait_for_loaded_page(config["maps_url"], self.browser)
+        helpers.wait_for_loaded_page(self.config["maps_url"], self.browser)
         box = self.browser.find_element_by_id("searchboxinput")
         box.send_keys("babice nad svitavou, czech republic")
         self.click("searchbutton", finder="by_class")
@@ -118,7 +116,7 @@ class TestBaseSingleBrowserROS(TestBase):
                 break
             time.sleep(1)
             count += 1
-            if count > config["max_load_timeout"]:
+            if count > self.config["max_load_timeout"]:
                 pytest.fail("Waiting for correct position ROS msg timed out.")
         subs.terminate()
         assert status.value == "OK"
@@ -135,10 +133,9 @@ class TestBaseTwoBrowsersROS(TestBase):
     """
 
     def setup_method(self, method):
-        config = self.get_config()
-        self.browser_1 = self.run_browser(config["chromes"]["kiosk_google_menu_local"])
-        self.browser_2 = self.run_browser(config["chromes"]["display_local"])
-        self.current_method = method.__name__
+        super(TestBaseTwoBrowsersROS, self).setup_method(method)
+        self.browser_1 = self.run_browser(self.config["chromes"]["kiosk"])
+        self.browser_2 = self.run_browser(self.config["chromes"]["display"])
 
     def teardown_method(self, _):
         self.browser_1.quit()
@@ -153,13 +150,12 @@ class TestBaseTwoBrowsersROS(TestBase):
         """
         # both browsers need to load config["maps_url"] to make acme stuff available,
         # otherwise browser remains blank
-        config = self.get_config()
-        helpers.wait_for_loaded_page(config["maps_url"], self.browser_1)
+        helpers.wait_for_loaded_page(self.config["maps_url"], self.browser_1)
 
         # browser_2, with display extension which has HTML elements displayed,
         # continue when widget-mylocation-button disappears BUT at that point,
         # the page is still not yet fully loaded
-        helpers.wait_for_loaded_page(config["maps_url"],
+        helpers.wait_for_loaded_page(self.config["maps_url"],
                                      self.browser_2,
                                      elem_identifier_kind=By.CLASS_NAME,
                                      elem_identifier_name="widget-mylocation-button",
@@ -173,12 +169,12 @@ class TestBaseTwoBrowsersROS(TestBase):
                                              self.get_camera_pose(self.browser_1))
         msg = "Waiting for position change in the kiosk browser timed out."
         WebDriverWait(self.browser_1,
-                      config["max_load_timeout"]).until(tester, message=msg)
+                      self.config["max_load_timeout"]).until(tester, message=msg)
         # wait for the 'display' browser to finish adjusting itself
         tester = lambda _: self.pose_is_near(babice_pose,
                                              self.get_camera_pose(self.browser_2))
         msg = "Waiting for position change in the display browser timed out."
         WebDriverWait(self.browser_2,
-                      config["max_load_timeout"]).until(tester, message=msg)
+                      self.config["max_load_timeout"]).until(tester, message=msg)
         assert self.pose_is_near(self.get_camera_pose(self.browser_1),
                                  self.get_camera_pose(self.browser_2))

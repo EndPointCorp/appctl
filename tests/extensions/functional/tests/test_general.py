@@ -25,9 +25,8 @@ class TestSearch(TestBase):
     """
 
     def setup_method(self, method):
-        config = self.get_config()
-        self.browser = self.run_browser(config["chromes"]["kiosk_local"])
-        self.current_method = method.__name__
+        super(TestSearch, self).setup_method(method)
+        self.browser = self.run_browser(self.config["chromes"]["kiosk"])
 
     @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
@@ -40,8 +39,7 @@ class TestSearch(TestBase):
         search box.
 
         """
-        config = self.get_config()
-        helpers.wait_for_loaded_page(config["maps_url"], self.browser)
+        helpers.wait_for_loaded_page(self.config["maps_url"], self.browser)
         pose_start = self.get_camera_pose()
         box = self.browser.find_element_by_id("searchboxinput")
         box.send_keys("babice nad svitavou, czech republic")
@@ -52,7 +50,7 @@ class TestSearch(TestBase):
                                              assert_alt=False)
         msg = "Waiting for position change timed out."
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until_not(tester, message=msg)
+                      self.config["max_load_timeout"]).until_not(tester, message=msg)
 
     @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
@@ -65,8 +63,7 @@ class TestSearch(TestBase):
         search button.
 
         """
-        config = self.get_config()
-        helpers.wait_for_loaded_page(config["maps_url"], self.browser)
+        helpers.wait_for_loaded_page(self.config["maps_url"], self.browser)
         pose_start = self.get_camera_pose()
         box = self.browser.find_element_by_id("searchboxinput")
         box.send_keys("babice nad svitavou, czech republic")
@@ -84,7 +81,7 @@ class TestSearch(TestBase):
                                              assert_alt=False)
         msg = "Waiting for position change timed out."
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until_not(tester, message=msg)
+                      self.config["max_load_timeout"]).until_not(tester, message=msg)
 
     @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
@@ -96,8 +93,7 @@ class TestSearch(TestBase):
         Interacts with search box and clicks on the search button.
 
         """
-        config = self.get_config()
-        helpers.wait_for_loaded_page(config["maps_url"], self.browser)
+        helpers.wait_for_loaded_page(self.config["maps_url"], self.browser)
         pose_start = self.get_camera_pose()
         box = self.browser.find_element_by_id("searchboxinput")
         box.send_keys("babice nad svitavou, czech republic")
@@ -107,7 +103,7 @@ class TestSearch(TestBase):
                                              assert_alt=False)
         msg = "Waiting for position change timed out."
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until_not(tester, message=msg)
+                      self.config["max_load_timeout"]).until_not(tester, message=msg)
 
     @screenshot_on_error
     def test_no_searchbox_on_other_planets(self):
@@ -122,8 +118,7 @@ class TestSearch(TestBase):
         Last, Mars is clicked, disappearance of search box is verified.
 
         """
-        config = self.get_config()
-        helpers.wait_for_loaded_page(config["maps_url"],
+        helpers.wait_for_loaded_page(self.config["maps_url"],
                                      self.browser,
                                      elem_identifier_kind=By.ID,
                                      elem_identifier_name="acme-poi-button")
@@ -135,7 +130,7 @@ class TestSearch(TestBase):
                          (By.CLASS_NAME, "widget-runway-card-button"))
         msg = "Waiting for element (class: '%s') to appear timed out." % "widget-runway-card-button"
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until(tester(), message=msg)
+                      self.config["max_load_timeout"]).until(tester(), message=msg)
 
         # without this additional delay, clicking the planet just
         # doesn't seem to have effect (like if element is not fully loaded in DOM ...?)
@@ -158,7 +153,7 @@ class TestSearch(TestBase):
                          (By.ID, "searchbox"))
         msg = "Waiting for searchbox to disappear (click on Moon) timed out."
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until_not(tester(), message=msg)
+                      self.config["max_load_timeout"]).until_not(tester(), message=msg)
         box = self.browser.find_element_by_id("searchbox")
         assert box.is_displayed() is False
         # click on Earth now to make it appear
@@ -168,7 +163,7 @@ class TestSearch(TestBase):
         planets[0].click()
         msg = "Waiting for searchbox to appear (click on Earth) timed out."
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until(tester(), message=msg)
+                      self.config["max_load_timeout"]).until(tester(), message=msg)
         box = self.browser.find_element_by_id("searchbox")
         assert box.is_displayed() is True
         # click on Mars now to make it disappear
@@ -178,7 +173,7 @@ class TestSearch(TestBase):
         planets[2].click()
         msg = "Waiting for searchbox to disappear (click on Mars) timed out."
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until_not(tester(), message=msg)
+                      self.config["max_load_timeout"]).until_not(tester(), message=msg)
         box = self.browser.find_element_by_id("searchbox")
         assert box.is_displayed() is False
 
@@ -190,9 +185,8 @@ class TestMiscellaneous(TestBase):
     """
 
     def setup_method(self, method):
-        config = self.get_config()
-        self.browser = self.run_browser(config["chromes"]["kiosk_google_menu_local"])
-        self.current_method = method.__name__
+        super(TestMiscellaneous, self).setup_method(method)
+        self.browser = self.run_browser(self.config["chromes"]["kiosk"])
 
     @screenshot_on_error
     def test_eu_cookies_info_bar_is_hidden(self):
@@ -208,8 +202,7 @@ class TestMiscellaneous(TestBase):
         # https://redmine.endpoint.com/issues/2517
         # Related patch:
         # https://github.com/EndPointCorp/portal/commit/f7c89fecedd5bcaa94b03289b01393d8cfd9d692
-        config = self.get_config()
-        helpers.wait_for_loaded_page(config["maps_url"], self.browser)
+        helpers.wait_for_loaded_page(self.config["maps_url"], self.browser)
         # info bar is of class "pushdown", should be hidden
         bar = self.browser.find_element_by_id("pushdown")
         assert bar.is_displayed() is False

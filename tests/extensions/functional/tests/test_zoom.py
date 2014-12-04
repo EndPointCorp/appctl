@@ -20,9 +20,8 @@ class TestZoomButtons(TestBase):
     """
 
     def setup_method(self, method):
-        config = self.get_config()
-        self.browser = self.run_browser(config["chromes"]["kiosk_google_menu_local"])
-        self.current_method = method.__name__
+        super(TestZoomButtons, self).setup_method(method)
+        self.browser = self.run_browser(self.config["chromes"]["kiosk"])
 
     @screenshot_on_error
     def test_zoom_buttons(self):
@@ -30,8 +29,7 @@ class TestZoomButtons(TestBase):
         Test that the zoom in and out buttons are displayed.
 
         """
-        config = self.get_config()
-        self.browser.get(config["maps_url"])
+        self.browser.get(self.config["maps_url"])
         # this is the container for the two zoom buttons
         zoom = self.browser.find_element_by_id('zoom')
         assert zoom.is_displayed() is True
@@ -48,8 +46,7 @@ class TestZoomButtons(TestBase):
         according change.
 
         """
-        config = self.get_config()
-        helpers.wait_for_loaded_page(config["zoomed_in_maps_url"], self.browser)
+        helpers.wait_for_loaded_page(self.config["zoomed_in_maps_url"], self.browser)
         make_screenshot(self.browser, "zoom_out_button", 0)
         # get current values of altitude, latitude and longitude
         pose_start = self.get_camera_pose()
@@ -73,8 +70,7 @@ class TestZoomButtons(TestBase):
         according change.
 
         """
-        config = self.get_config()
-        helpers.wait_for_loaded_page(config["zoomed_in_maps_url"], self.browser)
+        helpers.wait_for_loaded_page(self.config["zoomed_in_maps_url"], self.browser)
         make_screenshot(self.browser, "zoom_in_button", 0)
         # get current values of altitude, latitude and longitude
         pose_start = self.get_camera_pose()
