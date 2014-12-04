@@ -1,5 +1,3 @@
-# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
-
 import subprocess
 
 AWESOME_CLIENT = '/usr/bin/awesome-client'
@@ -54,11 +52,11 @@ class WindowManager:
         return ' '.join([
             self._removal_command(),
             'table.insert(awful.rules.rules, 1, {{ rule = {{ {rule} }}, properties = {{ {properties} }} }})'.format(
-                rule = self._get_rule_pattern(),
-                properties = self._get_properties(visible)
+                rule=self._get_rule_pattern(),
+                properties=self._get_properties(visible)
             ),
             'for k,c in pairs(client.get()) do if awful.rules.match(c, {{ {rule} }}) then awful.rules.apply(c) end end'.format(
-                rule = self._get_rule_pattern()
+                rule=self._get_rule_pattern()
             )
         ])
 
@@ -70,7 +68,7 @@ class WindowManager:
         def make_comparison(type, value):
             if value is not None:
                 return 'rule["rule"]["{type}"] == "{value}"'.format(
-                    type = type, value = value
+                    type=type, value=value
                 )
             else:
                 return None
@@ -81,7 +79,7 @@ class WindowManager:
             make_comparison('instance', self.w_instance)
         ]))
         return 'for key,rule in pairs(awful.rules.rules) do if {comparison} then table.remove(awful.rules.rules, key) end end'.format(
-            comparison = comparison
+            comparison=comparison
         )
 
     def show(self):
@@ -89,3 +87,5 @@ class WindowManager:
 
     def hide(self):
         subprocess.check_call(self._get_command(False), shell=True)
+
+# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
