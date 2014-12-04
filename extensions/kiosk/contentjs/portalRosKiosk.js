@@ -587,22 +587,25 @@ var runwayContentClickHandler = function(e) {
 
     // additionally, set the current pose to the content position for
     // clean SpaceNav takeover.
-    var alt = sceneContentArray[4][8][0][0];
-    var lat = sceneContentArray[4][8][0][1];
-    var lng = sceneContentArray[4][8][0][2];
-    var yaw = sceneContentArray[4][8][1][0];
-    var tilt = sceneContentArray[4][8][1][1];
-    var roll = sceneContentArray[4][8][1][2];
+    // don't do this if we're going into a tour or photo.
+    if (runwayActionRestrictions !== InputSupport_.DISABLED) {
+      var alt = sceneContentArray[4][8][0][0];
+      var lat = sceneContentArray[4][8][0][1];
+      var lng = sceneContentArray[4][8][0][2];
+      var yaw = sceneContentArray[4][8][1][0];
+      var tilt = sceneContentArray[4][8][1][1];
+      var roll = sceneContentArray[4][8][1][2];
 
-    var contentPose = new Pose(
-      lng,
-      lat,
-      alt,
-      yaw,
-      tilt,
-      roll
-    );
-    publishKioskCurrentPose(contentPose);
+      var contentPose = new Pose(
+        lng,
+        lat,
+        alt,
+        yaw,
+        tilt,
+        roll
+      );
+      publishKioskCurrentPose(contentPose);
+    }
   }
 
   // TODO(daden): Create a method on the large display extension.
