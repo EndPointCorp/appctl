@@ -236,6 +236,7 @@ class TestBase(object):
             uri = config_chrome_section["uri"]
             browser = webdriver.chrome.webdriver.RemoteWebDriver(uri,
                                                                  desired_capabilities=capabilities)
+            pprint.pprint("Remote webdriver connecting to %s" % uri)
         else:
             driver = config_chrome_section["chrome_driver"]["path"]
             # Set environment variable for Chrome.
