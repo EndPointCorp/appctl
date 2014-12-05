@@ -30,7 +30,7 @@ def main():
     mode_pub = rospy.Publisher(
         '/appctl/mode',
         Mode,
-        queue_size = 1
+        queue_size=1
     )
 
     button_handler = ButtonHandler(modes, mode_pub)
@@ -43,7 +43,7 @@ def main():
 
     rospy.spin()
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
