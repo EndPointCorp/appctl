@@ -207,7 +207,7 @@ class TestBase(object):
         for ext_name in config_chrome_section["extensions"]:
             ext_dir = CONFIG["extensions_dir"]
             # be less verbose now
-            # print "Loading extension {} from {}".format(ext_name, ext_dir)
+            print "Loading extension {} from {}".format(ext_name, ext_dir)
             op.add_extension('{}/{}.crx'.format(ext_dir, ext_name))
         return op
 
