@@ -231,7 +231,7 @@ class TestBase(object):
         options = cls._get_extensions_options(config_chrome_section)
         # remote or local chrome
         if config_chrome_section["remote"]:
-            remote_capabilities = capabilities.items() + options.to_capabilities().items()
+            remote_capabilities = dict(capabilities.items() + options.to_capabilities().items())
             print "Remote capabilities %s" % (remote_capabilities)
             print "Capabilities %s" % (capabilities)
             print "Options %s" % (options)
