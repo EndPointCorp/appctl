@@ -5,15 +5,16 @@
 var EARTH_RADIUS = 6371000; // meters from center
 var EARTH_ATMOSPHERE_CEILING = 480000; // meters from surface
 var ATMOSPHERE_FALLOFF = 6; // exponential falloff rate for atmospheric density
-var BOOST_LEVEL = 0.5; // play boost when level exceeds this value
-var BOOST_GAIN = 0.7; // gain level of boost effect
+var BOOST_START_LEVEL = 0.5; // play boost when level exceeds this value
+var BOOST_END_LEVEL = 0.25; // end boost when level exceeds this value
+var BOOST_GAIN = 1.0; // gain level of boost effect
 var HOVER_TIMEOUT = 200; // ms, hover fx after no movement for this interval
 var HOVER_LEVEL = 0.12; // ambient level
-var HUM_GAIN_MIN = 0.1; // minimum hum level
-var HUM_GAIN_MAX = 0.8; // maximum hum level
-var HUM_GAIN_SCALE = 0.4; // multiply hum gain by this factor
+var HUM_GAIN_MIN = 0.04; // minimum hum level
+var HUM_GAIN_MAX = 0.3; // maximum hum level
+var HUM_GAIN_SCALE = 0.22; // multiply hum gain by this factor
 var HUM_PAN_SCALE = 0.5; // scale hum panning by this factor
-var HUM_FREQ_MIN = 40; // minimum (idle) hum frequency
+var HUM_FREQ_MIN = 30; // minimum (idle) hum frequency
 var HUM_FREQ_FACTOR = 10; // multiply hum frequency by this factor
 
 /** Shim for audio context.
@@ -349,7 +350,7 @@ SoundFX.prototype.handleNavTwist = function(twist) {
 
   var humFreq = HUM_FREQ_MIN + val * HUM_FREQ_FACTOR;
   var humPan = x * HUM_PAN_SCALE;
-  var humGain = Math.min(HUM_GAIN_MIN + val, HUM_GAIN_MAX) * HUM_GAIN_SCALE;
+  var humGain = Math.min(HUM_GAIN_MIN + val * (HUM_GAIN_MAX - HUM_GAIN_MIN), HUM_GAIN_MAX) * HUM_GAIN_SCALE;
 
   this.hum.setFreq(humFreq);
   this.hum.setPan(humPan);
@@ -367,12 +368,12 @@ SoundFX.prototype.update = function(level, panX, panY, panZ) {
   this.largeidle.setVolume(level);
   this.largeidle.setPan(panX, panY, panZ);
 
-  if (level > BOOST_LEVEL) {
+  if (level > BOOST_START_LEVEL) {
     if (!this.boosting) {
       this.boosting = true;
       this.largestart.start();
     }
-  } else if (this.boosting) {
+  } else if (this.boosting && level < BOOST_END_LEVEL) {
     this.boosting = false;
     this.largestart.stop();
   }
