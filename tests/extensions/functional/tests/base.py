@@ -228,25 +228,26 @@ class TestBase(object):
         #print "Starting browser for configuration (from \"chromes\" section):"
         #pprint.pprint(config_chrome_section)
         capabilities = webdriver.DesiredCapabilities.CHROME.copy()
+        options = cls._get_extensions_options(config_chrome_section)
         # remote or local chrome
         if config_chrome_section["remote"]:
             # TODO
             # UNTESTED
             # e.g. 'http://localhost:4444/wd/hub'
             uri = config_chrome_section["uri"]
-            browser = webdriver.chrome.webdriver.RemoteWebDriver(uri,
+            browser = webdriver.chrome.webdriver.RemoteWebDriver(command_executor=uri,
                                                                  desired_capabilities=capabilities)
-            pprint.pprint("Remote webdriver connecting to %s" % uri)
+            print("Remote webdriver connecting to %s") % uri
         else:
             driver = config_chrome_section["chrome_driver"]["path"]
             # Set environment variable for Chrome.
             # Chrome driver needs to have an environment variable set,
             # this must be set to the path to the webdriver file.
             os.environ["webdriver.chrome.driver"] = driver
-            options = cls._get_extensions_options(config_chrome_section)
             browser = webdriver.Chrome(executable_path=driver,
                                        chrome_options=options,
                                        desired_capabilities=capabilities)
+            print("Remote webdriver connecting to %s") % uri
         return browser
 
     def setup_method(self, method):

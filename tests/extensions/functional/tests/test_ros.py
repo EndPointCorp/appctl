@@ -86,7 +86,6 @@ class TestBaseSingleBrowserROS(TestBase):
         print "subscriber terminated."
         print "final result value: '%s'" % status.value
 
-    @screenshot_on_error
     def test_ros_position_after_search(self):
         """
         Run browser and type something in the search box, a place with
