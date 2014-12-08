@@ -232,9 +232,6 @@ class TestBase(object):
         # remote or local chrome
         if config_chrome_section["remote"]:
             remote_capabilities = dict(capabilities.items() + options.to_capabilities().items())
-            print "Remote capabilities %s" % (remote_capabilities)
-            print "Capabilities %s" % (capabilities)
-            print "Options %s" % (options)
             uri = config_chrome_section["uri"]
             browser = webdriver.chrome.webdriver.RemoteWebDriver(command_executor=uri,
                                                                  desired_capabilities=remote_capabilities)
@@ -248,7 +245,6 @@ class TestBase(object):
             browser = webdriver.Chrome(executable_path=driver,
                                        chrome_options=options,
                                        desired_capabilities=capabilities)
-            print("Remote webdriver connecting to %s") % uri
         return browser
 
     def setup_method(self, method):
