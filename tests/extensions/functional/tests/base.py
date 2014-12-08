@@ -231,7 +231,10 @@ class TestBase(object):
         options = cls._get_extensions_options(config_chrome_section)
         # remote or local chrome
         if config_chrome_section["remote"]:
-            remote_capabilities = capabilities + options.to_capabilities()
+            remote_capabilities = capabilities.items() + options.to_capabilities().items()
+            print "Remote capabilities %s" % (remote_capabilities)
+            print "Capabilities %s" % (capabilities)
+            print "Options %s" % (options)
             uri = config_chrome_section["uri"]
             browser = webdriver.chrome.webdriver.RemoteWebDriver(command_executor=uri,
                                                                  desired_capabilities=remote_capabilities)
