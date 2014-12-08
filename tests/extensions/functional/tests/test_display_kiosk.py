@@ -46,8 +46,6 @@ class TestBaseDisplay(TestBase):
         super(TestBaseDisplay, self).setup_method(method)
         self.browser = self.run_browser(self.config["chromes"]["display"])
 
-    @pytest.mark.skipif(True, reason=("Fails sometimes. Need explanation of the display "
-                                      "loading. Details on #201"))
     @screenshot_on_error
     def test_widgets_not_displayed(self):
         """
@@ -64,7 +62,7 @@ class TestBaseDisplay(TestBase):
         modified accordingly.
 
         """
-        self.browser.get(config["maps_url"])
+        self.browser.get(self.config["maps_url"])
 
         def test_elements_not_present(elem):
             msg = "Element '{0}' should not be present (extension display).".format(elem[0])
