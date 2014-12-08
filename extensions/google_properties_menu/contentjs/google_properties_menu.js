@@ -5,7 +5,7 @@
   1 - the elements in the list are shown in the order
       they are defined in the config file
 
-  2 - if there are no (display|kiosk)_url variables,
+  2 - if there are no (display|kiosk)_url variables, or they are empty
       then tapping the icon does nothing
 
   The example config looks like this:
