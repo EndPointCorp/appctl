@@ -1,5 +1,5 @@
 """
-Zoom buttons tests.
+Tests related to Zoom buttons, zoom operation.
 
 """
 
@@ -7,21 +7,29 @@ import time
 
 import pytest
 
-from base import TestBaseTouchscreen
-from base import MAPS_URL, ZOOMED_IN_MAPS_URL, Pose
+from base import TestBase
+from base import Pose
 from base import screenshot_on_error, make_screenshot
 import helpers
 
 
-class TestZoomButtons(TestBaseTouchscreen):
+class TestZoomButtons(TestBase):
     """
-    Simple test for checking the zoom buttons.
+    Tests for checking the zoom buttons are functional.
 
     """
+
+    def setup_method(self, method):
+        super(TestZoomButtons, self).setup_method(method)
+        self.browser = self.run_browser(self.config["chromes"]["kiosk"])
 
     @screenshot_on_error
     def test_zoom_buttons(self):
-        self.browser.get(MAPS_URL)
+        """
+        Test that the zoom in and out buttons are displayed.
+
+        """
+        self.browser.get(self.config["maps_url"])
         # this is the container for the two zoom buttons
         zoom = self.browser.find_element_by_id('zoom')
         assert zoom.is_displayed() is True
@@ -29,7 +37,7 @@ class TestZoomButtons(TestBaseTouchscreen):
                   zoom.find_element_by_class_name('widget-zoom-out')]:
             assert z.is_displayed() is True
 
-    #@pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
+    @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
     def test_zoom_out_button_change(self):
         """
@@ -38,7 +46,7 @@ class TestZoomButtons(TestBaseTouchscreen):
         according change.
 
         """
-        helpers.wait_for_loaded_page(ZOOMED_IN_MAPS_URL, self.browser)
+        helpers.wait_for_loaded_page(self.config["zoomed_in_maps_url"], self.browser)
         make_screenshot(self.browser, "zoom_out_button", 0)
         # get current values of altitude, latitude and longitude
         pose_start = self.get_camera_pose()
@@ -53,7 +61,7 @@ class TestZoomButtons(TestBaseTouchscreen):
                              lon=pose_start.lon)
         assert self.pose_is_near(pose, expected_pose, alt_delta=pose.alt * 0.1) is True
 
-    #@pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
+    @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
     def test_zoom_in_button_change(self):
         """
@@ -62,7 +70,7 @@ class TestZoomButtons(TestBaseTouchscreen):
         according change.
 
         """
-        helpers.wait_for_loaded_page(ZOOMED_IN_MAPS_URL, self.browser)
+        helpers.wait_for_loaded_page(self.config["zoomed_in_maps_url"], self.browser)
         make_screenshot(self.browser, "zoom_in_button", 0)
         # get current values of altitude, latitude and longitude
         pose_start = self.get_camera_pose()

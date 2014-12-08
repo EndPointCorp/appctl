@@ -25,15 +25,6 @@ import pytest
 # The huge info is shown as logging.DEBUG message.
 logging.getLogger('selenium.webdriver.remote').setLevel(logging.ERROR)
 
-# This one will be hardcoded for now
-MAPS_URL = 'https://www.google.com/maps/@8.135687,-75.0973243,17856994a,40.4y,1.23h/data=!3m1!1e3?esrch=Tactile::TactileAcme'
-
-# We need another url for zoom out button, the above one cannot be zoomed out
-ZOOMED_IN_MAPS_URL = 'https://www.google.com/maps/@8.135687,-75.0973243,178569a,40.4y,1.23h/data=!3m1!1e3?esrch=Tactile::TactileAcme'
-
-# Chrome GPU data url
-CHROME_GPU_URL = 'chrome://gpu'
-
 # configuration data instance, keep here to have it valid
 # during the entire test suite run, it's initialized just
 # once per entire run
@@ -58,17 +49,13 @@ def make_screenshot(browser, fname, index):
     browser.save_screenshot('{}.png'.format(fname))
     return fname
 
+
 def screenshot_on_error(test):
     """
-    Annotation for test functions to make screenshots on error.
+    Decorator for test functions to make screenshots on error.
 
     The wrapper runs the test. When it fails, then it makes
     a screenshot in the CONFIG["screenshots_dir"] directory.
-
-    Usage:
-        @screenshot_on_error
-        def test_something(self):
-            pass
 
     """
     @wraps(test)
@@ -91,8 +78,6 @@ def load_configuration():
     The file path is read from a env variable.
     Set the global CONFIG object.
 
-    :return: nothing
-
     """
     global CONFIG
     portal_config_env = "PORTAL_TESTS_CONFIG"
@@ -106,6 +91,15 @@ def load_configuration():
            "env PORTAL_TESTS_CONFIG: '%s' ..." % config_file)
     f = open(config_file, 'r')
     CONFIG = json.load(f)
+    # for jenkins, the following variables are missing from the configuration
+    # file, so figure them out and set into CONFIG accordingly
+    config_vars = dict(extensions_dir="extensions", screenshots_dir="tests_results")
+    for var_key, var_value in config_vars.items():
+        if not CONFIG.get(var_key, None):
+            # this will fail if not set up properly
+            workspace = os.environ["WORKSPACE"]
+            CONFIG[var_key] = os.path.join(workspace, var_value)
+
     print "CONFIG: test suite configuration:"
     pprint.pprint(CONFIG)
     return CONFIG
@@ -114,8 +108,6 @@ def load_configuration():
 def set_env_variables():
     """
     Sets env variables according to values from the config file.
-
-    :return: nothing
 
     """
     global CONFIG
@@ -137,8 +129,6 @@ def prepare_environment():
     Load the test suite configuration and prepare
     the environment.
     Run executables before the test suite requires.
-
-    :return: nothing
 
     """
     global CONFIG
@@ -179,21 +169,15 @@ class TestBase(object):
         If client module does just import, it will import the symbol
         before it is initialized, hence empty.
 
-        :return: configuration object
+        Returns:
+            configuration object
+
         """
         global CONFIG
         return CONFIG
 
     @classmethod
-    def get_capabilities(cls):
-        """
-        Returns DesiredCapabilities object
-        """
-        capabilities = webdriver.DesiredCapabilities.CHROME.copy()
-        return capabilities
-
-    @classmethod
-    def get_extensions_options(cls, extensions):
+    def _get_extensions_options(cls, config_chrome_section):
         """
         Returns ChromeOptions object with extensions paths.
 
@@ -204,80 +188,125 @@ class TestBase(object):
         The path can be relative, however it needs to load packed extensions.
 
         Args:
-            extensions: extension names to be loaded
+            config_chrome_section: corresponding chrome section from the
+                configuration file describing the chrome configuration
+                we want to load
 
         Returns:
             ChromeOptions object with extensions declarations
 
         """
         op = webdriver.ChromeOptions()
-        try:
-            op.binary_location = CONFIG["chrome"]["binary_path"]
-        except KeyError, e:
-            print "Not ['chrome']['binary_path'] in config.json - using defaults"
-            op.binary_location = '/usr/bin/google-chrome'
+        # if the path doesn't exist, let it fail, being clever here
+        # could lead to some unexpected surprises of picking up undesired browser
+        op.binary_location = config_chrome_section["binary_path"]
 
-        for chrome_argument in CONFIG["chrome"]["arguments"]:
+        for chrome_argument in config_chrome_section["arguments"]:
             op.add_argument(chrome_argument)
 
-        for ext_name in extensions:
+        for ext_name in config_chrome_section["extensions"]:
             ext_dir = CONFIG["extensions_dir"]
+            # be less verbose now
             print "Loading extension {} from {}".format(ext_name, ext_dir)
             op.add_extension('{}/{}.crx'.format(ext_dir, ext_name))
-
         return op
 
     @classmethod
-    def run_browser(cls, extentions=[]):
+    def run_browser(cls, config_chrome_section):
         """
         Runs browser with proper driver path and extensions.
 
+        Args:
+            config_chrome_section: corresponding chrome section from the
+                configuration file describing the chrome configuration
+                we want to load
+
         Returns:
-            selenium driver handler
+            selenium browser driver handler
 
         """
-        driver = CONFIG["chrome_driver"]["path"]
-        extens = extentions if extentions else cls.extensions
-        options = cls.get_extensions_options(extens)
-        capabilities = cls.get_capabilities()
-        print "Chrome capabilities: {}".format(capabilities)
-        # Set environment variable for Chrome.
-        # Chrome driver needs to have an environment variable set,
-        # this must be set to the path to the webdriver file.
-        os.environ["webdriver.chrome.driver"] = driver
-        return webdriver.Chrome(executable_path=driver,
-                                chrome_options=options,
-                                desired_capabilities=capabilities)
+        #print "Starting browser for configuration (from \"chromes\" section):"
+        #pprint.pprint(config_chrome_section)
+        capabilities = webdriver.DesiredCapabilities.CHROME.copy()
+        # remote or local chrome
+        if config_chrome_section["remote"]:
+            # TODO
+            # UNTESTED
+            # e.g. 'http://localhost:4444/wd/hub'
+            uri = config_chrome_section["uri"]
+            browser = webdriver.chrome.webdriver.RemoteWebDriver(uri,
+                                                                 desired_capabilities=capabilities)
+            pprint.pprint("Remote webdriver connecting to %s" % uri)
+        else:
+            driver = config_chrome_section["chrome_driver"]["path"]
+            # Set environment variable for Chrome.
+            # Chrome driver needs to have an environment variable set,
+            # this must be set to the path to the webdriver file.
+            os.environ["webdriver.chrome.driver"] = driver
+            options = cls._get_extensions_options(config_chrome_section)
+            browser = webdriver.Chrome(executable_path=driver,
+                                       chrome_options=options,
+                                       desired_capabilities=capabilities)
+        return browser
 
     def setup_method(self, method):
-        self.browser = self.run_browser()
+        """
+        Base method called before every test case method is called.
+
+        """
+        self.config = self.get_config()
         self.current_method = method.__name__
+        print "current test: %s" % self.current_method
 
     def teardown_method(self, _):
+        """
+        Base method called always after the test case method was
+        performed regardless of its result.
+
+        """
         self.browser.quit()
 
-    def get_camera_pose(self):
-        """ TODO: add the angles """
-        res = self.browser.execute_script('return acme.getCameraPose();')
-        return Pose(res['alt'], res['g'], res['yg'])
+    def get_camera_pose(self, browser=None):
+        """
+        Return current camera pose object by calling the acme object.
+        It either takes default instance member browser reference
+        or the one provided by the argument
 
+        Kwargs:
+            options browser reference
 
-    def pose_is_near(self,
-                     left,
+        """
+        curr_browser = browser if browser else self.browser
+        res = curr_browser.execute_script('return acme.getCameraPose();')
+        # today is not 'vg', it's 'yg' ...
+        try:
+            p = Pose(res['alt'], res['g'], res['yg'])
+        except KeyError as ex:
+            print "get_camera_pose(): KeyError: %s" % ex
+            print "get_camera_pose():", res.keys()
+            raise
+        else:
+            print "get_camera_pose():", res.keys()
+            return p
+
+    @staticmethod
+    def pose_is_near(left,
                      right,
                      alt_delta=1,
                      lon_delta=0.000001,
                      lat_delta=0.000001,
-                     assert_alt=True, assert_lon=True, assert_lat=True):
+                     assert_alt=True,
+                     assert_lon=True,
+                     assert_lat=True):
         """
         Checks if one of the pose objects is near to another.
 
         We need this function, as sometimes the maps camera moves a little bit,
         however users still see the same place. It is caused by two factors:
-            - internal behaviour of the maps
-            - floating numbers behaviour
+        - internal behaviour of the maps
+        - floating numbers behaviour
 
-        Arguments:
+        Args:
             left                 - the first pose object to compare
             right                - the second object to compare
             alt_delta = 1        - the acceptable difference of alt attribute
@@ -288,10 +317,8 @@ class TestBase(object):
             assert_lat = True    - should the latitude be asserted
 
         Returns:
-            Nothing
+            boolean based on the comparison result
 
-        Throws:
-            AssertionError when checking went wrong
         """
         if assert_alt:
             alt = abs(left.alt - right.alt) < alt_delta
@@ -311,10 +338,9 @@ class TestBase(object):
         """
         Performs javascript click on the element.
 
-        Arguments:
-            finder_value: string to find (class name or id
-                according to finder)
-            finder: "by_class" or "by_id"
+        Args:
+            finder_value: string to find (class name or id according to finder kind)
+            finder: 'by_class' or 'by_id'
 
         Usage:
             self.click("searchbutton", finder="by_class")
@@ -387,8 +413,8 @@ class TestBase(object):
             https://www.google.com/maps/@8.135687,-75.0973243,17856994a,40.4y,1.23h/data=!3m1!1e3
             https://www.google.com/maps/@8.135687,-75.0973243,18207688m/data=!3m1!1e3
 
-        Arguments:
-            url - url taken from the browser on maps.google.com
+        Argus:
+            url taken from the browser on maps.google.com
 
         Returns:
             (int) zoom level read from the url
@@ -415,13 +441,10 @@ class TestBase(object):
 
         If the function runs for more than the {max_wait_time} then it returns.
 
-        Arguments:
+        Args:
             old_value - old value for the url, checked again the current url
             interval  - sleep time between checks
             max_wait_time - maximum time for the function to run
-
-        Returns:
-            None
 
         """
         start = time.time()
@@ -430,18 +453,3 @@ class TestBase(object):
             if old_value != self.browser.current_url:
                 return
             time.sleep(interval)
-
-
-class TestBaseTouchscreen(TestBase):
-    """
-    Loads default extensions for touchscreen,
-    all tests for touchscreen should inherit from this class.
-
-    """
-    extensions = ["kiosk", "google_properties_menu"]
-
-
-class TestBaseGeneric(TestBase):
-    """
-    """
-    extensions = []

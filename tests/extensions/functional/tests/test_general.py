@@ -1,5 +1,5 @@
 """
-Portal general selenium tests.
+General Portal selenium tests.
 
 """
 
@@ -12,28 +12,34 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as exp_cond
 
-from base import TestBaseTouchscreen
-from base import MAPS_URL
+from base import TestBase
 from base import screenshot_on_error
 import helpers
 
 
-class TestSearch(TestBaseTouchscreen):
+class TestSearch(TestBase):
     """
-    Search tests (search box, search button, etc).
+    Test class related to the search box, search button.
+    Various interaction scenarios.
 
     """
 
-    #@pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
+    def setup_method(self, method):
+        super(TestSearch, self).setup_method(method)
+        self.browser = self.run_browser(self.config["chromes"]["kiosk"])
+
+    @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
     def test_search_hitting_return_on_search_box(self):
         """
-        Test that positions were changed after
-        putting something into the search box and hitting the return key.
+        Test that camera coordinates were changed from the initial
+        position to something different after performing the search.
+
+        Interacts with search box and hits the return key on on the
+        search box.
 
         """
-        config = self.get_config()
-        helpers.wait_for_loaded_page(MAPS_URL, self.browser)
+        helpers.wait_for_loaded_page(self.config["maps_url"], self.browser)
         pose_start = self.get_camera_pose()
         box = self.browser.find_element_by_id("searchboxinput")
         box.send_keys("babice nad svitavou, czech republic")
@@ -44,21 +50,20 @@ class TestSearch(TestBaseTouchscreen):
                                              assert_alt=False)
         msg = "Waiting for position change timed out."
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until_not(tester, message=msg)
+                      self.config["max_load_timeout"]).until_not(tester, message=msg)
 
-    #@pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
+    @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
     def test_search_hitting_return_on_search_button(self):
         """
-        Test that positions were changed after
-        putting something into the search box and clicking the search button.
-        Well, this is idea, as commented below, clicking is actually not working
-        likely to inability to get search button focus, so it's just sending
-        enter key on the search button.
+        Test that camera coordinates were changed from the initial
+        position to something different after performing the search.
+
+        Interacts with search box and sends return key event on the
+        search button.
 
         """
-        config = self.get_config()
-        helpers.wait_for_loaded_page(MAPS_URL, self.browser)
+        helpers.wait_for_loaded_page(self.config["maps_url"], self.browser)
         pose_start = self.get_camera_pose()
         box = self.browser.find_element_by_id("searchboxinput")
         box.send_keys("babice nad svitavou, czech republic")
@@ -76,17 +81,19 @@ class TestSearch(TestBaseTouchscreen):
                                              assert_alt=False)
         msg = "Waiting for position change timed out."
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until_not(tester, message=msg)
+                      self.config["max_load_timeout"]).until_not(tester, message=msg)
 
-    #@pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
+    @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
     def test_search_clicking_search_button(self):
         """
-        Click event on the search button.
+        Test that camera coordinates were changed from the initial
+        position to something different after performing the search.
+
+        Interacts with search box and clicks on the search button.
 
         """
-        config = self.get_config()
-        helpers.wait_for_loaded_page(MAPS_URL, self.browser)
+        helpers.wait_for_loaded_page(self.config["maps_url"], self.browser)
         pose_start = self.get_camera_pose()
         box = self.browser.find_element_by_id("searchboxinput")
         box.send_keys("babice nad svitavou, czech republic")
@@ -96,20 +103,22 @@ class TestSearch(TestBaseTouchscreen):
                                              assert_alt=False)
         msg = "Waiting for position change timed out."
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until_not(tester, message=msg)
+                      self.config["max_load_timeout"]).until_not(tester, message=msg)
 
     @screenshot_on_error
     def test_no_searchbox_on_other_planets(self):
         """
+        The test loads the initial config["maps_url"] and zooms out.
+        After this zoom out, the universe objects appear (Earth, Moon, Mars).
+
         The search box should not be visible when Moon, Mars are clicked.
-        Start with out default maps URL, from there 1x click on zoom out
-        button makes other universe objects (Mars, Moon) appear. Then
-        clicking on Mars, Moon makes search box disappear, clicking on
-        Earth back makes the search box appear.
+
+        First Moon is clicked, disappearance of search box is verified.
+        Second, the Earth is clicked, verify search box appeared.
+        Last, Mars is clicked, disappearance of search box is verified.
 
         """
-        config = self.get_config()
-        helpers.wait_for_loaded_page(MAPS_URL,
+        helpers.wait_for_loaded_page(self.config["maps_url"],
                                      self.browser,
                                      elem_identifier_kind=By.ID,
                                      elem_identifier_name="acme-poi-button")
@@ -121,7 +130,7 @@ class TestSearch(TestBaseTouchscreen):
                          (By.CLASS_NAME, "widget-runway-card-button"))
         msg = "Waiting for element (class: '%s') to appear timed out." % "widget-runway-card-button"
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until(tester(), message=msg)
+                      self.config["max_load_timeout"]).until(tester(), message=msg)
 
         # without this additional delay, clicking the planet just
         # doesn't seem to have effect (like if element is not fully loaded in DOM ...?)
@@ -144,7 +153,7 @@ class TestSearch(TestBaseTouchscreen):
                          (By.ID, "searchbox"))
         msg = "Waiting for searchbox to disappear (click on Moon) timed out."
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until_not(tester(), message=msg)
+                      self.config["max_load_timeout"]).until_not(tester(), message=msg)
         box = self.browser.find_element_by_id("searchbox")
         assert box.is_displayed() is False
         # click on Earth now to make it appear
@@ -154,7 +163,7 @@ class TestSearch(TestBaseTouchscreen):
         planets[0].click()
         msg = "Waiting for searchbox to appear (click on Earth) timed out."
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until(tester(), message=msg)
+                      self.config["max_load_timeout"]).until(tester(), message=msg)
         box = self.browser.find_element_by_id("searchbox")
         assert box.is_displayed() is True
         # click on Mars now to make it disappear
@@ -164,31 +173,36 @@ class TestSearch(TestBaseTouchscreen):
         planets[2].click()
         msg = "Waiting for searchbox to disappear (click on Mars) timed out."
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until_not(tester(), message=msg)
+                      self.config["max_load_timeout"]).until_not(tester(), message=msg)
         box = self.browser.find_element_by_id("searchbox")
         assert box.is_displayed() is False
 
 
-class TestMiscellaneous(TestBaseTouchscreen):
+class TestMiscellaneous(TestBase):
     """
-    Various other tests.
+    Other test cases not fitting any other current category.
 
     """
 
-    @pytest.mark.skipif(True, reason="Patch hiding the EU cookies message bar not yet merged.")
+    def setup_method(self, method):
+        super(TestMiscellaneous, self).setup_method(method)
+        self.browser = self.run_browser(self.config["chromes"]["kiosk"])
+
     @screenshot_on_error
     def test_eu_cookies_info_bar_is_hidden(self):
         """
-        Make sure that the cookie bar is invisible.
+        Test that the EU cookies info bar is invisible.
+
         And the map canvas has set top=0px,
         because the cookie container is 30 px higher,
         and the canvas is moved 30 px down.
-        https://redmine.endpoint.com/issues/2517
-        Related patch:
-        https://github.com/EndPointCorp/portal/commit/f7c89fecedd5bcaa94b03289b01393d8cfd9d692
 
         """
-        helpers.wait_for_loaded_page(MAPS_URL, self.browser)
+        # related info:
+        # https://redmine.endpoint.com/issues/2517
+        # Related patch:
+        # https://github.com/EndPointCorp/portal/commit/f7c89fecedd5bcaa94b03289b01393d8cfd9d692
+        helpers.wait_for_loaded_page(self.config["maps_url"], self.browser)
         # info bar is of class "pushdown", should be hidden
         bar = self.browser.find_element_by_id("pushdown")
         assert bar.is_displayed() is False

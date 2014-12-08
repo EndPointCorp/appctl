@@ -1,13 +1,13 @@
 """
-The runway is the element at to bottom of the touchscreen browser,
+Tests related to Runway elements.
+
+The Runway is the element at to bottom of the touchscreen browser,
 it contains a list of Points of Interests
 (if the camera is zoomed in to some level, and there are some
-interesting places around) or the list of planets to load (Earth, Moon, Mars).
+interesting places around) or the list consisting of the Earth, Moon, Mars.
 
-There is also a list of Famous Places, which is always filled,
-as we load there a static list of entries read from a file.
-
-Tickets: Redmine #2511, Github: #133
+There is also a list of Famous Places (Earth tours), which is always
+filled (loaded by a static list of entries read from a file).
 
 """
 
@@ -21,23 +21,28 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 
-from base import MAPS_URL, ZOOMED_IN_MAPS_URL
-from base import screenshot_on_error, make_screenshot
+from base import screenshot_on_error
 from base import TestBase
 import helpers
 
 
 class TestRunway(TestBase):
+    """
+    Runway element interaction tests.
 
-    extensions = ["kiosk"]
+    """
+
+    def setup_method(self, method):
+        super(TestRunway, self).setup_method(method)
+        self.browser = self.run_browser(self.config["chromes"]["kiosk"])
 
     @screenshot_on_error
     def test_runway_buttons_basic(self):
         """
-        Test Point of Interest and Famous Places are there
+        Test that Point of Interest and Famous Places are displayed.
 
         """
-        helpers.wait_for_loaded_page(MAPS_URL,
+        helpers.wait_for_loaded_page(self.config["maps_url"],
                                      self.browser,
                                      elem_identifier_kind=By.ID,
                                      elem_identifier_name="acme-poi-button")
@@ -56,7 +61,7 @@ class TestRunway(TestBase):
         in Points of Interest tray on maximal zoom out.
 
         """
-        helpers.wait_for_loaded_page(MAPS_URL,
+        helpers.wait_for_loaded_page(self.config["maps_url"],
                                      self.browser,
                                      elem_identifier_kind=By.ID,
                                      elem_identifier_name="acme-poi-button")
@@ -72,7 +77,6 @@ class TestRunway(TestBase):
         # The first 3 positions are set in POIs tray with planets icons.
         # also it takes some time until the planets appear, wait for the
         # first one in explicit wait ...
-        config = self.get_config()
 
         def tester(browser):
             planets_container = self.browser.find_element_by_id("acme-points-of-interest")
@@ -89,7 +93,7 @@ class TestRunway(TestBase):
         msg = "Planets did not appear within the timeout."
         my_test = partial(tester)
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until(my_test, message=msg)
+                      self.config["max_load_timeout"]).until(my_test, message=msg)
 
         planets_container = self.browser.find_element_by_id("acme-points-of-interest")
         planets = planets_container.find_elements_by_class_name("widget-runway-card-button")
@@ -111,6 +115,7 @@ class TestRunway(TestBase):
     def prepare_poi(self):
         """
         Prepare for Points of Interest tests.
+
         Load browser, search for a location with POIs and wait
         some time for the runway tray to populate.
 
@@ -118,7 +123,7 @@ class TestRunway(TestBase):
         # beware, with URL copied from chrome, our extensions may not be present
         # better to stick to the tested URLs ... (buttons Points of Interest and
         # Famous Places are not there, though Points of Interest tray is filled)
-        helpers.wait_for_loaded_page(MAPS_URL,
+        helpers.wait_for_loaded_page(self.config["maps_url"],
                                      self.browser,
                                      elem_identifier_kind=By.ID,
                                      elem_identifier_name="acme-poi-button")
@@ -130,16 +135,19 @@ class TestRunway(TestBase):
         # just kiosk extension loaded it fails that acme object is not defined
         # another thing: it takes some time until POIs tray is filled even
         # after changing to the target location
-        poi = self.browser.find_element_by_id("acme-poi-button")
-        poi.click()
+        poi_button = self.browser.find_element_by_id("acme-poi-button")
+        poi_button.click()
 
         # it takes some time until they appear, wait explicitly
         def tester(browser):
             poi_container = self.browser.find_element_by_id("acme-points-of-interest")
             pois = poi_container.find_elements_by_class_name("widget-runway-card-button")
+            # sometimes the first POI has no label (.text), if there are more items
+            # check their .text labels
             try:
-                if len(pois) > 0 and pois[0].text != '':
-                    return True
+                for poi in pois:
+                    if poi.text != '':
+                        return True
                 else:
                     return False
             # StaleElementReferenceException: Message: u'stale element reference:
@@ -149,9 +157,8 @@ class TestRunway(TestBase):
 
         msg = "POIs did not appear within the timeout."
         my_test = partial(tester)
-        config = self.get_config()
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until(my_test, message=msg)
+                      self.config["max_load_timeout"]).until(my_test, message=msg)
 
     @screenshot_on_error
     def test_runway_points_of_interest(self):
@@ -173,20 +180,20 @@ class TestRunway(TestBase):
                 break
             c += 1
 
-    #@pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
+    @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
     def test_runway_check_earth_icon_click(self):
         """
         The Earth icon (most left picture), clicking it should bring the
         view to a considerably zoomed out position.
-        NB: position object value differ between subsequent runs.
+
+        NB: position object values differ between subsequent runs.
 
         """
-        config = self.get_config()
         # position object is available after the browser loads
         # our special URL, otherwise failing with:
         # WebDriverException: Message: u'unknown error: acme is not defined\n
-        helpers.wait_for_loaded_page(MAPS_URL,
+        helpers.wait_for_loaded_page(self.config["maps_url"],
                                      self.browser,
                                      elem_identifier_kind=By.ID,
                                      elem_identifier_name="acme-poi-button")
@@ -200,7 +207,7 @@ class TestRunway(TestBase):
                                              alt_delta=init_pose.alt * 0.1)
         msg = "Waiting for position change timed out."
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until_not(tester, message=msg)
+                      self.config["max_load_timeout"]).until_not(tester, message=msg)
         earth = self.browser.find_element_by_class_name("acme-zoom-out-earth")
         assert earth.is_displayed() is True
         earth_click_pose = self.get_camera_pose()
@@ -234,8 +241,6 @@ class TestRunway(TestBase):
                                              assert_lat=False)
         msg = "Waiting for position change timed out."
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until(tester, message=msg)
+                      self.config["max_load_timeout"]).until(tester, message=msg)
         earth = self.browser.find_element_by_class_name("acme-zoom-out-earth")
         assert earth.is_displayed() is True
-
-# TODO: add test for the Famous Places items, they are in the list (id='acme-famous-places')

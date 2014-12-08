@@ -544,6 +544,8 @@ var runwayContentClickHandler = function(e) {
     customData = JSON.parse(customData);
   }
 
+  var sceneContentArray = customData[1];
+
   // discard broken search actions
   if (customData[1] && customData[1][0] == 3 && !customData[1][7]) {
     return;
@@ -581,6 +583,28 @@ var runwayContentClickHandler = function(e) {
     // places content exists when we're not in space.
     if (!document.location.href.match(/space/)) {
       acme.kiosk.addFamousPlacesRunwayContent();
+    }
+
+    // additionally, set the current pose to the content position for
+    // clean SpaceNav takeover.
+    // don't do this if we're going into a tour or photo.
+    if (runwayActionRestrictions !== InputSupport_.DISABLED) {
+      var alt = sceneContentArray[4][8][0][0];
+      var lat = sceneContentArray[4][8][0][1];
+      var lng = sceneContentArray[4][8][0][2];
+      var yaw = sceneContentArray[4][8][1][0];
+      var tilt = sceneContentArray[4][8][1][1];
+      var roll = sceneContentArray[4][8][1][2];
+
+      var contentPose = new Pose(
+        lng,
+        lat,
+        alt,
+        yaw,
+        tilt,
+        roll
+      );
+      publishKioskCurrentPose(contentPose);
     }
   }
 
@@ -645,7 +669,11 @@ window.addEventListener('acmeContentClicked', runwayContentClickHandler, true);
 window.addEventListener('acmeContentOnExit', runwayContentExitHandler, true);
 
 var zoomOutToEarth = function() {
-  acme.kiosk.moveCamera(Pose.SPACE_POSE, true);
+  if (runwayActionRestrictions == InputSupport_.NONE) {
+    acme.kiosk.moveCamera(Pose.SPACE_POSE, true);
+  } else {
+    exitContent();
+  }
 };
 // document.dispatchEvent(new CustomEvent('acmeZoomOutToEarth'))
 window.addEventListener('acmeZoomOutToEarth', zoomOutToEarth, true);

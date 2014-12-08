@@ -17,18 +17,18 @@ var data = [
   },
   /*
   {
-    name: 'doodles',
-    desc: 'Arcade',
-    icon: 'doodles.png',
-    action: 'showDoodlesPage'
-  },
-  */
-  {
     name: 'timelapse',
     desc: 'Timelapse',
     icon: 'timelapse.png',
     action: 'gotoTimelapse',
     url: timelapseURL
+  },
+  */
+  {
+    name: 'doodles',
+    desc: 'Arcade',
+    icon: 'doodles.png',
+    action: 'showDoodlesPage'
   }
 ];
 
@@ -49,6 +49,7 @@ var showDoodlesPage = function() {
 
 var goBackToEarthPage = function() {
   sendSwitchMessageURL(earthURL);
+  document.location = earthURL;
 };
 
 var gotoTimelapse = function() {

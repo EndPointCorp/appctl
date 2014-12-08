@@ -890,7 +890,7 @@ HandOverlay.prototype.processLeapMessage = function(leapMessage) {
 
   for (var i = 0; i < leapMessage.hands.length; i++) {
     var handData = leapMessage.hands[i];
-    handOverlay.processHandMoved(handData, leapInteractionBox);
+    this.processHandMoved(handData, leapInteractionBox);
   }
 };
 

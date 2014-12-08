@@ -29,7 +29,6 @@ __pycache__
 
 # local, customized tests configuration file
 config.json
-config-ros.json
 
 # product of running test suite (log files, screenshots)
 tests_results/
