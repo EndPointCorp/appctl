@@ -225,18 +225,16 @@ class TestBase(object):
             selenium browser driver handler
 
         """
-        #print "Starting browser for configuration (from \"chromes\" section):"
-        #pprint.pprint(config_chrome_section)
+        # print "Starting browser for configuration (from \"chromes\" section):"
+        # pprint.pprint(config_chrome_section)
         capabilities = webdriver.DesiredCapabilities.CHROME.copy()
         options = cls._get_extensions_options(config_chrome_section)
         # remote or local chrome
         if config_chrome_section["remote"]:
-            # TODO
-            # UNTESTED
-            # e.g. 'http://localhost:4444/wd/hub'
+            remote_capabilities = capabilities + options.to_capabilities()
             uri = config_chrome_section["uri"]
             browser = webdriver.chrome.webdriver.RemoteWebDriver(command_executor=uri,
-                                                                 desired_capabilities=capabilities)
+                                                                 desired_capabilities=remote_capabilities)
             print("Remote webdriver connecting to %s") % uri
         else:
             driver = config_chrome_section["chrome_driver"]["path"]
