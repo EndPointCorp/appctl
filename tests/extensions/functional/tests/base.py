@@ -207,7 +207,7 @@ class TestBase(object):
         for ext_name in config_chrome_section["extensions"]:
             ext_dir = CONFIG["extensions_dir"]
             # be less verbose now
-            print "Loading extension {} from {}".format(ext_name, ext_dir)
+            #print "Loading extension {} from {}".format(ext_name, ext_dir)
             op.add_extension('{}/{}.crx'.format(ext_dir, ext_name))
         return op
 
@@ -275,17 +275,16 @@ class TestBase(object):
 
         """
         curr_browser = browser if browser else self.browser
-        res = curr_browser.execute_script('return acme.getCameraPose();')
-        # today is not 'vg', it's 'yg' ...
-        try:
-            p = Pose(res['alt'], res['g'], res['yg'])
-        except KeyError as ex:
-            print "get_camera_pose(): KeyError: %s" % ex
-            print "get_camera_pose():", res.keys()
-            raise
-        else:
-            print "get_camera_pose():", res.keys()
-            return p
+        # simple call 'return acme.getCameraPose();' return shallow copy,
+        # methods (keys) like getAlt do exist but point to empty dicts
+        # once they made it to python from javascript
+        #res = curr_browser.execute_script('return acme.getCameraPose();')
+        js = ("return [acme.getCameraPose().getAlt(), "
+                      "acme.getCameraPose().getLon(), "
+                      "acme.getCameraPose().getLat()];")
+        res = curr_browser.execute_script(js)
+        p = Pose(res[0], res[1], res[2])
+        return p
 
     @staticmethod
     def pose_is_near(left,

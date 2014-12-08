@@ -140,7 +140,6 @@ class TestBaseTwoBrowsersROS(TestBase):
         self.browser_1.quit()
         self.browser_2.quit()
 
-    @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     def test_ros_positions_in_browsers_aligned_after_kiosk_search(self):
         """
         Perform search in the kiosk browser and assert on the automatically
@@ -163,15 +162,24 @@ class TestBaseTwoBrowsersROS(TestBase):
         box = self.browser_1.find_element_by_id("searchboxinput")
         box.send_keys("babice nad svitavou, czech republic")
         box.send_keys(Keys.RETURN)
-        babice_pose = Pose(alt=18925.2298526623, lon=16.69756065, lat=49.28254545)
+        babice_pose = Pose(alt=18925, lon=16, lat=49)
+        # wait for the 'kiosk' browser to finish adjusting itself
+        # unused argument is selenium webdriver (browser) reference
         tester = lambda _: self.pose_is_near(babice_pose,
-                                             self.get_camera_pose(self.browser_1))
+                                             self.get_camera_pose(self.browser_1),
+                                             alt_delta=babice_pose.alt * 0.1,
+                                             lon_delta=babice_pose.lon * 0.1,
+                                             lat_delta=babice_pose.lat * 0.1)
         msg = "Waiting for position change in the kiosk browser timed out."
         WebDriverWait(self.browser_1,
                       self.config["max_load_timeout"]).until(tester, message=msg)
         # wait for the 'display' browser to finish adjusting itself
+        # unused argument is selenium webdriver (browser) reference
         tester = lambda _: self.pose_is_near(babice_pose,
-                                             self.get_camera_pose(self.browser_2))
+                                             self.get_camera_pose(self.browser_2),
+                                             alt_delta=babice_pose.alt * 0.1,
+                                             lon_delta=babice_pose.lon * 0.1,
+                                             lat_delta=babice_pose.lat * 0.1)
         msg = "Waiting for position change in the display browser timed out."
         WebDriverWait(self.browser_2,
                       self.config["max_load_timeout"]).until(tester, message=msg)
