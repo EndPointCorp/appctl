@@ -7,6 +7,18 @@
 var earthURL = 'http://lg-head/portal-loader.html';
 var timelapseURL = 'file:///mnt/earthtime/data-visualization-tools/examples/webgl-timemachine/landsat.html';
 
+
+var dataURL = "https://lg-head/portal/config.json";
+var data = null;
+
+var downloadConfigData = function(url) {
+  $.get( url )
+    .done(function(d){ data = d })
+    .fail(function(){ console.error("Cannot download config file from: " + dataURL )});
+}
+
+downloadConfigData(dataURL);
+
 var data = [
   {
     name: 'earth',
