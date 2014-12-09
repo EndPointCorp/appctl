@@ -12,8 +12,8 @@ var HOVER_TIMEOUT = 200; // ms, hover fx after no movement for this interval
 var HOVER_LEVEL = 0.12; // ambient level
 var HUM_GAIN_MIN = 0.04; // minimum hum level
 var HUM_GAIN_MAX = 0.3; // maximum hum level
-var HUM_GAIN_SCALE = 0.22; // multiply hum gain by this factor
-var HUM_PAN_SCALE = 0.5; // scale hum panning by this factor
+var HUM_GAIN_SCALE = 0.2; // multiply hum gain by this factor
+var HUM_PAN_SCALE = 1.0; // scale hum panning by this factor
 var HUM_FREQ_MIN = 30; // minimum (idle) hum frequency
 var HUM_FREQ_FACTOR = 10; // multiply hum frequency by this factor
 
