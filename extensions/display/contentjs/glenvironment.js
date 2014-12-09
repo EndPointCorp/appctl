@@ -10,6 +10,7 @@ var PortalGLEnvironment = function() {
 
   this.renderer = new THREE.WebGLRenderer({
     alpha: true,
+    antialias: true,
     canvas: this.canvas
   });
   this.renderer.setClearColor(new THREE.Color(0x000000), 0);
