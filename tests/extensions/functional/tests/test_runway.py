@@ -180,7 +180,6 @@ class TestRunway(TestBase):
                 break
             c += 1
 
-    @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
     @screenshot_on_error
     def test_runway_check_earth_icon_click(self):
         """
