@@ -4,11 +4,13 @@ var RENDER_SCALE_FACTOR = 1/8;
 var PortalGLEnvironment = function() {
   var self = this;
 
+  this.lastDraw = Date.now();
+
   this.scene = new THREE.Scene();
 
   this.renderer = new THREE.WebGLRenderer({
     alpha: true,
-    antialiasing: false
+    canvas: this.canvas
   });
   this.renderer.setClearColor(new THREE.Color(0x000000), 0);
 
@@ -55,6 +57,8 @@ var PortalGLEnvironment = function() {
  * Runs all registered animation methds and renders the scene.
  */
 PortalGLEnvironment.prototype.animate = function() {
+  var now = Date.now();
+
   var self = this;
   function _animate() {
     self.animate();
@@ -62,12 +66,19 @@ PortalGLEnvironment.prototype.animate = function() {
 
   requestAnimationFrame(_animate);
 
+  // skip duplicate frames
+  if (now - this.lastDraw < 14) {
+    console.log('skipping', now - this.lastDraw, 'ms frame');
+    return;
+  }
+
   var numAnimations = this.animations.length;
   for (var i = 0; i < numAnimations; i++) {
     this.animations[i]();
   }
 
   this.renderer.render(this.scene, this.camera);
+  this.lastDraw = now;
 };
 
 /**
