@@ -5,8 +5,17 @@
 var EARTH_RADIUS = 6371000; // meters from center
 var EARTH_ATMOSPHERE_CEILING = 480000; // meters from surface
 var ATMOSPHERE_FALLOFF = 6; // exponential falloff rate for atmospheric density
+var BOOST_START_LEVEL = 0.5; // play boost when level exceeds this value
+var BOOST_END_LEVEL = 0.25; // end boost when level exceeds this value
+var BOOST_GAIN = 1.0; // gain level of boost effect
 var HOVER_TIMEOUT = 200; // ms, hover fx after no movement for this interval
 var HOVER_LEVEL = 0.12; // ambient level
+var HUM_GAIN_MIN = 0.04; // minimum hum level
+var HUM_GAIN_MAX = 0.3; // maximum hum level
+var HUM_GAIN_SCALE = 0.2; // multiply hum gain by this factor
+var HUM_PAN_SCALE = 1.0; // scale hum panning by this factor
+var HUM_FREQ_MIN = 30; // minimum (idle) hum frequency
+var HUM_FREQ_FACTOR = 10; // multiply hum frequency by this factor
 
 /** Shim for audio context.
  * @ignore
@@ -28,19 +37,16 @@ window.AudioContext = window.AudioContext || window.webkitAudioContext;
 SoundEffect = function(context, src_file, begin, end, loop) {
 
   this.context = context;
-  this.source = this.context.createBufferSource();
   this.loaded = false;
 
   this.gainNode = this.context.createGain();
   this.panNode = this.context.createPanner();
 
   // source -> gain -> pan -> destination
-  this.source.connect(this.gainNode);
   this.gainNode.connect(this.panNode);
   this.panNode.connect(this.context.destination);
 
   this.gainNode.gain.value = 0;
-  this.panNode.panningModel = 'equalpower';
 
   this.startMs = begin;
   this.durationMs = end - begin;
@@ -52,9 +58,9 @@ SoundEffect = function(context, src_file, begin, end, loop) {
   var self = this;
   request.onload = function() {
     self.context.decodeAudioData(request.response, function(buffer) {
-      self.source.buffer = buffer;
+      self.buffer = buffer;
       self.loaded = true;
-      if (self.source.loop) {
+      if (self.loop) {
         self.start();
       }
     },
@@ -65,8 +71,8 @@ SoundEffect = function(context, src_file, begin, end, loop) {
 
   request.send();
 
-  this.source.loop = loop;
-  this.loop = false;
+  this.loop = loop;
+  //this.loop = false;
   this.event_thread = 0;
   this.playing = false;
 
@@ -182,7 +188,15 @@ SoundEffect.prototype.start_ = function() {
     }
   }, this.durationMs);
   */
+  this.source = this.context.createBufferSource();
+  this.source.buffer = this.buffer;
+  this.source.connect(this.gainNode);
+  this.source.loop = this.loop;
   this.source.start(0);
+  var self = this;
+  this.source.onended = function() {
+    self.playing = false;
+  }
 };
 
 /**
@@ -207,8 +221,12 @@ SoundFX = function() {
   this.lastUpdateTime = 0;
   this.lastSeq = 0;
   this.hoverTimer = null;
+  this.boosting = false;
   this.enabled = true;
-  this.lastTilt = 0;
+
+  this.hum = new ToneGenerator(this.context);
+  this.hum.setFreq(HUM_FREQ_MIN);
+  this.hum.start();
 
   // Preload the sound clips.
   // TODO(arshan): Better to load these out of a config file?
@@ -216,18 +234,24 @@ SoundFX = function() {
     this.context,
     chrome.extension.getURL('sounds/largestart.wav'),
                             0, 1217, false);
+  this.largestart.setVolume(BOOST_GAIN);
+
   this.largeidle = new SoundEffect(
     this.context,
     chrome.extension.getURL('sounds/largeidle.wav'),
                             0, 27282, true);
+
   this.smallstart = new SoundEffect(
     this.context,
     chrome.extension.getURL('sounds/smallstart.wav'),
                             0, 2000, false);
+  this.smallstart.setVolume(BOOST_GAIN);
+
   this.smallidle = new SoundEffect(
     this.context,
     chrome.extension.getURL('sounds/smallidle.wav'),
                              0, 14003, true);
+
   this.cutoff = new SoundEffect(
     this.context,
     chrome.extension.getURL('sounds/cutoff.wav'),
@@ -297,19 +321,45 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
   // panning away from movement vectors
   var tiltular = toRadians(pose.orientation.x) + Math.atan2(dLateral, dAlt);
   var lateral = toRadians(pose.orientation.z) + Math.atan2(dLat, dLng);
-  var panX = -Math.cos(lateral);
-  var panZ = Math.sin(lateral) * Math.cos(tiltular);
-  var panY = -Math.sin(tiltular);
+  // 3D pan values, poorly supported irl
+  //var panX = -Math.cos(lateral);
+  //var panZ = Math.sin(lateral) * Math.cos(tiltular);
+  //var panY = Math.sin(lateral) * Math.cos(tiltular);
 
-  this.lastTilt = toRadians(pose.orientation.x);
+  // simple stereo pan
+  var stereoPan = -Math.cos(lateral) * Math.sin(tiltular);
 
   // Now play the corresponding sound effects.
-  this.update(val, panX, panY, panZ);
+  this.update(val, stereoPan, 1.0, 0);
+};
+
+/**
+ * Handles incoming SpaceNav updates.
+ * @param {object} twist
+ */
+SoundFX.prototype.handleNavTwist = function(twist) {
+  if (!this.enabled) {
+    this.hum.setGain(0);
+    return;
+  }
+
+  var x = twist.linear.x;
+  var y = twist.linear.y;
+  var z = twist.linear.z;
+  var val = Math.sqrt(z * z + Math.sqrt(x * x + y * y));
+
+  var humFreq = HUM_FREQ_MIN + val * HUM_FREQ_FACTOR;
+  var humPan = x * HUM_PAN_SCALE;
+  var humGain = Math.min(HUM_GAIN_MIN + val * (HUM_GAIN_MAX - HUM_GAIN_MIN), HUM_GAIN_MAX) * HUM_GAIN_SCALE;
+
+  this.hum.setFreq(humFreq);
+  this.hum.setPan(humPan);
+  this.hum.setGain(humGain);
 };
 
 /**
  * Plays appropriate sound effects for the incoming speed.
- * @param {float} level The rate of movement around the globe [0, 1]
+ * @param {float} level The amount of air friction [0, 1]
  * @param {float} panX Side to side panning component [-1, 1]
  * @param {float} panY Up to down panning component [-1, 1]
  * @param {float} panZ Forward to back panning component [-1, 1]
@@ -318,6 +368,16 @@ SoundFX.prototype.update = function(level, panX, panY, panZ) {
   this.largeidle.setVolume(level);
   this.largeidle.setPan(panX, panY, panZ);
 
+  if (level > BOOST_START_LEVEL) {
+    if (!this.boosting) {
+      this.boosting = true;
+      this.largestart.start();
+    }
+  } else if (this.boosting && level < BOOST_END_LEVEL) {
+    this.boosting = false;
+    this.largestart.stop();
+  }
+
   if (level > HOVER_LEVEL) {
     clearTimeout(this.hoverTimer);
     var self = this;
@@ -325,11 +385,6 @@ SoundFX.prototype.update = function(level, panX, panY, panZ) {
       self.hover();
     }, HOVER_TIMEOUT);
 
-    /*
-    if (!this.largeidle.playing) {
-      this.largeidle.start();
-    }
-    */
   } else {
     clearTimeout(this.hoverTimer);
     this.hover();
@@ -337,24 +392,19 @@ SoundFX.prototype.update = function(level, panX, panY, panZ) {
 };
 
 /**
- * Silences all sound effects.
- */
-SoundFX.prototype.silence = function() {
-  this.largeidle.setVolume(0);
-};
-
-/**
  * Sets hover gain.
  */
 SoundFX.prototype.hover = function() {
+  if (!this.enabled) {
+    return;
+  }
+
   // only play hover sound within the atmosphere
   if (this.lastPose.position.z < EARTH_ATMOSPHERE_CEILING) {
     this.largeidle.setVolume(HOVER_LEVEL);
-    var downY = -Math.sin(this.lastTilt);
-    var downZ = Math.cos(this.lastTilt);
-    this.largeidle.setPan(0, downY, downZ);
+    this.largeidle.setPan(0, 1.0, 0);
   } else {
-    this.silence();
+    this.largeidle.setVolume(0);
   }
 };
 
@@ -370,7 +420,8 @@ SoundFX.prototype.enable = function() {
  */
 SoundFX.prototype.disable = function() {
   this.enabled = false;
-  this.silence();
+  this.hum.setGain(0);
+  this.largeidle.setVolume(0);
 };
 
 /*

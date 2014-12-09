@@ -1,8 +1,7 @@
-# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
-
 import rospy
 from awesome import WindowManager
 from controller import BaseController
+
 
 class WindowController(BaseController):
     """
@@ -29,3 +28,5 @@ class WindowController(BaseController):
             self.w_name, self.w_class, self.w_instance
         ))
         self.window_manager.hide()
+
+# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4

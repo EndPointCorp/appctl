@@ -27,6 +27,7 @@
       "js": [
         "libs/eventemitter2.min.js",
         "libs/roslib.min.js",
+        "libs/ToneGenerator.js",
         "contentjs/soundfx.js",
         "contentjs/ambient.js",
         "contentjs/portalRosKiosk.js",

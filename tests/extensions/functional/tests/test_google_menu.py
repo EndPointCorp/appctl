@@ -9,18 +9,20 @@ import pytest
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 
-from base import TestBaseTouchscreen
-from base import MAPS_URL, ZOOMED_IN_MAPS_URL
-from base import screenshot_on_error
 from base import TestBase
+from base import screenshot_on_error
 import helpers
 
 
-class TestGoogleMenu(TestBaseTouchscreen):
+class TestGoogleMenu(TestBase):
     """
     Google Menu tests.
 
     """
+
+    def setup_method(self, method):
+        super(TestGoogleMenu, self).setup_method(method)
+        self.browser = self.run_browser(self.config["chromes"]["kiosk"])
 
     @screenshot_on_error
     def test_google_menu_is_visible(self):
@@ -28,7 +30,7 @@ class TestGoogleMenu(TestBaseTouchscreen):
         Test that Google Menu (More fun) is displayed along with some items.
 
         """
-        self.browser.get(MAPS_URL)
+        self.browser.get(self.config["maps_url"])
         morefun = self.browser.find_element_by_id('morefun')
         assert morefun.is_displayed() is True
         items = self.browser.find_element_by_id('morefun_items')
@@ -40,7 +42,7 @@ class TestGoogleMenu(TestBaseTouchscreen):
         Test that Google Menu (More fun) items are visible after clicking it.
 
         """
-        self.browser.get(MAPS_URL)
+        self.browser.get(self.config["maps_url"])
         morefun = self.browser.find_element_by_id('morefun')
         morefun.click()
         assert morefun.is_displayed() is True
@@ -55,7 +57,7 @@ class TestGoogleMenu(TestBaseTouchscreen):
         doodles page.
 
         """
-        helpers.wait_for_loaded_page(ZOOMED_IN_MAPS_URL,
+        helpers.wait_for_loaded_page(self.config["zoomed_in_maps_url"],
                                      self.browser,
                                      elem_identifier_kind=By.ID,
                                      elem_identifier_name="morefun")
@@ -77,6 +79,5 @@ class TestGoogleMenu(TestBaseTouchscreen):
                 return False
         # need to wait, sometimes it's not there immediately
         msg = "Waiting for doodle URL to appear timed-out."
-        config = TestBase.get_config()
         WebDriverWait(self.browser,
-                      config["max_load_timeout"]).until(tester, message=msg)
+                      self.config["max_load_timeout"]).until(tester, message=msg)
