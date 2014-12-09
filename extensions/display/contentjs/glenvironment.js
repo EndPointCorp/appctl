@@ -1,5 +1,5 @@
 var CANVAS_SCALE_FACTOR = 1;
-var RENDER_SCALE_FACTOR = 1/8;
+var RENDER_SCALE_FACTOR = 1;
 
 var PortalGLEnvironment = function() {
   var self = this;
