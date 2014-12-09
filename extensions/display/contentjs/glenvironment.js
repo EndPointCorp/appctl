@@ -68,7 +68,6 @@ PortalGLEnvironment.prototype.animate = function() {
 
   // skip duplicate frames
   if (now - this.lastDraw < 14) {
-    console.log('skipping', now - this.lastDraw, 'ms frame');
     return;
   }
 
