@@ -5,16 +5,16 @@
 var EARTH_RADIUS = 6371000; // meters from center
 var EARTH_ATMOSPHERE_CEILING = 480000; // meters from surface
 var ATMOSPHERE_FALLOFF = 16; // exponential falloff rate for atmospheric density
-var FLYING_GAIN_SCALE = 0.5;
+var FLYING_GAIN_SCALE = 0.25;
 var FLYING_PAN_SCALE = 1.0;
 var BOOST_START_LEVEL = 1.0; // play boost when level exceeds this value
 var BOOST_END_LEVEL = 0.25; // end boost when level exceeds this value
 var BOOST_GAIN = 0.0; // gain level of boost effect
 var HOVER_TIMEOUT = 200; // ms, hover fx after no movement for this interval
-var HOVER_LEVEL = 0.12; // ambient level
+var HOVER_LEVEL = 0.04; // ambient level
 var HUM_GAIN_MIN = 0.06; // minimum hum level
 var HUM_GAIN_MAX = 0.38; // maximum hum level
-var HUM_GAIN_SCALE = 0.38; // multiply hum gain by this factor
+var HUM_GAIN_SCALE = 0.3; // multiply hum gain by this factor
 var HUM_GAIN_EXP = 1.0; // exponential gain for hum
 var HUM_PAN_SCALE = 1.0; // scale hum panning by this factor
 var HUM_FREQ_MIN = 30; // minimum (idle) hum frequency
@@ -52,7 +52,7 @@ SoundEffect = function(context, src_file, begin, end, loop) {
 
   this.gainNode.gain.value = 0;
 
-  this.panNode.panningModel = 'HRTF';
+  //this.panNode.panningModel = 'HRTF';
 
   this.startMs = begin;
   this.durationMs = end - begin;
@@ -349,11 +349,11 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
   // simple stereo pan
   var panX = -Math.cos(lateral) * Math.sin(tiltular);
   var panY = 0;
-  var panZ = -2.5;
+  var panZ = 1.0 - Math.abs(panX);
 
   // Now play the corresponding sound effects.
   //this.update(val, stereoPan, 100.0, 0.0);
-  this.update(val, panX, panY, panZ);
+  this.update(val, panX * FLYING_PAN_SCALE, panY, panZ);
 };
 
 /**
