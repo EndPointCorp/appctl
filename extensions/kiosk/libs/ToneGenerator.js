@@ -26,7 +26,8 @@ function ToneGenerator(context) {
   gainNode.connect(context.destination);
 
   var panNode = context.createPanner();
-  panNode.setPosition(0, 0, 0);
+  //panNode.setOrientation(0.0, 0.0, 1.0);
+  panNode.panningModel = 'equalpower';
   panNode.connect(gainNode);
 
   var oscNode = context.createOscillator();
@@ -55,7 +56,7 @@ function ToneGenerator(context) {
     if (!isNumber(pan)) {
       throw 'Pan must be a number.';
     }
-    panNode.setPosition(pan, 1.0, 0);
+    panNode.setPosition(pan, 0.0, 1.0 - Math.abs(pan));
   }
 
   /**

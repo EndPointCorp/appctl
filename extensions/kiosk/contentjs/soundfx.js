@@ -4,15 +4,18 @@
 
 var EARTH_RADIUS = 6371000; // meters from center
 var EARTH_ATMOSPHERE_CEILING = 480000; // meters from surface
-var ATMOSPHERE_FALLOFF = 6; // exponential falloff rate for atmospheric density
-var BOOST_START_LEVEL = 0.5; // play boost when level exceeds this value
+var ATMOSPHERE_FALLOFF = 16; // exponential falloff rate for atmospheric density
+var FLYING_GAIN_SCALE = 0.5;
+var FLYING_PAN_SCALE = 1.0;
+var BOOST_START_LEVEL = 1.0; // play boost when level exceeds this value
 var BOOST_END_LEVEL = 0.25; // end boost when level exceeds this value
-var BOOST_GAIN = 1.0; // gain level of boost effect
+var BOOST_GAIN = 0.0; // gain level of boost effect
 var HOVER_TIMEOUT = 200; // ms, hover fx after no movement for this interval
 var HOVER_LEVEL = 0.12; // ambient level
-var HUM_GAIN_MIN = 0.04; // minimum hum level
-var HUM_GAIN_MAX = 0.3; // maximum hum level
-var HUM_GAIN_SCALE = 0.2; // multiply hum gain by this factor
+var HUM_GAIN_MIN = 0.06; // minimum hum level
+var HUM_GAIN_MAX = 0.38; // maximum hum level
+var HUM_GAIN_SCALE = 0.38; // multiply hum gain by this factor
+var HUM_GAIN_EXP = 1.0; // exponential gain for hum
 var HUM_PAN_SCALE = 1.0; // scale hum panning by this factor
 var HUM_FREQ_MIN = 30; // minimum (idle) hum frequency
 var HUM_FREQ_FACTOR = 10; // multiply hum frequency by this factor
@@ -41,12 +44,15 @@ SoundEffect = function(context, src_file, begin, end, loop) {
 
   this.gainNode = this.context.createGain();
   this.panNode = this.context.createPanner();
+  this.panNode.setPosition(0, 0, 0);
 
   // source -> gain -> pan -> destination
   this.gainNode.connect(this.panNode);
   this.panNode.connect(this.context.destination);
 
   this.gainNode.gain.value = 0;
+
+  this.panNode.panningModel = 'HRTF';
 
   this.startMs = begin;
   this.durationMs = end - begin;
@@ -72,7 +78,6 @@ SoundEffect = function(context, src_file, begin, end, loop) {
   request.send();
 
   this.loop = loop;
-  //this.loop = false;
   this.event_thread = 0;
   this.playing = false;
 
@@ -104,9 +109,11 @@ SoundEffect.prototype.setVolume = function(float_val) {
  * @param {float} panZ forward/back pan [-1, 1]
  */
 SoundEffect.prototype.setPan = function(panX, panY, panZ) {
+  /*
   panX = panX ? Math.max(-1, Math.min(1, panX)) : 0;
   panY = panY ? Math.max(-1, Math.min(1, panY)) : 0;
   panZ = panZ ? Math.max(-1, Math.min(1, panZ)) : 0;
+  */
   this.panNode.setPosition(panX, panY, panZ);
 };
 
@@ -257,6 +264,19 @@ SoundFX = function() {
     chrome.extension.getURL('sounds/cutoff.wav'),
                              0, 1994, false);
 
+  /*
+  this.boost = new SoundEffect(
+    this.context,
+    chrome.extension.getURL('sounds/boost.wav'),
+                            0, 2435, false);
+  this.boost.setVolume(BOOST_GAIN);
+  */
+  this.boost = this.largestart;
+
+  this.flying = new SoundEffect(
+    this.context,
+    chrome.extension.getURL('sounds/flying.wav'),
+                            0, 27282, true);
 };
 
 /**
@@ -322,15 +342,18 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
   var tiltular = toRadians(pose.orientation.x) + Math.atan2(dLateral, dAlt);
   var lateral = toRadians(pose.orientation.z) + Math.atan2(dLat, dLng);
   // 3D pan values, poorly supported irl
-  //var panX = -Math.cos(lateral);
+  //var panX = Math.cos(lateral) * Math.sin(tiltular);
   //var panZ = Math.sin(lateral) * Math.cos(tiltular);
   //var panY = Math.sin(lateral) * Math.cos(tiltular);
 
   // simple stereo pan
-  var stereoPan = -Math.cos(lateral) * Math.sin(tiltular);
+  var panX = -Math.cos(lateral) * Math.sin(tiltular);
+  var panY = 0;
+  var panZ = -2.5;
 
   // Now play the corresponding sound effects.
-  this.update(val, stereoPan, 1.0, 0);
+  //this.update(val, stereoPan, 100.0, 0.0);
+  this.update(val, panX, panY, panZ);
 };
 
 /**
@@ -350,10 +373,13 @@ SoundFX.prototype.handleNavTwist = function(twist) {
 
   var humFreq = HUM_FREQ_MIN + val * HUM_FREQ_FACTOR;
   var humPan = x * HUM_PAN_SCALE;
-  var humGain = Math.min(HUM_GAIN_MIN + val * (HUM_GAIN_MAX - HUM_GAIN_MIN), HUM_GAIN_MAX) * HUM_GAIN_SCALE;
+  var humGainClamped = Math.min(HUM_GAIN_MIN + val * (HUM_GAIN_MAX - HUM_GAIN_MIN), HUM_GAIN_MAX)
+  var humGainScaled = humGainClamped * HUM_GAIN_SCALE;
+  var humGain = Math.pow(humGainScaled, HUM_GAIN_EXP);
+  humGain = (humGain + humGain) / 2;
 
   this.hum.setFreq(humFreq);
-  this.hum.setPan(humPan);
+  this.hum.setPan(x * HUM_PAN_SCALE);
   this.hum.setGain(humGain);
 };
 
@@ -365,17 +391,23 @@ SoundFX.prototype.handleNavTwist = function(twist) {
  * @param {float} panZ Forward to back panning component [-1, 1]
  */
 SoundFX.prototype.update = function(level, panX, panY, panZ) {
-  this.largeidle.setVolume(level);
-  this.largeidle.setPan(panX, panY, panZ);
+  this.flying.setVolume(level * FLYING_GAIN_SCALE);
+  this.flying.setPan(
+    panX,
+    panY,
+    panZ
+  );
 
   if (level > BOOST_START_LEVEL) {
     if (!this.boosting) {
       this.boosting = true;
-      this.largestart.start();
+      //this.boost.setVolume(BOOST_GAIN);
+      this.boost.start();
     }
   } else if (this.boosting && level < BOOST_END_LEVEL) {
     this.boosting = false;
-    this.largestart.stop();
+    //this.boost.setVolume(0);
+    this.boost.stop();
   }
 
   if (level > HOVER_LEVEL) {
@@ -401,10 +433,10 @@ SoundFX.prototype.hover = function() {
 
   // only play hover sound within the atmosphere
   if (this.lastPose.position.z < EARTH_ATMOSPHERE_CEILING) {
-    this.largeidle.setVolume(HOVER_LEVEL);
-    this.largeidle.setPan(0, 1.0, 0);
+    this.flying.setVolume(HOVER_LEVEL * FLYING_GAIN_SCALE);
+    this.flying.setPan(0, 0, 0);
   } else {
-    this.largeidle.setVolume(0);
+    this.flying.setVolume(0);
   }
 };
 
@@ -421,7 +453,7 @@ SoundFX.prototype.enable = function() {
 SoundFX.prototype.disable = function() {
   this.enabled = false;
   this.hum.setGain(0);
-  this.largeidle.setVolume(0);
+  this.flying.setVolume(0);
 };
 
 /*
