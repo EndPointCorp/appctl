@@ -46,14 +46,14 @@ class TestZoomButtons(TestBase):
         # get current values of altitude, latitude and longitude
         pose_start = self.get_camera_pose()
         self.click_zoom_out()
-        time.sleep(2)
+        time.sleep(3)
         pose = self.get_camera_pose()
         # the zoom out click increases altitude by approx 100% of the initial value
-        # assume 10% difference from the target value to tolerate
+        # assume 20% difference from the target value to tolerate
         expected_pose = Pose(alt=pose_start.alt * 2,
                              lat=pose_start.lat,
                              lon=pose_start.lon)
-        assert self.pose_is_near(pose, expected_pose, alt_delta=pose.alt * 0.1) is True
+        assert self.pose_is_near(pose, expected_pose, alt_delta=pose.alt * 0.2) is True
 
     @helpers.screenshot_on_error
     def test_zoom_in_button_change(self):
@@ -67,11 +67,11 @@ class TestZoomButtons(TestBase):
         # get current values of altitude, latitude and longitude
         pose_start = self.get_camera_pose()
         self.click_zoom_in()
-        time.sleep(2)
+        time.sleep(3)
         pose = self.get_camera_pose()
         # the zoom in click decreases altitude by approx 50% of the initial value
-        # assume 10% difference from the target value to tolerate
+        # assume 20% difference from the target value to tolerate
         expected_pose = Pose(alt=pose_start.alt * 0.5,
                              lat=pose_start.lat,
                              lon=pose_start.lon)
-        assert self.pose_is_near(pose, expected_pose, alt_delta=pose.alt * 0.1) is True
+        assert self.pose_is_near(pose, expected_pose, alt_delta=pose.alt * 0.2) is True
