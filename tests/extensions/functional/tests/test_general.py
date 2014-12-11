@@ -6,14 +6,12 @@ General Portal selenium tests.
 import time
 from functools import partial
 
-import pytest
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as exp_cond
 
 from base import TestBase
-from base import screenshot_on_error
 import helpers
 
 
@@ -28,7 +26,7 @@ class TestSearch(TestBase):
         super(TestSearch, self).setup_method(method)
         self.browser = self.run_browser(self.config["chromes"]["kiosk"])
 
-    @screenshot_on_error
+    @helpers.screenshot_on_error
     def test_search_hitting_return_on_search_box(self):
         """
         Test that camera coordinates were changed from the initial
@@ -51,7 +49,7 @@ class TestSearch(TestBase):
         WebDriverWait(self.browser,
                       self.config["max_load_timeout"]).until_not(tester, message=msg)
 
-    @screenshot_on_error
+    @helpers.screenshot_on_error
     def test_search_hitting_return_on_search_button(self):
         """
         Test that camera coordinates were changed from the initial
@@ -81,7 +79,7 @@ class TestSearch(TestBase):
         WebDriverWait(self.browser,
                       self.config["max_load_timeout"]).until_not(tester, message=msg)
 
-    @screenshot_on_error
+    @helpers.screenshot_on_error
     def test_search_clicking_search_button(self):
         """
         Test that camera coordinates were changed from the initial
@@ -102,7 +100,7 @@ class TestSearch(TestBase):
         WebDriverWait(self.browser,
                       self.config["max_load_timeout"]).until_not(tester, message=msg)
 
-    @screenshot_on_error
+    @helpers.screenshot_on_error
     def test_no_searchbox_on_other_planets(self):
         """
         The test loads the initial config["maps_url"] and zooms out.
@@ -185,7 +183,7 @@ class TestMiscellaneous(TestBase):
         super(TestMiscellaneous, self).setup_method(method)
         self.browser = self.run_browser(self.config["chromes"]["kiosk"])
 
-    @screenshot_on_error
+    @helpers.screenshot_on_error
     def test_eu_cookies_info_bar_is_hidden(self):
         """
         Test that the EU cookies info bar is invisible.

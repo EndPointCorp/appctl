@@ -15,13 +15,11 @@ filled (loaded by a static list of entries read from a file).
 import time
 from functools import partial
 
-import pytest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 
-from base import screenshot_on_error
 from base import TestBase
 import helpers
 
@@ -36,7 +34,7 @@ class TestRunway(TestBase):
         super(TestRunway, self).setup_method(method)
         self.browser = self.run_browser(self.config["chromes"]["kiosk"])
 
-    @screenshot_on_error
+    @helpers.screenshot_on_error
     def test_runway_buttons_basic(self):
         """
         Test that Point of Interest and Famous Places are displayed.
@@ -54,7 +52,7 @@ class TestRunway(TestBase):
         fp.click()
         poi.click()
 
-    @screenshot_on_error
+    @helpers.screenshot_on_error
     def test_runway_planets_on_max_zoom_out(self):
         """
         Test there is Mars, Earth, Moon loaded
@@ -160,7 +158,7 @@ class TestRunway(TestBase):
         WebDriverWait(self.browser,
                       self.config["max_load_timeout"]).until(my_test, message=msg)
 
-    @screenshot_on_error
+    @helpers.screenshot_on_error
     def test_runway_points_of_interest(self):
         """
         Test Points of Interest is loaded, we can load one, exit it and
@@ -180,7 +178,7 @@ class TestRunway(TestBase):
                 break
             c += 1
 
-    @screenshot_on_error
+    @helpers.screenshot_on_error
     def test_runway_check_earth_icon_click(self):
         """
         The Earth icon (most left picture), clicking it should bring the

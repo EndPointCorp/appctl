@@ -4,9 +4,6 @@ Portal selenium tests base module.
 """
 
 
-from functools import wraps
-import traceback
-from datetime import datetime
 import logging
 import time
 import os
@@ -32,44 +29,6 @@ CONFIG = {}
 
 # Class used for runing information from the acme.getCurrentPose() function
 Pose = namedtuple("pose", ['alt', 'lon', 'lat'])
-
-
-def make_screenshot(browser, fname, index):
-    ss_dir = CONFIG["screenshots_dir"]
-
-    if not os.path.exists(ss_dir):
-        os.makedirs(ss_dir)
-
-    fname = "{}{}{}_{}_{}".format(ss_dir,
-                                  os.path.sep,
-                                  datetime.now().isoformat(),
-                                  fname,
-                                  index)
-    #print "Making screenshot: " + fname
-    browser.save_screenshot('{}.png'.format(fname))
-    return fname
-
-
-def screenshot_on_error(test):
-    """
-    Decorator for test functions to make screenshots on error.
-
-    The wrapper runs the test. When it fails, then it makes
-    a screenshot in the CONFIG["screenshots_dir"] directory.
-
-    """
-    @wraps(test)
-    def wrapper(*args, **kwargs):
-        try:
-            test(*args, **kwargs)
-        except:
-            test_obj = args[0]
-            test_name = test_obj.current_method
-            fname = make_screenshot(test_obj.browser, test_name, 0)
-            with open("{}.log".format(fname), "w") as flog:
-                flog.write(traceback.format_exc())
-            raise
-    return wrapper
 
 
 def load_configuration():
@@ -446,7 +405,6 @@ class TestBase(object):
         """
         start = time.time()
         while (start + max_wait_time > time.time()):
-            #print self.browser.current_url
             if old_value != self.browser.current_url:
                 return
             time.sleep(interval)
