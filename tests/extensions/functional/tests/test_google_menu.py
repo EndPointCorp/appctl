@@ -10,7 +10,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 
 from base import TestBase
-from base import screenshot_on_error
 import helpers
 
 
@@ -24,7 +23,7 @@ class TestGoogleMenu(TestBase):
         super(TestGoogleMenu, self).setup_method(method)
         self.browser = self.run_browser(self.config["chromes"]["kiosk"])
 
-    @screenshot_on_error
+    @helpers.screenshot_on_error
     def test_google_menu_is_visible(self):
         """
         Test that Google Menu (More fun) is displayed along with some items.
@@ -36,7 +35,7 @@ class TestGoogleMenu(TestBase):
         items = self.browser.find_element_by_id('morefun_items')
         assert items.is_displayed() is False
 
-    @screenshot_on_error
+    @helpers.screenshot_on_error
     def test_google_items_are_visible_on_click(self):
         """
         Test that Google Menu (More fun) items are visible after clicking it.
@@ -49,8 +48,9 @@ class TestGoogleMenu(TestBase):
         items = self.browser.find_element_by_id('morefun_items')
         assert items.is_displayed() is True
 
+    # this test will likely need to be significantly redone
     @pytest.mark.skipif(True, reason="More fun -> Maps, Timelapse click doesn't do anything, #200")
-    @screenshot_on_error
+    @helpers.screenshot_on_error
     def test_clicking_doodle_item(self):
         """
         Test that clicking on the doodle item changes the URL to the

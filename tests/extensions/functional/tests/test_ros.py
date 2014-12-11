@@ -24,9 +24,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 
-from base import TestBase
-from base import screenshot_on_error
 import helpers
+from base import TestBase
 from portal_nav.msg import PortalPose
 from base import Pose
 
@@ -60,12 +59,14 @@ class TestBaseSingleBrowserROS(TestBase):
 
     @staticmethod
     def subscriber(status):
-        # msg.current_pose.position.x, msg.current_pose.position.y, msg.current_pose.position.y
+        catches = []
         def callback(msg):
             #rospy.loginfo(rospy.get_caller_id() + " received msg: '%s'" % msg)
             # need to make assertions / or rather assumptions here on the
             # received messages but can't pytest.fail from this context
-            print msg.current_pose.position.x, msg.current_pose.position.y, msg.current_pose.position.z
+            catches.append([msg.current_pose.position.x,
+                            msg.current_pose.position.y,
+                            msg.current_pose.position.z])
             # can't pass the information to the subscriber() method
             # do the checks here, and last one has either pass or fail
             # the final flag will be set
@@ -76,8 +77,10 @@ class TestBaseSingleBrowserROS(TestBase):
                 status.value = "OK"
             else:
                 status.value = "ERROR"
-            #print status.value
 
+        if status.value == "ERROR":
+            for catch in catches:
+                print catch
         rospy.init_node("test_subscriber", anonymous=True)
         rospy.Subscriber("/portal_kiosk/current_pose", PortalPose, callback)
         # spin() simply keeps python from exiting until this node is stopped
@@ -86,6 +89,7 @@ class TestBaseSingleBrowserROS(TestBase):
         print "subscriber terminated."
         print "final result value: '%s'" % status.value
 
+    @helpers.screenshot_on_error
     def test_ros_position_after_search(self):
         """
         Run browser and type something in the search box, a place with

@@ -3,13 +3,18 @@ Helpers used by tests.
 
 """
 
-from exception import HelperException
+
+import os
 from functools import partial
+from functools import wraps
+import traceback
+import datetime
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as exp_cond
 
+from exception import HelperException
 from base import TestBase
 
 
@@ -66,4 +71,44 @@ def wait_for_loaded_page(url,
         msg = "Element identified by '%s' still present after timeout." % elem_identifier_name
         WebDriverWait(browser,
                       config["max_load_timeout"]).until_not(tester(), message=msg)
-        
+
+
+def make_screenshot(browser, test_name, index):
+    """
+    Construct file name for the screen shot and grap the screen via selenium.
+
+    """
+    config = TestBase.get_config()
+    ss_dir = config["screenshots_dir"]
+    if not os.path.exists(ss_dir):
+        os.makedirs(ss_dir)
+    fname = "{}{}{}_{}_{}".format(ss_dir,
+                                  os.path.sep,
+                                  datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S"),
+                                  test_name,
+                                  index)
+    print "Making screenshot: " + fname
+    browser.save_screenshot("{}.png".format(fname))
+    return fname
+
+
+def screenshot_on_error(test):
+    """
+    Decorator for test functions to make screenshots on error.
+
+    The wrapper runs the test. When it fails, then it makes
+    a screenshot in the config "screenshots_dir" directory.
+
+    """
+    @wraps(test)
+    def wrapper(*args, **kwargs):
+        try:
+            test(*args, **kwargs)
+        except:
+            test_obj = args[0]
+            test_name = test_obj.current_method
+            fname = make_screenshot(test_obj.browser, test_name, 0)
+            with open("{}.log".format(fname), "w") as flog:
+                flog.write(traceback.format_exc())
+            raise
+    return wrapper
