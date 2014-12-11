@@ -7,7 +7,7 @@ body {
 }
 
 /* zoom the titlecard */
-#titlecard { zoom: 250%; }
+/* #titlecard { zoom: 250%; } */
 
 /*
  * move the titlecard away from the left edge/corner
