@@ -137,14 +137,14 @@ class TestBaseTwoBrowsersROS(TestBase):
 
     def setup_method(self, method):
         super(TestBaseTwoBrowsersROS, self).setup_method(method)
-        self.browser_1 = self.run_browser(self.config["chromes"]["kiosk"])
-        self.browser_2 = self.run_browser(self.config["chromes"]["display"])
+        self.browsers = dict(kiosk=self.run_browser(self.config["chromes"]["kiosk"]),
+                             display=self.run_browser(self.config["chromes"]["display"]))
 
     def teardown_method(self, _):
-        self.browser_1.quit()
-        self.browser_2.quit()
+        [browser.quit() for browser in self.browsers.values()]
 
-    def test_ros_positions_in_browsers_aligned_after_kiosk_search(self):
+    @helpers.screenshot_on_error
+    def test_ros_positions_aligned_after_search(self):
         """
         Perform search in the kiosk browser and assert on the automatically
         synchronized final position in the display browser.
@@ -152,40 +152,40 @@ class TestBaseTwoBrowsersROS(TestBase):
         """
         # both browsers need to load config["maps_url"] to make acme stuff available,
         # otherwise browser remains blank
-        helpers.wait_for_loaded_page(self.config["maps_url"], self.browser_1)
+        helpers.wait_for_loaded_page(self.config["maps_url"], self.browsers["kiosk"])
 
-        # browser_2, with display extension which has HTML elements displayed,
+        # browser with display extension which has HTML elements displayed,
         # continue when widget-mylocation-button disappears BUT at that point,
         # the page is still not yet fully loaded
         helpers.wait_for_loaded_page(self.config["maps_url"],
-                                     self.browser_2,
+                                     self.browsers["display"],
                                      elem_identifier_kind=By.CLASS_NAME,
                                      elem_identifier_name="widget-mylocation-button",
                                      elem_presence=False)
 
-        box = self.browser_1.find_element_by_id("searchboxinput")
+        box = self.browsers["kiosk"].find_element_by_id("searchboxinput")
         box.send_keys("babice nad svitavou, czech republic")
         box.send_keys(Keys.RETURN)
         babice_pose = Pose(alt=18925, lon=16, lat=49)
         # wait for the 'kiosk' browser to finish adjusting itself
         # unused argument is selenium webdriver (browser) reference
         tester = lambda _: self.pose_is_near(babice_pose,
-                                             self.get_camera_pose(self.browser_1),
+                                             self.get_camera_pose(self.browsers["kiosk"]),
                                              alt_delta=babice_pose.alt * 0.1,
                                              lon_delta=babice_pose.lon * 0.1,
                                              lat_delta=babice_pose.lat * 0.1)
         msg = "Waiting for position change in the kiosk browser timed out."
-        WebDriverWait(self.browser_1,
+        WebDriverWait(self.browsers["kiosk"],
                       self.config["max_load_timeout"]).until(tester, message=msg)
         # wait for the 'display' browser to finish adjusting itself
         # unused argument is selenium webdriver (browser) reference
         tester = lambda _: self.pose_is_near(babice_pose,
-                                             self.get_camera_pose(self.browser_2),
+                                             self.get_camera_pose(self.browsers["display"]),
                                              alt_delta=babice_pose.alt * 0.1,
                                              lon_delta=babice_pose.lon * 0.1,
                                              lat_delta=babice_pose.lat * 0.1)
         msg = "Waiting for position change in the display browser timed out."
-        WebDriverWait(self.browser_2,
+        WebDriverWait(self.browsers["display"],
                       self.config["max_load_timeout"]).until(tester, message=msg)
-        assert self.pose_is_near(self.get_camera_pose(self.browser_1),
-                                 self.get_camera_pose(self.browser_2))
+        assert self.pose_is_near(self.get_camera_pose(self.browsers["kiosk"]),
+                                 self.get_camera_pose(self.browsers["display"]))

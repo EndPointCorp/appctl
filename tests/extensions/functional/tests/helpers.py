@@ -107,7 +107,17 @@ def screenshot_on_error(test):
         except:
             test_obj = args[0]
             test_name = test_obj.current_method
-            fname = make_screenshot(test_obj.browser, test_name, 0)
+
+            fname = ""
+            if hasattr(test_obj, "browsers"):
+                # is multiple browsers test
+                for ext_name, browser in test_obj.browsers.items():
+                    fname = make_screenshot(browser, "%s-%s" % (test_name, ext_name), 0)
+            else:
+                # is a single browser test
+                browser = test_obj.browser
+                fname = make_screenshot(browser, test_name, 0)
+
             with open("{}.log".format(fname), "w") as flog:
                 flog.write(traceback.format_exc())
             raise
