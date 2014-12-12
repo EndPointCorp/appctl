@@ -58,9 +58,9 @@ class OccupancyAggregator():
         )
 
         self.occupied = (
-            (self.occupied and o_proximity) or
+            o_proximity or
             o_spacenav or
-            o_leap or
+            (self.occupied and o_leap) or
             o_evdev
         )
         return self.occupied
