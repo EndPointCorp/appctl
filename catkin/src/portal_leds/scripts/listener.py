@@ -15,6 +15,7 @@ class PortalLEDController():
         self.port = serial.Serial(self.path, self.baud)
 
     def handle_command(self, command):
+        rospy.loginfo('sending {}'.format(command))
         try:
             self.port.write(command)
         except serial.SerialTimeoutException as e:
@@ -24,7 +25,10 @@ class PortalLEDController():
 def listener():
     rospy.init_node('portal_leds_listener')
 
-    controller = PortalLEDController('/dev/null', 38400)
+    device_path = rospy.get_param('~device_path')
+    baud_rate = int(rospy.get_param('~baud_rate', 9600))
+
+    controller = PortalLEDController(device_path, baud_rate)
 
     def handle_msg(msg):
         command = msg.data
@@ -32,6 +36,7 @@ def listener():
 
     rospy.Subscriber('/portal_leds/command', String, handle_msg)
 
+    rospy.spin()
 
 if __name__ == '__main__':
     listener()
