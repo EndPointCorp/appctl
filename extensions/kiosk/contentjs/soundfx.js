@@ -5,7 +5,7 @@
 var EARTH_RADIUS = 6371000; // meters from center
 var EARTH_ATMOSPHERE_CEILING = 480000; // meters from surface
 var ATMOSPHERE_FALLOFF = 16; // exponential falloff rate for atmospheric density
-var FLYING_GAIN_SCALE = 0.25;
+var FLYING_GAIN_SCALE = 1.0;
 var FLYING_PAN_SCALE = 1.0;
 var BOOST_START_LEVEL = 1.0; // play boost when level exceeds this value
 var BOOST_END_LEVEL = 0.25; // end boost when level exceeds this value
@@ -14,10 +14,10 @@ var HOVER_TIMEOUT = 200; // ms, hover fx after no movement for this interval
 var HOVER_LEVEL = 0.04; // ambient level
 var HUM_GAIN_MIN = 0.06; // minimum hum level
 var HUM_GAIN_MAX = 0.38; // maximum hum level
-var HUM_GAIN_SCALE = 0.3; // multiply hum gain by this factor
+var HUM_GAIN_SCALE = 0.2; // multiply hum gain by this factor
 var HUM_GAIN_EXP = 1.0; // exponential gain for hum
 var HUM_PAN_SCALE = 1.0; // scale hum panning by this factor
-var HUM_FREQ_MIN = 30; // minimum (idle) hum frequency
+var HUM_FREQ_MIN = 25; // minimum (idle) hum frequency
 var HUM_FREQ_FACTOR = 10; // multiply hum frequency by this factor
 
 /** Shim for audio context.
@@ -277,6 +277,7 @@ SoundFX = function() {
     this.context,
     chrome.extension.getURL('sounds/flying.wav'),
                             0, 27282, true);
+  //this.flying = this.largeidle;
 };
 
 /**
@@ -379,7 +380,7 @@ SoundFX.prototype.handleNavTwist = function(twist) {
   humGain = (humGain + humGain) / 2;
 
   this.hum.setFreq(humFreq);
-  this.hum.setPan(x * HUM_PAN_SCALE);
+  this.hum.setPan(-x * HUM_PAN_SCALE);
   this.hum.setGain(humGain);
 };
 
