@@ -150,9 +150,6 @@ class TestBaseTwoBrowsersROS(TestBase):
         synchronized final position in the display browser.
 
         """
-        # both browsers need to load config["maps_url"] to make acme stuff available,
-        # otherwise browser remains blank
-        helpers.wait_for_loaded_page(self.config["maps_url"], self.browsers["kiosk"])
 
         # browser with display extension which has HTML elements displayed,
         # continue when widget-mylocation-button disappears BUT at that point,
@@ -162,7 +159,16 @@ class TestBaseTwoBrowsersROS(TestBase):
                                      elem_identifier_kind=By.CLASS_NAME,
                                      elem_identifier_name="widget-mylocation-button",
                                      elem_presence=False)
-        
+
+        # need to make sure display is properly connected
+        import time
+        time.sleep(20)
+
+        # both browsers need to load config["maps_url"] to make acme stuff available,
+        # otherwise browser remains blank
+        helpers.wait_for_loaded_page(self.config["maps_url"], self.browsers["kiosk"])
+
+
         box = self.browsers["kiosk"].find_element_by_id("searchboxinput")
         box.send_keys("babice nad svitavou, czech republic")
         box.send_keys(Keys.RETURN)
