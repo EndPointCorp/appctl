@@ -115,6 +115,12 @@ def screenshot_on_error(test):
                 for ext_name, browser in test_obj.browsers.items():
                     fname = make_screenshot(browser, "%s-%s" % (test_name, ext_name), 0)
                     # grab javascript console output too
+                    # seems to catch only error states from javasript
+                    # doing arbitrary console.log() and reading it back
+                    # via this call returns empty list
+                    # also, repeated browser.get_log calls eventually return
+                    # empty list as the opportune previous error messages were
+                    # consumed (?) by the .get_log() call?
                     js_console[ext_name] = browser.get_log("browser")
             else:
                 # is a single browser test

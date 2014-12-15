@@ -163,6 +163,16 @@ class TestBaseTwoBrowsersROS(TestBase):
                                      elem_identifier_name="widget-mylocation-button",
                                      elem_presence=False)
 
+        import time
+        time.sleep(10)
+        print 80 * '1'
+        print "kiosk logs:"
+        print self.browsers["kiosk"].get_log("browser")
+        print 80 * '2'
+        print "display logs:"
+        print self.browsers["display"].get_log("browser")
+        print 80 * '3'
+
         box = self.browsers["kiosk"].find_element_by_id("searchboxinput")
         box.send_keys("babice nad svitavou, czech republic")
         box.send_keys(Keys.RETURN)
