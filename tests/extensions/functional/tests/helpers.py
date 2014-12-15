@@ -109,10 +109,19 @@ def screenshot_on_error(test):
             test_name = test_obj.current_method
 
             fname = ""
+            js_console = dict()
             if hasattr(test_obj, "browsers"):
                 # is multiple browsers test
                 for ext_name, browser in test_obj.browsers.items():
                     fname = make_screenshot(browser, "%s-%s" % (test_name, ext_name), 0)
+                    # grab javascript console output too
+                    # seems to catch only error states from javasript
+                    # doing arbitrary console.log() and reading it back
+                    # via this call returns empty list
+                    # also, repeated browser.get_log calls eventually return
+                    # empty list as the opportune previous error messages were
+                    # consumed (?) by the .get_log() call?
+                    js_console[ext_name] = browser.get_log("browser")
             else:
                 # is a single browser test
                 browser = test_obj.browser
@@ -120,5 +129,10 @@ def screenshot_on_error(test):
 
             with open("{}.log".format(fname), "w") as flog:
                 flog.write(traceback.format_exc())
+                flog.write("\n\njavascript console output:\n\n")
+                for extention, entries in js_console.items():
+                    flog.write("%s:\n" % extention)
+                    flog.write("\n".join([str(entry) for entry in entries]))
+                    flog.write("\n\n\n")
             raise
     return wrapper
