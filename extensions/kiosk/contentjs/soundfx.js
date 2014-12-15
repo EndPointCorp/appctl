@@ -7,18 +7,16 @@ var EARTH_ATMOSPHERE_CEILING = 480000; // meters from surface
 var ATMOSPHERE_FALLOFF = 16; // exponential falloff rate for atmospheric density
 var FLYING_GAIN_SCALE = 1.0;
 var FLYING_PAN_SCALE = 1.0;
-var BOOST_START_LEVEL = 1.0; // play boost when level exceeds this value
-var BOOST_END_LEVEL = 0.25; // end boost when level exceeds this value
+var FLYING_CEILING_MOD = 1.0;
+var FLYING_HOVER_LEVEL = 0.04;
+var SUBFLYING_GAIN_SCALE = 0.6;
+var SUBFLYING_PAN_SCALE = 0.75;
+var SUBFLYING_CEILING_MOD = 4.0;
+var SUBFLYING_HOVER_LEVEL = 0.08;
+var BOOST_START_SPEED = 200000; // play boost when speed exceeds this value
+var BOOST_END_SPEED = 20000; // end boost when speed is below this value
 var BOOST_GAIN = 0.0; // gain level of boost effect
-var HOVER_TIMEOUT = 200; // ms, hover fx after no movement for this interval
-var HOVER_LEVEL = 0.04; // ambient level
-var HUM_GAIN_MIN = 0.06; // minimum hum level
-var HUM_GAIN_MAX = 0.38; // maximum hum level
-var HUM_GAIN_SCALE = 0.2; // multiply hum gain by this factor
-var HUM_GAIN_EXP = 1.0; // exponential gain for hum
-var HUM_PAN_SCALE = 1.0; // scale hum panning by this factor
-var HUM_FREQ_MIN = 25; // minimum (idle) hum frequency
-var HUM_FREQ_FACTOR = 10; // multiply hum frequency by this factor
+var HOVER_DEADZONE = 0.02; // hovering when stick inside this zone
 
 /** Shim for audio context.
  * @ignore
@@ -52,8 +50,6 @@ SoundEffect = function(context, src_file, begin, end, loop) {
 
   this.gainNode.gain.value = 0;
 
-  //this.panNode.panningModel = 'HRTF';
-
   this.startMs = begin;
   this.durationMs = end - begin;
 
@@ -80,17 +76,6 @@ SoundEffect = function(context, src_file, begin, end, loop) {
   this.loop = loop;
   this.event_thread = 0;
   this.playing = false;
-
-  /*
-  // support crossfade
-  this.xfade = 0;
-  this.xratio = 0;
-  this.xincr = 0.05;
-  this.xstep = 100;
-  this.crossfading = false;
-  // Keep track of the event thread for the cross fading.
-  this.xthread = 0;
-  */
 };
 
 /**
@@ -104,68 +89,12 @@ SoundEffect.prototype.setVolume = function(float_val) {
 
 /**
  * Pan the clip.
- * @param {float} panX left/right pan [-1, 1]
- * @param {float} panY up/down pan [-1, 1]
- * @param {float} panZ forward/back pan [-1, 1]
+ * @param {float} panX left/right
+ * @param {float} panY up/down
+ * @param {float} panZ forward/back
  */
 SoundEffect.prototype.setPan = function(panX, panY, panZ) {
-  /*
-  panX = panX ? Math.max(-1, Math.min(1, panX)) : 0;
-  panY = panY ? Math.max(-1, Math.min(1, panY)) : 0;
-  panZ = panZ ? Math.max(-1, Math.min(1, panZ)) : 0;
-  */
   this.panNode.setPosition(panX, panY, panZ);
-};
-
-/**
- * Support to crossfade the soundeffect to a different audio clip.
- * Moves from one to the other symetrically over time.
- * @param {SoundEffect} fx The effect to fade to.
- * @param {float} incr How much to slide from one to the other.
- * @param {int} step The duration of time in ms to take per step.
- * @param {int} offset How long to wait in ms before starting.
- */
-SoundEffect.prototype.crossfadeTo = function(fx, incr, step, offset) {
-  if (typeof offset === 'undefined') offset = 0;
-
-  this.xfade = fx;
-  this.xratio = 0;
-  this.xincr = incr;
-  this.xstep = step;
-
-  fx.stop();
-  fx.setVolume(0);
-  fx.start();
-
-  // Crossfade maybe janky to any loop that is too short a clip
-  // since the clip will be over.
-  this.crossfading = true;
-  var self = this;
-  this.xthread = setTimeout(function() {
-    self.xfade_();
-  }, offset);
-};
-
-/**
- * Internal call for crossfading.
- * @private
- */
-SoundEffect.prototype.xfade_ = function() {
-  var self = this;
-  this.xthread = setTimeout(function() {
-    self.xratio += self.xincr;
-    self.setVolume(1 - self.xratio);
-    self.xfade.setVolume(self.xratio);
-    if (self.xratio < 1.0) {
-      self.xfade_();
-    }
-    else {
-      // The crossfade is done.
-      self.stop();
-      self.setVolume(1);
-      self.crossfading = false;
-    }
-  }, this.xstep);
 };
 
 /**
@@ -185,16 +114,6 @@ SoundEffect.prototype.start = function() {
  * @private
  */
 SoundEffect.prototype.start_ = function() {
-  /*
-  if (this.audio.readyState == 0) return; // Consider an error
-  this.audio.currentTime = this.startMs / 1000;
-  var self = this;
-  this.event_thread = setTimeout(function() {
-    if (!self.loop) {
-      self.stop();
-    }
-  }, this.durationMs);
-  */
   this.source = this.context.createBufferSource();
   this.source.buffer = this.buffer;
   this.source.connect(this.gainNode);
@@ -210,12 +129,8 @@ SoundEffect.prototype.start_ = function() {
  * Premptive stop of the audio clip.
  */
 SoundEffect.prototype.stop = function() {
-  //this.audio.pause();
   this.source.stop(); // web audio api can only start() once!
   this.playing = false;
-  //this.crossfading = false;
-  // NOTE: might have to stop the crossfade target too?
-  //clearTimeout(this.event_thread);
 };
 
 /**
@@ -230,10 +145,6 @@ SoundFX = function() {
   this.hoverTimer = null;
   this.boosting = false;
   this.enabled = true;
-
-  this.hum = new ToneGenerator(this.context);
-  this.hum.setFreq(HUM_FREQ_MIN);
-  this.hum.start();
 
   // Preload the sound clips.
   // TODO(arshan): Better to load these out of a config file?
@@ -277,8 +188,31 @@ SoundFX = function() {
     this.context,
     chrome.extension.getURL('sounds/flying.wav'),
                             0, 27282, true);
-  //this.flying = this.largeidle;
+  this.subflying = new SoundEffect(
+    this.context,
+    chrome.extension.getURL('sounds/subflying.wav'),
+                            0, 6500, true);
+
 };
+
+/**
+ * Get the atmospheric density at the given altitude.
+ * @param {Number} altitude
+ * @param {Number} ceilingMod Modify ceiling by this coefficient.
+ */
+SoundFX.prototype.getAtmosphereCoeff = function(altitude, ceilingMod) {
+  ceilingMod = ceilingMod || 1.0;
+  var ceiling = EARTH_ATMOSPHERE_CEILING * ceilingMod;
+
+  var atmosphereCoeff = 0;
+  if (altitude < ceiling) {
+    var linearAtmosphere = Math.abs(altitude - ceiling);
+    atmosphereCoeff = Math.pow(linearAtmosphere, ATMOSPHERE_FALLOFF) /
+      Math.pow(ceiling, ATMOSPHERE_FALLOFF);
+  }
+
+  return atmosphereCoeff;
+}
 
 /**
  * Respond to the incoming pose message, with sound if appropriate.
@@ -321,40 +255,27 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
 
   this.lastPose = pose;
 
+  /*
   // equirectangular approximation -- performance > accuracy
   var x = dLng * Math.cos((lat + lastLat) / 2);
   var y = dLat;
   var dLateral = Math.sqrt(x * x + y * y) * distanceToEarthCenter;
 
   var speed = (dLateral + Math.abs(dAlt)) / dt; // m/s, theoretically
-  var val = Math.sqrt(speed / 100000) * 5;
+  var altitude = pose.position.z;
 
-  // atmospheric coefficient
-  var atmosphereCoeff = 0;
-  if (pose.position.z < EARTH_ATMOSPHERE_CEILING) {
-    // TODO(mv): reduce O
-    var linearAtmosphere = Math.abs(pose.position.z - EARTH_ATMOSPHERE_CEILING);
-    atmosphereCoeff = Math.pow(linearAtmosphere, ATMOSPHERE_FALLOFF) /
-      Math.pow(EARTH_ATMOSPHERE_CEILING, ATMOSPHERE_FALLOFF);
+  if (speed > BOOST_START_SPEED && altitude < EARTH_ATMOSPHERE_CEILING) {
+    if (!this.boosting) {
+      this.boosting = true;
+      //this.boost.setVolume(BOOST_GAIN);
+      this.boost.start();
+    }
+  } else if (this.boosting && speed < BOOST_END_SPEED) {
+    this.boosting = false;
+    //this.boost.setVolume(0);
+    this.boost.stop();
   }
-  val *= atmosphereCoeff;
-
-  // panning away from movement vectors
-  var tiltular = toRadians(pose.orientation.x) + Math.atan2(dLateral, dAlt);
-  var lateral = toRadians(pose.orientation.z) + Math.atan2(dLat, dLng);
-  // 3D pan values, poorly supported irl
-  //var panX = Math.cos(lateral) * Math.sin(tiltular);
-  //var panZ = Math.sin(lateral) * Math.cos(tiltular);
-  //var panY = Math.sin(lateral) * Math.cos(tiltular);
-
-  // simple stereo pan
-  var panX = -Math.cos(lateral) * Math.sin(tiltular);
-  var panY = 0;
-  var panZ = 1.0 - Math.abs(panX);
-
-  // Now play the corresponding sound effects.
-  //this.update(val, stereoPan, 100.0, 0.0);
-  this.update(val, panX * FLYING_PAN_SCALE, panY, panZ);
+  */
 };
 
 /**
@@ -362,82 +283,39 @@ SoundFX.prototype.handlePoseChange = function(stampedPose) {
  * @param {object} twist
  */
 SoundFX.prototype.handleNavTwist = function(twist) {
-  if (!this.enabled) {
-    this.hum.setGain(0);
+  if (!this.lastPose || !this.enabled) {
     return;
   }
 
   var x = twist.linear.x;
   var y = twist.linear.y;
   var z = twist.linear.z;
-  var val = Math.sqrt(z * z + Math.sqrt(x * x + y * y));
 
-  var humFreq = HUM_FREQ_MIN + val * HUM_FREQ_FACTOR;
-  var humPan = x * HUM_PAN_SCALE;
-  var humGainClamped = Math.min(HUM_GAIN_MIN + val * (HUM_GAIN_MAX - HUM_GAIN_MIN), HUM_GAIN_MAX)
-  var humGainScaled = humGainClamped * HUM_GAIN_SCALE;
-  var humGain = Math.pow(humGainScaled, HUM_GAIN_EXP);
-  humGain = (humGain + humGain) / 2;
-
-  this.hum.setFreq(humFreq);
-  this.hum.setPan(-x * HUM_PAN_SCALE);
-  this.hum.setGain(humGain);
-};
-
-/**
- * Plays appropriate sound effects for the incoming speed.
- * @param {float} level The amount of air friction [0, 1]
- * @param {float} panX Side to side panning component [-1, 1]
- * @param {float} panY Up to down panning component [-1, 1]
- * @param {float} panZ Forward to back panning component [-1, 1]
- */
-SoundFX.prototype.update = function(level, panX, panY, panZ) {
-  this.flying.setVolume(level * FLYING_GAIN_SCALE);
-  this.flying.setPan(
-    panX,
-    panY,
-    panZ
+  var hovering = (
+    Math.abs(x) < HOVER_DEADZONE &&
+    Math.abs(y) < HOVER_DEADZONE &&
+    Math.abs(z) < HOVER_DEADZONE
   );
 
-  if (level > BOOST_START_LEVEL) {
-    if (!this.boosting) {
-      this.boosting = true;
-      //this.boost.setVolume(BOOST_GAIN);
-      this.boost.start();
-    }
-  } else if (this.boosting && level < BOOST_END_LEVEL) {
-    this.boosting = false;
-    //this.boost.setVolume(0);
-    this.boost.stop();
-  }
+  var altitude = this.lastPose.position.z;
+  var valPrime = Math.sqrt(z * z + Math.sqrt(x * x + y * y));
 
-  if (level > HOVER_LEVEL) {
-    clearTimeout(this.hoverTimer);
-    var self = this;
-    this.hoverTimer = setTimeout(function() {
-      self.hover();
-    }, HOVER_TIMEOUT);
-
+  var atmosphere = this.getAtmosphereCoeff(altitude, FLYING_CEILING_MOD);
+  var val = valPrime * atmosphere;
+  if (!hovering) {
+    this.flying.setVolume(val * FLYING_GAIN_SCALE);
+    this.flying.setPan(-x * FLYING_PAN_SCALE, 0, 1.0 - Math.abs(x));
   } else {
-    clearTimeout(this.hoverTimer);
-    this.hover();
-  }
-};
-
-/**
- * Sets hover gain.
- */
-SoundFX.prototype.hover = function() {
-  if (!this.enabled) {
-    return;
+    this.flying.setVolume(FLYING_HOVER_LEVEL * FLYING_GAIN_SCALE * atmosphere);
   }
 
-  // only play hover sound within the atmosphere
-  if (this.lastPose.position.z < EARTH_ATMOSPHERE_CEILING) {
-    this.flying.setVolume(HOVER_LEVEL * FLYING_GAIN_SCALE);
-    this.flying.setPan(0, 0, 0);
+  var subAtmosphere = this.getAtmosphereCoeff(altitude, SUBFLYING_CEILING_MOD);
+  var subVal = valPrime * subAtmosphere;
+  if (!hovering) {
+    this.subflying.setVolume(subVal * SUBFLYING_GAIN_SCALE);
+    this.subflying.setPan(-x * SUBFLYING_PAN_SCALE, 0, 1.0 - Math.abs(x));
   } else {
-    this.flying.setVolume(0);
+    this.subflying.setVolume(SUBFLYING_HOVER_LEVEL * SUBFLYING_GAIN_SCALE * subAtmosphere);
   }
 };
 
@@ -453,8 +331,8 @@ SoundFX.prototype.enable = function() {
  */
 SoundFX.prototype.disable = function() {
   this.enabled = false;
-  this.hum.setGain(0);
   this.flying.setVolume(0);
+  this.subflying.setVolume(0);
 };
 
 /*
@@ -545,5 +423,39 @@ Mean    delta:         0.017119
 RMS     delta:         0.024671
 Rough   frequency:         5621
 Volume adjustment:        6.227
+
+>> sox flying.wav -n stat
+Samples read:           2406294
+Length (seconds):     27.282245
+Scaled by:         2147483647.0
+Maximum amplitude:     0.431601
+Minimum amplitude:    -0.390338
+Midline amplitude:     0.020631
+Mean    norm:          0.062867
+Mean    amplitude:    -0.000000
+RMS     amplitude:     0.080379
+Maximum delta:         0.109544
+Minimum delta:         0.000000
+Mean    delta:         0.018213
+RMS     delta:         0.022940
+Rough   frequency:         2003
+Volume adjustment:        2.317
+
+>> sox subflying.wav -n stat
+Samples read:            573300
+Length (seconds):      6.500000
+Scaled by:         2147483647.0
+Maximum amplitude:     0.977160
+Minimum amplitude:    -0.869215
+Midline amplitude:     0.053973
+Mean    norm:          0.168438
+Mean    amplitude:     0.000428
+RMS     amplitude:     0.210275
+Maximum delta:         0.495182
+Minimum delta:         0.000000
+Mean    delta:         0.087508
+RMS     delta:         0.110032
+Rough   frequency:         3672
+Volume adjustment:        1.023
 
 */
