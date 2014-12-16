@@ -1,5 +1,6 @@
 var MODES = {
   'file:///mnt/earthtime/data-visualization-tools/examples/webgl-timemachine/landsat.html': 'timelapse',
+  'http://10.42.41.210:9988/comGoogleGigapixelControl/index.html': 'gigapixel',
   'default': 'tactile'
 }
 

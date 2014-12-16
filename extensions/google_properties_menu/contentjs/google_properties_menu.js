@@ -6,6 +6,7 @@
 // url     - url to switch by the action switch_display
 var earthURL = 'http://lg-head/portal-loader.html';
 var timelapseURL = 'file:///mnt/earthtime/data-visualization-tools/examples/webgl-timemachine/landsat.html';
+var gigapixelURL = 'http://10.42.41.210:9988/comGoogleGigapixelControl/index.html';
 
 var data = [
   {
@@ -24,6 +25,13 @@ var data = [
     url: timelapseURL
   },
   */
+  {
+    name: 'gigapixel',
+    desc: 'Art Project',
+    icon: 'timelapse.png',
+    action: 'gotoGigapixel',
+    url: gigapixelURL
+  },
   {
     name: 'doodles',
     desc: 'Arcade',
@@ -54,6 +62,10 @@ var goBackToEarthPage = function() {
 
 var gotoTimelapse = function() {
   sendSwitchMessageURL(timelapseURL);
+};
+
+var gotoGigapixel = function() {
+  sendSwitchMessageURL(gigapixelURL);
 };
 
 var createElementsList = function() {
@@ -103,6 +115,14 @@ var createElementsList = function() {
       li.addEventListener(
         'touchstart',
         gotoTimelapse,
+        true
+      );
+    }
+    if (action == 'gotoGigapixel') {
+      li.onclick = gotoGigapixel;
+      li.addEventListener(
+        'touchstart',
+        gotoGigapixel,
         true
       );
     }
