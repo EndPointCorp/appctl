@@ -9,7 +9,7 @@ def main():
     buttondown_pub = rospy.Publisher(
         '/rfreceiver/buttondown',
         Byte,
-        queue_size = 1
+        queue_size=1
     )
     rospy.init_node('rfreceiver')
 

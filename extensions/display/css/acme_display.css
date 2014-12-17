@@ -7,7 +7,7 @@ body {
 }
 
 /* zoom the titlecard */
-#titlecard { zoom: 250%; }
+/* #titlecard { zoom: 250%; } */
 
 /*
  * move the titlecard away from the left edge/corner
@@ -20,7 +20,7 @@ body {
 }
 
 /* hide a bunch of the titlecard elements */
-#titlecard div[class="widget-timemachine-button-icon widget-timemachine-time-warp"],
+#titlecard div[class="widget-timemachine-button-icon"],
 #titlecard div[class="widget-titlecard-divider"],
 #titlecard div[class="widget-titlecard-spotlightcontainer"],
 #titlecard div[class="widget-titlecard-spotlight-divider"],

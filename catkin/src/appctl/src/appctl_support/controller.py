@@ -1,8 +1,8 @@
-# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
-
 from abc import ABCMeta, abstractmethod
 
+
 class BaseController():
+    """Abstract base class for appctl controllers."""
     __metaclass__ = ABCMeta
 
     @abstractmethod
@@ -12,3 +12,5 @@ class BaseController():
     @abstractmethod
     def stop(self, *args, **kwargs):
         pass
+
+# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4

@@ -4,9 +4,6 @@ Portal selenium tests base module.
 """
 
 
-from functools import wraps
-import traceback
-from datetime import datetime
 import logging
 import time
 import os
@@ -25,15 +22,6 @@ import pytest
 # The huge info is shown as logging.DEBUG message.
 logging.getLogger('selenium.webdriver.remote').setLevel(logging.ERROR)
 
-# This one will be hardcoded for now
-MAPS_URL = 'https://www.google.com/maps/@8.135687,-75.0973243,17856994a,40.4y,1.23h/data=!3m1!1e3?esrch=Tactile::TactileAcme'
-
-# We need another url for zoom out button, the above one cannot be zoomed out
-ZOOMED_IN_MAPS_URL = 'https://www.google.com/maps/@8.135687,-75.0973243,178569a,40.4y,1.23h/data=!3m1!1e3?esrch=Tactile::TactileAcme'
-
-# Chrome GPU data url
-CHROME_GPU_URL = 'chrome://gpu'
-
 # configuration data instance, keep here to have it valid
 # during the entire test suite run, it's initialized just
 # once per entire run
@@ -41,43 +29,6 @@ CONFIG = {}
 
 # Class used for runing information from the acme.getCurrentPose() function
 Pose = namedtuple("pose", ['alt', 'lon', 'lat'])
-
-
-def make_screenshot(browser, fname, index):
-    ss_dir = CONFIG["screenshots_dir"]
-
-    if not os.path.exists(ss_dir):
-        os.makedirs(ss_dir)
-
-    fname = "{}{}{}_{}_{}".format(ss_dir,
-                                  os.path.sep,
-                                  datetime.now().isoformat(),
-                                  fname,
-                                  index)
-    #print "Making screenshot: " + fname
-    browser.save_screenshot('{}.png'.format(fname))
-    return fname
-
-def screenshot_on_error(test):
-    """
-    Decorator for test functions to make screenshots on error.
-
-    The wrapper runs the test. When it fails, then it makes
-    a screenshot in the CONFIG["screenshots_dir"] directory.
-
-    """
-    @wraps(test)
-    def wrapper(*args, **kwargs):
-        try:
-            test(*args, **kwargs)
-        except:
-            test_obj = args[0]
-            test_name = test_obj.current_method
-            fname = make_screenshot(test_obj.browser, test_name, 0)
-            with open("{}.log".format(fname), "w") as flog:
-                flog.write(traceback.format_exc())
-            raise
-    return wrapper
 
 
 def load_configuration():
@@ -185,19 +136,7 @@ class TestBase(object):
         return CONFIG
 
     @classmethod
-    def get_capabilities(cls):
-        """
-        Return selenium webdriver desired capability object.
-
-        Returns:
-            capability object
-
-        """
-        capabilities = webdriver.DesiredCapabilities.CHROME.copy()
-        return capabilities
-
-    @classmethod
-    def get_extensions_options(cls, extensions):
+    def _get_extensions_options(cls, config_chrome_section):
         """
         Returns ChromeOptions object with extensions paths.
 
@@ -208,60 +147,73 @@ class TestBase(object):
         The path can be relative, however it needs to load packed extensions.
 
         Args:
-            extensions: extension names to be loaded
+            config_chrome_section: corresponding chrome section from the
+                configuration file describing the chrome configuration
+                we want to load
 
         Returns:
             ChromeOptions object with extensions declarations
 
         """
         op = webdriver.ChromeOptions()
-        try:
-            op.binary_location = CONFIG["chrome"]["binary_path"]
-        except KeyError:
-            print "Not ['chrome']['binary_path'] in config.json - using defaults"
-            op.binary_location = '/usr/bin/google-chrome'
+        # if the path doesn't exist, let it fail, being clever here
+        # could lead to some unexpected surprises of picking up undesired browser
+        op.binary_location = config_chrome_section["binary_path"]
 
-        for chrome_argument in CONFIG["chrome"]["arguments"]:
+        for chrome_argument in config_chrome_section["arguments"]:
             op.add_argument(chrome_argument)
 
-        for ext_name in extensions:
+        for ext_name in config_chrome_section["extensions"]:
             ext_dir = CONFIG["extensions_dir"]
-            print "Loading extension {} from {}".format(ext_name, ext_dir)
+            # be less verbose now
+            #print "Loading extension {} from {}".format(ext_name, ext_dir)
             op.add_extension('{}/{}.crx'.format(ext_dir, ext_name))
-
         return op
 
     @classmethod
-    def run_browser(cls, extentions=[]):
+    def run_browser(cls, config_chrome_section):
         """
         Runs browser with proper driver path and extensions.
+
+        Args:
+            config_chrome_section: corresponding chrome section from the
+                configuration file describing the chrome configuration
+                we want to load
 
         Returns:
             selenium browser driver handler
 
         """
-        driver = CONFIG["chrome_driver"]["path"]
-        extens = extentions if extentions else cls.extensions
-        options = cls.get_extensions_options(extens)
-        capabilities = cls.get_capabilities()
-        # Set environment variable for Chrome.
-        # Chrome driver needs to have an environment variable set,
-        # this must be set to the path to the webdriver file.
-        os.environ["webdriver.chrome.driver"] = driver
-        return webdriver.Chrome(executable_path=driver,
-                                chrome_options=options,
-                                desired_capabilities=capabilities)
+        # print "Starting browser for configuration (from \"chromes\" section):"
+        # pprint.pprint(config_chrome_section)
+        capabilities = webdriver.DesiredCapabilities.CHROME.copy()
+        options = cls._get_extensions_options(config_chrome_section)
+        # remote or local chrome
+        if config_chrome_section["remote"]:
+            remote_capabilities = dict(capabilities.items() + options.to_capabilities().items())
+            uri = config_chrome_section["uri"]
+            browser = webdriver.chrome.webdriver.RemoteWebDriver(command_executor=uri,
+                                                                 desired_capabilities=remote_capabilities)
+            print("Remote webdriver connecting to %s") % uri
+        else:
+            driver = config_chrome_section["chrome_driver"]["path"]
+            # Set environment variable for Chrome.
+            # Chrome driver needs to have an environment variable set,
+            # this must be set to the path to the webdriver file.
+            os.environ["webdriver.chrome.driver"] = driver
+            browser = webdriver.Chrome(executable_path=driver,
+                                       chrome_options=options,
+                                       desired_capabilities=capabilities)
+        return browser
 
     def setup_method(self, method):
         """
         Base method called before every test case method is called.
 
-        Args:
-            test case method reference
-
         """
-        self.browser = self.run_browser()
+        self.config = self.get_config()
         self.current_method = method.__name__
+        print "current test: %s" % self.current_method
 
     def teardown_method(self, _):
         """
@@ -282,17 +234,16 @@ class TestBase(object):
 
         """
         curr_browser = browser if browser else self.browser
-        res = curr_browser.execute_script('return acme.getCameraPose();')
-        # today is not 'vg', it's 'yg' ...
-        try:
-            p = Pose(res['alt'], res['g'], res['yg'])
-        except KeyError as ex:
-            print "get_camera_pose(): KeyError: %s" % ex
-            print "get_camera_pose():", res.keys()
-            raise
-        else:
-            print "get_camera_pose():", res.keys()
-            return p
+        # simple call 'return acme.getCameraPose();' return shallow copy,
+        # methods (keys) like getAlt do exist but point to empty dicts
+        # once they made it to python from javascript
+        #res = curr_browser.execute_script('return acme.getCameraPose();')
+        js = ("return [acme.getCameraPose().getAlt(), "
+                      "acme.getCameraPose().getLon(), "
+                      "acme.getCameraPose().getLat()];")
+        res = curr_browser.execute_script(js)
+        p = Pose(res[0], res[1], res[2])
+        return p
 
     @staticmethod
     def pose_is_near(left,
@@ -454,22 +405,6 @@ class TestBase(object):
         """
         start = time.time()
         while (start + max_wait_time > time.time()):
-            #print self.browser.current_url
             if old_value != self.browser.current_url:
                 return
             time.sleep(interval)
-
-
-class TestBaseTouchscreen(TestBase):
-    """
-    Loads default extensions for touchscreen,
-    all tests for touchscreen should inherit from this class.
-
-    """
-    extensions = ["kiosk", "google_properties_menu"]
-
-
-class TestBaseGeneric(TestBase):
-    """
-    """
-    extensions = []

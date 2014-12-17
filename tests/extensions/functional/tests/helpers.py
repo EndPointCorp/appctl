@@ -3,13 +3,18 @@ Helpers used by tests.
 
 """
 
-from exception import HelperException
+
+import os
 from functools import partial
+from functools import wraps
+import traceback
+import datetime
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as exp_cond
 
+from exception import HelperException
 from base import TestBase
 
 
@@ -66,4 +71,68 @@ def wait_for_loaded_page(url,
         msg = "Element identified by '%s' still present after timeout." % elem_identifier_name
         WebDriverWait(browser,
                       config["max_load_timeout"]).until_not(tester(), message=msg)
-        
+
+
+def make_screenshot(browser, test_name, index):
+    """
+    Construct file name for the screen shot and grap the screen via selenium.
+
+    """
+    config = TestBase.get_config()
+    ss_dir = config["screenshots_dir"]
+    if not os.path.exists(ss_dir):
+        os.makedirs(ss_dir)
+    fname = "{}{}{}_{}_{}".format(ss_dir,
+                                  os.path.sep,
+                                  datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S"),
+                                  test_name,
+                                  index)
+    print "Making screenshot: " + fname
+    browser.save_screenshot("{}.png".format(fname))
+    return fname
+
+
+def screenshot_on_error(test):
+    """
+    Decorator for test functions to make screenshots on error.
+
+    The wrapper runs the test. When it fails, then it makes
+    a screenshot in the config "screenshots_dir" directory.
+
+    """
+    @wraps(test)
+    def wrapper(*args, **kwargs):
+        try:
+            test(*args, **kwargs)
+        except:
+            test_obj = args[0]
+            test_name = test_obj.current_method
+
+            fname = ""
+            js_console = dict()
+            if hasattr(test_obj, "browsers"):
+                # is multiple browsers test
+                for ext_name, browser in test_obj.browsers.items():
+                    fname = make_screenshot(browser, "%s-%s" % (test_name, ext_name), 0)
+                    # grab javascript console output too
+                    # seems to catch only error states from javasript
+                    # doing arbitrary console.log() and reading it back
+                    # via this call returns empty list
+                    # also, repeated browser.get_log calls eventually return
+                    # empty list as the opportune previous error messages were
+                    # consumed (?) by the .get_log() call?
+                    js_console[ext_name] = browser.get_log("browser")
+            else:
+                # is a single browser test
+                browser = test_obj.browser
+                fname = make_screenshot(browser, test_name, 0)
+
+            with open("{}.log".format(fname), "w") as flog:
+                flog.write(traceback.format_exc())
+                flog.write("\n\njavascript console output:\n\n")
+                for extention, entries in js_console.items():
+                    flog.write("%s:\n" % extention)
+                    flog.write("\n".join([str(entry) for entry in entries]))
+                    flog.write("\n\n\n")
+            raise
+    return wrapper
