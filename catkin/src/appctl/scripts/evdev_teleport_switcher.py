@@ -33,8 +33,8 @@ def main():
     activation_pub = rospy.Publisher(
         activation_node,
         Bool,
-        queue_size = 1,
-        latch = True
+        queue_size=1,
+        latch=True
     )
 
     mode_handler = ModeHandler(modes, activation_pub)
@@ -43,7 +43,7 @@ def main():
 
     rospy.spin()
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4

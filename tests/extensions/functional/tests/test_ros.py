@@ -24,10 +24,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 
-from base import TestBase
-from base import MAPS_URL
-from base import screenshot_on_error
 import helpers
+from base import TestBase
 from portal_nav.msg import PortalPose
 from base import Pose
 
@@ -42,10 +40,12 @@ class TestBaseSingleBrowserROS(TestBase):
 
     """
 
-    # extensions to load in the browser
-    extensions = ["kiosk"]
     # helper background processes tracking
     processes = []
+
+    def setup_method(self, method):
+        super(TestBaseSingleBrowserROS, self).setup_method(method)
+        self.browser = self.run_browser(self.config["chromes"]["kiosk"])
 
     def teardown_method(self, _):
         # have no doscrings so that the method doesn't appear in the sphinx
@@ -59,12 +59,14 @@ class TestBaseSingleBrowserROS(TestBase):
 
     @staticmethod
     def subscriber(status):
-        # msg.current_pose.position.x, msg.current_pose.position.y, msg.current_pose.position.y
+        catches = []
         def callback(msg):
             #rospy.loginfo(rospy.get_caller_id() + " received msg: '%s'" % msg)
             # need to make assertions / or rather assumptions here on the
             # received messages but can't pytest.fail from this context
-            print msg.current_pose.position.x, msg.current_pose.position.y, msg.current_pose.position.z
+            catches.append([msg.current_pose.position.x,
+                            msg.current_pose.position.y,
+                            msg.current_pose.position.z])
             # can't pass the information to the subscriber() method
             # do the checks here, and last one has either pass or fail
             # the final flag will be set
@@ -75,8 +77,10 @@ class TestBaseSingleBrowserROS(TestBase):
                 status.value = "OK"
             else:
                 status.value = "ERROR"
-            #print status.value
 
+        if status.value == "ERROR":
+            for catch in catches:
+                print catch
         rospy.init_node("test_subscriber", anonymous=True)
         rospy.Subscriber("/portal_kiosk/current_pose", PortalPose, callback)
         # spin() simply keeps python from exiting until this node is stopped
@@ -85,7 +89,7 @@ class TestBaseSingleBrowserROS(TestBase):
         print "subscriber terminated."
         print "final result value: '%s'" % status.value
 
-    @screenshot_on_error
+    @helpers.screenshot_on_error
     def test_ros_position_after_search(self):
         """
         Run browser and type something in the search box, a place with
@@ -99,13 +103,12 @@ class TestBaseSingleBrowserROS(TestBase):
         shared memory value which this test cases evaluates eventually.
 
         """
-        config = self.get_config()
         status = Array('c', "ERROR")
         subs = Process(target=self.subscriber, args=(status, ))
         subs.start()
         self.processes.append(subs)
         # start browser now
-        helpers.wait_for_loaded_page(MAPS_URL, self.browser)
+        helpers.wait_for_loaded_page(self.config["maps_url"], self.browser)
         box = self.browser.find_element_by_id("searchboxinput")
         box.send_keys("babice nad svitavou, czech republic")
         self.click("searchbutton", finder="by_class")
@@ -116,7 +119,7 @@ class TestBaseSingleBrowserROS(TestBase):
                 break
             time.sleep(1)
             count += 1
-            if count > config["max_load_timeout"]:
+            if count > self.config["max_load_timeout"]:
                 pytest.fail("Waiting for correct position ROS msg timed out.")
         subs.terminate()
         assert status.value == "OK"
@@ -132,54 +135,59 @@ class TestBaseTwoBrowsersROS(TestBase):
 
     """
 
-    # extensions to load in browsers
-    extensions_browser_1 = ["kiosk"]
-    extensions_browser_2 = ["display"]
-
     def setup_method(self, method):
-        self.browser_1 = self.run_browser(self.extensions_browser_1)
-        self.browser_2 = self.run_browser(self.extensions_browser_2)
-        self.current_method = method.__name__
+        super(TestBaseTwoBrowsersROS, self).setup_method(method)
+        self.browsers = dict(kiosk=self.run_browser(self.config["chromes"]["kiosk"]),
+                             display=self.run_browser(self.config["chromes"]["display"]))
 
     def teardown_method(self, _):
-        self.browser_1.quit()
-        self.browser_2.quit()
+        [browser.quit() for browser in self.browsers.values()]
 
-    @pytest.mark.skipif(True, reason="Unstable camera pose object attributes, reported.")
-    def test_ros_positions_in_browsers_aligned_after_kiosk_search(self):
+    @helpers.screenshot_on_error
+    def test_ros_positions_aligned_after_search(self):
         """
         Perform search in the kiosk browser and assert on the automatically
         synchronized final position in the display browser.
 
         """
-        # both browsers need to load MAPS_URL to make acme stuff available,
-        # otherwise browser remains blank
-        config = self.get_config()
-        helpers.wait_for_loaded_page(MAPS_URL, self.browser_1)
-
-        # browser_2, with display extension which has HTML elements displayed,
+        # browser with display extension which has HTML elements displayed,
         # continue when widget-mylocation-button disappears BUT at that point,
         # the page is still not yet fully loaded
-        helpers.wait_for_loaded_page(MAPS_URL,
-                                     self.browser_2,
+        # to make sure the display browser connected to rosridge properly,
+        # start it first and then start kiosk browser on whose messages wel'll assert
+        helpers.wait_for_loaded_page(self.config["maps_url"],
+                                     self.browsers["display"],
                                      elem_identifier_kind=By.CLASS_NAME,
                                      elem_identifier_name="widget-mylocation-button",
                                      elem_presence=False)
 
-        box = self.browser_1.find_element_by_id("searchboxinput")
+        # both browsers need to load config["maps_url"] to make acme stuff available,
+        # otherwise browser remains blank
+        helpers.wait_for_loaded_page(self.config["maps_url"], self.browsers["kiosk"])
+
+        box = self.browsers["kiosk"].find_element_by_id("searchboxinput")
         box.send_keys("babice nad svitavou, czech republic")
         box.send_keys(Keys.RETURN)
-        babice_pose = Pose(alt=18925.2298526623, lon=16.69756065, lat=49.28254545)
+        babice_pose = Pose(alt=18925, lon=16, lat=49)
+        # wait for the 'kiosk' browser to finish adjusting itself
+        # unused argument is selenium webdriver (browser) reference
         tester = lambda _: self.pose_is_near(babice_pose,
-                                             self.get_camera_pose(self.browser_1))
+                                             self.get_camera_pose(self.browsers["kiosk"]),
+                                             alt_delta=babice_pose.alt * 0.1,
+                                             lon_delta=babice_pose.lon * 0.1,
+                                             lat_delta=babice_pose.lat * 0.1)
         msg = "Waiting for position change in the kiosk browser timed out."
-        WebDriverWait(self.browser_1,
-                      config["max_load_timeout"]).until(tester, message=msg)
+        WebDriverWait(self.browsers["kiosk"],
+                      self.config["max_load_timeout"]).until(tester, message=msg)
         # wait for the 'display' browser to finish adjusting itself
+        # unused argument is selenium webdriver (browser) reference
         tester = lambda _: self.pose_is_near(babice_pose,
-                                             self.get_camera_pose(self.browser_2))
+                                             self.get_camera_pose(self.browsers["display"]),
+                                             alt_delta=babice_pose.alt * 0.1,
+                                             lon_delta=babice_pose.lon * 0.1,
+                                             lat_delta=babice_pose.lat * 0.1)
         msg = "Waiting for position change in the display browser timed out."
-        WebDriverWait(self.browser_2,
-                      config["max_load_timeout"]).until(tester, message=msg)
-        assert self.pose_is_near(self.get_camera_pose(self.browser_1),
-                                 self.get_camera_pose(self.browser_2))
+        WebDriverWait(self.browsers["display"],
+                      self.config["max_load_timeout"]).until(tester, message=msg)
+        assert self.pose_is_near(self.get_camera_pose(self.browsers["kiosk"]),
+                                 self.get_camera_pose(self.browsers["display"]))

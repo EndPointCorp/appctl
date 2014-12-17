@@ -9,14 +9,12 @@ Cross-verification of DOM elements between the display and kiosk extensions.
 
 from functools import partial
 
-import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as exp_cond
 
+import helpers
 from base import TestBase
-from base import MAPS_URL, ZOOMED_IN_MAPS_URL
-from base import screenshot_on_error, make_screenshot
 
 
 # these particular elements are present when the display extension is not loaded
@@ -42,11 +40,12 @@ class TestBaseDisplay(TestBase):
     Tests related to the display extension.
 
     """
-    extensions = ["display"]
 
-    @pytest.mark.skipif(True, reason=("Fails sometimes. Need explanation of the display "
-                                      "loading. Details on #201"))
-    @screenshot_on_error
+    def setup_method(self, method):
+        super(TestBaseDisplay, self).setup_method(method)
+        self.browser = self.run_browser(self.config["chromes"]["display"])
+
+    @helpers.screenshot_on_error
     def test_widgets_not_displayed(self):
         """
         Test that the following graphical widgets (elements) are not displayed:
@@ -62,8 +61,7 @@ class TestBaseDisplay(TestBase):
         modified accordingly.
 
         """
-        config = self.get_config()
-        self.browser.get(MAPS_URL)
+        self.browser.get(self.config["maps_url"])
 
         def test_elements_not_present(elem):
             msg = "Element '{0}' should not be present (extension display).".format(elem[0])
@@ -71,19 +69,21 @@ class TestBaseDisplay(TestBase):
             # invisible or not present on the DOM.
             tester = partial(exp_cond.invisibility_of_element_located, (elem[1], elem[0]))
             WebDriverWait(self.browser,
-                          config["max_load_timeout"]).until(tester(), message=msg)
+                          self.config["max_load_timeout"]).until(tester(), message=msg)
         map(test_elements_not_present, elements)
-        make_screenshot(self.browser, "test_elements_not_present", 0)
 
 
-class TestBaseKioskExtension(TestBase):
+class TestBaseKiosk(TestBase):
     """
     Tests related to the kiosk extension.
 
     """
-    extensions = ["kiosk", "google_properties_menu"]
 
-    @screenshot_on_error
+    def setup_method(self, method):
+        super(TestBaseKiosk, self).setup_method(method)
+        self.browser = self.run_browser(self.config["chromes"]["kiosk"])
+
+    @helpers.screenshot_on_error
     def test_widgets_displayed(self):
         """
         Test that the following graphical widgets (elements) are displayed:
@@ -101,13 +101,11 @@ class TestBaseKioskExtension(TestBase):
         extension is not loaded, i.e. with kiosk extension loaded.
 
         """
-        config = self.get_config()
-        self.browser.get(ZOOMED_IN_MAPS_URL)
+        self.browser.get(self.config["zoomed_in_maps_url"])
 
         def test_elements_present(elem):
             msg = "Element '{0}' should be present (kiosk extension).".format(elem[0])
             tester = partial(exp_cond.visibility_of_element_located, (elem[1], elem[0]))
             WebDriverWait(self.browser,
-                          config["max_load_timeout"]).until(tester(), message=msg)
+                          self.config["max_load_timeout"]).until(tester(), message=msg)
         map(test_elements_present, elements)
-        make_screenshot(self.browser, "test_widgets_displayed", 0)

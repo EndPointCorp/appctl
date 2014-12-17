@@ -8,3 +8,5 @@ from window_controller import WindowController
 
 # High-level helpers
 from mode_handler import ModeHandler
+
+# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
