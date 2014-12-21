@@ -28,7 +28,6 @@ class LEDController():
         occupied = msg.data
         if (occupied != self.occupied):
             self.change_occupancy(occupied)
-            
 
 
 def main():
@@ -47,7 +46,7 @@ def main():
         goodbye_command
     )
 
-    rospy.Subscriber('/occupancy/state', Bool, controller.handle_occupancy_msg)
+    rospy.Subscriber('/portal_occupancy/state', Bool, controller.handle_occupancy_msg)
 
     rospy.spin()
 
