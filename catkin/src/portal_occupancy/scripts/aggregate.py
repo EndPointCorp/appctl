@@ -117,7 +117,7 @@ class OccupancyAggregator():
 
 
 def main():
-    rospy.init_node('occupancy_aggregator')
+    rospy.init_node('portal_occupancy_aggregator')
 
     check_interval = rospy.get_param(
         '~check_interval',
@@ -131,7 +131,7 @@ def main():
     aggregator = OccupancyAggregator(distance_threshold)
 
     occupancy_pub = rospy.Publisher(
-        '/occupancy/state',
+        '/portal_occupancy/state',
         Bool,
         queue_size=5
     )
