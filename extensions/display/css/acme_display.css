@@ -28,6 +28,10 @@ body {
   display: none;
 }
 
+#zoom,
+#searchboxinput,
+#searchbox_form,
+.searchbutton,
 #runway-expand-button,
 #butterbar {
   display: none;
