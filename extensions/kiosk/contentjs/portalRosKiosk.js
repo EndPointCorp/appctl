@@ -426,7 +426,7 @@ var publishKioskCurrentPose = function(pose) {
   var NOMINAL_TILT_MIN = 0.0;
   var NOMINAL_TILT_MAX = Math.asin(
       EARTH_RADIUS / (EARTH_RADIUS + pose.alt)
-    ) * (180 / Math.PI) - 15.1;
+    ) * (180 / Math.PI) - 10.1;
   var NOMINAL_HDG_MIN = 0.0;
   var NOMINAL_HDG_MAX = 360.0;
 
