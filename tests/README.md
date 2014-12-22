@@ -58,6 +58,12 @@ sudo apt-get update
 sudo apt-get install google-chrome-stable
 ```
 
+#### Chromedriver
+
+Install the latest version of chromedriver.
+
+<http://chromedriver.storage.googleapis.com/index.html>
+
 
 #### Xfvb
 
