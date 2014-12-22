@@ -77,6 +77,12 @@ For the headless tests we need to have the xvfb running. This can be achieved wi
 sudo Xvfb :10 -ac
 ```
 
+To verify that your Xvfb can run Chrome:
+
+```
+DISPLAY=:10 google-chrome
+```
+
 ### Running tests
 
 #### Chrome extensions tests
