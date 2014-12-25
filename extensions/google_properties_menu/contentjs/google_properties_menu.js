@@ -28,7 +28,7 @@ var data = [
   {
     name: 'gigapixel',
     desc: 'Art Project',
-    icon: 'timelapse.png',
+    icon: 'culturalinstitute.png',
     action: 'gotoGigapixel',
     url: gigapixelURL
   },
