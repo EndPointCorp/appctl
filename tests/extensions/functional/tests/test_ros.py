@@ -161,6 +161,9 @@ class TestBaseTwoBrowsersROS(TestBase):
                                      elem_identifier_name="widget-mylocation-button",
                                      elem_presence=False)
 
+        # make sure that display browser is properly connected
+        time.sleep(3)
+
         # both browsers need to load config["maps_url"] to make acme stuff available,
         # otherwise browser remains blank
         helpers.wait_for_loaded_page(self.config["maps_url"], self.browsers["kiosk"])
@@ -189,5 +192,13 @@ class TestBaseTwoBrowsersROS(TestBase):
         msg = "Waiting for position change in the display browser timed out."
         WebDriverWait(self.browsers["display"],
                       self.config["max_load_timeout"]).until(tester, message=msg)
-        assert self.pose_is_near(self.get_camera_pose(self.browsers["kiosk"]),
-                                 self.get_camera_pose(self.browsers["display"]))
+        # now wait for both browsers to be in the same position
+        for _ in range(20):
+            time.sleep(1)
+            kiosk_pose = self.get_camera_pose(self.browsers["kiosk"])
+            display_pose = self.get_camera_pose(self.browsers["display"])
+            if self.pose_is_near(kiosk_pose, display_pose):
+                break
+        else:
+            # should fail
+            assert self.pose_is_near(kiosk_pose, display_pose)
