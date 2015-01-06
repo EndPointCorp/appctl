@@ -18,7 +18,7 @@
 #include "portal_nav/PortalPose.h"
 
 static const double kPi = 3.141592653589793;
-static const double kPoleLat = 90.0 - 0.000001;
+static const double kPoleLat = 90.0 - 0.00001;
 static const double kEarthRadius = 6371000;
 static const timespec kExpectedInterval = {0, 33333333};  // 30 Hz
 
@@ -185,6 +185,7 @@ void JoystickNavigator::ProcessJoy(const geometry_msgs::Twist& normalized_joy) {
   double proposed_position_y = starting_pose.position.y + (delta_lat * alt_scale);
   if (fabs(proposed_position_y) > kPoleLat) {
     ending_pose.orientation.z = fmod(ending_pose.orientation.z + 180, 360);
+    ending_pose.position.x = fmod(ending_pose.position.x - 540, 360);
   }
 
   ending_pose.position.y =
@@ -205,7 +206,7 @@ void JoystickNavigator::ProcessJoy(const geometry_msgs::Twist& normalized_joy) {
 #endif
 
   ending_pose.position.x =
-      fmod((starting_pose.position.x + (delta_lon * alt_scale)) + 540, 360) -
+      fmod((ending_pose.position.x + (delta_lon * alt_scale)) + 540, 360) -
       180;
   ending_pose.position.x =
       Clamp(ending_pose.position.x,
