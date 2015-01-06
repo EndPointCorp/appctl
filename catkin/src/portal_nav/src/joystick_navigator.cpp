@@ -183,7 +183,7 @@ void JoystickNavigator::ProcessJoy(const geometry_msgs::Twist& normalized_joy) {
   double alt_scale = ending_pose.position.z;
 
   double proposed_position_y = starting_pose.position.y + (delta_lat * alt_scale);
-  if ( abs(proposed_position_y) > kPoleLat) {
+  if (fabs(proposed_position_y) > kPoleLat) {
     ending_pose.orientation.z = fmod(ending_pose.orientation.z + 180, 360);
   }
 
