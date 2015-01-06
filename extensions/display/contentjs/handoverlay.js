@@ -378,7 +378,7 @@ Hand.prototype.createRings_ = function() {
       this.handOverlay_.topCalloutGeom, handShader);
   this.topCallout.name = 'topCallout';
   this.topCallout.add(this.topCalloutPanel);
-  this.topCallout.scale.set(1.1, 1.1, 1.1);
+  this.topCallout.scale.set(1.5, 1.5, 1.5);
   this.topCallout.visible = true;
   this.calloutOrigin.add(this.topCallout);
 
@@ -640,8 +640,7 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     var ringScale = distanceMod +
       (palmDataHeight / (FADE_HIGH - FADE_LOW)) *
       distanceMod;
-    ringScale *= 0.58;
-    var calloutScale = distanceMod * 1.0;
+    var calloutScale = distanceMod * 1;
 
     this.handOrigin.scale.set(ringScale, ringScale, ringScale);
     this.calloutOrigin.scale.set(calloutScale, calloutScale, calloutScale);
@@ -653,7 +652,7 @@ Hand.prototype.setPositionFromLeap = function(leapData, currentTimeMs,
     // geodata radius does not follow ring scale, hence end coefficient
     this.dataRadius = this.ring1.geometry.boundingSphere.radius *
       ringScale *
-      1.0;
+      1.15;
 
     this.popCallout.position.x =
       (this.ring1.geometry.boundingSphere.radius * ringScale / distanceMod) -
