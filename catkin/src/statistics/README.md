@@ -1,11 +1,13 @@
 statistics
 ----------
 
-ROS bridge for statsd.
+ROS bridge for statsd and google retail store statistics provider
 
 ### Message Types
 
 * `statistics/StatsD` - A single statsd metric report.
+
+## Scripts
 
 ### listener.py
 
@@ -20,3 +22,43 @@ A node the listens for statistics messages, converts them to statsd strings, and
 ##### Topics
 
 `/statistics/statsd` : `statistics/StatsD` - Incoming statistics metrics.
+
+### session_aggregator.py
+
+A node that provides a ros node and ros service.
+
+ - ros node listens for session events on /statistics/session and stores them safely
+ - ros service provides ros service for retrieval of aggregated
+   sessions. There's a flag that can be set during query to erase all
+   aggregated sessions
+
+##### Parameters
+
+* `max_events` - maximum number of stored events. Default - infinite.
+  When this treshold is reached, old events will be discarded upon each
+  new event arrival.
+* `max_memory` - maximum size of storage object in bytes. Default - 32000000 
+  Above this, old session events will be discarded and alog message will be
+  produced
+
+##### Topics
+
+Provides `/statistics/session` : `statistics/session` - Incoming sessions
+
+##### Services
+
+Provides `/statistics/session` : `statistics/SessionQuery` - Querying aggregator
+with flush flag that discards the events that got read.
+
+### file_writer.py
+
+A ros node that aggregates session_aggregator sessions and formats them
+for writing into json file on the local filesystem.
+
+##### Topics
+
+None
+
+##### Services
+
+Queries `/statistics/session`
