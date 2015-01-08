@@ -1,6 +1,7 @@
 <launch>
   <node pkg="portal_nav" type="portal_nav" name="portal_nav"></node>
   <node name="onboard" pkg="onboard" type="listener.py"/>
+  <node name="statistics" pkg="statistics" type="session_aggregator.py"/>
   <node name="rosbridge" pkg="rosbridge_server" type="rosbridge_websocket">
     <param name="certfile" value="$(optenv PWD)/ros.crt"/>
     <param name="keyfile" value="$(optenv PWD)/ros.key"/>
