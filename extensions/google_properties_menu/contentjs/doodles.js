@@ -6,8 +6,7 @@ var runPacman = function(e) {
     $("#choose_game").hide();
     $("#pacman_selected").show();
 
-    // and send the essage
-    sendSwitchMessage(e);
+    propertiesMenu.handleDoodleSelection(e);
 }
 
 var runOcean = function(e) {
@@ -18,8 +17,7 @@ var runOcean = function(e) {
     $("#choose_game").hide();
     $("#ocean_selected").show();
 
-    // and send the message
-    sendSwitchMessage(e);
+    propertiesMenu.handleDoodleSelection(e);
 }
 
 var runCubeslam = function(e) {
@@ -30,8 +28,7 @@ var runCubeslam = function(e) {
     $("#choose_game").hide();
     $("#cubeslam_selected").show();
 
-    // and send the message
-    //sendSwitchessage(e); // cubeslam is a placeholder now
+    propertiesMenu.handleDoodleSelection(e);
 }
 
 // PACMAN
