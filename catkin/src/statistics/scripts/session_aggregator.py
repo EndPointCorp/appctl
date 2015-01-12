@@ -26,6 +26,10 @@ class SessionAggregator:
         self.node = self._init_node()
         self.service = self._init_service()
         self.subscriber = self._init_subscriber()
+        self.session_format = { 'start_ts': 0,
+                                'end_ts': 0,
+                                'app_name': 'appname'
+                              }
         self.sessions = []
         self.max_events = rospy.get_param('~max_events', None)
         self.max_memory = rospy.get_param('~max_memory', '32000000')
@@ -58,8 +62,31 @@ class SessionAggregator:
             raise TooManyEventsException("Number of events: %s, max: %s" % (len(self.sessions), self.max_events))
 
         rospy.loginfo("Got session => %s" % event.session)
-        self.sessions.append(json.loads(event.session))
+        if self._validate_incoming_event(event):
+            self.sessions.append(event.session)
+        else:
+            rospy.loginfo("Not appending event to session storage")
         pass
+
+    def _validate_incoming_session(self, event):
+        """
+        Checks whether session has keys defined in self.session_format
+        Returns None if any of the required keys are missing
+        Returns `event` if event is valid
+        """
+        session = json.dumps(event.session)
+        for key in self.session_format.iterkeys():
+            if key not in session:
+                rospy.loginfo("Received event session in wrong format - missing key: %s - please refer to the docs" % str(key))
+                return None
+        return session
+
+    def _validate_incoming_event(self, event):
+        if event.session:
+            return self._validate_incoming_session(event)
+        else:
+            rospy.loginfo("Received event session in wrong format - please refer to the docs")
+            return None
 
     def _erase_sessions(self):
         rospy.loginfo("Purging session events.")
@@ -80,6 +107,7 @@ class SessionAggregator:
         check the `erase` flag
         """
         self._handle_erase_flag(req)
+        rospy.loginfo("Returning aggregated sessions: %s" % self.sessions)
         return str(self.sessions)
 
     def _init_service(self):

@@ -32,6 +32,18 @@ A node that provides a ros node and ros service.
    sessions. There's a flag that can be set during query to erase all
    aggregated sessions
 
+##### Incoming session event data structure
+
+```json
+{
+  'start_ts' : 0,
+  'end_ts': 0,
+  'conversion' : true | false,
+  'conversion_num' : 0,
+  'app_name' : doodle | sth | tactile | pacman
+}
+```
+
 ##### Parameters
 
 * `max_events` - maximum number of stored events. Default - infinite.
@@ -48,7 +60,7 @@ Provides `/statistics/session` : `statistics/session` - Incoming sessions
 ##### Services
 
 Provides `/statistics/session` : `statistics/SessionQuery` - Querying aggregator
-with flush flag that discards the events that got read.
+with `erase` flag that discards the events that got read.
 
 ### file_writer.py
 
@@ -62,3 +74,10 @@ None
 ##### Services
 
 Queries `/statistics/session`
+
+##### Parameters
+
+* `aggregation_interval` - interval in seconds between which events
+  should be collected - defaults to 300 seconds
+* `json_output_path` - local path to where should the json files be
+  written to. Defaults to /tmp/
