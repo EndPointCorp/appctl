@@ -34,13 +34,35 @@ A node that provides a ros node and ros service.
 
 ##### Incoming session event data structure
 
+There will be at least two stages where the data submitted by extensions
+will have to evolve because Google statistics service wont accept or
+understand some of the attributes on the beggining.
+
+###### First stage:
+
+Each extension, mode etc, sends only the "start_ts"
+
 ```json
 {
   'start_ts' : 0,
-  'end_ts': 0,
-  'app_name' : 'pacman | tactile'
 }
 ```
+
+###### Second stage:
+
+Each session source sends also the app_name attribute
+
+```json
+{
+  'start_ts' : 0,
+  'app_name' : 'pacman'
+}
+```
+
+###### Further stages:
+
+Each session source sends data involving touches and conversions along
+with apps (refer to the docs)
 
 ##### Parameters
 
