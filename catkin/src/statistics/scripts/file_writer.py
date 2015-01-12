@@ -78,6 +78,8 @@ class FileWriter:
         sessions = self._jsonize_string(sessions)
         report_contents = {"report_time": 0,
                            "start_ts": 0,
+                           "status": "on",
+                           "experience_type": "portal",
                            "end_ts": 0,
                            "metadata": {"country": self.country,
                                         "store_id": self.store_id,
