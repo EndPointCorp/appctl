@@ -38,9 +38,7 @@ A node that provides a ros node and ros service.
 {
   'start_ts' : 0,
   'end_ts': 0,
-  'conversion' : true | false,
-  'conversion_num' : 0,
-  'app_name' : doodle | sth | tactile | pacman
+  'app_name' : 'pacman | tactile'
 }
 ```
 
