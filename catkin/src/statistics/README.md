@@ -40,23 +40,30 @@ understand some of the attributes on the beggining.
 
 ###### First stage:
 
-Each extension, mode etc, sends only the "start_ts"
+Each extension, mode etc, sends the "start_ts"
 
-```json
-{
-  'start_ts' : 0,
-}
+```
+start_ts: 1421245409
+```
+
+Above message will end previous session and automatically start new one.
+
+To close all current sessions, following message should be sent (e.g.
+when switching to some idle mode or sth similar)
+
+```
+start_ts: 1421245409
+end_ts: 1421245430
 ```
 
 ###### Second stage:
 
-Each session source sends also the app_name attribute
+Each session source sends also the application name attribute
 
-```json
-{
-  'start_ts' : 0,
-  'app_name' : 'pacman'
-}
+```
+start_ts: 1421245409
+end_ts: 1421245430
+name: 'pacman'
 ```
 
 ###### Further stages:
