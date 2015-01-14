@@ -1,13 +1,13 @@
 /**
  * An error in Google Properties Menu operation.
  *
- * @param {string} msg
+ * @param {string} message
  *       A description in the error.
- * @param {object} context
- *       The error context.
  * @author Matt Vollrath <matt@endpoint.com>
  */
-function GooglePropertiesMenuError(msg, context) {
-  this.msg = msg;
-  this.context = context;
+function GooglePropertiesMenuError(message) {
+  this.name = 'GooglePropertiesMenuError';
+  this.message = message || 'Unspecified error';
 }
+GooglePropertiesMenuError.prototype = new Error();
+GooglePropertiesMenuError.prototype.constructor = GooglePropertiesMenuError;

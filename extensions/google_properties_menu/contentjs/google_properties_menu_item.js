@@ -16,7 +16,7 @@
  * @author Matt Vollrath <matt@endpoint.com>
  */
 function GooglePropertiesMenuItem(attrs) {
-  if(obj == null || typeof(obj) != 'object') {
+  if(attrs == null || typeof(attrs) != 'object') {
     throw new GooglePropertiesMenuError(
       'GooglePropertiesMenuItem requires an object as first parameter!',
       attrs

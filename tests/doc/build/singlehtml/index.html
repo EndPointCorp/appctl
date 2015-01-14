@@ -79,12 +79,12 @@ modified accordingly.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="test_display_kiosk.TestBaseKioskExtension">
-<em class="property">class </em><code class="descclassname">test_display_kiosk.</code><code class="descname">TestBaseKioskExtension</code><a class="headerlink" href="#test_display_kiosk.TestBaseKioskExtension" title="Permalink to this definition">¶</a></dt>
+<dt id="test_display_kiosk.TestBaseKiosk">
+<em class="property">class </em><code class="descclassname">test_display_kiosk.</code><code class="descname">TestBaseKiosk</code><a class="headerlink" href="#test_display_kiosk.TestBaseKiosk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests related to the kiosk extension.</p>
 <dl class="method">
-<dt id="test_display_kiosk.TestBaseKioskExtension.test_widgets_displayed">
-<code class="descname">test_widgets_displayed</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_display_kiosk.TestBaseKioskExtension.test_widgets_displayed" title="Permalink to this definition">¶</a></dt>
+<dt id="test_display_kiosk.TestBaseKiosk.test_widgets_displayed">
+<code class="descname">test_widgets_displayed</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_display_kiosk.TestBaseKiosk.test_widgets_displayed" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Test that the following graphical widgets (elements) are displayed:</dt>
 <dd><ul class="first last simple">
@@ -133,8 +133,8 @@ Various interaction scenarios.</p>
 <dl class="method">
 <dt id="test_general.TestSearch.test_no_searchbox_on_other_planets">
 <code class="descname">test_no_searchbox_on_other_planets</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_general.TestSearch.test_no_searchbox_on_other_planets" title="Permalink to this definition">¶</a></dt>
-<dd><p>The test loads the initial MAPS_URL and zooms out. After this zoom
-out, the universe objects appear (Earth, Moon, Mars).</p>
+<dd><p>The test loads the initial config[&#8220;maps_url&#8221;] and zooms out.
+After this zoom out, the universe objects appear (Earth, Moon, Mars).</p>
 <p>The search box should not be visible when Moon, Mars are clicked.</p>
 <p>First Moon is clicked, disappearance of search box is verified.
 Second, the Earth is clicked, verify search box appeared.
@@ -264,8 +264,8 @@ shared memory value which this test cases evaluates eventually.</p>
 extension) and assert accordingly adjusted state (as propagated
 through ROS) in the other browser (display extension).</p>
 <dl class="method">
-<dt id="test_ros.TestBaseTwoBrowsersROS.test_ros_positions_in_browsers_aligned_after_kiosk_search">
-<code class="descname">test_ros_positions_in_browsers_aligned_after_kiosk_search</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#test_ros.TestBaseTwoBrowsersROS.test_ros_positions_in_browsers_aligned_after_kiosk_search" title="Permalink to this definition">¶</a></dt>
+<dt id="test_ros.TestBaseTwoBrowsersROS.test_ros_positions_aligned_after_search">
+<code class="descname">test_ros_positions_aligned_after_search</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#test_ros.TestBaseTwoBrowsersROS.test_ros_positions_aligned_after_search" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform search in the kiosk browser and assert on the automatically
 synchronized final position in the display browser.</p>
 </dd></dl>

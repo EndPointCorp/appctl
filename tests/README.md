@@ -58,6 +58,12 @@ sudo apt-get update
 sudo apt-get install google-chrome-stable
 ```
 
+#### Chromedriver
+
+Install the latest version of chromedriver.
+
+<http://chromedriver.storage.googleapis.com/index.html>
+
 
 #### Xfvb
 
@@ -69,6 +75,12 @@ For the headless tests we need to have the xvfb running. This can be achieved wi
 
 ```
 sudo Xvfb :10 -ac
+```
+
+To verify that your Xvfb can run Chrome:
+
+```
+DISPLAY=:10 google-chrome
 ```
 
 ### Running tests

@@ -4,9 +4,6 @@ Portal selenium tests base module.
 """
 
 
-from functools import wraps
-import traceback
-from datetime import datetime
 import logging
 import time
 import os
@@ -32,44 +29,6 @@ CONFIG = {}
 
 # Class used for runing information from the acme.getCurrentPose() function
 Pose = namedtuple("pose", ['alt', 'lon', 'lat'])
-
-
-def make_screenshot(browser, fname, index):
-    ss_dir = CONFIG["screenshots_dir"]
-
-    if not os.path.exists(ss_dir):
-        os.makedirs(ss_dir)
-
-    fname = "{}{}{}_{}_{}".format(ss_dir,
-                                  os.path.sep,
-                                  datetime.now().isoformat(),
-                                  fname,
-                                  index)
-    #print "Making screenshot: " + fname
-    browser.save_screenshot('{}.png'.format(fname))
-    return fname
-
-
-def screenshot_on_error(test):
-    """
-    Decorator for test functions to make screenshots on error.
-
-    The wrapper runs the test. When it fails, then it makes
-    a screenshot in the CONFIG["screenshots_dir"] directory.
-
-    """
-    @wraps(test)
-    def wrapper(*args, **kwargs):
-        try:
-            test(*args, **kwargs)
-        except:
-            test_obj = args[0]
-            test_name = test_obj.current_method
-            fname = make_screenshot(test_obj.browser, test_name, 0)
-            with open("{}.log".format(fname), "w") as flog:
-                flog.write(traceback.format_exc())
-            raise
-    return wrapper
 
 
 def load_configuration():
@@ -207,7 +166,7 @@ class TestBase(object):
         for ext_name in config_chrome_section["extensions"]:
             ext_dir = CONFIG["extensions_dir"]
             # be less verbose now
-            print "Loading extension {} from {}".format(ext_name, ext_dir)
+            #print "Loading extension {} from {}".format(ext_name, ext_dir)
             op.add_extension('{}/{}.crx'.format(ext_dir, ext_name))
         return op
 
@@ -225,25 +184,23 @@ class TestBase(object):
             selenium browser driver handler
 
         """
-        #print "Starting browser for configuration (from \"chromes\" section):"
-        #pprint.pprint(config_chrome_section)
+        # print "Starting browser for configuration (from \"chromes\" section):"
+        # pprint.pprint(config_chrome_section)
         capabilities = webdriver.DesiredCapabilities.CHROME.copy()
+        options = cls._get_extensions_options(config_chrome_section)
         # remote or local chrome
         if config_chrome_section["remote"]:
-            # TODO
-            # UNTESTED
-            # e.g. 'http://localhost:4444/wd/hub'
+            remote_capabilities = dict(capabilities.items() + options.to_capabilities().items())
             uri = config_chrome_section["uri"]
-            browser = webdriver.chrome.webdriver.RemoteWebDriver(uri,
-                                                                 desired_capabilities=capabilities)
-            pprint.pprint("Remote webdriver connecting to %s" % uri)
+            browser = webdriver.chrome.webdriver.RemoteWebDriver(command_executor=uri,
+                                                                 desired_capabilities=remote_capabilities)
+            print("Remote webdriver connecting to %s") % uri
         else:
             driver = config_chrome_section["chrome_driver"]["path"]
             # Set environment variable for Chrome.
             # Chrome driver needs to have an environment variable set,
             # this must be set to the path to the webdriver file.
             os.environ["webdriver.chrome.driver"] = driver
-            options = cls._get_extensions_options(config_chrome_section)
             browser = webdriver.Chrome(executable_path=driver,
                                        chrome_options=options,
                                        desired_capabilities=capabilities)
@@ -277,17 +234,16 @@ class TestBase(object):
 
         """
         curr_browser = browser if browser else self.browser
-        res = curr_browser.execute_script('return acme.getCameraPose();')
-        # today is not 'vg', it's 'yg' ...
-        try:
-            p = Pose(res['alt'], res['g'], res['yg'])
-        except KeyError as ex:
-            print "get_camera_pose(): KeyError: %s" % ex
-            print "get_camera_pose():", res.keys()
-            raise
-        else:
-            print "get_camera_pose():", res.keys()
-            return p
+        # simple call 'return acme.getCameraPose();' return shallow copy,
+        # methods (keys) like getAlt do exist but point to empty dicts
+        # once they made it to python from javascript
+        #res = curr_browser.execute_script('return acme.getCameraPose();')
+        js = ("return [acme.getCameraPose().getAlt(), "
+                      "acme.getCameraPose().getLon(), "
+                      "acme.getCameraPose().getLat()];")
+        res = curr_browser.execute_script(js)
+        p = Pose(res[0], res[1], res[2])
+        return p
 
     @staticmethod
     def pose_is_near(left,
@@ -449,7 +405,6 @@ class TestBase(object):
         """
         start = time.time()
         while (start + max_wait_time > time.time()):
-            #print self.browser.current_url
             if old_value != self.browser.current_url:
                 return
             time.sleep(interval)

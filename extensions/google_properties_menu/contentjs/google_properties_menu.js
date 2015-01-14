@@ -116,16 +116,14 @@ function GooglePropertiesMenu() {
   this.handleMoreFunSelection = function (e) {
     if (!e.hasOwnProperty('target') || ! e.target.getAttribute('index')) {
       throw new GooglePropertiesMenuError(
-        'More Fun element had no index!',
-        e
+        'More Fun element had no index!'
       );
     }
     var i = e.target.getAttribute('index');
 
     if (!this.moreFunItems_.hasOwnProperty(i)) {
       throw new GooglePropertiesMenuError(
-        'Bad More Fun index!',
-        [e, this.moreFunItems_]
+        'Bad More Fun index!'
       );
     }
     var content = this.moreFunItems_[i];
@@ -142,15 +140,13 @@ function GooglePropertiesMenu() {
   this.handleDoodleSelection = function(e) {
     if (!$) {
       throw new GooglePropertiesMenuError(
-        'Can\'t handle Doodle selection without jQuery injection!',
-        e
+        'Can\'t handle Doodle selection without jQuery injection!'
       );
     }
 
     if (!e.hasOwnProperty('target') || ! e.target.getAttribute('index')) {
       throw new GooglePropertiesMenuError(
-        'Doodle element had no index!',
-        e
+        'Doodle element had no index!'
       );
     }
     var i = e.target.getAttribute('index');
@@ -167,7 +163,7 @@ function GooglePropertiesMenu() {
     $('.description').hide();
     $(e).addClass('selected');
     $('#choose_game').hide();
-    $('#{}_selected').replace('{}', content.id).show();
+    $('#{}_selected'.replace('{}', content.id)).show();
 
     this.handleContentSelection_(content);
   };
@@ -178,35 +174,28 @@ function GooglePropertiesMenu() {
   this.addDoodleMenuToPage = function() {
     if (!this.ready_) {
       throw new GooglePropertiesMenuError(
-        'Properties menu not initialized yet!',
-        this
+        'Properties menu not initialized yet!'
       );
     }
 
-    if (!this.config_.hasOwnProperty('portal')) {
+    if (!this.config_.hasOwnProperty('doodle_items')) {
       throw new GooglePropertiesMenuError(
-        'No portal section in config!',
-        this.config_
+        'No doodle_items in Portal config!'
       );
     }
-    if (!this.config_.portal.hasOwnProperty('doodle_items') {
-      throw new GooglePropertiesMenuError(
-        'No doodle_items in Portal config!',
-        this.config_
-      );
-    }
-    this.doodleItems_ = this.config_.portal.doodle_items.map(function(i) {
+    this.doodleItems_ = this.config_.doodle_items.map(function(i) {
       return new GooglePropertiesMenuItem(i);
     });
 
     var container = document.createElement('div');
-    for (var i in items) {
-      var item = items[i];
+    for (var i in this.doodleItems_) {
+      var item = this.doodleItems_[i];
 
       var name = item.name;
       var icon = chrome.extension.getURL(item.icon);
 
       var d = document.createElement('div');
+      d.className = 'game';
       d.setAttribute('index', i);
 
       var img = document.createElement('img');
@@ -257,6 +246,16 @@ function GooglePropertiesMenu() {
       var li = document.createElement('li');
       li.setAttribute('index', i);
 
+      var img = document.createElement('img');
+      img.src = icon;
+      img.setAttribute('index', i);
+      li.appendChild(img);
+
+      var span = document.createElement('span');
+      span.innerText = name;
+      span.setAttribute('index', i);
+      li.appendChild(span);
+
       li.addEventListener(
         'touchstart',
         this.handleMoreFunSelection.bind(this),
@@ -267,6 +266,8 @@ function GooglePropertiesMenu() {
         this.handleMoreFunSelection.bind(this),
         true
       );
+
+      ul.appendChild(li);
     }
 
     return ul;
@@ -278,24 +279,16 @@ function GooglePropertiesMenu() {
   this.addMoreFunMenuToPage = function() {
     if (!this.ready_) {
       throw new GooglePropertiesMenuError(
-        'Properties menu not initialized yet!',
-        this
+        'Properties menu not initialized yet!'
       );
     }
 
-    if (!this.config_.hasOwnProperty('portal') {
+    if (!this.config_.hasOwnProperty('morefun_items')) {
       throw new GooglePropertiesMenuError(
-        'No portal section in config!',
-        this.config_
+        'No More Fun items in Portal config!'
       );
     }
-    if (!this.config_.portal.hasOwnProperty('morefun_items') {
-      throw new GooglePropertiesMenuError(
-        'No More Fun items in Portal config!',
-        this.config_
-      );
-    }
-    this.moreFunItems_ = this.config_.portal.morefun_items.map(function(i) {
+    this.moreFunItems_ = this.config_.morefun_items.map(function(i) {
       return new GooglePropertiesMenuItem(i);
     });
 
@@ -326,7 +319,7 @@ function GooglePropertiesMenu() {
 
     d.appendChild(t);
 
-    d.appendChild(this.createMoreFunElementList_(items));
+    d.appendChild(this.createMoreFunElementList_(this.moreFunItems_));
     d.style.visibility = 'hidden';
 
     document.body.appendChild(d);

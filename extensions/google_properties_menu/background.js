@@ -70,9 +70,11 @@ function MenuBackground() {
    * @private
    */
   this.getConfig_ = function(cb) {
-    this.configSvc.callService(configRequest, function(response) {
-      if (! 'json' in response) {
-        throw 'Configuration response was missing the "json" key!';
+    this.configSvc.callService(this.configRequest, function(response) {
+      if (!response.hasOwnProperty('json')) {
+        throw new GooglePropertiesMenuError(
+           'Configuration response was missing the "json" key!'
+        );
       }
       var config = JSON.parse(response.json);
       cb(config);
@@ -88,7 +90,7 @@ function MenuBackground() {
   this.sendMode_ = function(mode) {
     var modeMsg = new ROSLIB.Message({mode: mode});
     console.debug('Switching to mode', modeMsg.mode);
-    modeTopic.publish(modeMsg);
+    this.modeTopic.publish(modeMsg);
   };
 
   /**
@@ -100,7 +102,7 @@ function MenuBackground() {
   this.sendURL_ = function(url) {
     console.log('Trying to switch display to', url);
     var switchMsg = new ROSLIB.Message({data: url});
-    displaySwitchTopic.publish(switchMsg);
+    this.displaySwitchTopic.publish(switchMsg);
   };
 
   /**
@@ -114,10 +116,10 @@ function MenuBackground() {
    * @private
    */
   this.handleContentChangeMessage_ = function(msg, sender, sendResponse) {
-    if ('display_url' in msg) {
+    if (msg.hasOwnProperty('display_url')) {
       this.sendURL_(msg.display_url);
     }
-    if ('mode' in msg) {
+    if (msg.hasOwnProperty('mode')) {
       this.sendMode_(msg.mode);
     }
     return false;
@@ -140,7 +142,6 @@ function MenuBackground() {
     return true;
   };
 
-
   /**
    * Receives a message from a content script, validates, and sends it to the
    * appropriate handler.
@@ -153,11 +154,15 @@ function MenuBackground() {
    * @private
    */
   this.receiveContentMessage_ = function(msg, sender, sendResponse) {
-    if (! 'type' in msg) {
-      throw 'Got a message with no type!';
+    if (!msg.hasOwnProperty('type')) {
+      throw new GooglePropertiesMenuError(
+        'Got a message with no type!'
+      );
     }
-    if (! msg.type in this.contentMessageHandlers_) {
-      throw 'Got a message with an unrecognized type!';
+    if (!this.contentMessageHandlers_.hasOwnProperty(msg.type)) {
+      throw new GooglePropertiesMenuError(
+        'Got a message with an unrecognized type!'
+      );
     }
 
     return this.contentMessageHandlers_[msg.type](

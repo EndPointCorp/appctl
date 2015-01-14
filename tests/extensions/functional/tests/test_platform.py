@@ -3,8 +3,8 @@ Browser platform tests (webgl, drivers etc).
 
 """
 
+import helpers
 from base import TestBase
-from helpers import filter_list_of_dicts
 from exception import ConfigException
 
 
@@ -45,8 +45,8 @@ class TestPlatform(TestBase):
 
         config_chrome_version = str(self.chrome_gpu_data['clientInfo']['version'].split('.')[0])
         direct_rendering_enabled = \
-            filter_list_of_dicts(self.chrome_gpu_data['gpuInfo']['basic_info'],
-                                 'Direct rendering',
-                                 'Yes')
+            helpers.filter_list_of_dicts(self.chrome_gpu_data['gpuInfo']['basic_info'],
+                                         'Direct rendering',
+                                         'Yes')
         assert direct_rendering_enabled is True
         assert chrome_version == config_chrome_version
