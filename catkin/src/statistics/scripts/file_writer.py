@@ -2,11 +2,10 @@
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 
 import rospy
-import sys
 import json
 import time
 from statistics.srv import SessionQuery
-
+from statistics.msg import Session
 
 class GeolocationDataException(Exception):
     pass
@@ -28,14 +27,14 @@ class FileWriter:
         if self.country is None or\
            self.store_id is None or\
            self.retailer is None:
-               raise GeolocationDataException("You need to specify proper store metadata")
+                raise GeolocationDataException("You need to specify proper store metadata")
         self._wait_for_service()
         pass
 
     def _wait_for_service(self):
-        rospy.loginfo("Waiting for the /statistics/session service to become available")
+        rospy.logdebug("Waiting for the /statistics/session service to become available")
         rospy.wait_for_service('statistics/session')
-        rospy.loginfo("Statistics aggretator service has become available")
+        rospy.logdebug("Statistics aggretator service has become available")
         pass
 
     def _call_service(self):
@@ -53,11 +52,6 @@ class FileWriter:
         rospy.init_node('statistics')
         pass
 
-    def _jsonize_string(self, string):
-        sessions = string.replace("'{", "{").replace("}'", "}")
-        rospy.logdebug("Deserialized sessions => %s" % sessions)
-        return json.loads(sessions)
-
     def _finalize_report_data(self, report_contents):
         """
         - fill report_time and end_ts with current time
@@ -71,11 +65,9 @@ class FileWriter:
 
     def _compose_and_write_json(self, sessions):
         """
-        - jsonize the sessions string received from json aggregator
         - convert sessions list to json
         - finalize report and write the file
         """
-        sessions = self._jsonize_string(sessions)
         report_contents = {"report_time": 0,
                            "start_ts": 0,
                            "status": "on",
@@ -87,20 +79,37 @@ class FileWriter:
                                         },
                            "sessions": []
                            }
+
         for session in sessions:
+            session = self._get_session_attributes_dict(session)
             report_contents['sessions'].append(session)
 
         report_contents = self._finalize_report_data(report_contents)
+        self._write_file(report_contents)
+        pass
+
+    def _write_file(self, report_contents):
         with open(self.path + "/" +  str(int(time.time())) + ".json", 'w') as json_file:
             rospy.loginfo("Writing file %s" % json_file.name)
             json_file.write(json.dumps(report_contents, sort_keys=True, indent=4, separators=(',', ': ')))
             del report_contents
+        pass
+
+    def _get_session_attributes_dict(self, session):
+        single_session = {}
+        for field in Session.__slots__:
+            single_session[field] = session.__getattribute__(field)
+            rospy.logdebug("Examining field %s" % field)
+        rospy.logdebug("Returning single_session %s" % single_session)
+        return single_session
 
     def _spin(self):
         try:
             response = self._call_service()
         except rospy.service.ServiceException, e:
-            rospy.logfatal("Could not connect to /statistics/session service because: %s" % e)
+            rospy.logfatal("Failure while sending requests to /statistics/session service because: %s\
+ - this message shouldnt appear anywhere but on ROS shutdown" % e)
+            raise
         self._compose_and_write_json(response.sessions)
         pass
 

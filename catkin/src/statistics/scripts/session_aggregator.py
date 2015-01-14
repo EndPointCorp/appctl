@@ -3,9 +3,9 @@
 
 import rospy
 import sys
-import json
 from statistics.msg import Session
 from statistics.srv import SessionQuery
+from statistics.srv import SessionQueryResponse
 
 
 class OutOfMemoryException(Exception):
@@ -30,7 +30,7 @@ class SessionAggregator:
         self.service = self._init_service()
         self.subscriber = self._init_subscriber()
         self.event_id = 0
-        self.mandatory_fields = {'start_ts': 0}
+        self.session_fields = Session.__slots__
         self.sessions = []
         self.max_events = rospy.get_param('~max_events', None)
         self.max_memory = rospy.get_param('~max_memory', '32000000')
@@ -43,29 +43,36 @@ class SessionAggregator:
     def _init_subscriber(self):
         subscriber = rospy.Subscriber('/statistics/session',
                                       Session,
-                                      self._catch_session_event)
+                                      self._store_event)
         return subscriber
 
-    def _catch_session_event(self, data):
+    def _store_event(self, data):
         self._append_event(data)
 
-    def _append_event(self, event):
-        """
-        Handle the limits and append the event to the sessions storage
-        """
-        self._handle_erase_flag(event)
-        pass
-
+    def _check_max_memory(self):
         if sys.getsizeof(self.max_memory) > self.max_memory:
             raise OutOfMemoryException
+        pass
 
+    def _check_max_events(self):
         if self.max_events and len(self.sessions) > self.max_events:
             raise TooManyEventsException("Number of events: %s, max: %s" % (len(self.sessions), self.max_events))
 
-        rospy.logdebug("Got session => %s" % event.session)
+    def _append_event(self, event):
+        """
+        - handle the limits
+        - append the event to the sessions storage
+        """
+        self._handle_erase_flag(event)
+        self._check_max_memory()
+        self._check_max_events()
+
+        rospy.logdebug("Got session => %s" % event)
+        rospy.logdebug("All stored sessions => %s" % self.sessions)
         if self._validate_incoming_event(event):
-            session = json.loads(event.session)
-            assert isinstance(session, dict)
+            session = dict.fromkeys(self.session_fields)
+            for attribute in self.session_fields:
+                session[attribute] = event.__getattribute__(attribute)
             self.sessions.append(session)
             self._end_previous_session()
         else:
@@ -74,8 +81,9 @@ class SessionAggregator:
 
     def _end_previous_session(self):
         """
-        If session store has more than 1 session and new session event comes,
+        - if session store has more than 1 session and new session event comes,
         end previous one using the start time of new one.
+        - if "end_ts" is set, that means that no more sessions should be kept in session store
         """
         if len(self.sessions) >= 2:
             rospy.logdebug("Ending previous session with time = %s" % self.sessions[-1]['start_ts'])
@@ -84,23 +92,21 @@ class SessionAggregator:
 
     def _validate_incoming_session(self, event):
         """
-        - Checks whether session has keys defined in self.mandatory_fields
+        - Checks whether session has keys defined in self.session_fields
         - Returns None if any of the required keys are missing
         - Returns `event` if event is valid
         """
-        session = json.loads(event.session)
 
-        for key in self.mandatory_fields.iterkeys():
-            if key not in session:
-                rospy.logwarn("Received event session in wrong format - missing key: %s - please refer to the docs" % str(key))
+        for key in self.session_fields:
+            if key not in event.__slots__:
+                rospy.logwarn("Received event session in wrong format - missing key: %s - please refer to the docs" % key)
                 return None
         # session['serial_number'] = self._get_event_id()
         # TODO(wz): a incremental serial number for sessions cleared after ROS restart
-        assert isinstance(session, dict)
-        return session
+        return event
 
     def _validate_incoming_event(self, event):
-        if event.session:
+        if event:
             return self._validate_incoming_session(event)
         else:
             rospy.logwarn("Received event session in wrong format - please refer to the docs")
@@ -108,9 +114,7 @@ class SessionAggregator:
 
     def _erase_sessions(self):
         """
-        Check whether we have a last started session
-            - if yes - erase all previous sessions and keep current
-            - if not - just do nothing
+        Erase sessions - leave only open ones (those withoud "end_ts")
         """
 
         assert isinstance(self.sessions, list)
@@ -128,7 +132,10 @@ class SessionAggregator:
         rospy.logdebug("Leaving session %s of type %s in session store" % (current_session, type(current_session)))
         assert isinstance(current_session, dict)
         if current_session:
-            self.sessions.append(current_session)
+            if current_session['end_ts']:
+                pass
+            else:
+                self.sessions.append(current_session)
         self.erase_flag = 0
         pass
 
@@ -150,18 +157,33 @@ class SessionAggregator:
         check the `erase` flag
         """
         self._handle_erase_flag(req)
-        rospy.loginfo("Currently open session: %s" % self.sessions[-1])
-        finished_sessions = json.dumps(self._filter_finished_sessions(self.sessions))
+        assert isinstance(self.sessions, list)
+        if self.sessions:
+            rospy.loginfo("Currently open session: %s" % self.sessions[-1])
+        finished_sessions = self._filter_finished_sessions(self.sessions)
+        assert (isinstance(finished_sessions, list))
 
-        return finished_sessions
+        return self._rewrite_to_ros(finished_sessions)
+
+    def _rewrite_to_ros(self, finished_sessions):
+        sessions_list = SessionQueryResponse()
+        for session in finished_sessions:
+            s = Session()
+            for attribute in Session.__slots__:
+                s.__setattr__(attribute, session[attribute])
+            sessions_list.sessions.append(s)
+        rospy.logdebug("Returning session list: %s" % sessions_list)
+        return sessions_list
+
 
     def _filter_finished_sessions(self, sessions):
         """
         Filter out all sessions that don't have an 'end_ts' and return only
         those that were completed
         """
-        finished_sessions = [s for s in sessions if 'end_ts' in s.iterkeys()]
+        finished_sessions = [s for s in sessions if (s['end_ts'] > 0)]
         assert isinstance(finished_sessions, list)
+
         return finished_sessions
 
     def _init_service(self):
@@ -171,7 +193,7 @@ class SessionAggregator:
         return service
 
     def run(self):
-        rospy.loginfo("Starting session statistics service")
+        rospy.logdebug("Starting session statistics service")
         while not rospy.is_shutdown():
             rospy.spin()
             pass
