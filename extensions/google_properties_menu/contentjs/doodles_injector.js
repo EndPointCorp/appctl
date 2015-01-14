@@ -2,8 +2,9 @@ console.log('doodles injector');
 
 var scriptsForLoading = [
   "libs/jquery-2.1.1.min.js",
-  'contentjs/google_properties_menu.js',
-  'contentjs/doodles.js'
+  'contentjs/google_properties_menu_error.js',
+  'contentjs/google_properties_menu_item.js',
+  'contentjs/google_properties_menu.js'
 ];
 
 var injectScript = function(index) {

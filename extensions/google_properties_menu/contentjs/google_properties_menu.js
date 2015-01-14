@@ -1,31 +1,63 @@
 /**
- * Controls the Google Properties Menu and communication with the extension
+ * Controls the Google Properties menus and communication with the extension
  * background page.
  *
  * @author Szymon Guz <szymon@endpoint.com>
  * @author Matt Vollrath <matt@endpoint.com>
  */
-var GooglePropertiesMenu = function () {
+function GooglePropertiesMenu() {
+  /**
+   * Instance has been initialized?
+   * @type {boolean}
+   * @private
+   */
+  this.ready_ = false;
+
+  /**
+   * Configuration from the portal_config service.
+   * @type {object}
+   * @private
+   */
+  this.config_ = {};
+
+  /**
+   * Items in the More Fun menu.
+   * @type {GooglePropertiesMenuItem[]}
+   * @private
+   */
+  this.moreFunItems_ = [];
+
+  /**
+   * Items in the Doodle menu.
+   * @type {GooglePropertiesMenuItem[]}
+   * @private
+   */
+  this.doodleItems_ = [];
+
   /**
    * Fetches configuration from the background page and runs it back to the
    * callback.
-   * @param cb {function}
+   * @param {function} cb
    *       The callback to hit with the configuration data.
+   * @private
    */
-  this.fetchConfigData = function(cb) {
+  this.fetchConfigData_ = function(cb) {
     chrome.runtime.sendMessage({type: 'config'}, function(msg) {
       var config = msg.config;
-      if ((! 'portal' in config) || (! 'morefun_items' in config.portal)) {
-        throw 'Could not find morefun_items in config.portal!';
-      }
 
-      var contentItems = config.portal.morefun_items;
-      cb(contentItems);
+      cb(config);
     });
   };
 
-  this.handleContentAction = function (content) {
-    if (! 'action' in content) {
+  /**
+   * Handles custom actions which can be tagged onto either More Fun or Doodle
+   * content items.
+   * @param {GooglePropertiesMenuItem} content
+   *       An item of More Fun or Doodle content.
+   * @private
+   */
+  this.handleContentAction_ = function (content) {
+    if (!content.hasOwnProperty('action')) {
       return;
     }
 
@@ -37,103 +69,235 @@ var GooglePropertiesMenu = function () {
     }
   };
 
-  this.sendContentToBackground = function(content) {
+  /**
+   * Sends a content item to the extension background page for transmission
+   * to the ROS backplane.
+   * @param {GooglePropertiesMenuItem} content
+   *       An item of More Fun or Doodle content.
+   * @private
+   */
+  this.sendSelectionToRos_ = function(content) {
     var msg = {
       type: 'change',
       data: content
     };
     chrome.runtime.sendMessage(msg);
-  }
+  };
 
   /**
-   * Handles a content selection from user interaction with the menu.
-   * @param e
-   *       The touch/click event.
+   * Handles common work needed by both More Fun and Doodle content.
+   * @param {GooglePropertiesMenuItem} content
+   *       An item of More Fun or Doodle content.
+   * @private
    */
-  this.handleContentSelection = function (e) {
-    var i = e.target.getAttribute('index');
-
-    if (!i) {
-      throw 'Content element had no index!';
-    }
-
-    var content = this.contentItems[i];
-
+  this.handleContentSelection_ = function(content) {
     // Notify the background page of the selection so it can send messages to
     // the ROS network.
 
-    this.sendContentToBackground(content);
+    this.sendSelectionToRos_(content);
 
     // Local actions can be taken after sending the selection to the background
     // page.
 
     // Process custom actions.
-    this.handleContentAction(content);
+    this.handleContentAction_(content);
 
     // Change the page if a kiosk_url is provided.
-    if ('kiosk_url' in content) {
+    if (content.hasOwnProperty('kiosk_url')) {
       window.location = content.kiosk_url;
     }
   };
 
-  this.handleDoodleSelection = function(e) {
-    var url = e.target.getAttribute('switch_url');
-    if (!url) {
-      throw 'Doodle element had no switch_url!';
+  /**
+   * Handles a More Fun content selection from user interaction with the menu.
+   * @param {event} e
+   *       The touch/click event.
+   */
+  this.handleMoreFunSelection = function (e) {
+    if (!e.hasOwnProperty('target') || ! e.target.getAttribute('index')) {
+      throw new GooglePropertiesMenuError(
+        'More Fun element had no index!',
+        e
+      );
     }
-    this.sendContentToBackground({display_url: url});
-  }
+    var i = e.target.getAttribute('index');
+
+    if (!this.moreFunItems_.hasOwnProperty(i)) {
+      throw new GooglePropertiesMenuError(
+        'Bad More Fun index!',
+        [e, this.moreFunItems_]
+      );
+    }
+    var content = this.moreFunItems_[i];
+
+    this.handleContentSelection_(content);
+  };
 
   /**
-   * Creates a DOM list from the given list of content items.
-   * @param items {object}
-   *       A list of content items from the Portal configuration.
+   * Handles a Doodle content selection from user interaction with the menu.
+   * Requires jQuery in the environment.
+   * @param {event} e
+   *       The touch/click event.
    */
-  this.createElementsList = function(items) {
+  this.handleDoodleSelection = function(e) {
+    if (!$) {
+      throw new GooglePropertiesMenuError(
+        'Can\'t handle Doodle selection without jQuery injection!',
+        e
+      );
+    }
 
-    var ul = document.createElement('ul');
+    if (!e.hasOwnProperty('target') || ! e.target.getAttribute('index')) {
+      throw new GooglePropertiesMenuError(
+        'Doodle element had no index!',
+        e
+      );
+    }
+    var i = e.target.getAttribute('index');
+
+    if (!this.doodleItems_.hasOwnProperty(i)) {
+      throw new GooglePropertiesMenuError(
+        'Bad Doodle index!',
+        [e, this.doodleItems_]
+      );
+    }
+    var content = this.doodleItems_[i];
+
+    $('.game').removeClass('selected');
+    $('.description').hide();
+    $(e).addClass('selected');
+    $('#choose_game').hide();
+    $('#{}_selected').replace('{}', content.id).show();
+
+    this.handleContentSelection_(content);
+  };
+
+  /**
+   * Adds the Doodle content items to the page.  Must occur after init().
+   */
+  this.addDoodleMenuToPage = function() {
+    if (!this.ready_) {
+      throw new GooglePropertiesMenuError(
+        'Properties menu not initialized yet!',
+        this
+      );
+    }
+
+    if (!this.config_.hasOwnProperty('portal')) {
+      throw new GooglePropertiesMenuError(
+        'No portal section in config!',
+        this.config_
+      );
+    }
+    if (!this.config_.portal.hasOwnProperty('doodle_items') {
+      throw new GooglePropertiesMenuError(
+        'No doodle_items in Portal config!',
+        this.config_
+      );
+    }
+    this.doodleItems_ = this.config_.portal.doodle_items.map(function(i) {
+      return new GooglePropertiesMenuItem(i);
+    });
+
+    var container = document.createElement('div');
     for (var i in items) {
+      var item = items[i];
 
-      var name = items[i].name;
-      var icon = chrome.extension.getURL(items[i].icon);
+      var name = item.name;
+      var icon = chrome.extension.getURL(item.icon);
 
-      var li = document.createElement('li');
-      li.setAttribute('index', i);
+      var d = document.createElement('div');
+      d.setAttribute('index', i);
 
       var img = document.createElement('img');
+      img.className = 'no-pointer';
       img.setAttribute('src', icon);
       img.setAttribute('index', i);
 
       var span = document.createElement('span');
+      span.className = 'no-pointer';
       span.innerText = name;
       span.setAttribute('index', i);
 
-      li.appendChild(img);
-      li.appendChild(span);
+      d.appendChild(img);
+      d.appendChild(span);
+
+      d.addEventListener(
+        'touchstart',
+        this.handleDoodleSelection.bind(this),
+        true
+      );
+      d.addEventListener(
+        'click',
+        this.handleDoodleSelection.bind(this),
+        true
+      );
+
+      container.appendChild(d);
+    }
+
+    var middle = document.getElementById('middle');
+    middle.appendChild(container);
+  };
+
+  /**
+   * Creates a DOM list from the given list of More Fun content items.
+   * @param {GooglePropertiesMenuItem[]} items
+   *       A list of content items from the Portal configuration.
+   * @private
+   */
+  this.createMoreFunElementList_ = function(items) {
+    var ul = document.createElement('ul');
+    for (var i in items) {
+      var item = items[i];
+
+      var name = item.name;
+      var icon = chrome.extension.getURL(item.icon);
+
+      var li = document.createElement('li');
+      li.setAttribute('index', i);
 
       li.addEventListener(
         'touchstart',
-        this.handleContentSelection.bind(this),
+        this.handleMoreFunSelection.bind(this),
         true
       );
       li.addEventListener(
         'click',
-        this.handleContentSelection.bind(this),
+        this.handleMoreFunSelection.bind(this),
         true
       );
-
-      ul.appendChild(li);
     }
 
     return ul;
   };
 
   /**
-   * Initializes the menu given a list of content items.
-   * @param items {object}
-   *       A list of content items from the Portal configuration.
+   * Adds the More Fun menu to the page.  Must occur after init().
    */
-  this.initializeMoreFunMenu = function(items) {
+  this.addMoreFunMenuToPage = function() {
+    if (!this.ready_) {
+      throw new GooglePropertiesMenuError(
+        'Properties menu not initialized yet!',
+        this
+      );
+    }
+
+    if (!this.config_.hasOwnProperty('portal') {
+      throw new GooglePropertiesMenuError(
+        'No portal section in config!',
+        this.config_
+      );
+    }
+    if (!this.config_.portal.hasOwnProperty('morefun_items') {
+      throw new GooglePropertiesMenuError(
+        'No More Fun items in Portal config!',
+        this.config_
+      );
+    }
+    this.moreFunItems_ = this.config_.portal.morefun_items.map(function(i) {
+      return new GooglePropertiesMenuItem(i);
+    });
 
     var onclick = function() {
       document.getElementById('morefun_items').style.visibility = 'visible';
@@ -162,7 +326,7 @@ var GooglePropertiesMenu = function () {
 
     d.appendChild(t);
 
-    d.appendChild(this.createElementsList(items));
+    d.appendChild(this.createMoreFunElementList_(items));
     d.style.visibility = 'hidden';
 
     document.body.appendChild(d);
@@ -176,11 +340,30 @@ var GooglePropertiesMenu = function () {
     document.body.addEventListener('touchstart', closeHandler, true);
   };
 
-  /* Fetch configuration and populate the menu. */
-  this.fetchConfigData(function(items) {
-    this.contentItems = items;
-    this.initializeMoreFunMenu(items);
-  }.bind(this));
-};
+  /**
+   * Initializes the Google Properties Menu module.
+   * @param {function} cb
+   *       Callback to run when the module is ready.
+   */
+  this.init = function(cb) {
+    var cb_ = cb;
+    /* Fetch configuration and populate the menu. */
+    this.fetchConfigData_(function(config) {
+      this.config_ = config;
+      this.ready_ = true;
+      cb_();
+    }.bind(this));
+  };
+}
 
-var propertiesMenu = new GooglePropertiesMenu();
+var acmePropertiesMenu = new GooglePropertiesMenu();
+acmePropertiesMenu.init(function() {
+  /* Always add the More Fun menu to the page. */
+  acmePropertiesMenu.addMoreFunMenuToPage();
+
+  /* Add the Doodle content if it's the right page. */
+  if (document.title == 'Doodle Selection') {
+    acmePropertiesMenu.addDoodleMenuToPage();
+  }
+});
+

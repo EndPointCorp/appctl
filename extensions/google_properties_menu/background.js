@@ -6,48 +6,70 @@
  * @author Szymon Guz <szymon@endpoint.com>
  * @author Matt Vollrath <matt@endpoint.com>
  */
-var MenuBackground = (function () {
-  /** Connection to the rosbridge server. */
-  this.portalRos = new ROSLIB.Ros({
-    url: 'wss://42-b:9090'
-  });
+function MenuBackground() {
+  /**
+   * Initializes the background module by connecting all the ROS and Chrome
+   * messaging pieces.
+   */
+  this.init = function() {
+    /* Connection to the rosbridge server. */
+    this.portalRos = new ROSLIB.Ros({
+      url: 'wss://42-b:9090'
+    });
 
-  this.portalRos.on('error', function(error) {
-    console.error('ROS error:', error);
-  });
+    this.portalRos.on('error', function(error) {
+      console.error('ROS error:', error);
+    });
 
-  /** Topic for changing the large display url. */
-  this.displaySwitchTopic = new ROSLIB.Topic({
-    ros: this.portalRos,
-    name: '/display/switch',
-    messageType: 'std_msgs/String'
-  });
-  this.displaySwitchTopic.advertise();
+    /* Topic for changing the large display url. */
+    this.displaySwitchTopic = new ROSLIB.Topic({
+      ros: this.portalRos,
+      name: '/display/switch',
+      messageType: 'std_msgs/String'
+    });
+    this.displaySwitchTopic.advertise();
 
-  /** Topic for switching appctl mode. */
-  this.modeTopic = new ROSLIB.Topic({
-    ros: this.portalRos,
-    name: '/appctl/mode',
-    messageType: 'appctl/Mode'
-  });
-  this.modeTopic.advertise();
+    /* Topic for switching appctl mode. */
+    this.modeTopic = new ROSLIB.Topic({
+      ros: this.portalRos,
+      name: '/appctl/mode',
+      messageType: 'appctl/Mode'
+    });
+    this.modeTopic.advertise();
 
-  /** A service providing Portal configuration. */
-  this.configSvc = new ROSLIB.Service({
-    ros: this.portalRos,
-    name: '/portal_config/query',
-    messageType: 'portal_config/PortalConfig'
-  });
+    /* A service providing Portal configuration. */
+    this.configSvc = new ROSLIB.Service({
+      ros: this.portalRos,
+      name: '/portal_config/query',
+      messageType: 'portal_config/PortalConfig'
+    });
 
-  /** A static request to use when retrieving configuration. */
-  this.configRequest = new ROSLIB.ServiceRequest({});
+    /* A request to use when retrieving configuration. */
+    this.configRequest = new ROSLIB.ServiceRequest({});
+
+    /* Subscribe the message receiver. */
+    chrome.runtime.onMessage.addListener(this.receiveContentMessage_.bind(this));
+
+    /*
+     * Handlers for messages coming from content scripts.  Parameters and
+     * return value according to the callback of chrome.runtime.onMessage
+     * event.  Each handler must return true if an async callback is expected,
+     * otherwise false.
+     * @see https://developer.chrome.com/extensions/runtime#event-onMessage
+     */
+    this.contentMessageHandlers_ = {
+      'change': this.handleContentChangeMessage_.bind(this),
+      'config': this.handleContentConfigMessage_.bind(this)
+    };
+  };
 
   /**
    * Retrieves configuration from the portal_config service.
    * @param {function} cb
    *       Callback to run with the configuration response.
+   * @private
    */
-  this.getConfig = function(cb) {
+  this.getConfig_ = function(cb) {
     this.configSvc.callService(configRequest, function(response) {
       if (! 'json' in response) {
         throw 'Configuration response was missing the "json" key!';
@@ -61,8 +83,9 @@ var MenuBackground = (function () {
    * Sends an appctl mode change to the topic.
    * @param {string} mode
    *       The mode to switch to.
+   * @private
    */
-  this.sendMode = function(mode) {
+  this.sendMode_ = function(mode) {
     var modeMsg = new ROSLIB.Message({mode: mode});
     console.debug('Switching to mode', modeMsg.mode);
     modeTopic.publish(modeMsg);
@@ -72,8 +95,9 @@ var MenuBackground = (function () {
    * Sends a large display url change to the topic.
    * @param {string} url
    *       The url to switch to.
+   * @private
    */
-  this.sendURL = function(url) {
+  this.sendURL_ = function(url) {
     console.log('Trying to switch display to', url);
     var switchMsg = new ROSLIB.Message({data: url});
     displaySwitchTopic.publish(switchMsg);
@@ -87,13 +111,14 @@ var MenuBackground = (function () {
    * @param sender
    * @param sendResponse
    * @return {boolean} False, because an async callback is not expected.
+   * @private
    */
-  this.handleContentChangeMessage = function(msg, sender, sendResponse) {
+  this.handleContentChangeMessage_ = function(msg, sender, sendResponse) {
     if ('display_url' in msg) {
-      this.sendURL(msg.display_url);
+      this.sendURL_(msg.display_url);
     }
     if ('mode' in msg) {
-      this.sendMode(msg.mode);
+      this.sendMode_(msg.mode);
     }
     return false;
   };
@@ -106,25 +131,15 @@ var MenuBackground = (function () {
    * @param sender
    * @param sendResponse
    * @return {boolean} True, because an async callback is expected.
+   * @private
    */
-  this.handleContentConfigMessage = function(msg, sender, sendResponse) {
-    this.getConfig(function(config) {
+  this.handleContentConfigMessage_ = function(msg, sender, sendResponse) {
+    this.getConfig_(function(config) {
       sendResponse({config: config});
     });
     return true;
   };
 
-  /**
-   * Handlers for messages coming from content scripts.  Parameters and return
-   * value according to the callback of chrome.runtime.onMessage event.  Each
-   * handler must return true if an async callback is expected, otherwise
-   * false.
-   * @see https://developer.chrome.com/extensions/runtime#event-onMessage
-   */
-  this.contentMessageHandlers = {
-    'change': this.handleContentChangeMessage.bind(this),
-    'config': this.handleContentConfigMessage.bind(this)
-  };
 
   /**
    * Receives a message from a content script, validates, and sends it to the
@@ -135,22 +150,23 @@ var MenuBackground = (function () {
    * @param sendResponse
    * @return {boolean} The value from the handler.  Must be true if an async
    *         response is expected.
+   * @private
    */
-  this.receiveContentMessage = function(msg, sender, sendResponse) {
+  this.receiveContentMessage_ = function(msg, sender, sendResponse) {
     if (! 'type' in msg) {
       throw 'Got a message with no type!';
     }
-    if (! msg.type in this.contentMessageHandlers) {
+    if (! msg.type in this.contentMessageHandlers_) {
       throw 'Got a message with an unrecognized type!';
     }
 
-    return this.contentMessageHandlers[msg.type](
+    return this.contentMessageHandlers_[msg.type](
       msg.data,
       sender,
       sendResponse
     );
   };
+}
 
-  /* Subscribe the message receiver. */
-  chrome.runtime.onMessage.addListener(this.receiveContentMessage.bind(this));
-})();
+var menuBackground = new MenuBackground();
+menuBackground.init();
