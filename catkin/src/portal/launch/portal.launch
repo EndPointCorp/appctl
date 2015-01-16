@@ -1,5 +1,5 @@
 <launch>
-  <node pkg="portal_config" type="portal_config" name="serve_config.py"></node>
+  <node pkg="portal_config" type="serve_config.py" name="portal_config"></node>
   <node pkg="portal_nav" type="portal_nav" name="portal_nav"></node>
   <node name="onboard" pkg="onboard" type="listener.py"/>
   <node name="statistics_aggregator" pkg="statistics" type="session_aggregator.py"/>
