@@ -1,0 +1,6 @@
+ros-indigo-portal-config (1.0.0-0trusty) trusty; urgency=high
+
+  * First package creation for indigo release
+
+ -- End Point Corp LG R&D <lg-rad@endpoint.com>  Wed, 14 Jan 2015 18:28:04 -0400
+
