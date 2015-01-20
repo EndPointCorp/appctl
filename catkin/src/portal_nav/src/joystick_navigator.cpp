@@ -18,7 +18,7 @@
 #include "portal_nav/PortalPose.h"
 
 static const double kPi = 3.141592653589793;
-static const double kPoleLat = 90.0 - 0.000001;
+static const double kPoleLat = 90.0 - 0.00001;
 static const double kEarthRadius = 6371000;
 static const timespec kExpectedInterval = {0, 33333333};  // 30 Hz
 
@@ -36,12 +36,12 @@ JoystickNavigator::JoystickNavigator()
   linear_sensitivity_.angular.y = 0.0;  // roll
   linear_sensitivity_.angular.z = 0.0;  // heading
 
-  quadratic_sensitivity_.linear.x = 0.00000058;  // longitude
-  quadratic_sensitivity_.linear.y = 0.00000058;  // latitude
-  quadratic_sensitivity_.linear.z = 0.078;  // altitude
-  quadratic_sensitivity_.angular.x = 2.2;  // pitch
+  quadratic_sensitivity_.linear.x = 0.00000032;  // longitude
+  quadratic_sensitivity_.linear.y = 0.00000032;  // latitude
+  quadratic_sensitivity_.linear.z = 0.060;  // altitude
+  quadratic_sensitivity_.angular.x = 1.5;  // pitch
   quadratic_sensitivity_.angular.y = 0.0;  // roll
-  quadratic_sensitivity_.angular.z = 2.2;  // heading
+  quadratic_sensitivity_.angular.z = 1.75;  // heading
 
   // If all joystick inputs are all less than the gutter, the input
   // is ignored, and it's assumed that we're under touch/mouse control.
@@ -54,10 +54,13 @@ JoystickNavigator::JoystickNavigator()
 }
 
 void JoystickNavigator::Init(
-    ros::Publisher *kiosk_pub, ros::Publisher *display_pub) {
+    ros::Publisher *kiosk_pub,
+    ros::Publisher *display_pub,
+    double joystick_sensitivity) {
 
   kiosk_pub_ = kiosk_pub;
   display_pub_ = display_pub;
+  joystick_sensitivity_ = joystick_sensitivity;
   clock_gettime(CLOCK_REALTIME, &last_joy_time_);
 }
 
@@ -119,7 +122,8 @@ void JoystickNavigator::ProcessJoy(const geometry_msgs::Twist& normalized_joy) {
 
   geometry_msgs::Pose ending_pose = starting_pose;
   geometry_msgs::Twist scaled_joy;
-  Scale(normalized_joy, interval_scale, &scaled_joy);
+  double joystick_scale = interval_scale * joystick_sensitivity_;
+  Scale(normalized_joy, joystick_scale, &scaled_joy);
 
   // Altitude:  Adjusts camera altitude per joystick linear Z axis.
   // Altitude is computed first, since it affects scaling of other inputs.
@@ -183,8 +187,9 @@ void JoystickNavigator::ProcessJoy(const geometry_msgs::Twist& normalized_joy) {
   double alt_scale = ending_pose.position.z;
 
   double proposed_position_y = starting_pose.position.y + (delta_lat * alt_scale);
-  if ( abs(proposed_position_y) > kPoleLat) {
+  if (fabs(proposed_position_y) > kPoleLat) {
     ending_pose.orientation.z = fmod(ending_pose.orientation.z + 180, 360);
+    ending_pose.position.x = fmod(ending_pose.position.x - 540, 360);
   }
 
   ending_pose.position.y =
@@ -205,7 +210,7 @@ void JoystickNavigator::ProcessJoy(const geometry_msgs::Twist& normalized_joy) {
 #endif
 
   ending_pose.position.x =
-      fmod((starting_pose.position.x + (delta_lon * alt_scale)) + 540, 360) -
+      fmod((ending_pose.position.x + (delta_lon * alt_scale)) + 540, 360) -
       180;
   ending_pose.position.x =
       Clamp(ending_pose.position.x,
