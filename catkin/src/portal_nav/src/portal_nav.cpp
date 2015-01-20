@@ -31,6 +31,8 @@ class PortalNavigatorNode {
   ros::Publisher kiosk_pub_;
   ros::Publisher display_pub_;
 
+  double joystick_sensitivity_;
+
   JoystickNavigator kiosk_joystick_navigator_;
 };
 
@@ -40,7 +42,13 @@ void PortalNavigatorNode::Run(void) {
   display_pub_ = n_.advertise<geometry_msgs::PoseStamped>(
       "/portal_nav/display_goto_pose", 1);
 
-  kiosk_joystick_navigator_.Init(&kiosk_pub_, &display_pub_);
+  ros::param::param<double>(
+      "~joystick_sensitivity",
+      joystick_sensitivity_,
+      1.0);
+
+  kiosk_joystick_navigator_.Init(
+      &kiosk_pub_, &display_pub_, joystick_sensitivity_);
 
   // This subscriber takes commands from the SpaceNav.
   spacenav_sub_ = n_.subscribe("/spacenav/twist", 0,

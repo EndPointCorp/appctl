@@ -7,6 +7,10 @@ ROS tools for navigating the Google Maps globe on a Portal.
 
 Coordinates touchscreen (kiosk) navigation and SpaceNav joystick input into authoritative PoV for the globe.
 
+##### Parameters
+
+* `joystick_sensitivity` : `float` - Coefficient for the overall SpaceNav movement sensitivity.  Default is 1.0.
+
 ##### Topics
 
 * `/portal_nav/kiosk_goto_pose` : `geometry_msgs/PoseStamped` - Outgoing position that the kiosk should move to immediately.

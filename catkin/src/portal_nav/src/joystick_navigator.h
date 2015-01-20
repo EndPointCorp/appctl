@@ -20,7 +20,10 @@ class CameraBuffer;
 class JoystickNavigator {
  public:
   JoystickNavigator();
-  void Init(ros::Publisher *kiosk_pub, ros::Publisher *display_pub);
+  void Init(
+      ros::Publisher *kiosk_pub,
+      ros::Publisher *display_pub,
+      double joystick_sensitivity);
 
   // Updates the nav context with the latest pose from the camera.
   void ProcessCameraMoved(const portal_nav::PortalPose& pose);
@@ -68,6 +71,9 @@ class JoystickNavigator {
   // This flag indicates whether we're using the last_camera_pose_ or the
   // last_requested_pose_ as the basis for motion.
   bool under_joy_control_;
+
+  // A coefficient for joystick sensitivity via parameter.
+  double joystick_sensitivity_;
 
   // The joystick inputs can come at any frequency, and get scaled based on the
   // delta time between them.
