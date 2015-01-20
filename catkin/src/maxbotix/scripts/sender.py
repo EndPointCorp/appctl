@@ -19,8 +19,8 @@ def main():
     )
     rospy.init_node('maxbotix')
 
-    device_path = rospy.get_param('device_path')
-    baud_rate = int(rospy.get_param('baud_rate', 57600))
+    device_path = rospy.get_param('~device_path')
+    baud_rate = int(rospy.get_param('~baud_rate', 57600))
 
     sensor = serial.Serial(device_path, baud_rate)
 

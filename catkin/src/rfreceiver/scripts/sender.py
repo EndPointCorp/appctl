@@ -13,8 +13,8 @@ def main():
     )
     rospy.init_node('rfreceiver')
 
-    device_path = rospy.get_param('device_path')
-    baud_rate = rospy.get_param('baud_rate', 9600)
+    device_path = rospy.get_param('~device_path')
+    baud_rate = rospy.get_param('~baud_rate', 9600)
     receiver = serial.Serial(device_path, baud_rate)
 
     buf = ''
