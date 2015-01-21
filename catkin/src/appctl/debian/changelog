@@ -1,3 +1,9 @@
+ros-indigo-appctl (1.0.1-0trusty) trusty; urgency=high
+
+  * Re-introduce SubscriberListener to prevent race condition.
+
+ -- Matt Vollrath <matt@endpoint.com>  Tue, 06 Jan 2015 00:30:40 -0400
+
 ros-indigo-appctl (1.0.0-0trusty) trusty; urgency=high
 
   * First package creation for indigo release
