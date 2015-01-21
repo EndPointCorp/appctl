@@ -46,7 +46,11 @@ def main():
         goodbye_command
     )
 
-    rospy.Subscriber('/portal_occupancy/state', Bool, controller.handle_occupancy_msg)
+    rospy.Subscriber(
+        '/portal_occupancy/occupancy/is_active',
+        Bool,
+        controller.handle_occupancy_msg
+    )
 
     rospy.spin()
 
