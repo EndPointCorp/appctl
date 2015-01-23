@@ -13,9 +13,9 @@ DEFAULT_CONFIG_FILE = os.getenv("HOME") + "/etc/onboard.dconf"
 
 def callback(data):
     config_file = rospy.get_param(CONFIG_FILE, DEFAULT_CONFIG_FILE)
-    rospy.loginfo("%s using '%s' conf file." % (NODE_NAME, config_file))
+    #rospy.loginfo("%s using '%s' conf file." % (NODE_NAME, config_file))
     # TODO:
-    #   use python dbus bindings instead of dbus cli
+    #   use python dbus bindings instead of dbus cli (#307)
     if data.data:
         os.system('dconf load /org/onboard/ < %s' % config_file)
         os.system('dbus-send --type=method_call --dest=org.onboard.Onboard /org/onboard/Onboard/Keyboard org.onboard.Onboard.Keyboard.Show')
