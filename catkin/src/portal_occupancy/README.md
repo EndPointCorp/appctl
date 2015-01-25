@@ -14,9 +14,17 @@ A node that listens to sensors and publishes occupancy state.
 
 ##### Topics
 
-* `/portal_occupancy/state` : `std_msgs/Bool` - True if the Portal is occupied, False if it is not.  There is no "grace period" for this reading, it is the responsibility of the listener to set timeouts.
+* `/portal_occupancy/occupancy/is_active` : `std_msgs/Bool` - True if the Portal is occupied, False if it is not.
 
-* TODO: `/portal_occupancy/idle` : `std_msgs/Duration` - How long the Portal has been unoccupied, or zero if occupied.
+* `/portal_occupancy/occupancy/inactive_duration` : `std_msgs/Duration` - How long the Portal has been unoccupied (or zero).
+
+* `/portal_occupancy/interaction/is_active` : `std_msgs/Bool` - True if a user is interacting with the Portal, False if not.
+
+* `/portal_occupancy/interaction/inactive_duration` : `std_msgs/Duration` - How long since the last interactive session ended (or zero).
+
+"Occupancy" is active when a user is standing at the podium and/or interacting with the system.
+
+"Interaction" is activated when the user touches an input peripheral and deactivated when proximity and input are no longer detected.
 
 ##### Parameters
 
