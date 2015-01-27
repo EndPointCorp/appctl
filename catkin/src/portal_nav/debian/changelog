@@ -1,3 +1,13 @@
+ros-indigo-portal-nav (1.0.1-0trusty) trusty; urgency=high
+
+  * Fix SpaceNav pole traversal
+
+  * Add parameter for SpaceNav sensitivity
+
+  * Reduce default SpaceNav sensitivity
+
+ -- Matt Vollrath <matt@endpoint.com>  Mon, 05 Jan 2015 10:36:15 -0400
+
 ros-indigo-portal-nav (1.0.0-0trusty) trusty; urgency=high
 
   * First package creation for indigo release

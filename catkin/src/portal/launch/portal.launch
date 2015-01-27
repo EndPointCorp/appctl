@@ -1,9 +1,13 @@
 <launch>
-  <node pkg="portal_config" type="serve_config.py" name="portal_config"></node>
+  <node pkg="portal_config" type="serve_config.py" name="portal_config">
+    <param name="url" value="file://$(optenv PWD)/catkin/src/portal/launch/portal_config.json"/>
+  </node>
   <node pkg="portal_nav" type="portal_nav" name="portal_nav"></node>
-  <node name="onboard" pkg="onboard" type="listener.py"/>
+  <node name="onboard" pkg="onboard" type="listener.py">
+    <param name="config" value="$(optenv PWD)/catkin/src/portal/launch/onboard.dconf"/>
+  </node>
   <node name="statistics_aggregator" pkg="statistics" type="session_aggregator.py"/>
-  <node name="statistics_writer" pkg="statistics" type="file_writer.py"> 
+  <node name="statistics_writer" pkg="statistics" type="file_writer.py">
     <param name="~aggregation_interval" value="5" />
     <param name="~json_output_path" value="/tmp" />
     <param name="~country" value="US" />
@@ -14,7 +18,7 @@
     <param name="certfile" value="$(optenv PWD)/ros.crt"/>
     <param name="keyfile" value="$(optenv PWD)/ros.key"/>
   </node>
-  <node pkg="appctl" type="controller.py" name="controller" respawn="true">
+  <node pkg="appctl" type="controller.py" name="controller">
     <param name="~initial_mode" value="tactile"/>
   </node>
 </launch>
