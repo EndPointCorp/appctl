@@ -39,10 +39,12 @@ function build_deb () {
 }
 
 function purge_previous_builds() {
-    echo "Purging directory $1"
-    rm -fr $1/*
-    echo "Recreating directory $1"
-    mkdir -p $1
+    if [ "${PACK_STAGE,,}" = "stage1" ]; then
+        echo "Purging directory $1"
+        rm -fr $1/*
+        echo "Recreating directory $1"
+        mkdir -p $1
+    fi
 }
 
 function create_metapackage_template() {
