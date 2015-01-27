@@ -38,6 +38,7 @@ catkin/geographic_info
 catkin/src/geographic_msgs
 catkin/src/leap_motion
 
+# build artifacts
 catkin/src/ros-indigo*.build
 catkin/src/ros-indigo*.changes
 catkin/src/ros-indigo*.deb
@@ -49,6 +50,7 @@ catkin/src/*/debian/files
 catkin/src/*/debian/ros-indigo*
 catkin/src/*/obj-*-linux-gnu
 
+catkin/debs/*
 # REAPER meta
 *.reapeaks
 
