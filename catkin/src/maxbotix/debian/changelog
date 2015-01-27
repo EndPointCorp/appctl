@@ -1,3 +1,9 @@
+ros-indigo-maxbotix (1.0.1-0trusty) trusty; urgency=high
+
+  * Add device_path and baud_rate parameters
+
+ -- Matt Vollrath <matt@endpoint.com>  Mon, 19 Jan 2015 19:14:10 -0400
+
 ros-indigo-maxbotix (1.0.0-0trusty) trusty; urgency=high
 
   * First package creation for indigo release

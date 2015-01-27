@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>maxbotix</name>
-  <version>0.0.1</version>
+  <version>1.0.1</version>
   <description>Driver for maxbotix proximity sensor</description>
 
   <maintainer email="lg@endpoint.com">End Point Corp</maintainer>
