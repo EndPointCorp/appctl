@@ -1,3 +1,9 @@
+ros-indigo-onboard (1.0.1-0trusty) trusty; urgency=high
+
+  * Technical minor bump of a version
+
+ -- End Point Corp LG R&D <lg-rad@endpoint.com>  Thu, 27 Jan 2015 17:59:11 +0100
+
 ros-indigo-onboard (1.0.0-0trusty) trusty; urgency=high
 
   * First package creation for indigo release
