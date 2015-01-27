@@ -9,4 +9,4 @@ Standards-Version: 3.9.2
 Package: ros-indigo-portal-config
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-rospy
-Description: ROS service for locallly stored geographic data.
+Description: ROS service for Portal configuration.

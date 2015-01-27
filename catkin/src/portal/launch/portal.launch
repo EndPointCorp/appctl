@@ -3,7 +3,9 @@
     <param name="url" value="file://$(optenv PWD)/catkin/src/portal/launch/portal_config.json"/>
   </node>
   <node pkg="portal_nav" type="portal_nav" name="portal_nav"></node>
-  <node name="onboard" pkg="onboard" type="listener.py"/>
+  <node name="onboard" pkg="onboard" type="listener.py">
+    <param name="config" value="$(optenv PWD)/catkin/src/portal/launch/onboard.dconf"/>
+  </node>
   <node name="statistics_aggregator" pkg="statistics" type="session_aggregator.py"/>
   <node name="statistics_timeout" pkg="statistics" type="session_ender.py"/>
   <node name="statistics_writer" pkg="statistics" type="file_writer.py">
