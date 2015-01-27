@@ -49,6 +49,9 @@ catkin/src/*/debian/files
 catkin/src/*/debian/ros-indigo*
 catkin/src/*/obj-*-linux-gnu
 
+# REAPER meta
+*.reapeaks
+
 # don't track websocket ssl stuff
 ros.key
 ros.crt

@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(statistics)
+project(portal_leds)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   rospy
-  message_generation
+  std_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -43,17 +43,18 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  StatsD.msg
-  Session.msg
-)
+# add_message_files(
+#   FILES
+#   Message1.msg
+#   Message2.msg
+# )
 
 ## Generate services in the 'srv' folder
-add_service_files(
-  FILES
-  SessionQuery.srv
-)
+# add_service_files(
+#   FILES
+#   Service1.srv
+#   Service2.srv
+# )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -63,9 +64,10 @@ add_service_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-)
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs
+# )
 
 ###################################
 ## catkin specific configuration ##
@@ -78,8 +80,8 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES statistics
-  CATKIN_DEPENDS rospy message_runtime
+#  LIBRARIES portal_leds
+#  CATKIN_DEPENDS rospy std_msgs
 #  DEPENDS system_lib
 )
 
@@ -95,19 +97,19 @@ include_directories(
 )
 
 ## Declare a cpp library
-# add_library(statistics
-#   src/${PROJECT_NAME}/statistics.cpp
+# add_library(portal_leds
+#   src/${PROJECT_NAME}/portal_leds.cpp
 # )
 
 ## Declare a cpp executable
-# add_executable(statistics_node src/statistics_node.cpp)
+# add_executable(portal_leds_node src/portal_leds_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(statistics_node statistics_generate_messages_cpp)
+# add_dependencies(portal_leds_node portal_leds_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(statistics_node
+# target_link_libraries(portal_leds_node
 #   ${catkin_LIBRARIES}
 # )
 
@@ -121,14 +123,13 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 install(PROGRAMS
-  scripts/file_writer.py
-  scripts/session_aggregator.py
-  scripts/statsd_listener.py
+  scripts/controller.py
+  scripts/writer.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS statistics statistics_node
+# install(TARGETS portal_leds portal_leds_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -153,7 +154,7 @@ install(PROGRAMS
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_statistics.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_portal_leds.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
