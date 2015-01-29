@@ -123,7 +123,7 @@ include_directories(
 install(PROGRAMS
   scripts/file_writer.py
   scripts/session_aggregator.py
-  scripts/session_ender.py
+  scripts/session_tracker.py
   scripts/statsd_listener.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
