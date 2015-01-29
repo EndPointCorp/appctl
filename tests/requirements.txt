@@ -1,5 +1,0 @@
-pytest
-selenium==2.42.1
-py
-pyyaml
-dbus-python
