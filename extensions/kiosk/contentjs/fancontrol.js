@@ -33,7 +33,7 @@ var FanControl = function(ros) {
 
   this.leftFanPowerTopic = new ROSLIB.Topic({
     ros: ros,
-    name: '/fan_pdu/outlet/1',
+    name: '/weather_pdu/outlet/1',
     type: 'std_msgs/Bool',
     queue_size: 5
   });
@@ -71,12 +71,12 @@ FanControl.prototype.setFanPower_ = function(leftSpeed, rightSpeed) {
       self.leftFanPowerTopic.publish(new ROSLIB.Message({data: self.leftFanPulseState}));
     }, 1000 / this.PULSE_RATE);
   */
-  if (this.leftFanPowerState != this.POWER_STATES.ON && leftSpeed > 0.3) {
+  if (this.leftFanPowerState != this.POWER_STATES.ON && leftSpeed > 0.2) {
     this.leftFanPowerState = this.POWER_STATES.ON;
     clearInterval(this.leftFanPulseTimer);
     this.leftFanPowerTopic.publish(new ROSLIB.Message({data: true}));
 
-  } else if (this.leftFanPowerState != this.POWER_STATES.OFF && leftSpeed <= 0.3) {
+  } else if (this.leftFanPowerState != this.POWER_STATES.OFF && leftSpeed <= 0.2) {
     this.leftFanPowerState = this.POWER_STATES.OFF;
     clearInterval(this.leftFanPulseTimer);
     this.leftFanPowerTopic.publish(new ROSLIB.Message({data: false}));

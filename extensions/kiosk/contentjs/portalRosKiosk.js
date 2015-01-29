@@ -658,13 +658,13 @@ var runwayContentExitHandler = function(e) {
 
 var soundFX = new SoundFX();
 var fanControl = new FanControl(portalRosKiosk);
-//var heatControl = new HeatControl(portalRosKiosk);
-var weatherMachine = new WeatherMachine(portalRosKiosk);
+var heatControl = new HeatControl(portalRosKiosk);
+//var weatherMachine = new WeatherMachine(portalRosKiosk);
 navigatorListener.subscribe(function(rosPoseStamped) {
   soundFX.handlePoseChange(rosPoseStamped);
   fanControl.handlePoseChange(rosPoseStamped);
-  //heatControl.handlePoseChange(rosPoseStamped);
-  weatherMachine.handlePoseChange(rosPoseStamped);
+  heatControl.handlePoseChange(rosPoseStamped);
+  //weatherMachine.handlePoseChange(rosPoseStamped);
   handleRosPoseChange(rosPoseStamped);
 });
 

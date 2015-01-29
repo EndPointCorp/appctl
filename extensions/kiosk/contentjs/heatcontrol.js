@@ -16,7 +16,7 @@ var HeatControl = function(ros) {
 
   this.heaterTopic = new ROSLIB.Topic({
     ros: ros,
-    name: '/fan_pdu/outlet/2',
+    name: '/weather_pdu/outlet/2',
     type: 'std_msgs/Bool'
   });
   this.heaterTopic.advertise();

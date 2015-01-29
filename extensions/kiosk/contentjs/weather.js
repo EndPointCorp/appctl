@@ -14,18 +14,9 @@ var WeatherMachine = function(ros) {
   this.weatherRequestInterval_ = 12000; // ms
   this.heatOn = false;
 
-  /*
-  this.fanTopic = new ROSLIB.Topic({
-    ros: ros,
-    name: '/fan_pdu/outlet/1',
-    type: 'std_msgs/Bool'
-  });
-  this.fanTopic.advertise();
-  */
-
   this.heaterTopic = new ROSLIB.Topic({
     ros: ros,
-    name: '/fan_pdu/outlet/2',
+    name: '/weather_pdu/outlet/2',
     type: 'std_msgs/Bool'
   });
   this.heaterTopic.advertise();

@@ -32,6 +32,7 @@
         "libs/ToneGenerator.js",
         "contentjs/soundfx.js",
         "contentjs/fancontrol.js",
+        "contentjs/heatcontrol.js",
         "contentjs/weather.js",
         "contentjs/ambient.js",
         "contentjs/portalRosKiosk.js",
