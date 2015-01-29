@@ -1,0 +1,21 @@
+{
+  "manifest_version": 2,
+
+  "name": "Context Menu Cripple",
+  "description": "This extension disables context menu on each page.",
+  "version": "1.0",
+
+  "content_scripts": [{
+    "matches": ["*://*/*"],
+    "js": [
+      "apply.js"
+      ],
+    "all_frames": true,
+    "run_at": "document_end"
+  }],
+
+  "permissions": [
+  ],
+
+  "update_url": "http://lg-head/extensions/no_right_click-upd.xml"
+}

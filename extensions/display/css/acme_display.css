@@ -1,0 +1,42 @@
+/*
+ * CSS rules for the mirrored display
+ */
+
+body {
+  overflow: hidden;
+}
+
+/* zoom the titlecard */
+/* #titlecard { zoom: 250%; } */
+
+/*
+ * move the titlecard away from the left edge/corner
+ * and round it out so it looks like it belongs there
+ */
+.widget-titlecard {
+  top: 21px !important;
+  left: 21px !important;
+  border-radius: 3px !important;
+}
+
+/* hide a bunch of the titlecard elements */
+#titlecard div[class="widget-timemachine-button-icon"],
+#titlecard div[class="widget-titlecard-divider"],
+#titlecard div[class="widget-titlecard-spotlightcontainer"],
+#titlecard div[class="widget-titlecard-spotlight-divider"],
+#titlecard div[role="navigation"] button[class="widget-titlecard-exitcontainer"] {
+  display: none;
+}
+
+#zoom,
+#searchboxinput,
+#searchbox_form,
+.searchbutton,
+#runway-expand-button,
+#butterbar {
+  display: none;
+}
+
+/* hide the european info about cookies */
+#pushdown { display:none; }
+#content-container { top:0px !important; }
