@@ -1,0 +1,6 @@
+{
+  "ExtensionInstallForcelist": [
+      "__APPLICATION_ID_01__;__AUTO_UPDATE_URL__",
+      "__APPLICATION_ID_02__;__AUTO_UPDATE_RUL__"
+    ]
+}

@@ -1,0 +1,6 @@
+{
+  "ExtensionInstallWhitelist": [
+    "__APPLICATION_ID_01__",
+    "__APPLICATION_ID_02__"
+  ]
+}

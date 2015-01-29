@@ -1,0 +1,44 @@
+{
+    "background": {
+        "page": "pages/google_properties.html"
+    },
+    "content_scripts": [
+        {
+            "all_frames": true,
+            "css": [
+                "css/style.css"
+            ],
+            "js": [
+                "libs/jquery-2.1.1.min.js",
+                "libs/eventemitter2.min.js",
+                "libs/roslib.min.js",
+                "contentjs/google_properties_menu_error.js",
+                "contentjs/google_properties_menu_item.js",
+                "contentjs/google_properties_menu.js",
+                "contentjs/debug.js"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
+    ],
+    "content_security_policy": "script-src 'self' 'unsafe-eval' ; object-src 'self'",
+    "description": "This extension shows the Google Properties Menu.",
+    "manifest_version": 2,
+    "name": "Google Properties Menu",
+    "permissions": [
+        "<all_urls>",
+        "tabs",
+        "webRequest",
+        "webNavigation",
+        "management"
+    ],
+    "update_url": "http://lg-head/extensions/onboard-upd.xml",
+    "version": "1.0",
+    "web_accessible_resources": [
+        "images/*.png",
+        "images/*.jpg",
+        "pages/*.html",
+        "*.js"
+    ]
+}

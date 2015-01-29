@@ -1,0 +1,26 @@
+#!/bin/bash
+# vim:set ai sts=4 ts=4 sw=4 expandtab filetype=sh:
+
+MY_DIR="$( dirname "${0}" )"
+EXT_DIR="extensions"
+PUB_DIR="/var/www/extensions"
+
+if [ "${MY_DIR}" == "." ]; then
+    MY_DIR="${PWD}"
+fi
+
+# excluding sigs+keys just in case - but they actually live outside the "extensions" dir
+for ext_dir in `find "${MY_DIR}/${EXT_DIR}" -mindepth 1 -maxdepth 1 -regextype posix-egrep -type d \! -iregex "${MY_DIR}/${EXT_DIR}/(sigs|keys)"`; do
+
+    echo "FOUND ${ext_dir}"
+    extension="$( basename "${ext_dir}" )"
+
+    if [ ! -f "${ext_dir}.crx" ] || [ ! -f "${ext_dir}-upd.xml" ]; then
+        echo "Extension not built: ${extension}"
+        continue
+    else
+        sudo cp -va "${ext_dir}.crx" "${ext_dir}-upd.xml" "${PUB_DIR}/"
+        sudo chmod -c 0644 "${PUB_DIR}/${extension}.crx" "${PUB_DIR}/${extension}-upd.xml"
+    fi
+
+done

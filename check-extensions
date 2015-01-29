@@ -1,0 +1,35 @@
+#!/bin/bash
+# vim:set ai sts=4 ts=4 sw=4 expandtab filetype=sh:
+
+MY_DIR="$( dirname "${0}" )"
+EXT_DIR="extensions"
+LINT_TOOL="gjslint"
+CUSTOM_JSDOC_TAGS="example,memberof,namespace,static,instance,ignore"
+
+if [ "${MY_DIR}" == "." ]; then
+    MY_DIR="${PWD}"
+fi
+
+echo "= Recursive JS Lint check:"
+
+# run closure linter if available
+LINT_ABSPATH=`which ${LINT_TOOL}`
+if [ $? -eq 0 ]; then
+    ${LINT_ABSPATH} --custom_jsdoc_tags "${CUSTOM_JSDOC_TAGS}" \
+        --exclude_directories ${MY_DIR}/${EXT_DIR}/kiosk/libs,${MY_DIR}/${EXT_DIR}/display/libs,${MY_DIR}/${EXT_DIR}/onboard/lib,${MY_DIR}/${EXT_DIR}/pacman/libs,${MY_DIR}/${EXT_DIR}/google_properties_menu/libs \
+        -r "${MY_DIR}/${EXT_DIR}"
+else
+    echo "${LINT_TOOL} not found." >&2
+    exit 1
+fi
+
+echo "= Manifest files check:"
+
+# use python to validate extension manifest files
+MANIFEST_FILES=`find "${MY_DIR}/${EXT_DIR}/" -name "manifest.json"`
+for manifest in ${MANIFEST_FILES}; do
+    { echo -n "Extension: $( dirname ${manifest} ), Version: ";
+    python -c 'import sys,json;response=json.loads(sys.stdin.read()); print response["version"]' < "${manifest}" ; } && \
+    echo "Manifest ok: ${manifest}" || \
+    echo "Failed to parse: ${manifest}"
+done
