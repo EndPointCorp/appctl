@@ -1,0 +1,4 @@
+div#hplogo,
+canvas#hplogo-c {
+  image-rendering: pixelated !important;
+}

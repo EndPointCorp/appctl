@@ -1,0 +1,399 @@
+console.log('Portal Large Display');
+
+/* Acme Namespace */
+var acme = acme || {};
+
+/**
+ * @constructor
+ */
+acme.Util = function() {
+};
+
+/**
+ * Inject a script into this page.
+ * @param {string} url The location of the script to inject.
+ */
+acme.Util.injectScript = function(url) {
+  var s = document.createElement('script');
+  s.src = url;
+  (document.head || document.documentElement).appendChild(s);
+  s.onload = function() {
+      s.parentNode.removeChild(s);
+  };
+};
+
+/**
+ * Inject a script from this extension into the page.
+ * @param {string} filePath The location of the script to inject.
+ */
+acme.Util.injectExtensionScript = function(filePath) {
+  var url = chrome.extension.getURL(filePath);
+  acme.Util.injectScript(url);
+};
+
+acme.Util.injectScript(
+  'https://maps.googleapis.com/maps/api/js?v=3.exp&callback=acme.MapsV3Init'
+);
+acme.Util.injectExtensionScript('contentjs/inject.js');
+
+/*
+ * Load the style overrides.
+ */
+var portalStyleOverrides = document.createElement('link');
+portalStyleOverrides.setAttribute('rel', 'stylesheet');
+portalStyleOverrides.setAttribute('type', 'text/css');
+portalStyleOverrides.setAttribute('href',
+    chrome.extension.getURL('css/acme_display.css'));
+document.getElementsByTagName('head')[0].appendChild(portalStyleOverrides);
+
+/**
+ * @constructor
+ * @param {number} lat Latitude in degrees N, (-90, 90).
+ * @param {number} lon Longitude in degrees E, [-180, 180).
+ * @param {number} alt Altitude (meters).
+ * @param {number} heading Heading in degrees, [0-360).
+ * @param {number} tilt Tilt in degrees, [0 == down, 90 == horizon).
+ * @param {number} roll Roll (unused).
+ */
+Pose = function(lat, lon, alt, heading, tilt, roll) {
+  this.lat = lat || 0.0;
+  this.lon = lon || 0.0;
+  this.alt = alt || 0.0;
+  this.heading = heading || 0.0;
+  this.tilt = tilt || 0.0;
+  this.roll = roll || 0.0;
+};
+
+/**
+ * Planet values.
+ */
+Planet = {
+  EARTH: 1,
+  MOON: 2,
+  MARS: 3
+};
+
+/**
+ * Send a custom event to the page.
+ *
+ * @param {Object.<{context: string, method: string, args: Array}>} request
+ */
+acme.Util.sendCustomEvent = function(request) {
+    var eventRequest = new CustomEvent('acme-event', {
+      'detail': request,
+      'canBubble': false,
+      'cancelable': false
+    });
+    document.dispatchEvent(eventRequest);
+};
+
+/**
+ * Responsible for large display business logic.
+ * @constructor
+ */
+acme.Display = function() {
+  /** @type [boolean] */
+  this.hasInitialized = false;
+};
+
+/**
+ * Does all of the needed initial setup.  Also
+ * ensures it is only run once.
+ */
+acme.Display.prototype.initOnce = function() {
+  if (this.hasInitialized) return;
+
+  console.log('Display initialized.');
+  this.setLargeDisplayMode();
+  this.initGL();
+
+  this.hasInitialized = true;
+};
+
+/**
+ * Calls into the page to indicate it should set itself up as a
+ * "large display."
+ */
+acme.Display.prototype.setLargeDisplayMode = function() {
+  acme.Util.sendCustomEvent({
+    method: 'setLargeDisplayMode'
+  });
+};
+
+
+/** The ACME Display object. */
+acme.display = new acme.Display();
+
+/**
+ * Keep this in sync with core:tactile.acme.InputSupport_
+* @enum {number}
+* @private
+*/
+var InputSupport_ = {
+  NONE: 0,
+  DISABLED: 1,
+  NO_ZOOM: 2,
+  NO_ZOOM_NO_PAN: 3
+};
+
+var runwayActionRestrictions = InputSupport_.NONE;
+
+var dumpUpdateToScreen = function(message) {
+  var stringifiedMessage = JSON.stringify(message);
+  var debugArea = document.getElementById('portaldebug');
+  if (!debugArea) {
+    debugArea = document.createElement('div');
+    debugArea.id = 'portaldebug';
+    debugArea.style.position = 'fixed';
+    debugArea.style.bottom = '90px';
+    debugArea.style.left = '0px';
+    debugArea.style.height = '30px';
+    debugArea.style.width = '100%';
+    debugArea.style.zIndex = '99999';
+    debugArea.style.backgroundColor = 'rgba(242, 242, 242, 0.7)';
+    document.body.appendChild(debugArea);
+  }
+  debugArea.textContent = stringifiedMessage;
+};
+
+var publishDisplayCurrentPose = function(pose) {
+  var portalPose = new ROSLIB.Message({
+    current_pose: {
+      position: {
+        x: pose.lon,
+        y: pose.lat,
+        z: pose.alt
+      },
+      orientation: {
+        x: pose.tilt,
+        y: pose.roll,
+        z: pose.heading,
+        w: 0
+      }
+    }
+  });
+
+  if (acme.handOverlay) {
+    acme.handOverlay.setCurrentCameraPose(pose);
+  }
+  portalDisplayCurrentPoseTopic.publish(portalPose);
+};
+
+var cameraUpdateHandler = function(cameraEvent) {
+  // Lazy set the large display mode after we get our first
+  // stable camera update.
+  acme.display.initOnce();
+
+  publishDisplayCurrentPose(cameraEvent.detail);
+};
+
+/**
+ * Move Camera.
+ * @param {Pose} pose The Camera Pose.
+ * @param {boolean} shouldAnimate True/false to choose animate/warp to pose.
+ */
+acme.Display.prototype.moveCamera = function(pose, shouldAnimate) {
+  acme.Util.sendCustomEvent({
+      method: 'moveCamera',
+      args: [pose, shouldAnimate]
+  });
+};
+
+var getPointInfo = function(screenX, screenY) {
+  acme.Util.sendCustomEvent({
+      method: 'toLocationEvent',
+      args: [screenX, screenY]
+  });
+};
+
+var startsWith = function startsWith(s, str) {
+  return s.slice(0, str.length) == str;
+};
+
+/* Add tactile event listeners. */
+window.addEventListener('acmeCameraUpdate', cameraUpdateHandler, true);
+window.addEventListener('acmeStableCameraUpdate', cameraUpdateHandler, true);
+window.addEventListener('acmeCameraCallback', cameraUpdateHandler, true);
+
+
+/** Add ROS Subscriptions.  These are almost last to prevent exception from
+ * killing the event listeners when ROS is down. */
+var portalRosDisplay = new ROSLIB.Ros({
+  url: 'wss://42-b:9090'
+});
+
+// Globe View Topic listens and publishes camera updates.
+var navigatorListener = new ROSLIB.Topic({
+  ros: portalRosDisplay,
+  name: '/portal_nav/display_goto_pose',
+  messageType: 'geometry_msgs/PoseStamped',
+  throttle_rate: 30,
+  queue_length: 2
+});
+
+var portalDisplayCurrentPoseTopic = new ROSLIB.Topic({
+  ros: portalRosDisplay,
+  name: '/portal_display/current_pose',
+  messageType: 'portal_nav/PortalPose'
+});
+
+portalDisplayCurrentPoseTopic.advertise();
+
+navigatorListener.subscribe(function(rosPoseStamped) {
+  // ignore pose changes if input is supposed to be disabled
+  if (runwayActionRestrictions === InputSupport_.DISABLED) {
+    return;
+  }
+
+  var pose = new Pose(rosPoseStamped.pose.position.y,  // lat
+                      rosPoseStamped.pose.position.x,  // lon
+                      rosPoseStamped.pose.position.z,  // alt
+                      rosPoseStamped.pose.orientation.z,  // heading
+                      rosPoseStamped.pose.orientation.x,  // tilt
+                      rosPoseStamped.pose.orientation.y);  // roll
+  acme.display.moveCamera(pose, false);
+});
+
+var runwayContentTopic = new ROSLIB.Topic({
+  ros: portalRosDisplay,
+  name: '/portal_kiosk/runway',
+  // TODO(daden): quick hack to get the string across, we should create our own
+  // ROS message for passing this data across in the future.
+  messageType: 'std_msgs/String'
+});
+
+var runwayContentSubscriber = function(message) {
+  var runwayContentEvents = {
+    CLICK: 'click!!',
+    EXIT: 'exit!!'
+  };
+  var data = message.data;
+  if (startsWith(data, runwayContentEvents.CLICK)) {
+    var customDataStr = data.slice(
+        runwayContentEvents.CLICK.length, data.length);
+    var customData = JSON.parse(customDataStr);
+    var sceneContentArray = customData[1];
+    runwayActionRestrictions = customData[2];
+
+    var planetChange = sceneContentArray[7];
+
+    // override input restrictions on planet change
+    if (planetChange) {
+      runwayActionRestrictions = InputSupport_.NONE;
+    }
+
+    // disable HUD unless changing planet to Earth
+    if (planetChange && planetChange == Planet.EARTH) {
+      acme.handOverlay.enabled = true;
+    } else {
+      acme.handOverlay.enabled = false;
+    }
+
+    // disable spacenav feedback unless changing planets
+    if (runwayActionRestrictions != InputSupport_.NONE && !planetChange) {
+      acme.spacenavFeedback.enabled = false;
+    }
+
+    acme.Util.sendCustomEvent({
+        method: 'launchRunwayContent',
+        args: [sceneContentArray]
+    });
+  } else if (startsWith(data, runwayContentEvents.EXIT)) {
+    // we assume there is no runway content on Moon or Mars
+    runwayActionRestrictions = InputSupport_.NONE;
+    acme.handOverlay.enabled = true;
+    acme.spacenavFeedback.enabled = true;
+    console.log("Listening to updates from EXIT.");
+    acme.Util.sendCustomEvent({
+        method: 'exitTitleCard'
+    });
+  } else {
+    console.error('Unhandled runway content data: ' + data);
+  }
+};
+runwayContentTopic.subscribe(runwayContentSubscriber);
+
+var populationService = new ROSLIB.Service({
+  ros: portalRosDisplay,
+  name: '/geodata/population',
+  serviceType: 'geodata/GeodataQuery'
+});
+
+window.addEventListener('acmePopulationQuery', function(ev) {
+  var populationRequest = new ROSLIB.ServiceRequest({
+    layer: 'population',
+    point: {
+      latitude: ev.detail.latitude,
+      longitude: ev.detail.longitude,
+      altitude: 0
+    },
+    radius: ev.detail.radius
+  });
+
+  populationService.callService(
+    populationRequest,
+    ev.detail.callback,
+    function(err) {
+      console.error('querying population service:', err);
+    }
+  );
+}, true);
+
+var leapListener = new ROSLIB.Topic({
+  ros: portalRosDisplay,
+  name: '/leap_motion/frame',
+  messageType: 'leap_motion/Frame',
+  throttle_rate: 30
+});
+
+var spacenavListener = new ROSLIB.Topic({
+  ros: portalRosDisplay,
+  name: '/spacenav/twist',
+  messageType: 'geometry_msgs/Twist',
+  throttle_rate: 30
+});
+
+acme.Display.prototype.initGL = function() {
+/**
+ * A common WebGL environment for visual modules.
+ */
+acme.glEnvironment = new PortalGLEnvironment();
+
+// TODO(daden): detect if webGL is available before trying
+// to load the hand.  If webGL isn't available this code crashes.
+// Init the hand last so if it fails to load it doesn't crash.
+acme.handOverlay = new HandOverlay(acme.glEnvironment);
+acme.handOverlay.init3js();
+leapListener.subscribe(acme.handOverlay.processLeapMessage.bind(acme.handOverlay));
+window.addEventListener('acmeScreenLocation',
+    acme.handOverlay.processHandGeoLocationEvent.bind(acme.handOverlay), true);
+
+acme.spacenavFeedback = new SpacenavFeedback(acme.glEnvironment);
+acme.spacenavFeedback.init();
+spacenavListener.subscribe(
+  acme.spacenavFeedback.processSpacenavMessage.bind(acme.spacenavFeedback)
+);
+
+window.addEventListener('acmeElevationQuery', function(ev) {
+  var lat = ev.detail.lat;
+  var lon = ev.detail.lon;
+  acme.Util.sendCustomEvent({
+    method: 'elevationQuery',
+    args: [lat, lon]
+  });
+}, true);
+
+window.addEventListener('acmeElevationResult', function(ev) {
+  var rText = document.getElementById('acmeElevationResult').innerText;
+  var result = JSON.parse(rText.replace('//', ''));
+  acme.handOverlay.processElevationResult(result.elevation);
+}, true);
+};
+
+$.get( "https://lg-head/cgi-bin/identify.py")
+.done(function( data ) {
+  initROSLogging("display", data);
+})
+.fail(function(){
+  initROSLogging("display", "--");
+});

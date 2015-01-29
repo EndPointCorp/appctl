@@ -1,0 +1,43 @@
+{
+  "manifest_version": 2,
+  "name": "Portal Kiosk",
+  "version": "1.0",
+  "description": "Portal specific add-ons for Tactile for the Kiosk - handles things such as ROS messages and using the space nav",
+  "background": {
+    "page": "background/background.html",
+    "content_security_policy": "script-src 'self' https://www.google.com/*; object-src 'self' https://www.google.com/*"
+  },
+  "permissions": [
+    "<all_urls>",
+    "tabs",
+    "webRequest",
+    "webNavigation",
+    "management"
+  ],
+  "web_accessible_resources": [
+    "images/zoomOut.jpg", "models/*.json", "sounds/*.wav", "contentjs/inject.js", "css/*.css"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*.corp.google.com:8499/*",
+        "*://*.google.com/maps/*"
+      ],
+      "all_frames": true,
+      "js": [
+        "libs/jquery-2.1.1.min.js",
+        "libs/eventemitter2.min.js",
+        "libs/roslib.min.js",
+        "libs/rosLogging.js",
+        "libs/ToneGenerator.js",
+        "contentjs/soundfx.js",
+        "contentjs/ambient.js",
+        "contentjs/portalRosKiosk.js",
+        "contentjs/runwayCardsDrag.js",
+        "contentjs/famousPlaces.js",
+        "contentjs/famousPlacesCardsDrag.js",
+        "contentjs/highres.js"
+      ]
+    }
+  ]
+}
