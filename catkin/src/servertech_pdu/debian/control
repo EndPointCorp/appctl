@@ -8,5 +8,5 @@ Standards-Version: 3.9.2
 
 Package: ros-indigo-servertech-pdu
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-rospy, ros-indigo-std-msgs
-Description: ROS interface to a ServerTech PDU.
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-rospy, ros-indigo-std-msgs, snmp, snmp-mibs-downloader
+Description: ROS SNMP interface to a ServerTech PDU.
