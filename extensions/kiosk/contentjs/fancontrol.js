@@ -17,6 +17,7 @@ var FanControl = function(ros) {
   /** @type {Boolean} */
   this.enabled = true;
 
+  /*
   this.leftFanSpeedTopic = new ROSLIB.Topic({
     ros: ros,
     name: '/fancontrol/left/speed',
@@ -30,6 +31,7 @@ var FanControl = function(ros) {
     type: 'std_msgs/Float32'
   });
   this.rightFanSpeedTopic.advertise();
+  */
 
   this.leftFanPowerTopic = new ROSLIB.Topic({
     ros: ros,
@@ -116,10 +118,10 @@ FanControl.prototype.setFanPower_ = function(leftSpeed, rightSpeed) {
  *       Speed for the right fan [0, 1]
  */
 FanControl.prototype.setFanSpeed_ = function(leftSpeed, rightSpeed) {
-  var leftMsg = new ROSLIB.Message({ data: leftSpeed });
-  var rightMsg = new ROSLIB.Message({ data: rightSpeed });
-  this.leftFanSpeedTopic.publish(leftMsg);
-  this.rightFanSpeedTopic.publish(rightMsg);
+  //var leftMsg = new ROSLIB.Message({ data: leftSpeed });
+  //var rightMsg = new ROSLIB.Message({ data: rightSpeed });
+  //this.leftFanSpeedTopic.publish(leftMsg);
+  //this.rightFanSpeedTopic.publish(rightMsg);
 
   /*
   if (leftSpeed > 0.5) {
@@ -192,10 +194,10 @@ FanControl.prototype.handleNavTwist = function(twist) {
   );
   */
   if (!hovering) {
-    this.setFanSpeed_(leftSpeed, rightSpeed);
+    //this.setFanSpeed_(leftSpeed, rightSpeed);
     this.setFanPower_(leftSpeed, rightSpeed);
   } else {
-    this.setFanSpeed_(0, 0);
+    //this.setFanSpeed_(0, 0);
     this.setFanPower_(0, 0);
   }
 };
@@ -212,5 +214,6 @@ FanControl.prototype.enable = function() {
  */
 FanControl.prototype.disable = function() {
   this.enabled = false;
-  this.setFanSpeed_(0, 0);
+  this.setFanPower_(0, 0);
+  //this.setFanSpeed_(0, 0);
 };
