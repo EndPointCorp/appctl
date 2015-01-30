@@ -1,3 +1,9 @@
+ros-indigo-portal-leds (1.0.2-0trusty) trusty; urgency=high
+
+  * More graceful occupancy tracking
+
+ -- Matt Vollrath <matt@endpoint.com>  Fri, 30 Jan 2015 01:51:42 -0400
+
 ros-indigo-portal-leds (1.0.1-0trusty) trusty; urgency=high
 
   * Fix compatibility with portal_occupancy 1.0.1

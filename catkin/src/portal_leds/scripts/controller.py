@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 
 import rospy
-from std_msgs.msg import Bool, String
+from std_msgs.msg import Duration, String
 
 
 class LEDController():
-    def __init__(self, led_pub, init_command, hello_command, goodbye_command):
+    def __init__(self, led_pub, timeout,
+                 init_command, hello_command, goodbye_command):
+
         self.led_pub = led_pub
+        self.timeout = timeout
         self.init_command = init_command
         self.hello_command = hello_command
         self.goodbye_command = goodbye_command
@@ -17,17 +20,16 @@ class LEDController():
     def publish_command(self, command):
         self.led_pub.publish(command)
 
-    def change_occupancy(self, occupied):
-        self.occupied = occupied
-        if (occupied):
+    def set_occupancy(self, occupied):
+        if occupied and not self.occupied:
             self.publish_command(self.hello_command)
-        else:
+        elif not occupied and self.occupied:
             self.publish_command(self.goodbye_command)
+        self.occupied = occupied
 
     def handle_occupancy_msg(self, msg):
-        occupied = msg.data
-        if (occupied != self.occupied):
-            self.change_occupancy(occupied)
+        duration = msg.data
+        self.set_occupancy(duration < self.timeout)
 
 
 def main():
@@ -35,20 +37,22 @@ def main():
 
     led_pub = rospy.Publisher('/portal_leds/command', String, queue_size=2)
 
-    init_command = rospy.get_param('init_command', 'c')
-    hello_command = rospy.get_param('hello_command', 'h')
-    goodbye_command = rospy.get_param('goodbye_command', 'g')
+    init_command = rospy.get_param('~init_command', 'c')
+    hello_command = rospy.get_param('~hello_command', 'h')
+    goodbye_command = rospy.get_param('~goodbye_command', 'g')
+    timeout = rospy.Duration.from_sec(rospy.get_param('~timeout', 1.5))
 
     controller = LEDController(
         led_pub,
+        timeout,
         init_command,
         hello_command,
         goodbye_command
     )
 
     rospy.Subscriber(
-        '/portal_occupancy/occupancy/is_active',
-        Bool,
+        '/portal_occupancy/occupancy/inactive_duration',
+        Duration,
         controller.handle_occupancy_msg
     )
 
