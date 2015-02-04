@@ -1,3 +1,9 @@
+ros-indigo-portal-occupancy (1.0.1-0trusty) trusty; urgency=high
+
+  * Made separate streams for general occupancy and physically triggered interaction.
+
+ -- Matt Vollrath <matt@endpoint.com>  Wed, 21 Jan 2015 14:53:40 -0400
+
 ros-indigo-portal-occupancy (1.0.0-0trusty) trusty; urgency=high
 
   * Initial release

@@ -7,6 +7,12 @@ ROS node for reading a Maxbotix proximity sensor.
 
 Attaches to a proximity sensor via USB serial port and publishes proximity information.
 
+##### Parameters
+
+* `device_path` : Required.  Path to the serial device.  Remember that most devices will be available in `/dev/serial/by-id`.
+
+* `baud_rate` : Baud rate for serial communications.  Defaults to 57600.
+
 ##### Topics
 
 * `/proximity/distance` : `sensor_msgs/Range` - Distance (in meters) to nearest object in the sensor's field of view.
