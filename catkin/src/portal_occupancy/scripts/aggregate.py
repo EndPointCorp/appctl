@@ -137,9 +137,6 @@ class EventTracker():
         frame = self.last_leap_frame
         proximity_trigger = self.proximity_trigger
         active = self.is_active
-        # If proximity trigger is not set, don't trigger new activity.
-        if not proximity_trigger and not active:
-            return False
         # TODO(mv): ignore last frame if no messages received recently
         return frame is not None and len(frame.hands) > 0
 
