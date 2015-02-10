@@ -73,21 +73,25 @@ class SessionAggregator:
             session = dict.fromkeys(self.session_fields)
             for attribute in self.session_fields:
                 session[attribute] = event.__getattribute__(attribute)
-            self.sessions.append(session)
-            self._end_previous_session()
+            if not event.start_ts == 0:
+                self._end_previous_session(end_ts=event.start_ts)
+                self.sessions.append(session)
+            else:
+                self._end_previous_session(end_ts=event.end_ts)
+
         else:
             rospy.logdebug("Not appending event to session storage")
         pass
 
-    def _end_previous_session(self):
+    def _end_previous_session(self, end_ts):
         """
         - if session store has more than 1 session and new session event comes,
         end previous one using the start time of new one.
         - if "end_ts" is set, that means that no more sessions should be kept in session store
         """
-        if len(self.sessions) >= 2:
-            rospy.logdebug("Ending previous session with time = %s" % self.sessions[-1]['start_ts'])
-            self.sessions[-2]['end_ts'] = self.sessions[-1]['start_ts']
+        if len(self.sessions) >= 1:
+            rospy.loginfo("Ending previous session with time = %s" % end_ts)
+            self.sessions[-1]['end_ts'] = end_ts
         pass
 
     def _validate_incoming_session(self, event):
