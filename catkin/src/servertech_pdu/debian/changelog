@@ -1,0 +1,6 @@
+ros-indigo-servertech-pdu (1.0.0-0trusty) trusty; urgency=high
+
+  * First package creation for indigo release
+
+ -- End Point Corp LG R&D <lg-rad@endpoint.com>  Thu, 29 Jan 2015 20:58:42 -0400
+
