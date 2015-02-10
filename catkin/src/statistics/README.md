@@ -23,7 +23,7 @@ A node the listens for statistics messages, converts them to statsd strings, and
 
 `/statistics/statsd` : `statistics/StatsD` - Incoming statistics metrics.
 
-### session_aggregator.py
+### session\_aggregator.py
 
 A node that provides a ros node and ros service.
 
@@ -40,7 +40,7 @@ understand some of the attributes on the beggining.
 
 ###### First stage:
 
-Each extension, mode etc, sends the "start_ts"
+Each extension, mode etc, sends the "start\_ts"
 
 ```
 start_ts: 1421245409
@@ -76,7 +76,7 @@ with apps (refer to the docs)
 * `max_events` - maximum number of stored events. Default - infinite.
   When this treshold is reached, old events will be discarded upon each
   new event arrival.
-* `max_memory` - maximum size of storage object in bytes. Default - 32000000 
+* `max_memory` - maximum size of storage object in bytes. Default - 32000000
   Above this, old session events will be discarded and alog message will be
   produced
 
@@ -89,9 +89,24 @@ Provides `/statistics/session` : `statistics/session` - Incoming sessions
 Provides `/statistics/session` : `statistics/SessionQuery` - Querying aggregator
 with `erase` flag that discards the events that got read.
 
-### file_writer.py
+### session\_tracker.py
 
-A ros node that aggregates session_aggregator sessions and formats them
+A ros node that publishes session start and end based on the occupancy tracker.
+Requires portal\_occupancy::aggregate.py to operate effectively.
+
+##### Topics
+
+* Subscribes to `/portal_occupancy/interaction/inactive_duration`
+* Publishes to `/statistics/session`
+
+##### Parameters
+
+* `inactivity_timeout` - How long to wait before declaring a session over,
+  in seconds.  Default: 20.0
+
+### file\_writer.py
+
+A ros node that aggregates session\_aggregator sessions and formats them
 for writing into json file on the local filesystem.
 
 ##### Topics
