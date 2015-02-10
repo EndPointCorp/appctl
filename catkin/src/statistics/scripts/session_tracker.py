@@ -5,6 +5,8 @@ from statistics.msg import Session
 from std_msgs.msg import Duration
 import time
 
+DEFAULT_SESSION_TIMEOUT = 20.0 # seconds
+
 
 class SessionEnder:
     def __init__(self, inactivity_timeout, session_pub):
@@ -36,8 +38,11 @@ class SessionEnder:
 def main():
     rospy.init_node('session_ender')
 
-    inactivity_timeout_s = int(rospy.get_param('~inactivity_timeout', 0))
-    inactivity_timeout = rospy.Duration.from_sec(inactivity_timeout_s)
+    inactivity_timeout_s = rospy.get_param(
+        '~inactivity_timeout',
+        DEFAULT_SESSION_TIMEOUT
+    )
+    inactivity_timeout = rospy.Duration.from_sec(float(inactivity_timeout_s))
 
 
     session_pub = rospy.Publisher(
