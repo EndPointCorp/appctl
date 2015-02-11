@@ -183,8 +183,10 @@ for pkg_debian_rules in `find "${MY_DIR}/${DEB_DIR}/src" -type f -path '*/debian
     dpkg-buildpackage -uc -us
     popd
     if [ "${PACK_STAGE,,}" = "stage1" ]; then
-        sudo apt-get remove ${ROS_REL}-$( echo ${pkg_orig_name_tred} )-* --yes
-        sudo dpkg -i ${pkg_dir_new}/../${ROS_REL}-$( echo ${pkg_name} )_${pkg_ver}*.deb
+        if dpkg-query --showformat='${binary:Package}\t${Version}\t${Architecture}\n' --show "${ROS_REL}-${pkg_orig_name_tred}-*"; then
+            sudo apt-get remove "${ROS_REL}-${pkg_orig_name_tred}-*" --yes
+        fi
+        sudo dpkg -i ${pkg_dir_new}/../${ROS_REL}-${pkg_name}_${pkg_ver}*.deb
     fi
 done
 
