@@ -6,40 +6,6 @@ Portal is a set or ROS nodes that provide communication layer for Chrome browser
 
 ## Details
 
-### Directory Structure
-
-
-|-- bin                  - PLACE FOR SCRIPTS
-|  L-- run_tests        - SCRIPT FOR RUNNING ALL TESTS
-|-- extensions           - PLACE EXTENSION DIRECTORIES HERE
-|  |-- crxmake          - TOOL FOR PACKING CRX FILES
-|  |-- sigs             - DIRECTORY FOR TEMPORARY FILES
-|  |-- <extensionA>
-|  |--  ...             - PACKAGED EXTENSION FILES (.crx,.pub,.eid,-upd.xml) ARE DROPPED ALONG-SIDE
-|  L-- <extensionZ>
-|-- keys
-|  |-- README
-|  |-- <extensionA.pem> - KEYS ARE NOT COMMITED TO GIT
-|  |--  ...
-|  L-- <extensionZ.pem>
-|-- managed_policy_example
-|  |-- <policy_exampleA.json>
-|  |--  ...
-|  L-- <policy_exampleZ.json>
-|-- tests                         - TESTS FOR THE PROJECT
-|  |-- extensions                - TESTS FOR EXTENSIONS
-|   |  L-- functional            - FUNCTIONAL TESTS USING SELENIUM
-|   |      |-- requirements.txt  - FILE FOR INSTALLING THE REQUIREMENTS WITH PIP
-|   |      L-- tests
-|   |          |-- ...           - TEST FILES
-|   |          L-- <test_z>
-|  L-- README           - README FILE FOR TESTS
-|-- check-extensions     - USE THIS TO VERIFY ALL EXTENSIONS
-|-- doc-extensions       - USE THIS TO JSDOC ALL EXTENSIONS
-|-- pack-extensions      - USE THIS TO RE-PACKAGE ALL EXTENSIONS
-|-- publish-extensions   - USE THIS TO PUBLISH ALL EXTENSIONS
-└-- README               - THIS README
-
 ### Extensions
 
 In order to pack extensions you should execute
