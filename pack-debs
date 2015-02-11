@@ -60,6 +60,7 @@ function build_metapackage() {
  equivs-build "${MY_DIR}/${DEB_DIR}/src/ros_metapackage/ns-control" && mv *.deb "${MY_DIR}/${DEB_DIR}/debs/"
 }
 
+
 function update_dependencies() {
     # $1 should be file path to debian/control
     # $2 should be git branch
@@ -71,6 +72,35 @@ function update_dependencies() {
         sed -i s/" $ROS_REL-$package_name$"/"$ROS_REL-$package_name-$2"/g $1
         sed -i s/" $ROS_REL-$package_name,"/"$ROS_REL-$package_name-$2,"/g $1
     done
+}
+
+function update_replaces() {
+    # $1 should be file path to debian/control
+    # $2 should be git branch
+    # $3 should be package name e.g. 'appctl'
+    package_name=$3
+    if [ "$2" == "development" ]; then
+        REPLACES="$ROS_REL-$package_name-master, $ROS_REL-$package_name-staging"
+    elif  [ "$2" == "master" ]; then
+         REPLACES="$ROS_REL-$package_name-development, $ROS_REL-$package_name-staging"
+    elif  [ "$2" == "staging" ]; then
+         REPLACES="$ROS_REL-$package_name-development, $ROS_REL-$package_name-master"
+    fi
+    echo "Updating file $1 with s/__REPLACES__/$REPLACES/g"
+    sed -i s/__REPLACES__/"$REPLACES"/g $1
+}
+
+function update_metapackage_replaces() {
+    # $1 should be git branch
+    if [ "$1" == "development" ]; then
+        REPLACES="$ROS_REL-portal-master, $ROS_REL-portal-staging"
+    elif  [ "$1" == "master" ]; then
+         REPLACES="$ROS_REL-portal-development, $ROS_REL-portal-staging"
+    elif  [ "$1" == "staging" ]; then
+         REPLACES="$ROS_REL-portal-development, $ROS_REL-portal-master"
+    fi
+    echo "Updating file ${MY_DIR}/${DEB_DIR}/src/ros_metapackage/ns-control with s/__REPLACES__/$REPLACES/g"
+    sed -i s/__REPLACES__/"$REPLACES"/g ${MY_DIR}/${DEB_DIR}/src/ros_metapackage/ns-control
 }
 
 echo "Going to build following packages"
@@ -122,6 +152,7 @@ for pkg_debian_rules in `find "${MY_DIR}/${DEB_DIR}/src" -type f -path '*/debian
     echo "Rewriting some package information under ${pkg_dir_new}/debian/"
     #read
 
+    # Appending "-$GT_BRANCH" to package name
     echo "Changing s/\($pkg_ver_orig/\($pkg_ver_new/ in ${pkg_dir_new}/debian/changelog"
     sed -i s/\($pkg_ver_orig\)/\($pkg_ver_new\)/ ${pkg_dir_new}/debian/changelog
     echo "Changing s/\"$pkg_orig_name_tred$\"/\"$pkg_name\"/g in ${pkg_dir_new}/debian/control"
@@ -132,6 +163,7 @@ for pkg_debian_rules in `find "${MY_DIR}/${DEB_DIR}/src" -type f -path '*/debian
     sed -i s/"\/$pkg_orig_name_tred\/"/"\/$pkg_name\//"g ${pkg_dir_new}/debian/rules
 
     update_dependencies ${pkg_dir_new}/debian/control $GIT_BRANCH
+    update_replaces ${pkg_dir_new}/debian/control $GIT_BRANCH $pkg_orig_name_tred
 
 
     echo "pkg_ver_new: $pkg_ver_new, pkg_ver_orig: $pkg_ver_orig"
@@ -166,6 +198,7 @@ find ${MY_DIR}/${DEB_DIR} -iname "*.deb"
 echo "Building metapackage"
 
 create_metapackage_template "${MY_DIR}/${DEB_DIR}/debs"
+update_metapackage_replaces $GIT_BRANCH
 build_metapackage
 
 echo "You packages should be located in ${MY_DIR}/${DEB_DIR}/debs"

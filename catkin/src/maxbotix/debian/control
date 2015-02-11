@@ -10,3 +10,5 @@ Package: ros-indigo-maxbotix
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-roscpp, ros-indigo-rospy, ros-indigo-sensor-msgs, python-serial
 Description: ROS interface to the maxbotix sensor.
+Replaces: __REPLACES__
+Conflicts: __REPLACES__

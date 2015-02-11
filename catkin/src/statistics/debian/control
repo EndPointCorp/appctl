@@ -10,3 +10,5 @@ Package: ros-indigo-statistics
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-rospy
 Description: ROS interface to statistics sinks.
+Replaces: __REPLACES__
+Conflicts: __REPLACES__
