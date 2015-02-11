@@ -5,8 +5,6 @@ from statistics.msg import Session
 from std_msgs.msg import Duration
 import time
 
-DEFAULT_SESSION_TIMEOUT = 20.0 # seconds
-
 
 class SessionEnder:
     def __init__(self, inactivity_timeout, session_pub):
@@ -15,20 +13,12 @@ class SessionEnder:
 
         self.ended = False
 
-    def handle_inactivity_duration(self, msg):
-        duration = msg.data
-        if not self.ended and duration > self.inactivity_timeout:
+    def handle_inactivity_duration(self, d):
+        if not self.ended and d > self.inactivity_timeout:
             self.ended = True
             self.publish_session_end()
-            rospy.loginfo('ended')
-        elif self.ended and duration <= self.inactivity_timeout:
-            rospy.loginfo('active')
-            self.publish_session_start()
+        elif self.ended and d <= self.inactivity_timeout:
             self.ended = False
-
-    def publish_session_start(self):
-        start_msg = Session(start_ts=int(time.time()))
-        self.session_pub.publish(start_msg)
 
     def publish_session_end(self):
         end_msg = Session(end_ts=int(time.time()))
@@ -38,26 +28,21 @@ class SessionEnder:
 def main():
     rospy.init_node('session_ender')
 
-    inactivity_timeout_s = rospy.get_param(
-        '~inactivity_timeout',
-        DEFAULT_SESSION_TIMEOUT
-    )
-    inactivity_timeout = rospy.Duration.from_sec(float(inactivity_timeout_s))
-
+    inactivity_timeout_s = int(rospy.get_param('~inactivity_timeout', 0))
+    inactivity_timeout = rospy.Duration.from_sec(inactivity_timeout_s)
 
     session_pub = rospy.Publisher(
         '/statistics/session',
         Session,
         queue_size=2
     )
+    inactivity_sub = rospy.Subscriber(
+        '/portal_occupancy/interaction/inactivity_duration',
+        Duration,
+        self.handle_inactivity_duration
+    )
 
     ender = SessionEnder(inactivity_timeout, session_pub)
-
-    inactivity_sub = rospy.Subscriber(
-        '/portal_occupancy/interaction/inactive_duration',
-        Duration,
-        ender.handle_inactivity_duration
-    )
 
     rospy.spin()
 
