@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <package>
-  <name>portal_occupancy</name>
-  <version>1.0.2</version>
-  <description>Software for determining Portal occupancy</description>
+  <name>servertech_pdu</name>
+  <version>1.0.0</version>
+  <description>The servertech_pdu package</description>
 
-  <!-- One maintainer tag required, multiple allowed, one person per tag -->
+  <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="lg@endpoint.com">End Point Corp</maintainer>
+  <maintainer email="galadmin@todo.todo">galadmin</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -19,13 +19,13 @@
   <!-- Url tags are optional, but mutiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/occupancy</url> -->
+  <!-- <url type="website">http://wiki.ros.org/servertech_pdu</url> -->
 
 
   <!-- Author tags are optional, mutiple are allowed, one per tag -->
   <!-- Authors do not have to be maintianers, but could be -->
   <!-- Example: -->
-  <author email="matt@endpoint.com">Matt Vollrath</author>
+  <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
 
 
   <!-- The *_depend tags are used to specify dependencies -->
@@ -42,16 +42,8 @@
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
-  <build_depend>geometry_msgs</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>evdev_teleport</build_depend>
-  <build_depend>leap_motion</build_depend>
   <run_depend>rospy</run_depend>
   <run_depend>std_msgs</run_depend>
-  <run_depend>geometry_msgs</run_depend>
-  <run_depend>sensor_msgs</run_depend>
-  <run_depend>evdev_teleport</run_depend>
-  <run_depend>leap_motion</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
