@@ -123,3 +123,13 @@ Queries `/statistics/session`
   should be collected - defaults to 300 seconds
 * `json_output_path` - local path to where should the json files be
   written to. Defaults to /tmp/
+
+### Tests
+
+Run the tests with `catkin_make`:
+
+    $ catkin_make test
+
+Or with `rostest`:
+
+    $ rostest statistics test_statistics.test
