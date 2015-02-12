@@ -10,7 +10,7 @@ class ProcController(BaseController):
     def __init__(self, cmd):
         self.cmd = cmd
         self.started = False
-        self.proc = None
+        self.watcher = None
 
     def start(self, *args, **kwargs):
         if self.started:
