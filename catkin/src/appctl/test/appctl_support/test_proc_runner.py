@@ -10,6 +10,7 @@ import time
 from appctl_support import ProcRunner
 
 TEST_CMD = ['/usr/bin/python']
+GRACE_DELAY = 0.1 # seconds
 
 
 # http://stackoverflow.com/questions/568271/
@@ -27,36 +28,77 @@ class TestProcRunner(unittest.TestCase):
 
     def setUp(self):
         rospy.init_node(NAME)
+        self.runner = ProcRunner(TEST_CMD)
 
-    def test_run_and_shutdown(self):
-        runner = ProcRunner(TEST_CMD)
-        self.assertFalse(runner.done,
-            'Runner must not finish immediately')
+    def tearDown(self):
+        self.runner.shutdown()
 
-        runner.start()
-        self.assertTrue(runner.is_alive(),
+    def test_proc_is_alive(self):
+        self.assertFalse(self.runner._proc_is_alive(),
+            'Process must not be alive before start()')
+
+        self.runner.start()
+
+        time.sleep(GRACE_DELAY)
+        self.assertTrue(self.runner._proc_is_alive(),
+            'Process must be alive after start()')
+
+        self.runner.shutdown()
+        self.runner.join()
+        self.assertFalse(self.runner._proc_is_alive(),
+            'Process must not be alive after shutdown()')
+
+
+    def test_startup(self):
+        self.runner.start()
+        self.assertTrue(self.runner.is_alive(),
             'Runner must be alive after start()')
 
-        # Wait for the subprocess to spin up
-        time.sleep(0.1)
-        self.assertIsNone(runner.proc.returncode,
-            'Popen must not have returned too soon')
+    def test_shutdown(self):
+        self.runner.start()
+        time.sleep(GRACE_DELAY)
 
-        pid = runner.proc.pid
-        self.assertTrue(check_pid(pid),
-            'Popen pid must respond to signal 0 while running')
+        pid = self.runner.proc.pid
+        self.assertIsNotNone(pid,
+            'Must get a pid after start()')
 
-        runner.shutdown()
-        self.assertTrue(runner.done,
-            'Runner not done after shutdown()')
+        self.runner.shutdown()
+        self.runner.join()
+
         self.assertFalse(check_pid(pid),
-            'Popen pid still alive after shutdown()')
+            'Process must not respond to sig0 after shutdown()')
 
-        runner.join()
-        self.assertIsNotNone(runner.proc.returncode,
-            'Popen must have returned after join()')
-        self.assertFalse(runner.is_alive(),
-            'Runner must not be alive after join()')
+    def test_kill_proc(self):
+        self.runner.start()
+
+        time.sleep(GRACE_DELAY)
+
+        pid = self.runner.proc.pid
+        self.assertTrue(check_pid(pid),
+            'Must have a pid to start with')
+
+        self.runner._kill_proc()
+        self.runner.proc.wait()
+
+        self.assertFalse(check_pid(pid),
+            'Process must be dead')
+
+    def test_respawn(self):
+        self.runner.start()
+
+        time.sleep(GRACE_DELAY)
+
+        first_pid = self.runner.proc.pid
+        self.runner._kill_proc()
+
+        time.sleep(self.runner.respawn_delay + GRACE_DELAY)
+
+        self.assertTrue(self.runner._proc_is_alive(),
+            'Process must respawn after death')
+
+        second_pid = self.runner.proc.pid
+        self.assertNotEqual(first_pid, second_pid,
+            'Must have a different pid after respawn')
 
 
 if __name__ == '__main__':
