@@ -10,3 +10,5 @@ Package: ros-indigo-mirror
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-rospy, ros-indigo-appctl
 Description: ROS node used for launching desktop mirroring
+Replaces: __REPLACES__
+Conflicts: __REPLACES__

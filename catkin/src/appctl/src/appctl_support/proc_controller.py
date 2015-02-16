@@ -1,4 +1,5 @@
 import rospy
+import threading
 from controller import BaseController
 from proc_runner import ProcRunner
 
@@ -10,25 +11,31 @@ class ProcController(BaseController):
     def __init__(self, cmd):
         self.cmd = cmd
         self.started = False
-        self.proc = None
+        self.watcher = None
+        self.status_lock = threading.Lock()
+
+        # Always stop on rospy shutdown.
+        rospy.on_shutdown(self.stop)
 
     def start(self, *args, **kwargs):
-        if self.started:
-            return
+        with self.status_lock:
+            if self.started:
+                return
+            self.started = True
 
         rospy.logdebug('starting ProcRunner')
 
         self.watcher = ProcRunner(self.cmd)
         self.watcher.start()
-        self.started = True
 
     def stop(self, *args, **kwargs):
-        if not self.started:
-            return
+        with self.status_lock:
+            if not self.started:
+                return
+            self.started = False
 
         rospy.logdebug('stopping ProcRunner')
 
         self.watcher.shutdown()
-        self.started = False
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4

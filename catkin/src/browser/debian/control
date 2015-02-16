@@ -10,3 +10,5 @@ Package: ros-indigo-browser
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-rospy, ros-indigo-appctl
 Description: ROS node used to launch a browser on demand
+Replaces: __REPLACES__
+Conflicts: __REPLACES__

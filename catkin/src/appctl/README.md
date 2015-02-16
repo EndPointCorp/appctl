@@ -115,5 +115,5 @@ Run the tests with `catkin_make`:
 
 Or with `rostest`:
 
-    $ rostest appctl test_all.test
+    $ rostest appctl test_appctl.test
 

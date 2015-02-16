@@ -1,3 +1,11 @@
+ros-indigo-appctl (1.0.2-0trusty) trusty; urgency=high
+
+  * Fix thread safety in ProcController.
+
+  * More tests.
+
+ -- Matt Vollrath <matt@endpoint.com>  Fri, 13 Feb 2015 00:39:42 -0400
+
 ros-indigo-appctl (1.0.1-0trusty) trusty; urgency=high
 
   * Re-introduce SubscriberListener to prevent race condition.
