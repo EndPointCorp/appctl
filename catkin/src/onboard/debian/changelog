@@ -1,3 +1,7 @@
+ros-indigo-onboard (1.0.2-0trusty) trusty; urgency=high
+
+  * Added Onboard Manager
+
 ros-indigo-onboard (1.0.1-0trusty) trusty; urgency=high
 
   * Technical minor bump of a version
