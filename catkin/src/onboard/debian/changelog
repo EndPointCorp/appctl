@@ -1,3 +1,9 @@
+ros-indigo-onboard (1.0.3-0trusty) trusty; urgency=high
+
+  * Bumped version because of CMakeLists.txt change
+
+ -- End Point Corp LG R&D <lg-rad@endpoint.com>  Thu, 17 Feb 2015 20:52:00 +0100
+
 ros-indigo-onboard (1.0.2-0trusty) trusty; urgency=high
 
   * Added Onboard Manager
