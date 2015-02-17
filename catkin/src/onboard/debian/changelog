@@ -2,6 +2,8 @@ ros-indigo-onboard (1.0.2-0trusty) trusty; urgency=high
 
   * Added Onboard Manager
 
+ -- End Point Corp LG R&D <lg-rad@endpoint.com>  Thu, 17 Feb 2015 20:52:00 +0100
+
 ros-indigo-onboard (1.0.1-0trusty) trusty; urgency=high
 
   * Technical minor bump of a version
