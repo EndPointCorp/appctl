@@ -10,3 +10,5 @@ Package: ros-indigo-portal-leds
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-rospy, ros-indigo-std-msgs, python-serial
 Description: ROS Portal occupancy aggregator.
+Replaces: __REPLACES__
+Conflicts: __REPLACES__

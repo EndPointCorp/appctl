@@ -10,3 +10,5 @@ Package: ros-indigo-portal-occupancy
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-rospy, ros-indigo-std-msgs, ros-indigo-sensor-msgs, ros-indigo-geometry-msgs, ros-indigo-evdev-teleport, ros-indigo-leap-motion
 Description: ROS Portal occupancy aggregator.
+Replaces: __REPLACES__
+Conflicts: __REPLACES__

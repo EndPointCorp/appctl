@@ -10,3 +10,5 @@ Package: ros-indigo-geodata
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-rospy, ros-indigo-geographic-msgs, python-numpy
 Description: ROS service for locallly stored geographic data.
+Replaces: __REPLACES__
+Conflicts: __REPLACES__

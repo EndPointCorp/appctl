@@ -10,3 +10,5 @@ Package: ros-indigo-portal-nav
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-geometry-msgs, ros-indigo-roscpp, ros-indigo-std-msgs, ros-indigo-rospy
 Description: ROS interface to the Pose data.
+Replaces: __REPLACES__
+Conflicts: __REPLACES__

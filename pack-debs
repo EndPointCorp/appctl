@@ -49,7 +49,7 @@ function purge_previous_builds() {
 
 function create_metapackage_template() {
  # $1 should be a directory with all ros nodes inside
- _all_packages=$(for i in `find "${MY_DIR}/${DEB_DIR}/debs" -type d -mindepth 1 -maxdepth 1` ; do echo -n "$ROS_REL-$(basename $i), "; done | sed s/', $'//g)
+ _all_packages=$(for i in `find "${MY_DIR}/${DEB_DIR}/debs" -mindepth 1 -maxdepth 1 -type d` ; do echo -n "$ROS_REL-$(basename $i), "; done | sed s/', $'//g)
  _git_branch=$GIT_BRANCH
  echo "Going to do following replacements:  sed s/__GIT_BRANCH__/$_git_branch/g | sed s/__DEPENDS__/$_all_packages/g | sed s/__REPLACES__/$_replaces/g"
  cat "${MY_DIR}/${DEB_DIR}/src/ros_metapackage/ns-control.template" | sed s/__GIT_BRANCH__/"$_git_branch"/g | sed s/__DEPENDS__/"$_all_packages"/g
@@ -183,8 +183,10 @@ for pkg_debian_rules in `find "${MY_DIR}/${DEB_DIR}/src" -type f -path '*/debian
     dpkg-buildpackage -uc -us
     popd
     if [ "${PACK_STAGE,,}" = "stage1" ]; then
-        sudo apt-get remove ${ROS_REL}-$( echo ${pkg_orig_name_tred} )-* --yes
-        sudo dpkg -i ${pkg_dir_new}/../${ROS_REL}-$( echo ${pkg_name} )_${pkg_ver}*.deb
+        if dpkg-query --showformat='${binary:Package}\t${Version}\t${Architecture}\n' --show "${ROS_REL}-${pkg_orig_name_tred}-*"; then
+            sudo apt-get remove "${ROS_REL}-${pkg_orig_name_tred}-*" --yes
+        fi
+        sudo dpkg -i ${pkg_dir_new}/../${ROS_REL}-${pkg_name}_${pkg_ver}*.deb
     fi
 done
 

@@ -10,3 +10,5 @@ Package: ros-indigo-portal-config
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-rospy
 Description: ROS service for Portal configuration.
+Replaces: __REPLACES__
+Conflicts: __REPLACES__

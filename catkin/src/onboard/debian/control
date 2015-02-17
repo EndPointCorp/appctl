@@ -10,3 +10,5 @@ Package: ros-indigo-onboard
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-std-msgs, ros-indigo-rospy
 Description: ROS interface to Onboard onscreen keyboard.
+Replaces: __REPLACES__
+Conflicts: __REPLACES__
