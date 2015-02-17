@@ -12,7 +12,7 @@ def main():
     rospy.loginfo('running on modes {}'.format(modes))
     rospy.loginfo('running with display number {}'.format(display))
 
-    cmd = ['/home/lg/bin/onboard_wrapper.sh']
+    cmd = ['/home/lg/bin/onboard_wrapper.sh'] #TODO (WZ) pass display parameter here
     rospy.loginfo("cmd = %s" % cmd)
 
     proc_controller = appctl_support.ProcController(cmd)
