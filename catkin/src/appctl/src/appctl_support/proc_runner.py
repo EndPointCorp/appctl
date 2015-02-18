@@ -14,12 +14,13 @@ class ProcRunner(threading.Thread):
     """
     A Thread that launches and manages a subprocess.
     """
-    def __init__(self, cmd, respawn_delay=DEFAULT_RESPAWN_DELAY):
+    def __init__(self, cmd, respawn_delay=DEFAULT_RESPAWN_DELAY, shell=False):
         super(self.__class__, self).__init__()
         self.cmd = cmd
+        self.shell = shell
         self.respawn_delay = respawn_delay
         self.spawn_count = 0
-        self.cmd_str = ' '.join(cmd)
+        if not shell: self.cmd_str = ' '.join(cmd)
         self.done = False
         self.proc = None
 
@@ -62,12 +63,14 @@ class ProcRunner(threading.Thread):
                 'respawn #{} for process: {}'.format(
                     self.spawn_count, self.cmd_str))
 
+        rospy.loginfo("Launching command '%s' with shell='%s'" % (self.cmd, self.shell))
         self.proc = subprocess.Popen(
             self.cmd,
             stdin=DEVNULL,
             stdout=DEVNULL,
             stderr=DEVNULL,
-            preexec_fn=os.setsid
+            preexec_fn=os.setsid,
+            shell=self.shell
         )
         self.spawn_count += 1
         rospy.loginfo('started process {}'.format(self.proc.pid))
