@@ -1,3 +1,9 @@
+ros-indigo-appctl (1.0.3-0trusty) trusty; urgency=high
+
+  * Added "Breaks" attrib to the package
+
+ -- Wojtek Ziniewicz <wojtek@endpoint.com>  Fri, 19 Feb 2015 18:52:42 +0100
+
 ros-indigo-appctl (1.0.2-0trusty) trusty; urgency=high
 
   * Fix thread safety in ProcController.
