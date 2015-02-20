@@ -12,4 +12,3 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-rospy
 Description: ROS node used for switching between application modes
 Replaces: __REPLACES__
 Conflicts: __REPLACES__
-Breaks: __REPLACES__
