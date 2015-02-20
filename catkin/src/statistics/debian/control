@@ -12,4 +12,3 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-rospy
 Description: ROS interface to statistics sinks.
 Replaces: __REPLACES__
 Conflicts: __REPLACES__
-Breaks: __REPLACES__
