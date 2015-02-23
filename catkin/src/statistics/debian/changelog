@@ -1,3 +1,9 @@
+ros-indigo-statistics (1.0.1-0trusty) trusty; urgency=high
+
+  * Bumping version for glory
+
+ -- Wojciech Ziniewicz <wojtek@endpoint.com>  Fri, 23 Feb 2015 21:55:07 +0100
+
 ros-indigo-statistics (1.0.0-0trusty) trusty; urgency=high
 
   * Initial release
