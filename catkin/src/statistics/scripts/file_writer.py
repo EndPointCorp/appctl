@@ -6,7 +6,7 @@ import json
 import time
 from statistics.srv import SessionQuery
 from statistics.msg import Session
-from portal_statistics import PortalStatus
+from portal_statistics.portal_status import PortalStatus
 
 
 class GeolocationDataException(Exception):
