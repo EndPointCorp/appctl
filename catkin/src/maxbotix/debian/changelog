@@ -1,3 +1,9 @@
+ros-indigo-maxbotix (1.0.4-0trusty) trusty; urgency=high
+
+  * Bumped version for new release
+
+ -- Wojciech Ziniewicz <wojtek@endpoint.com>  Tue, 24 Feb 2015 15:39:27 +0100
+
 ros-indigo-maxbotix (1.0.1-0trusty) trusty; urgency=high
 
   * Add device_path and baud_rate parameters
