@@ -143,3 +143,29 @@ Possible edge cases:
   and then come back
 - do above but dont come back - restart roslaunch on displaynodes
   instead
+
+Example procedure:
+
+- There should be no session initially
+```shell
+rosservice call /statistics/session "erase: true
+current_only: true"
+```
+- Let's emulate tapping "pacman" and verify that the session was started
+```shell
+rostopic pub /statistics/session statistics/Session "{mode: '', application: 'pacman', start_ts: `date +%s`, end_ts: 0, prox_sensor_triggered: false}"
+rosservice call /statistics/session "erase: true
+current_only: true"
+```
+- Switch to attended now
+```shell
+rostopic pub /statistics/session statistics/Session "{mode: 'attended', application: '', start_ts: `date +%s`, end_ts: 0, prox_sensor_triggered: false}"
+rosservice call /statistics/session "erase: true
+current_only: true"
+```
+- Immitate ambient mode
+```shell
+rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "data:
+  secs: 30
+  nsecs: 0"
+```

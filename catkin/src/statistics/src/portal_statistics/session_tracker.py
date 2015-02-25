@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 import rospy
+import time
 from statistics.msg import Session
 from std_msgs.msg import Duration
-import time
+from statistics.srv import SessionQuery
 
 DEFAULT_SESSION_TIMEOUT = 20.0 # seconds
 
