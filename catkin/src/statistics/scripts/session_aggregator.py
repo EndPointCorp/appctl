@@ -192,6 +192,8 @@ class SessionAggregator:
         return self._rewrite_response_to_ros(finished_sessions)
 
     def _rewrite_response_to_ros(self, sessions):
+        """ Accepts list of dicts, returns SessionQueryResponse containing Sessions"""
+
         sessions_list = SessionQueryResponse()
         for session in sessions:
             s = Session()
@@ -210,7 +212,7 @@ class SessionAggregator:
         if sessions:
             current_session = sessions[-1]
             if current_session['end_ts'] == 0:
-                return current_session
+                return [current_session]
         return []
 
     def _get_finished_sessions(self, sessions):
