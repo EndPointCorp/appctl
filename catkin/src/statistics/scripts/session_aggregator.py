@@ -209,7 +209,7 @@ class SessionAggregator:
 
         if sessions:
             current_session = sessions[-1]
-            if current_session.end_ts == 0:
+            if current_session['end_ts'] == 0:
                 return current_session
         return []
 
