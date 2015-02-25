@@ -48,7 +48,7 @@ class SessionAggregator:
         rospy.logdebug("Waiting for the /appctl/query to become available")
         rospy.wait_for_service('appctl/query')
         service_call = rospy.ServiceProxy('appctl/query', Query)
-        mode = service_call.mode
+        mode = service_call().mode
         return mode
 
     def _init_session_subscriber(self):
