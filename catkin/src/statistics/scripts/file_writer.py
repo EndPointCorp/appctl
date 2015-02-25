@@ -67,6 +67,7 @@ class FileWriter:
         report_contents['report_time'] = unix_now
         report_contents['start_ts'] = unix_now - self.interval
         report_contents['end_ts'] = unix_now
+        report_contents['status'] = PortalStatus().get_status()
         return report_contents
 
     def _get_status(self):

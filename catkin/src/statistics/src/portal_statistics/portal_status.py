@@ -2,10 +2,12 @@ from pynag import Model
 import rospy
 
 class PortalStatus():
-    def __init__(self):
-        self.all_hosts = Model.Host.objects.all
-
     def get_status(self):
+        try:
+            self.all_hosts = Model.Host.objects.all
+        except Exception, e:
+            rospy.loginfo("Couldnt get pynag nagios status because %s" % e)
+            return 'unknown'
         if self._all_hosts_up() and self._all_services_ok():
             return 'on'
         if self._all_hosts_up() and (not self._all_services_ok()):
