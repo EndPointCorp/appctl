@@ -1,3 +1,4 @@
 bool erase
+bool current_only
 ---
 Session[] sessions

@@ -34,7 +34,7 @@ class PortalStatus():
                 if service.get_current_status()['current_state'] != '0':
                     return False
             except Exception, e:
-                # we've probably hit unconfigured service
+                # we've probably hit unconfigured service and may ignore it
                 pass
 
         return True

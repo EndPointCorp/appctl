@@ -133,3 +133,13 @@ Run the tests with `catkin_make`:
 Or with `rostest`:
 
     $ rostest statistics test_statistics.test
+
+#### Testing scenario for statistics
+
+Possible edge cases:
+- change /appctl/mode few times
+- try to enter pacman and change mode
+- enter "tactile" and go away for 30 secs so portal goes to ambient mode
+  and then come back
+- do above but dont come back - restart roslaunch on displaynodes
+  instead
