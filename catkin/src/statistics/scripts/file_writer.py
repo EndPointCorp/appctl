@@ -116,7 +116,7 @@ class FileWriter:
         pass
 
     def _write_endpoint_file(self, report_contents):
-        with open(self.ep_output_pathpath + "/" +  str(int(time.time())) + "_ep.json", 'w') as json_file:
+        with open(self.ep_output_path + "/" +  str(int(time.time())) + "_ep.json", 'w') as json_file:
             rospy.loginfo("Writing file %s" % json_file.name)
             json_file.write(json.dumps(report_contents, sort_keys=True, indent=4, separators=(',', ': ')))
             del report_contents
