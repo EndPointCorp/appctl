@@ -163,9 +163,14 @@ rostopic pub /statistics/session statistics/Session "{mode: 'attended', applicat
 rosservice call /statistics/session "erase: true
 current_only: true"
 ```
-- Immitate ambient mode
+- Immitate ambient mode straight after launching
 ```shell
 rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "data:
   secs: 30
   nsecs: 0"
+rosservice call /statistics/session "erase: true
+current_only: true"
 ```
+
+- Enter pacman and then immitate ambient mode
+

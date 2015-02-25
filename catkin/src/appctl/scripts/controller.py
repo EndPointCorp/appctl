@@ -15,6 +15,14 @@ class AppctlSubscribeListener(rospy.SubscribeListener):
         rospy.loginfo("Peer subscribed to topic %s - sending last state" % topic_name)
         self.initial_state_method()
 
+class AppctlSubscribeListener(rospy.SubscribeListener):
+    def __init__(self, initial_state_method):
+        self.initial_state_method = initial_state_method
+
+    def peer_subscribe(self, topic_name, topic_publish, peer_publish):
+        rospy.loginfo("Peer subscribed to topic %s - sending last state" % topic_name)
+        self.initial_state_method()
+
 class AppController:
     """
     - provides service /appctl/query

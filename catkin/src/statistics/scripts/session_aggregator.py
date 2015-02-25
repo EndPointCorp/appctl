@@ -3,6 +3,7 @@
 
 import rospy
 import sys
+import time
 from statistics.msg import Session
 from statistics.srv import SessionQuery
 from statistics.srv import SessionQueryResponse
@@ -31,7 +32,7 @@ class SessionAggregator:
 
     def __init__(self):
         self.node = self._init_node()
-        self.mode = self._get_initial_mode()
+        self.mode = self._get_initial_session()
         self.max_events = rospy.get_param('~max_events', None)
         self.max_memory = rospy.get_param('~max_memory', '32000000')
         self.session_service = self._init_session_service()
@@ -45,10 +46,12 @@ class SessionAggregator:
         rospy.init_node('statistics')
 
     def _get_initial_mode(self):
+        """ Sets initial mode (self.mode ivar) and starts first session """
         rospy.logdebug("Waiting for the /appctl/query to become available")
         rospy.wait_for_service('appctl/query')
         service_call = rospy.ServiceProxy('appctl/query', Query)
         mode = service_call().mode
+        self._route_event(Session(start_ts=int(time.time()), mode=mode))
         return mode
 
     def _init_session_subscriber(self):
