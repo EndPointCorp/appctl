@@ -186,14 +186,14 @@ class SessionAggregator:
 
         if req.current_only == 1:
             current_session = self._get_current_session(self.sessions)
-            return current_session
+            return self._rewrite_response_to_ros(current_session)
 
         finished_sessions = self._get_finished_sessions(self.sessions)
         return self._rewrite_response_to_ros(finished_sessions)
 
-    def _rewrite_response_to_ros(self, finished_sessions):
+    def _rewrite_response_to_ros(self, sessions):
         sessions_list = SessionQueryResponse()
-        for session in finished_sessions:
+        for session in sessions:
             s = Session()
             for attribute in Session.__slots__:
                 s.__setattr__(attribute, session[attribute])
