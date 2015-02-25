@@ -8,8 +8,9 @@ class ProcController(BaseController):
     """
     Controls startup and shutdown of a ProcRunner.
     """
-    def __init__(self, cmd):
+    def __init__(self, cmd, shell=False):
         self.cmd = cmd
+        self.shell = shell
         self.started = False
         self.watcher = None
         self.status_lock = threading.Lock()
@@ -25,7 +26,7 @@ class ProcController(BaseController):
 
         rospy.logdebug('starting ProcRunner')
 
-        self.watcher = ProcRunner(self.cmd)
+        self.watcher = ProcRunner(self.cmd, shell=self.shell)
         self.watcher.start()
 
     def stop(self, *args, **kwargs):

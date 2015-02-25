@@ -6,6 +6,8 @@ import json
 import time
 from statistics.srv import SessionQuery
 from statistics.msg import Session
+from portal_statistics.portal_status import PortalStatus
+
 
 class GeolocationDataException(Exception):
     pass
@@ -63,6 +65,10 @@ class FileWriter:
         report_contents['end_ts'] = unix_now
         return report_contents
 
+    def _get_status(self):
+        return PortalStatus().get_status()
+
+
     def _compose_and_write_json(self, sessions):
         """
         - convert sessions list to json
@@ -70,7 +76,7 @@ class FileWriter:
         """
         report_contents = {"report_time": 0,
                            "start_ts": 0,
-                           "status": "on",
+                           "status": self._get_status(),
                            "experience_type": "portal",
                            "end_ts": 0,
                            "metadata": {"country": self.country,
@@ -120,6 +126,7 @@ class FileWriter:
             self._spin()
             pass
         pass
+
 
 if __name__ == '__main__':
     try:
