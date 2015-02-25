@@ -33,7 +33,7 @@ class AppController:
         self.mode = self._get_initial_mode()
         self.service = self._init_service()
         self.mode_publisher = self._init_mode_publisher()
-        self.statistics_publisher = self._init_statistics_publisher()
+        self.session_publisher = self._init_statistics_publisher()
         self.subscriber = self._init_subscriber()
 
     def run(self):
@@ -56,7 +56,7 @@ class AppController:
         mode_msg = Mode(mode=self.mode)
         session_msg = Session(mode=self.mode, start_ts=int(time.time()))
         self.mode_publisher.publish(mode_msg)
-        self.statistics_publisher.publish(session_msg)
+        self.session_publisher.publish(session_msg)
 
     def _get_mode(self):
         return self.mode
