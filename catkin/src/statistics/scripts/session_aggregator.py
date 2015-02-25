@@ -7,7 +7,7 @@ from statistics.msg import Session
 from statistics.srv import SessionQuery
 from statistics.srv import SessionQueryResponse
 from appctl.msg import Mode
-from appctl.srv import SessionQuery
+from appctl.srv import Query
 
 
 class OutOfMemoryException(Exception):
@@ -47,7 +47,7 @@ class SessionAggregator:
     def _get_initial_mode():
         rospy.logdebug("Waiting for the /appctl/query to become available")
         rospy.wait_for_service('appctl/query')
-        service_call = rospy.ServiceProxy('appctl/query', SessionQuery)
+        service_call = rospy.ServiceProxy('appctl/query', Query)
         mode = service_call.mode
         return mode
 
