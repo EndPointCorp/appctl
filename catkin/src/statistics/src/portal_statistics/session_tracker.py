@@ -56,11 +56,11 @@ class SessionBreaker:
             start_msg = self._get_cached_session()
             start_msg.start_ts = int(time.time())
             start_msg.end_ts = 0
-            start_msg.prox_sensor_triggered = True
+            start_msg.prox_sensor_triggered = 1
         else:
             start_msg = Session(
                                 start_ts=int(time.time()),
-                                prox_sensor_triggered=True
+                                prox_sensor_triggered=1
                                 )
 
         self.session_pub.publish(start_msg)
