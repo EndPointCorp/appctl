@@ -106,8 +106,8 @@ class FileWriter:
                                         },
                            "sessions": []
                            }
-        self._render_endpoint_stats(report_template, sessions)
-        self._render_glink_stats(report_template, sessions)
+        self._render_endpoint_stats(report_template.copy(), sessions)
+        self._render_glink_stats(report_template.copy(), sessions)
         pass
 
     def _write_glink_file(self, report_contents):
