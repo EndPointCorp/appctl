@@ -4,6 +4,7 @@
 import rospy
 import json
 import time
+import copy
 from statistics.srv import SessionQuery
 from statistics.msg import Session
 from portal_statistics.portal_status import PortalStatus
@@ -107,8 +108,9 @@ class FileWriter:
                                         },
                            "sessions": []
                            }
-        self._render_endpoint_stats(report_template.copy(), sessions)
-        self._render_glink_stats(report_template.copy(), sessions)
+
+        self._render_endpoint_stats(copy.deepcopy(report_template), sessions)
+        self._render_glink_stats(copy.deepcopy(report_template), sessions)
         pass
 
     def _write_glink_file(self, report_contents):
