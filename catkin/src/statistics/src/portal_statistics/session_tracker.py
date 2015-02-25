@@ -33,8 +33,11 @@ class SessionBreaker:
         service_call = rospy.ServiceProxy('statistics/session', SessionQuery)
         response = service_call(erase=False, current_only=True)
         rospy.logdebug("Received response from service: %s" % response)
-        current_session = response.sessions[0]
-        return current_session
+        try:
+            current_session = response.sessions[0]
+            return current_session
+        except Exception, e:
+            return []
 
     def handle_inactivity_duration(self, msg):
         duration = msg.data
