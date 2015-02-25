@@ -12,3 +12,5 @@ Architecture: any
 Description: Portal metapackage
   Provides all portal ros nodes needed
   for the operation of Portal machines
+Replaces: __REPLACES__
+Conflicts: __REPLACES__

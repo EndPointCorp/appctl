@@ -1,0 +1,12 @@
+ros-indigo-servertech-pdu (1.0.4-0trusty) trusty; urgency=high
+
+  * Bumped version for new release
+
+ -- Wojciech Ziniewicz <wojtek@endpoint.com>  Tue, 24 Feb 2015 15:39:27 +0100
+
+ros-indigo-servertech-pdu (1.0.0-0trusty) trusty; urgency=high
+
+  * First package creation for indigo release
+
+ -- End Point Corp LG R&D <lg-rad@endpoint.com>  Thu, 29 Jan 2015 20:58:42 -0400
+

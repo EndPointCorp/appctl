@@ -10,3 +10,5 @@ Package: ros-indigo-evdev-teleport
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-roscpp
 Description: ROS interface for teleporting evdev events.
+Replaces: __REPLACES__
+Conflicts: __REPLACES__

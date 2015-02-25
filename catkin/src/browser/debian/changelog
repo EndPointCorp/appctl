@@ -1,3 +1,9 @@
+ros-indigo-browser (1.0.4-0trusty) trusty; urgency=high
+
+  * Bumped version for new release
+
+ -- End Point Corp LG R&D <wojtek@endpoint.com>  Tue, 24 Feb 2015 15:39:27 +0100
+
 ros-indigo-browser (1.0.0-0trusty) trusty; urgency=high
 
   * Initial release.

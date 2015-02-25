@@ -10,3 +10,5 @@ Package: ros-indigo-rfreceiver
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-std-msgs, ros-indigo-roscpp, ros-indigo-rospy, python-serial
 Description: ROS interface to the RF reset button.
+Replaces: __REPLACES__
+Conflicts: __REPLACES__
