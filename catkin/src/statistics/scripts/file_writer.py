@@ -28,6 +28,7 @@ class FileWriter:
         self.store_id = rospy.get_param('~store_id', None)
         self.retailer = rospy.get_param('~retailer', None)
         self.glink_session_keys = [ "end_ts", "start_ts" ]
+        self.ep_session_keys = [ "end_ts", "start_ts", "application", "mode", "prox_sensor_triggered" ]
 
         if self.country is None or\
            self.store_id is None or\
@@ -73,7 +74,7 @@ class FileWriter:
 
     def _render_glink_stats(self, report_template, sessions):
         for session in sessions:
-            session = self._get_glink_session_attributes(session)
+            session = self._get_session_attributes(session, self.glink_session_keys)
             report_template['sessions'].append(session)
 
         report_contents = self._finalize_report_data(report_template)
@@ -82,6 +83,7 @@ class FileWriter:
 
     def _render_endpoint_stats(self, report_template, sessions):
         for session in sessions:
+            session = self._get_session_attributes(session, self.ep_session_keys)
             report_template['sessions'].append(session)
 
         report_contents = self._finalize_report_data(report_template)
@@ -122,9 +124,9 @@ class FileWriter:
             del report_contents
         pass
 
-    def _get_glink_session_attributes(self, session):
+    def _get_session_attributes(self, session, attributes_list):
         single_session = {}
-        for field in self.glink_session_keys:
+        for field in attributes_list:
             single_session[field] = session.__getattribute__(field)
             rospy.logdebug("Examining field %s" % field)
         rospy.logdebug("Returning single_session %s" % single_session)
