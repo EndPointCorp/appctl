@@ -1,38 +1,89 @@
 #!/usr/bin/env python
 
 import rospy
+import time
 from statistics.msg import Session
 from std_msgs.msg import Duration
-import time
+from statistics.srv import SessionQuery
 
 DEFAULT_SESSION_TIMEOUT = 20.0 # seconds
 
 
-class SessionEnder:
-    def __init__(self, inactivity_timeout, session_pub):
+class SessionBreaker:
+    """
+    - watches the inactivity duration and sends Session:end_ts=0 to statistics aggregator
+    to end current session if it exists
+    - caches current_session in self.cached_session (Session type) so it can unpause it after proximity sensor is triggered
+    """
+    def __init__(self, inactivity_timeout, session_pub, session_service=None):
         self.inactivity_timeout = inactivity_timeout
+        if session_service:
+            self.current_session_service = session_service
+        else:
+            self._wait_for_service()
+            self.current_session_service = rospy.ServiceProxy('statistics/session', SessionQuery)
         self.session_pub = session_pub
+        self.cached_session = None
 
         self.ended = False
+
+    def _wait_for_service(self):
+        rospy.logdebug("Waiting for the /statistics/session service to become available")
+        rospy.wait_for_service('statistics/session')
+        rospy.logdebug("Statistics aggretator service has become available")
+        pass
+
+    def _get_current_session(self):
+        service_call = self.current_session_service
+        response = service_call(erase=False, current_only=True)
+        try:
+            current_session = response.sessions[0]
+            rospy.loginfo("Caching current session that will be later continued: %s" % current_session)
+            return current_session
+        except Exception, e:
+            rospy.loginfo("Could not cache current session because: %s" % e)
+            return []
 
     def handle_inactivity_duration(self, msg):
         duration = msg.data
         if not self.ended and duration > self.inactivity_timeout:
             self.ended = True
+            self._cache_current_session()
             self.publish_session_end()
             rospy.loginfo('ended')
         elif self.ended and duration <= self.inactivity_timeout:
             rospy.loginfo('active')
-            self.publish_session_start()
+            self.publish_session_continue()
             self.ended = False
 
-    def publish_session_start(self):
-        start_msg = Session(start_ts=int(time.time()))
+    def publish_session_continue(self):
+        """
+        Get last known session and rewrite start_ts and end_ts
+        to make it continue. Also make the prox_sensor_triggered equals True
+        """
+        if self.cached_session:
+            start_msg = self._get_cached_session()
+            start_msg.start_ts = int(time.time())
+            start_msg.end_ts = 0
+            start_msg.prox_sensor_triggered = 1
+            rospy.loginfo("Continuing previous session: %s" % start_msg)
+        else:
+            start_msg = Session(
+                                start_ts=int(time.time()),
+                                prox_sensor_triggered=1
+                                )
+
         self.session_pub.publish(start_msg)
 
     def publish_session_end(self):
         end_msg = Session(end_ts=int(time.time()))
         self.session_pub.publish(end_msg)
+
+    def _cache_current_session(self):
+        self.cached_session = self._get_current_session()
+
+    def _get_cached_session(self):
+        return self.cached_session
 
 
 def main():
@@ -51,7 +102,7 @@ def main():
         queue_size=2
     )
 
-    ender = SessionEnder(inactivity_timeout, session_pub)
+    ender = SessionBreaker(inactivity_timeout, session_pub)
 
     inactivity_sub = rospy.Subscriber(
         '/portal_occupancy/interaction/inactive_duration',
