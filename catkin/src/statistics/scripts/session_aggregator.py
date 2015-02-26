@@ -29,13 +29,13 @@ class SessionAggregator:
     def __init__(self):
         self.sessions = []
         self.erase_flag = 0
-        self.node = self._init_node()
-        self.mode = self._get_initial_mode()
         self.max_events = rospy.get_param('~max_events', None)
         self.max_memory = rospy.get_param('~max_memory', '32000000')
+        self.session_fields = Session.__slots__
+        self.node = self._init_node()
+        self.mode = self._get_initial_mode()
         self.session_service = self._init_session_service()
         self.session_subscriber = self._init_session_subscriber()
-        self.session_fields = Session.__slots__
         pass
 
     def _init_node(self):
