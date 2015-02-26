@@ -181,7 +181,7 @@ rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "
 ```
  - emulate entering attended mode
 ```shell
-rostopic pub /appctl/mode appctl/Mode "mode: 'attended'"
+rostopic pub /statistics/session statistics/Session "{mode: 'attended', application: '', start_ts: `date +%s`, end_ts: 0, prox_sensor_triggered: false}"
 ```
  - emulate entering ambient mode (someone left from playing pacman)
 ```shell
@@ -200,3 +200,6 @@ Number of sessions:
  - tactile session
  - another tactile session
  - pacman session
+ - another pacman session
+ - attended session
+

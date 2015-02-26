@@ -32,11 +32,12 @@ class SessionBreaker:
     def _get_current_session(self):
         service_call = rospy.ServiceProxy('statistics/session', SessionQuery)
         response = service_call(erase=False, current_only=True)
-        rospy.logdebug("Received response from service: %s" % response)
         try:
             current_session = response.sessions[0]
+            rospy.loginfo("Caching current session that will be later continued: %s" % current_session)
             return current_session
         except Exception, e:
+            rospy.loginfo("Could not cache current session because: %s" % e)
             return []
 
     def handle_inactivity_duration(self, msg):
@@ -61,6 +62,7 @@ class SessionBreaker:
             start_msg.start_ts = int(time.time())
             start_msg.end_ts = 0
             start_msg.prox_sensor_triggered = 1
+            rospy.loginfo("Continuing previous session: %s" % start_msg)
         else:
             start_msg = Session(
                                 start_ts=int(time.time()),
