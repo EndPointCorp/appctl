@@ -76,7 +76,7 @@ class SessionBreaker:
         self.session_pub.publish(end_msg)
 
     def _cache_current_session(self):
-        self.current_session = self._get_current_session()
+        self.cached_session = self._get_current_session()
 
     def _get_cached_session(self):
         return self.cached_session
