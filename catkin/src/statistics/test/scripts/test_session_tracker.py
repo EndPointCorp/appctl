@@ -20,9 +20,14 @@ class MockPublisher:
     def publish(self, msg):
         self.msgs.append(msg)
 
+
 class MockService:
     def __init__(self):
         pass
+
+    def __call__(self, erase=True, current_only=True):
+        pass
+
 
 class TestSessionBreaker(unittest.TestCase):
     def setUp(self):

@@ -20,7 +20,8 @@ class SessionBreaker:
         if session_service:
             self.current_session_service = session_service
         else:
-            self.current_session_service = self._wait_for_service()
+            self._wait_for_service()
+            self.current_session_service = rospy.ServiceProxy('statistics/session', SessionQuery)
         self.session_pub = session_pub
         self.cached_session = None
 
@@ -33,7 +34,7 @@ class SessionBreaker:
         pass
 
     def _get_current_session(self):
-        service_call = rospy.ServiceProxy('statistics/session', SessionQuery)
+        service_call = self.current_session_service
         response = service_call(erase=False, current_only=True)
         try:
             current_session = response.sessions[0]
