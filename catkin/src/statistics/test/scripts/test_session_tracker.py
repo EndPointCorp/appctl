@@ -20,12 +20,15 @@ class MockPublisher:
     def publish(self, msg):
         self.msgs.append(msg)
 
+class MockService:
+    def __init__(self):
+        pass
 
 class TestSessionBreaker(unittest.TestCase):
     def setUp(self):
         rospy.init_node(NAME)
         timeout = rospy.Duration.from_sec(TEST_TIMEOUT)
-        self.ender = SessionBreaker(timeout, MockPublisher())
+        self.ender = SessionBreaker(timeout, MockPublisher(), MockService())
 
     def test_init_state(self):
         self.assertFalse(self.ender.ended,

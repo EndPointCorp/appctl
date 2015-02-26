@@ -15,9 +15,12 @@ class SessionBreaker:
     to end current session if it exists
     - caches current_session in self.cached_session (Session type) so it can unpause it after proximity sensor is triggered
     """
-    def __init__(self, inactivity_timeout, session_pub):
+    def __init__(self, inactivity_timeout, session_pub, session_service=None):
         self.inactivity_timeout = inactivity_timeout
-        self.current_session_service = self._wait_for_service()
+        if session_service:
+            self.current_session_service = session_service
+        else:
+            self.current_session_service = self._wait_for_service()
         self.session_pub = session_pub
         self.cached_session = None
 
