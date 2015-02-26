@@ -24,15 +24,11 @@ class SessionAggregator:
     - provides session topic that acts as session events sink
     - provides session service for session event retrieval with possibility to retrieve only current session
     - this ROS node is internally operating on dict/json type and returns ROS msgs/srv
-    TODO:
-    - add "mode" to every session
-    - make appctl send Session events with "start_ts" and "mode" filled in
-    - make support for "application" attribute in session
     """
 
     def __init__(self):
         self.node = self._init_node()
-        self.mode = self._get_initial_session()
+        self.mode = self._get_initial_mode()
         self.max_events = rospy.get_param('~max_events', None)
         self.max_memory = rospy.get_param('~max_memory', '32000000')
         self.session_service = self._init_session_service()
