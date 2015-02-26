@@ -179,15 +179,14 @@ class SessionAggregator:
         check the `erase` flag
         """
         self._handle_erase_flag(req)
-        assert isinstance(self.sessions, list)
-        if self.sessions:
-            rospy.loginfo("Currently open session: %s" % self.sessions[-1])
 
         if req.current_only == 1:
             current_session = self._get_current_session(self.sessions)
+            rospy.loginfo("Currently open session: %s" % current_session)
             return self._rewrite_response_to_ros(current_session)
 
         finished_sessions = self._get_finished_sessions(self.sessions)
+        rospy.loginfo("Finished session(s) stored in memory: %s" % finished_sessions)
         return self._rewrite_response_to_ros(finished_sessions)
 
     def _rewrite_response_to_ros(self, sessions):

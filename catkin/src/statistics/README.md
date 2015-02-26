@@ -139,7 +139,7 @@ current_only: true"
 ```shell
 rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "data:
   secs: 30
-  nsecs: 0"
+  nsecs: 1"
 rosservice call /statistics/session "erase: false
 current_only: true"
 rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "data:
@@ -149,18 +149,54 @@ rosservice call /statistics/session "erase: false
 current_only: true"
 ```
 
-- Let's emulate tapping "pacman" and verify that initial 'tactile' session was finished and pacman session was started. Then emulate mode change to "attended" and verify that pacman was finished and attended mode was started.
-
+- Let's emulate following scenario:
+ - launch portal
+ - emulate entering ambient mode (no one near the touchscreen)
+```shell
+rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "data:
+  secs: 30
+  nsecs: 0"
+```
+ - emulate breaking ambient mode (someone has come near portal)
+```shell
+rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "data:
+  secs: 1
+  nsecs: 0"
+```
+ - emulate using pacman app
 ```shell
 rostopic pub /statistics/session statistics/Session "{mode: '', application: 'pacman', start_ts: `date +%s`, end_ts: 0, prox_sensor_triggered: false}"
-rosservice call /statistics/session "erase: false
-current_only: true"
-rosservice call /statistics/session "erase: false
-current_only: false"
+```
+ - emulate entering ambient mode (someone left from playing pacman)
+```shell
+rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "data:
+  secs: 30
+  nsecs: 0"
+```
+ - emulate breaking ambient mode (someone has came)
+```shell
+rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "data:
+  secs: 1
+  nsecs: 0"
+```
+ - emulate entering attended mode
+```shell
 rostopic pub /appctl/mode appctl/Mode "mode: 'attended'"
-rosservice call /statistics/session "erase: false
-current_only: false"
-rosservice call /statistics/session "erase: false
-current_only: true"
+```
+ - emulate entering ambient mode (someone left from playing pacman)
+```shell
+rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "data:
+  secs: 30
+  nsecs: 0"
+```
+ - emulate breaking ambient mode (someone has came)
+```shell
+rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "data:
+  secs: 1
+  nsecs: 0"
 ```
 
+Number of sessions:
+ - tactile session
+ - another tactile session
+ - pacman session
