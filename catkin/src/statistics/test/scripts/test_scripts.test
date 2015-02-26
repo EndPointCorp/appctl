@@ -1,4 +1,3 @@
 <launch>
   <test test-name="test_session_tracker" pkg="statistics" type="test_session_tracker.py" />
-  <test test-name="test_session_tracker" pkg="statistics" type="test_session_aggregator.py" />
 </launch>
