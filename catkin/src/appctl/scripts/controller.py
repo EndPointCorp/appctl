@@ -3,7 +3,17 @@
 import rospy
 from appctl.srv import Query
 from appctl.msg import Mode
+from statistics.msg import Session
+import time
 
+
+class AppctlSubscribeListener(rospy.SubscribeListener):
+    def __init__(self, initial_state_method):
+        self.initial_state_method = initial_state_method
+
+    def peer_subscribe(self, topic_name, topic_publish, peer_publish):
+        rospy.loginfo("Peer subscribed to topic %s - sending last state" % topic_name)
+        self.initial_state_method()
 
 class AppctlSubscribeListener(rospy.SubscribeListener):
     def __init__(self, initial_state_method):
@@ -22,6 +32,7 @@ class AppController:
         - provides Query.msg
     - publishes on /appctl/mode
         - TODO (wz) does a one-time only msg publish when launched
+    - publishes on /statistics/session
     - provides initial_mode parameter
     """
 
@@ -29,7 +40,8 @@ class AppController:
         self.node = self._init_node()
         self.mode = self._get_initial_mode()
         self.service = self._init_service()
-        self.publisher = self._init_publisher()
+        self.mode_publisher = self._init_mode_publisher()
+        self.session_publisher = self._init_statistics_publisher()
         self.subscriber = self._init_subscriber()
 
     def run(self):
@@ -42,13 +54,17 @@ class AppController:
 
     def _publish_initial_state(self):
         rospy.loginfo("Publishing initial mode")
-        msg = Mode(mode=self._get_initial_mode())
-        self.publisher.publish(msg)
+        mode_msg = Mode(mode=self._get_initial_mode())
+        session_msg = Session(mode=self._get_initial_mode(), start_ts=int(time.time()))
+        self.mode_publisher.publish(mode_msg)
+        self.session_publisher.publish(session_msg)
 
     def _publish_state(self):
         rospy.loginfo("Publishing mode")
-        msg = Mode(mode=self.mode)
-        self.publisher.publish(msg)
+        mode_msg = Mode(mode=self.mode)
+        session_msg = Session(mode=self.mode, start_ts=int(time.time()))
+        self.mode_publisher.publish(mode_msg)
+        self.session_publisher.publish(session_msg)
 
     def _get_mode(self):
         return self.mode
@@ -68,11 +84,17 @@ class AppController:
         subscriber = rospy.Subscriber('/appctl/mode', Mode, self._set_mode)
         return subscriber
 
-    def _init_publisher(self):
+    def _init_mode_publisher(self):
         publisher = rospy.Publisher('/appctl/mode',
                                     Mode,
                                     queue_size=3,
                                     subscriber_listener=AppctlSubscribeListener(self._publish_state))
+        return publisher
+
+    def _init_statistics_publisher(self):
+        publisher = rospy.Publisher('/statistics/session',
+                                    Session,
+                                    queue_size=3)
         return publisher
 
     def _process_service_request(self, req):

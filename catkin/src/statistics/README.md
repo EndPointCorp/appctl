@@ -9,7 +9,26 @@ ROS bridge for statsd and google retail store statistics provider
 
 ## Scripts
 
-### listener.py
+### session\_tracker.py
+
+A node that listens for portal_occupancy "occupied" messages and breaks
+the current session. It caches current session so when portal becomes
+occupied again it emits Session start with mode and application that was
+used before portal went to ambient mode.
+
+Requires portal\_occupancy::aggregate.py to operate effectively.
+
+##### Topics
+
+* Subscribes to `/portal_occupancy/interaction/inactive_duration`
+* Publishes to `/statistics/session`
+
+##### Parameters
+
+* `inactivity_timeout` - How long to wait before declaring a session over,
+  in seconds.  Default: 20.0
+
+### statsd_listener.py
 
 A node the listens for statistics messages, converts them to statsd strings, and sends the datagrams to the statsd server.
 
@@ -32,44 +51,18 @@ A node that provides a ros node and ros service.
    sessions. There's a flag that can be set during query to erase all
    aggregated sessions
 
+
 ##### Incoming session event data structure
 
-There will be at least two stages where the data submitted by extensions
-will have to evolve because Google statistics service wont accept or
-understand some of the attributes on the beggining.
-
-###### First stage:
-
-Each extension, mode etc, sends the "start\_ts"
-
-```
-start_ts: 1421245409
-```
-
-Above message will end previous session and automatically start new one.
-
-To close all current sessions, following message should be sent (e.g.
-when switching to some idle mode or sth similar)
+Each Session emitter should send following event:
 
 ```
 start_ts: 1421245409
 end_ts: 1421245430
+application: 'pacman'
+mode: 'tactile'
+prox_sensor_triggered: True
 ```
-
-###### Second stage:
-
-Each session source sends also the application name attribute
-
-```
-start_ts: 1421245409
-end_ts: 1421245430
-name: 'pacman'
-```
-
-###### Further stages:
-
-Each session source sends data involving touches and conversions along
-with apps (refer to the docs)
 
 ##### Parameters
 
@@ -89,25 +82,12 @@ Provides `/statistics/session` : `statistics/session` - Incoming sessions
 Provides `/statistics/session` : `statistics/SessionQuery` - Querying aggregator
 with `erase` flag that discards the events that got read.
 
-### session\_tracker.py
-
-A ros node that publishes session start and end based on the occupancy tracker.
-Requires portal\_occupancy::aggregate.py to operate effectively.
-
-##### Topics
-
-* Subscribes to `/portal_occupancy/interaction/inactive_duration`
-* Publishes to `/statistics/session`
-
-##### Parameters
-
-* `inactivity_timeout` - How long to wait before declaring a session over,
-  in seconds.  Default: 20.0
 
 ### file\_writer.py
 
 A ros node that aggregates session\_aggregator sessions and formats them
-for writing into json file on the local filesystem.
+for writing into json file on the local filesystem. It writes glink json
+files in glink format and in extended format for End Point
 
 ##### Topics
 
@@ -133,3 +113,93 @@ Run the tests with `catkin_make`:
 Or with `rostest`:
 
     $ rostest statistics test_statistics.test
+
+#### Testing scenario for statistics
+
+Possible edge cases:
+- change /appctl/mode few times
+- try to enter pacman and change mode
+- enter "tactile" and go away for 30 secs so portal goes to ambient mode
+  and then come back
+- do above but dont come back - restart roslaunch on displaynodes
+  instead
+
+Example procedure:
+
+- After launch there should be a started session.
+
+```shell
+rosservice call /statistics/session "erase: true
+current_only: true"
+```
+
+- Straight after launch, a session should be cached and continued after
+  a prox_sensor break.
+
+```shell
+rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "data:
+  secs: 30
+  nsecs: 1"
+rosservice call /statistics/session "erase: false
+current_only: true"
+rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "data:
+  secs: 1
+  nsecs: 0"
+rosservice call /statistics/session "erase: false
+current_only: true"
+```
+
+- Let's emulate following scenario:
+ - launch portal
+ - emulate entering ambient mode (no one near the touchscreen)
+```shell
+rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "data:
+  secs: 30
+  nsecs: 0"
+```
+ - emulate breaking ambient mode (someone has come near portal)
+```shell
+rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "data:
+  secs: 1
+  nsecs: 0"
+```
+ - emulate using pacman app
+```shell
+rostopic pub /statistics/session statistics/Session "{mode: '', application: 'pacman', start_ts: `date +%s`, end_ts: 0, prox_sensor_triggered: false}"
+```
+ - emulate entering ambient mode (someone left from playing pacman)
+```shell
+rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "data:
+  secs: 30
+  nsecs: 0"
+```
+ - emulate breaking ambient mode (someone has came)
+```shell
+rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "data:
+  secs: 1
+  nsecs: 0"
+```
+ - emulate entering attended mode
+```shell
+rostopic pub /statistics/session statistics/Session "{mode: 'attended', application: '', start_ts: `date +%s`, end_ts: 0, prox_sensor_triggered: false}"
+```
+ - emulate entering ambient mode (someone left from playing pacman)
+```shell
+rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "data:
+  secs: 30
+  nsecs: 0"
+```
+ - emulate breaking ambient mode (someone has came)
+```shell
+rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "data:
+  secs: 1
+  nsecs: 0"
+```
+
+Number of sessions:
+ - tactile session
+ - another tactile session
+ - pacman session
+ - another pacman session
+ - attended session
+
