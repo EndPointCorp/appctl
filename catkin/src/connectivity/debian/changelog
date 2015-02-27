@@ -1,0 +1,6 @@
+ros-indigo-portal-connectivity (1.0.0-0trusty) trusty; urgency=high
+
+  * First package creation for indigo release
+
+ -- Wojtek Ziniewicz <wojtek@endpoint.com>  Fri, 27 Feb 2015 18:45:33 +0100
+

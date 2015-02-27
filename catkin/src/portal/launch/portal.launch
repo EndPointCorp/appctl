@@ -3,6 +3,7 @@
     <param name="url" value="file://$(optenv PWD)/catkin/src/portal/launch/portal_config.json"/>
   </node>
   <node pkg="portal_nav" type="portal_nav" name="portal_nav"></node>
+  <node pkg="connectivity" type="connectivity" name="watchman.py"></node>
   <node name="onboard" pkg="onboard" type="listener.py">
     <param name="config" value="$(optenv PWD)/catkin/src/portal/launch/onboard.dconf"/>
   </node>
