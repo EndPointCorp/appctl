@@ -7,6 +7,8 @@ A ROS node that detects internet problems. When there's no internet it
 will emit a message telling portal to go offline (e.g. display an
 offline video)
 
+To emulate offline mode just touch a `/tmp/test_offline_mode` file
+
 ### watchman.py
 
 ##### Topics

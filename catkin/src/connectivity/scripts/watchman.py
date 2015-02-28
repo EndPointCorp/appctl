@@ -3,6 +3,7 @@
 
 import rospy
 import urllib2
+import os
 from std_msgs import Bool
 from appctl import Mode
 
@@ -75,9 +76,19 @@ class ConnectivityOverlord():
     def _got_internet(self):
         """
         If any of the values of self.sites is above max_failed_attempts then
-        return "False"
+        return "False".
+
+        There's a special /tmp/test_offline_mode file that will turn your portal
+        to offline mode
         """
+        if os.path.isfile('/tmp/test_offline_mode'):
+            return False
+
         return all(x > self.max_failed_attempts for x in self.sites.itervalues())
+
+    def _sleep_between_requests(self):
+        rospy.sleep(1)
+        pass
 
     def run(self):
         rospy.logdebug("Starting connectivity service")
