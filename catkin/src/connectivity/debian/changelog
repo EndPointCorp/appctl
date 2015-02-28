@@ -1,4 +1,4 @@
-ros-indigo-portal-connectivity (1.0.0-0trusty) trusty; urgency=high
+ros-indigo-connectivity (1.0.0-0trusty) trusty; urgency=high
 
   * First package creation for indigo release
 
