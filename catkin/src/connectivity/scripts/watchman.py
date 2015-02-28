@@ -43,10 +43,10 @@ class ConnectivityOverlord():
         for url, failures in self.sites.iteritems():
             if self._got_response(url):
                 failures = 0
-                rospy.logdebug("%s response - internet is fine" % url)
-            else:
-                failures += 3
                 rospy.loginfo("%s response - internet is fine" % url)
+            else:
+                failures += 1
+                rospy.loginfo("%s no response - internet is having problems" % url)
 
         if not self._got_internet() and self.online:
             """ We've just lost internetz """
@@ -98,7 +98,7 @@ class ConnectivityOverlord():
         if os.path.isfile('/tmp/test_offline_mode'):
             return False
 
-        return all(x > self.max_failed_attempts for x in self.sites.itervalues())
+        return all(x < self.max_failed_attempts for x in self.sites.itervalues())
 
     def _sleep_between_requests(self):
         rospy.sleep(1)
