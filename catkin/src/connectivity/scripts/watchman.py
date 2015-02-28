@@ -114,6 +114,7 @@ class ConnectivityOverlord():
         pass
 
 if __name__ == '__main__':
+    rospy.init_node('connectivity')
     try:
         ConnectivityOverlord().run()
     except rospy.ROSInterruptException:
