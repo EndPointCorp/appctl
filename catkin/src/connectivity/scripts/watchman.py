@@ -4,8 +4,8 @@
 import rospy
 import urllib2
 import os
-from std_msgs import Bool
-from appctl import Mode
+from std_msgs.msg import Bool
+from appctl.msg import Mode
 
 
 class HeadRequest(urllib2.Request):
