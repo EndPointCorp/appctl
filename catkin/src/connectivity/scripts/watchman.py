@@ -30,7 +30,7 @@ class ConnectivityOverlord():
         self.online_mode_name = 'tactile'
         self.offline_mode_name = 'offline_video'
         self.max_failed_attempts = max_failed_attempts
-        self.sites = {"https://google.com": 0, "https://maps.google.com": 0}
+        self.sites = {"https://google.com": 0}
         self._init_session_service()
         self.mode_publisher = rospy.Publisher(
                 '/appctl/mode',
