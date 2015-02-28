@@ -22,7 +22,9 @@ class ConnectivityOverlord():
         on /appctl/mode
         """
 
+        self.online = True
         self.timeout = timeout
+        self.offline_mode_name = 'tactile'
         self.offline_mode_name = 'offline_video'
         self.max_failed_attempts = max_failed_attempts
         self.sites = {"https://google.com": 0, "https://google.com/maps": 0}
@@ -46,8 +48,14 @@ class ConnectivityOverlord():
                 failures += 3
                 rospy.loginfo("%s response - internet is fine" % url)
 
-        if not self._got_internet():
+        if not self._got_internet() and self.online:
+            """ We've just lost internetz """
             self._publish_offline_mode()
+            self.online = False
+        elif self._got_internet() and self.offline:
+            """ Internetz came back """
+            self._publish_online_mode()
+            self.online = True
 
         pass
 
@@ -55,6 +63,12 @@ class ConnectivityOverlord():
         """ Emits a message on /appctl/mode about the mode change """
         offline_msg = Mode(mode=self.offline_mode_name)
         self.mode_publisher.publish(offline_msg)
+        pass
+
+    def _publish_online_mode(self):
+        """ Emits a message on /appctl/mode about the mode change """
+        online_msg = Mode(mode=self.online_mode_name)
+        self.mode_publisher.publish(online_msg)
         pass
 
     def _got_response(self, url):
