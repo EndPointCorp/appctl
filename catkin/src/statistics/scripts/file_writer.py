@@ -80,7 +80,8 @@ class FileWriter:
             report_template['sessions'].append(session)
 
         report_contents = self._finalize_report_data(report_template)
-        self._write_glink_file(report_contents)
+        if report_contents['sessions']:
+            self._write_glink_file(report_contents)
         pass
 
     def _render_endpoint_stats(self, report_template, sessions):
@@ -89,7 +90,8 @@ class FileWriter:
             report_template['sessions'].append(session)
 
         report_contents = self._finalize_report_data(report_template)
-        self._write_endpoint_file(report_contents)
+        if report_contents['sessions']:
+            self._write_endpoint_file(report_contents)
         pass
 
     def _compose_and_write_json(self, sessions):
@@ -152,7 +154,6 @@ class FileWriter:
             self._spin()
             pass
         pass
-
 
 if __name__ == '__main__':
     try:
