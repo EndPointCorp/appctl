@@ -14,8 +14,11 @@ class HeadRequest(urllib2.Request):
 
 
 class ConnectivityOverlord():
-    def __init__(self, max_failed_attempts=5,
-                 timeout=1, offline_mode_name='offline_video'):
+    def __init__(self,
+                 timeout=1,
+                 max_failed_attempts=5,
+                 offline_mode_name='offline_video',
+                 online_mode_name='tactile'):
         """
         By default we make 5 HTTP:HEAD check on google.com + google.com/maps
         with 1 sec timeout and publish a mode change of "offline_video"
@@ -24,7 +27,7 @@ class ConnectivityOverlord():
 
         self.online = True
         self.timeout = timeout
-        self.offline_mode_name = 'tactile'
+        self.online_mode_name = 'tactile'
         self.offline_mode_name = 'offline_video'
         self.max_failed_attempts = max_failed_attempts
         self.sites = {"https://google.com": 0, "https://google.com/maps": 0}
@@ -113,8 +116,17 @@ class ConnectivityOverlord():
 
 if __name__ == '__main__':
     rospy.init_node('connectivity')
+
+    timeout = rospy.get_param('~timeout', 1)
+    max_failed_attempts = rospy.get_param('~max_failed_attempts', 5)
+    offline_mode_name = rospy.get_param('~offline_mode_name', 'offline_video')
+    online_mode_name = rospy.get_param('~offline_mode_name', 'tactile')
+
     try:
-        ConnectivityOverlord().run()
+        ConnectivityOverlord(timeout=timeout,
+                             max_failed_attempts=max_failed_attempts,
+                             offline_mode_name=offline_mode_name,
+                             online_mode_name=online_mode_name).run()
     except rospy.ROSInterruptException:
         pass
     except rospy.service.ServiceException:
