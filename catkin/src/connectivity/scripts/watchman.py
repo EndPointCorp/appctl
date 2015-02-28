@@ -4,8 +4,8 @@
 import rospy
 import urllib2
 import os
-from std_msgs.msg import Bool
 from appctl.msg import Mode
+from connectivity.srv import Online
 
 
 class HeadRequest(urllib2.Request):
@@ -80,7 +80,7 @@ class ConnectivityOverlord():
 
     def _init_session_service(self):
         service = rospy.Service('/connectivity/online',
-                                Bool,
+                                Online,
                                 self._process_service_request)
         return service
 
