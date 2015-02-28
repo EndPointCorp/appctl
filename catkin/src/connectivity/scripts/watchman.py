@@ -52,7 +52,7 @@ class ConnectivityOverlord():
             """ We've just lost internetz """
             self._publish_offline_mode()
             self.online = False
-        elif self._got_internet() and self.offline:
+        elif self._got_internet() and self.online:
             """ Internetz came back """
             self._publish_online_mode()
             self.online = True
