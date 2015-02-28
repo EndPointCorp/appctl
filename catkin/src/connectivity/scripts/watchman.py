@@ -30,7 +30,7 @@ class ConnectivityOverlord():
         self.online_mode_name = 'tactile'
         self.offline_mode_name = 'offline_video'
         self.max_failed_attempts = max_failed_attempts
-        self.sites = {"https://google.com": 0, "https://google.com/maps": 0}
+        self.sites = {"https://google.com": 0, "https://maps.google.com": 0}
         self._init_session_service()
         self.mode_publisher = rospy.Publisher(
                 '/appctl/mode',
@@ -55,7 +55,7 @@ class ConnectivityOverlord():
             """ We've just lost internetz """
             self._publish_offline_mode()
             self.online = False
-        elif self._got_internet() and self.online:
+        elif self._got_internet() and not self.online:
             """ Internetz came back """
             self._publish_online_mode()
             self.online = True
