@@ -40,7 +40,7 @@ class ConnectivityOverlord():
         Make the requests and increment failure counts upon failure
         Reset the failure count upon success
         """
-        for url, failures in self.sites:
+        for url, failures in self.sites.iteritems():
             if self._got_response(url):
                 failures = 0
                 rospy.logdebug("%s response - internet is fine" % url)
