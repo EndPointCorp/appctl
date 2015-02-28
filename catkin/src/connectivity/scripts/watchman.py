@@ -46,10 +46,10 @@ class ConnectivityOverlord():
         for url, failures in self.sites.iteritems():
             if self._got_response(url):
                 failures = 0
-                rospy.loginfo("%s response - internet is fine" % url)
+                rospy.logdebug("respose from %s" % url)
             else:
                 failures += 1
-                rospy.loginfo("%s no response - internet is having problems" % url)
+                rospy.logdebug("%s no response - internet is having problems" % url)
 
         if not self._got_internet() and self.online:
             """ We've just lost internetz """
