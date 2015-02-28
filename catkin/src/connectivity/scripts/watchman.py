@@ -109,8 +109,6 @@ class ConnectivityOverlord():
         while not rospy.is_shutdown():
             self._sleep_between_requests()
             self.update_internetz_status()
-            self._spin()
-            pass
         pass
 
 if __name__ == '__main__':
