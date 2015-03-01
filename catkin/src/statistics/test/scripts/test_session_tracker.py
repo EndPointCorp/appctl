@@ -13,7 +13,7 @@ from std_msgs.msg import Duration
 TEST_TIMEOUT = 20.0 # seconds
 
 
-class MockPublisher:
+class MockSessionPublisher:
     def __init__(self):
         self.msgs = []
 
@@ -21,19 +21,25 @@ class MockPublisher:
         self.msgs.append(msg)
 
 
-class MockService:
+class MockModePublisher:
     def __init__(self):
         pass
 
-    def __call__(self, erase=True, current_only=True):
-        pass
+    def publish(self, msg):
+        self.published_msg = msg
 
 
 class TestSessionBreaker(unittest.TestCase):
     def setUp(self):
         rospy.init_node(NAME)
         timeout = rospy.Duration.from_sec(TEST_TIMEOUT)
-        self.ender = SessionBreaker(timeout, MockPublisher(), MockService())
+        fallback_mode = 'testing123'
+        self.ender = SessionBreaker(inactivity_timeout=timeout,
+                                    session_publisher=MockSessionPublisher(),
+                                    fallback_mode=fallback_mode,
+                                    fallback_publisher=MockModePublisher()
+                                    )
+
 
     def test_init_state(self):
         self.assertFalse(self.ender.ended,
