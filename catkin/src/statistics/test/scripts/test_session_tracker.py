@@ -29,6 +29,10 @@ class MockModePublisher:
         self.published_msg = msg
 
 
+class MockModeResponse:
+    def mode(self):
+        return 'tactile'
+
 class MockModeService:
     def __init__(self):
         pass
@@ -40,7 +44,7 @@ class MockModeService:
         return '/appctl/mode'
 
     def __call__(self):
-        return 'tactile'
+        return MockModeResponse()
 
 
 class TestSessionBreaker(unittest.TestCase):
