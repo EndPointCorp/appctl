@@ -1,3 +1,9 @@
+ros-indigo-statistics (1.1.2-0trusty) trusty; urgency=high
+
+  * Dont fall back to ambient when offline
+
+ -- Wojciech Ziniewicz <wojtek@endpoint.com>  Sun, 1 Mar 2015 23:01:27 +0100
+
 ros-indigo-statistics (1.1.1-0trusty) trusty; urgency=high
 
   * Fall back to tactile for ambient mode
