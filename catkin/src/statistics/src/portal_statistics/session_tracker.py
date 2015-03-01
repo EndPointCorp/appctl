@@ -40,7 +40,7 @@ class SessionBreaker:
 
     def publish_session_start(self):
         """
-        Start new session and make the prox_sensor_triggered = True
+        Start new session and make the occupancy_triggered = True
         """
         start_msg = Session(
                             start_ts=int(time.time()),
