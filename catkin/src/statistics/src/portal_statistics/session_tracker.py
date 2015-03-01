@@ -5,7 +5,7 @@ import time
 from statistics.msg import Session
 from std_msgs.msg import Duration
 from appctl.msg import Mode
-from acpptl.srv import Query
+from appctl.srv import Query
 
 DEFAULT_SESSION_TIMEOUT = 20.0 # seconds
 FALLBACK_MODE = 'tactile'
