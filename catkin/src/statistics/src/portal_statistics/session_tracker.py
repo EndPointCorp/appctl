@@ -4,86 +4,58 @@ import rospy
 import time
 from statistics.msg import Session
 from std_msgs.msg import Duration
-from statistics.srv import SessionQuery
+from appctl.msg import Mode
 
 DEFAULT_SESSION_TIMEOUT = 20.0 # seconds
-
+FALLBACK_MODE = 'tactile'
 
 class SessionBreaker:
     """
     - watches the inactivity duration and sends Session:end_ts=0 to statistics aggregator
     to end current session if it exists
-    - caches current_session in self.cached_session (Session type) so it can unpause it after proximity sensor is triggered
+    - if occupancy is broken, starts new session in "tactile" mode which is a default fallback session
     """
-    def __init__(self, inactivity_timeout, session_pub, session_service=None):
+
+    def __init__(self,
+                 inactivity_timeout,
+                 fallback_mode,
+                 fallback_publisher,
+                 session_publisher):
         self.inactivity_timeout = inactivity_timeout
-        if session_service:
-            self.current_session_service = session_service
-        else:
-            self._wait_for_service()
-            self.current_session_service = rospy.ServiceProxy('statistics/session', SessionQuery)
-        self.session_pub = session_pub
-        self.cached_session = None
-
+        self.session_publisher = session_publisher
+        self.fallback_mode = fallback_mode
+        self.fallback_publisher = fallback_publisher
         self.ended = False
-
-    def _wait_for_service(self):
-        rospy.logdebug("Waiting for the /statistics/session service to become available")
-        rospy.wait_for_service('statistics/session')
-        rospy.logdebug("Statistics aggretator service has become available")
-        pass
-
-    def _get_current_session(self):
-        service_call = self.current_session_service
-        response = service_call(erase=False, current_only=True)
-        try:
-            current_session = response.sessions[0]
-            rospy.loginfo("Caching current session that will be later continued: %s" % current_session)
-            return current_session
-        except Exception, e:
-            rospy.loginfo("Could not cache current session because: %s" % e)
-            return []
 
     def handle_inactivity_duration(self, msg):
         duration = msg.data
         if not self.ended and duration > self.inactivity_timeout:
             self.ended = True
-            self._cache_current_session()
             self.publish_session_end()
             rospy.loginfo('ended')
         elif self.ended and duration <= self.inactivity_timeout:
             rospy.loginfo('active')
-            self.publish_session_continue()
+            self.publish_session_start()
             self.ended = False
 
-    def publish_session_continue(self):
+    def publish_session_start(self):
         """
-        Get last known session and rewrite start_ts and end_ts
-        to make it continue. Also make the prox_sensor_triggered equals True
+        Start new session and make the occupancy_triggered = True
         """
-        if self.cached_session:
-            start_msg = self._get_cached_session()
-            start_msg.start_ts = int(time.time())
-            start_msg.end_ts = 0
-            start_msg.prox_sensor_triggered = 1
-            rospy.loginfo("Continuing previous session: %s" % start_msg)
-        else:
-            start_msg = Session(
-                                start_ts=int(time.time()),
-                                prox_sensor_triggered=1
-                                )
+        start_msg = Session(
+                            start_ts=int(time.time()),
+                            mode=self.fallback_mode,
+                            occupancy_triggered=1
+                            )
 
-        self.session_pub.publish(start_msg)
+        self.session_publisher.publish(start_msg)
 
     def publish_session_end(self):
+        """ Switch to tactile to ambient_mode and end the sssion"""
         end_msg = Session(end_ts=int(time.time()))
-        self.session_pub.publish(end_msg)
-
-    def _cache_current_session(self):
-        self.cached_session = self._get_current_session()
-
-    def _get_cached_session(self):
-        return self.cached_session
+        fallback_mode = Mode(mode=self.fallback_mode)
+        self.fallback_publisher.publish(fallback_mode)
+        self.session_publisher.publish(end_msg)
 
 
 def main():
@@ -93,16 +65,30 @@ def main():
         '~inactivity_timeout',
         DEFAULT_SESSION_TIMEOUT
     )
+
+    fallback_mode = rospy.get_param(
+        '~fallback_mode',
+        FALLBACK_MODE
+    )
     inactivity_timeout = rospy.Duration.from_sec(float(inactivity_timeout_s))
 
 
-    session_pub = rospy.Publisher(
+    session_publisher = rospy.Publisher(
         '/statistics/session',
         Session,
         queue_size=2
     )
 
-    ender = SessionBreaker(inactivity_timeout, session_pub)
+    fallback_publisher = rospy.Publisher(
+        '/appctl/mode',
+        Mode,
+        queue_size=2
+    )
+
+    ender = SessionBreaker(inactivity_timeout=inactivity_timeout,
+                           fallback_mode=fallback_mode,
+                           fallback_publisher=fallback_publisher,
+                           session_publisher=session_publisher)
 
     inactivity_sub = rospy.Subscriber(
         '/portal_occupancy/interaction/inactive_duration',
