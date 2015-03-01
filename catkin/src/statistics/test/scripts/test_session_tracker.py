@@ -46,7 +46,7 @@ class TestSessionBreaker(unittest.TestCase):
             'SessionBreaker must init unended')
 
     def test_session_end(self):
-        pub = self.ender.session_pub
+        pub = self.ender.session_publisher
 
         over_duration = rospy.Duration.from_sec(TEST_TIMEOUT * 2)
         duration_msg = Duration(over_duration)
@@ -62,7 +62,7 @@ class TestSessionBreaker(unittest.TestCase):
             msg='Session end time must be just now')
 
     def test_session_start(self):
-        pub = self.ender.session_pub
+        pub = self.ender.session_publisher
         self.ender.ended = True
 
         self.assertTrue(self.ender.ended,
