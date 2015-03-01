@@ -1,3 +1,9 @@
+ros-indigo-statistics (1.1.1-0trusty) trusty; urgency=high
+
+  * Fall back to tactile for ambient mode
+
+ -- Wojciech Ziniewicz <wojtek@endpoint.com>  Sun, 1 Mar 2015 19:31:27 +0100
+
 ros-indigo-statistics (1.1.0-0trusty) trusty; urgency=high
 
   * Added extended statistics for End Point

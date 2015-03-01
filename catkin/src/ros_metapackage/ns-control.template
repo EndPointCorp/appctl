@@ -1,10 +1,10 @@
 Section: misc
 Priority: extra
 Homepage: http://liquid-galaxy.endpoint.com
-Standards-Version: 1.1.0-__GIT_BRANCH__
+Standards-Version: 1.1.1-__GIT_BRANCH__
 
 Package: ros-indigo-portal-__GIT_BRANCH__
-Version: 1.1.0-__GIT_BRANCH__
+Version: 1.1.1-__GIT_BRANCH__
 Maintainer: End Point Corp LG R&D <lg-rad@endpoint.com>
 Depends: __DEPENDS__
 Suggests: ros-indigo-desktop-full
