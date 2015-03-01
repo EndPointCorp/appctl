@@ -29,6 +29,20 @@ class MockModePublisher:
         self.published_msg = msg
 
 
+class MockModeService:
+    def __init__(self):
+        pass
+
+    def wait_for_service(self):
+        pass
+
+    def resolved_name(self):
+        return '/appctl/mode'
+
+    def __call__(self):
+        return 'tactile'
+
+
 class TestSessionBreaker(unittest.TestCase):
     def setUp(self):
         rospy.init_node(NAME)
@@ -37,7 +51,8 @@ class TestSessionBreaker(unittest.TestCase):
         self.ender = SessionBreaker(inactivity_timeout=timeout,
                                     session_publisher=MockSessionPublisher(),
                                     fallback_mode=fallback_mode,
-                                    fallback_publisher=MockModePublisher()
+                                    fallback_publisher=MockModePublisher(),
+                                    mode_service=MockModeService()
                                     )
 
 
