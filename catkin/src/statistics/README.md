@@ -27,6 +27,14 @@ Requires portal\_occupancy::aggregate.py to operate effectively.
 
 * `inactivity_timeout` - How long to wait before declaring a session over,
   in seconds.  Default: 20.0
+* `fallback_mode` - name of the mode that we switch to after session has
+  ended
+* `offline_mode` - name of offline mode to be handled by
+
+##### Internal parameters
+
+* `session_publisher` - publisher object for sending session start/end
+* `fallback_publisher` - publisher object for switching between modes
 
 ### statsd_listener.py
 

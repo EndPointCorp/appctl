@@ -9,6 +9,7 @@ from appctl.srv import Query
 
 DEFAULT_SESSION_TIMEOUT = 20.0 # seconds
 FALLBACK_MODE = 'tactile'
+OFFLINE_MODE = 'offline_video'
 
 class SessionBreaker:
     """
@@ -22,6 +23,7 @@ class SessionBreaker:
                  inactivity_timeout,
                  fallback_mode,
                  fallback_publisher,
+                 offline_mode,
                  mode_service,
                  session_publisher):
         self.inactivity_timeout = inactivity_timeout
@@ -29,6 +31,7 @@ class SessionBreaker:
         self.mode_service = mode_service
         self.fallback_mode = fallback_mode
         self.fallback_publisher = fallback_publisher
+        self.offline_mode = offline_mode
         self.ended = False
 
     def _wait_for_mode_service(self):
@@ -73,12 +76,15 @@ class SessionBreaker:
 
     def publish_session_end(self):
         """ Switch to tactile to ambient_mode and end the sssion.
-        Don't do it if we're offline
+        Don't do it if we're in offline mode
         """
         end_msg = Session(end_ts=int(time.time()))
-        if self._call_mode_service() != 'offline':
+        if self._call_mode_service() != self.offline_mode:
+            """ Dont fallback to ambient mode if we're in offline mode"""
             fallback_mode = Mode(mode=self.fallback_mode)
             self.fallback_publisher.publish(fallback_mode)
+        else:
+            rospy.loginfo("Not switching to %s because we're in %s" % (self.fallback_mode, self.offline_mode))
         self.session_publisher.publish(end_msg)
 
 
@@ -109,11 +115,17 @@ def main():
         queue_size=2
     )
 
+    offline_mode = rospy.get_param(
+        '~offline_mode',
+        OFFLINE_MODE
+    )
+
     mode_service = rospy.ServiceProxy('appctl/query', Query)
 
     ender = SessionBreaker(inactivity_timeout=inactivity_timeout,
                            fallback_mode=fallback_mode,
                            fallback_publisher=fallback_publisher,
+                           offline_mode=offline_mode,
                            session_publisher=session_publisher,
                            mode_service=mode_service)
 
