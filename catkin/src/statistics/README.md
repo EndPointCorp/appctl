@@ -61,7 +61,7 @@ start_ts: 1421245409
 end_ts: 1421245430
 application: 'pacman'
 mode: 'tactile'
-prox_sensor_triggered: True
+occupancy_triggered: True
 ```
 
 ##### Parameters
@@ -165,7 +165,7 @@ rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "
 ```
  - emulate using pacman app
 ```shell
-rostopic pub /statistics/session statistics/Session "{mode: '', application: 'pacman', start_ts: `date +%s`, end_ts: 0, prox_sensor_triggered: false}"
+rostopic pub /statistics/session statistics/Session "{mode: '', application: 'pacman', start_ts: `date +%s`, end_ts: 0, occupancy_triggered: false}"
 ```
  - emulate entering ambient mode (someone left from playing pacman)
 ```shell
@@ -181,7 +181,7 @@ rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "
 ```
  - emulate entering attended mode
 ```shell
-rostopic pub /statistics/session statistics/Session "{mode: 'attended', application: '', start_ts: `date +%s`, end_ts: 0, prox_sensor_triggered: false}"
+rostopic pub /statistics/session statistics/Session "{mode: 'attended', application: '', start_ts: `date +%s`, end_ts: 0, occupancy_triggered: false}"
 ```
  - emulate entering ambient mode (someone left from playing pacman)
 ```shell

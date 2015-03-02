@@ -51,16 +51,16 @@ void PortalNavigatorNode::Run(void) {
       &kiosk_pub_, &display_pub_, joystick_sensitivity_);
 
   // This subscriber takes commands from the SpaceNav.
-  spacenav_sub_ = n_.subscribe("/spacenav/twist", 0,
+  spacenav_sub_ = n_.subscribe("/spacenav/twist", 2,
       &PortalNavigatorNode::HandleSpaceNav, this);
 
   // This subscriber gets camera poses back from the kiosk.
   // We have a small Rx queue to make sure we don't lose any.
-  kiosk_pose_sub_ = n_.subscribe("/portal_kiosk/current_pose", 10,
+  kiosk_pose_sub_ = n_.subscribe("/portal_kiosk/current_pose", 1,
       &PortalNavigatorNode::HandleKioskPose, this);
 
   // This publishes a normalized version of the SpaceNav inputs.
-  joystick_pub_ = n_.advertise<geometry_msgs::Twist>("/joystick/twist", 0);
+  joystick_pub_ = n_.advertise<geometry_msgs::Twist>("/joystick/twist", 2);
 
   // Does not return until killed:
   ros::spin();
