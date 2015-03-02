@@ -1,3 +1,9 @@
+ros-indigo-statistics (1.1.5-0trusty) trusty; urgency=high
+
+  * Ignore the list of provided modes when going to ambient mode
+
+ -- Wojciech Ziniewicz <wojtek@endpoint.com>  Sun, 2 Mar 2015 19:27:27 +0100
+
 ros-indigo-statistics (1.1.4-0trusty) trusty; urgency=high
 
   * Dont fall back to ambient when offline - fixing and parametrizing

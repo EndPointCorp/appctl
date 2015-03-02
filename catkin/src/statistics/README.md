@@ -30,6 +30,8 @@ Requires portal\_occupancy::aggregate.py to operate effectively.
 * `fallback_mode` - name of the mode that we switch to after session has
   ended
 * `offline_mode` - name of offline mode to be handled by
+* `ignore_modes` - list of comma-delimited modes that should not fall
+  back to ambient mode
 
 ##### Internal parameters
 

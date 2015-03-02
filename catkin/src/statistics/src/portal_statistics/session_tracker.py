@@ -10,6 +10,8 @@ from appctl.srv import Query
 DEFAULT_SESSION_TIMEOUT = 20.0 # seconds
 FALLBACK_MODE = 'tactile'
 OFFLINE_MODE = 'offline_video'
+IGNORE_MODES = 'offline_video,attended'
+
 
 class SessionBreaker:
     """
@@ -25,6 +27,7 @@ class SessionBreaker:
                  fallback_publisher,
                  offline_mode,
                  mode_service,
+                 ignore_modes,
                  session_publisher):
         self.inactivity_timeout = inactivity_timeout
         self.session_publisher = session_publisher
@@ -32,6 +35,7 @@ class SessionBreaker:
         self.fallback_mode = fallback_mode
         self.fallback_publisher = fallback_publisher
         self.offline_mode = offline_mode
+        self.ignore_modes = ignore_modes.split(',')
         self.ended = False
 
     def _wait_for_mode_service(self):
@@ -79,8 +83,9 @@ class SessionBreaker:
         Don't do it if we're in offline mode
         """
         end_msg = Session(end_ts=int(time.time()))
-        if self._call_mode_service() != self.offline_mode:
-            """ Dont fallback to ambient mode if we're in offline mode"""
+        current_mode = self._call_mode_service()
+        if (current_mode != self.offline_mode) and (current_mode not in self.ignore_modes):
+            """ Dont fallback to ambient mode if we're in offline mode or e.g. attended mode"""
             fallback_mode = Mode(mode=self.fallback_mode)
             self.fallback_publisher.publish(fallback_mode)
         else:
@@ -120,6 +125,11 @@ def main():
         OFFLINE_MODE
     )
 
+    ignore_modes = rospy.get_param(
+        '~ignore_modes',
+        IGNORE_MODES
+    )
+
     mode_service = rospy.ServiceProxy('appctl/query', Query)
 
     ender = SessionBreaker(inactivity_timeout=inactivity_timeout,
@@ -127,6 +137,7 @@ def main():
                            fallback_publisher=fallback_publisher,
                            offline_mode=offline_mode,
                            session_publisher=session_publisher,
+                           ignore_modes=ignore_modes,
                            mode_service=mode_service)
 
     inactivity_sub = rospy.Subscriber(
