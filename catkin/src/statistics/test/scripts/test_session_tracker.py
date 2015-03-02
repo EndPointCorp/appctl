@@ -57,6 +57,7 @@ class TestSessionBreaker(unittest.TestCase):
                                     fallback_mode=fallback_mode,
                                     fallback_publisher=MockModePublisher(),
                                     mode_service=MockModeService(),
+                                    ignore_modes='ignore_me',
                                     offline_mode='offline_video'
                                     )
 
