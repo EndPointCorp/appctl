@@ -1,3 +1,9 @@
+ros-indigo-connectivity (1.0.2-0trusty) trusty; urgency=high
+
+  * Bumped version for updates
+
+ -- Wojtek Ziniewicz <wojtek@endpoint.com>  Sun, 2 Mar 2015 14:32:33 +0100
+
 ros-indigo-connectivity (1.0.1-0trusty) trusty; urgency=high
 
   * Bumped version for updates

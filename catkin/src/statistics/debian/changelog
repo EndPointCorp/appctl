@@ -1,3 +1,9 @@
+ros-indigo-statistics (1.1.4-0trusty) trusty; urgency=high
+
+  * Dont fall back to ambient when offline - fixing and parametrizing
+
+ -- Wojciech Ziniewicz <wojtek@endpoint.com>  Sun, 2 Mar 2015 14:22:27 +0100
+
 ros-indigo-statistics (1.1.3-0trusty) trusty; urgency=high
 
   * Dont fall back to ambient when offline
