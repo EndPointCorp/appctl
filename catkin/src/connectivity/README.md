@@ -30,6 +30,7 @@ To emulate offline mode just touch a `/tmp/test_offline_mode` file
   internet sites before deciding on going offline - default = `5`
 * `timeout` : how long to wait for http HEAD response - deafult = `1`
   second
-* `offline_mode_name`: what is the /appctl/mode mode to switch if we are
-* `online_mode_name`: what is the /appctl/mode mode to switch if we are
-  online
+* `offline_mode_name`: the mode name that should be set after detecting
+  problems with internet
+* `online_mode_name`: mode name that should be enabled after internet is
+  recovered
