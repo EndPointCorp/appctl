@@ -2,6 +2,7 @@
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 
 import rospy
+import socket
 import urllib2
 import os
 from appctl.msg import Mode
@@ -28,6 +29,7 @@ class ConnectivityOverlord():
 
         self.online = True
         self.timeout = timeout
+        socket.setdefaulttimeout(timeout)
         self.online_mode_name = 'tactile'
         self.offline_mode_name = 'offline_video'
         self.max_failed_attempts = max_failed_attempts
@@ -51,7 +53,7 @@ class ConnectivityOverlord():
                 rospy.logdebug("respose from %s" % url)
             else:
                 self.sites[url] += 1
-                rospy.loginfo("%s no response - internet is having problems (state %)" % (url, self.sites))
+                rospy.loginfo("%s no response - internet is having problems (state %s)" % (url, self.sites))
 
         if not self._got_internet() and self.online:
             """ We've just lost internetz """
