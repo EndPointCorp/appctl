@@ -34,3 +34,5 @@ To emulate offline mode just touch a `/tmp/test_offline_mode` file
   problems with internet
 * `online_mode_name`: mode name that should be enabled after internet is
   recovered
+* `sites_to_check` : comma delimited list of sites to check e.g.
+  `http://google.com,https://youtube.com`
