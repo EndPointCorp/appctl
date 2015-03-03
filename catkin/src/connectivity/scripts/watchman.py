@@ -17,6 +17,7 @@ class ConnectivityOverlord():
     def __init__(self,
                  timeout=1,
                  max_failed_attempts=5,
+                 sites_to_check='https://google.com',
                  offline_mode_name='offline_video',
                  online_mode_name='tactile'):
         """
@@ -30,7 +31,8 @@ class ConnectivityOverlord():
         self.online_mode_name = 'tactile'
         self.offline_mode_name = 'offline_video'
         self.max_failed_attempts = max_failed_attempts
-        self.sites = {"https://google.com": 0}
+        self.sites = dict.fromkeys(sites_to_check.split(','), 0)
+        rospy.loginfo("Initialized sites that checks will be run against: %s" % self.sites)
         self._init_session_service()
         self.mode_publisher = rospy.Publisher(
                 '/appctl/mode',
@@ -45,11 +47,11 @@ class ConnectivityOverlord():
         """
         for url, failures in self.sites.iteritems():
             if self._got_response(url):
-                failures = 0
+                self.sites[url] = 0
                 rospy.logdebug("respose from %s" % url)
             else:
-                failures += 1
-                rospy.logdebug("%s no response - internet is having problems" % url)
+                self.sites[url] += 1
+                rospy.loginfo("%s no response - internet is having problems (state %)" % (url, self.sites))
 
         if not self._got_internet() and self.online:
             """ We've just lost internetz """
@@ -121,11 +123,13 @@ if __name__ == '__main__':
     max_failed_attempts = rospy.get_param('~max_failed_attempts', 5)
     offline_mode_name = rospy.get_param('~offline_mode_name', 'offline_video')
     online_mode_name = rospy.get_param('~offline_mode_name', 'tactile')
+    sites_to_check = rospy.get_param('~sites_to_check', 'https://google.com')
 
     try:
         ConnectivityOverlord(timeout=timeout,
                              max_failed_attempts=max_failed_attempts,
                              offline_mode_name=offline_mode_name,
+                             sites_to_check=sites_to_check,
                              online_mode_name=online_mode_name).run()
     except rospy.ROSInterruptException:
         pass

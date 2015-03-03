@@ -1,3 +1,10 @@
+ros-indigo-connectivity (1.0.3-0trusty) trusty; urgency=high
+
+  * Fixed state variable bug
+  * Added param for sites that should be check for availability
+
+ -- Wojtek Ziniewicz <wojtek@endpoint.com>  Tue, 3 Mar 2015 14:50:33 +0100
+
 ros-indigo-connectivity (1.0.2-0trusty) trusty; urgency=high
 
   * Bumped version for updates
