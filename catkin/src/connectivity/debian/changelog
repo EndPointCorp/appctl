@@ -1,0 +1,31 @@
+ros-indigo-connectivity (1.0.4-0trusty) trusty; urgency=high
+
+  * Fixed a bug
+
+ -- Wojtek Ziniewicz <wojtek@endpoint.com>  Tue, 3 Mar 2015 19:12:33 +0100
+
+ros-indigo-connectivity (1.0.3-0trusty) trusty; urgency=high
+
+  * Fixed state variable bug
+  * Added param for sites that should be check for availability
+
+ -- Wojtek Ziniewicz <wojtek@endpoint.com>  Tue, 3 Mar 2015 14:50:33 +0100
+
+ros-indigo-connectivity (1.0.2-0trusty) trusty; urgency=high
+
+  * Bumped version for updates
+
+ -- Wojtek Ziniewicz <wojtek@endpoint.com>  Sun, 2 Mar 2015 14:32:33 +0100
+
+ros-indigo-connectivity (1.0.1-0trusty) trusty; urgency=high
+
+  * Bumped version for updates
+
+ -- Wojtek Ziniewicz <wojtek@endpoint.com>  Sun, 1 Mar 2015 19:29:33 +0100
+
+ros-indigo-connectivity (1.0.0-0trusty) trusty; urgency=high
+
+  * First package creation for indigo release
+
+ -- Wojtek Ziniewicz <wojtek@endpoint.com>  Fri, 27 Feb 2015 18:45:33 +0100
+

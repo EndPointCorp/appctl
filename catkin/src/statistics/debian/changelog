@@ -1,3 +1,39 @@
+ros-indigo-statistics (1.1.7-0trusty) trusty; urgency=high
+
+  * Not logging 0 and 1s long sessions
+
+ -- Wojciech Ziniewicz <wojtek@endpoint.com>  Sun, 4 Mar 2015 19:21:27 +0100
+
+ros-indigo-statistics (1.1.6-0trusty) trusty; urgency=high
+
+  * Portal status comes from 'http://lg-head/portal_status.py now
+
+ -- Wojciech Ziniewicz <wojtek@endpoint.com>  Sun, 4 Mar 2015 19:21:27 +0100
+
+ros-indigo-statistics (1.1.5-0trusty) trusty; urgency=high
+
+  * Ignore the list of provided modes when going to ambient mode
+
+ -- Wojciech Ziniewicz <wojtek@endpoint.com>  Sun, 2 Mar 2015 19:27:27 +0100
+
+ros-indigo-statistics (1.1.4-0trusty) trusty; urgency=high
+
+  * Dont fall back to ambient when offline - fixing and parametrizing
+
+ -- Wojciech Ziniewicz <wojtek@endpoint.com>  Sun, 2 Mar 2015 14:22:27 +0100
+
+ros-indigo-statistics (1.1.3-0trusty) trusty; urgency=high
+
+  * Dont fall back to ambient when offline
+
+ -- Wojciech Ziniewicz <wojtek@endpoint.com>  Sun, 1 Mar 2015 23:01:27 +0100
+
+ros-indigo-statistics (1.1.1-0trusty) trusty; urgency=high
+
+  * Fall back to tactile for ambient mode
+
+ -- Wojciech Ziniewicz <wojtek@endpoint.com>  Sun, 1 Mar 2015 19:31:27 +0100
+
 ros-indigo-statistics (1.1.0-0trusty) trusty; urgency=high
 
   * Added extended statistics for End Point

@@ -27,6 +27,16 @@ Requires portal\_occupancy::aggregate.py to operate effectively.
 
 * `inactivity_timeout` - How long to wait before declaring a session over,
   in seconds.  Default: 20.0
+* `fallback_mode` - name of the mode that we switch to after session has
+  ended
+* `offline_mode` - name of offline mode to be handled by
+* `ignore_modes` - list of comma-delimited modes that should not fall
+  back to ambient mode
+
+##### Internal parameters
+
+* `session_publisher` - publisher object for sending session start/end
+* `fallback_publisher` - publisher object for switching between modes
 
 ### statsd_listener.py
 
@@ -61,7 +71,7 @@ start_ts: 1421245409
 end_ts: 1421245430
 application: 'pacman'
 mode: 'tactile'
-prox_sensor_triggered: True
+occupancy_triggered: True
 ```
 
 ##### Parameters
@@ -165,7 +175,7 @@ rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "
 ```
  - emulate using pacman app
 ```shell
-rostopic pub /statistics/session statistics/Session "{mode: '', application: 'pacman', start_ts: `date +%s`, end_ts: 0, prox_sensor_triggered: false}"
+rostopic pub /statistics/session statistics/Session "{mode: '', application: 'pacman', start_ts: `date +%s`, end_ts: 0, occupancy_triggered: false}"
 ```
  - emulate entering ambient mode (someone left from playing pacman)
 ```shell
@@ -181,7 +191,7 @@ rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "
 ```
  - emulate entering attended mode
 ```shell
-rostopic pub /statistics/session statistics/Session "{mode: 'attended', application: '', start_ts: `date +%s`, end_ts: 0, prox_sensor_triggered: false}"
+rostopic pub /statistics/session statistics/Session "{mode: 'attended', application: '', start_ts: `date +%s`, end_ts: 0, occupancy_triggered: false}"
 ```
  - emulate entering ambient mode (someone left from playing pacman)
 ```shell

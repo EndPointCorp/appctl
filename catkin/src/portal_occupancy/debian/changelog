@@ -1,3 +1,9 @@
+ros-indigo-portal-occupancy (1.0.5-0trusty) trusty; urgency=high
+
+  * Bumped version for new release
+
+ -- Wojciech Ziniewicz <wojtek@endpoint.com>  Sun, 1 Mar 2015 19:30:27 +0100
+
 ros-indigo-portal-occupancy (1.0.4-0trusty) trusty; urgency=high
 
   * Bumped version for new release

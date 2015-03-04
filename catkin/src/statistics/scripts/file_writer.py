@@ -5,9 +5,9 @@ import rospy
 import json
 import time
 import copy
+import urllib2
 from statistics.srv import SessionQuery
 from statistics.msg import Session
-from portal_statistics.portal_status import PortalStatus
 
 
 class GeolocationDataException(Exception):
@@ -28,8 +28,8 @@ class FileWriter:
         self.country = rospy.get_param('~country', None)
         self.store_id = rospy.get_param('~store_id', None)
         self.retailer = rospy.get_param('~retailer', None)
-        self.glink_session_keys = [ "end_ts", "start_ts" ]
-        self.ep_session_keys = [ "end_ts", "start_ts", "application", "mode", "prox_sensor_triggered" ]
+        self.glink_session_keys = ["end_ts", "start_ts"]
+        self.ep_session_keys = ["end_ts", "start_ts", "application", "mode", "occupancy_triggered"]
 
         if self.country is None or\
            self.store_id is None or\
@@ -68,16 +68,32 @@ class FileWriter:
         report_contents['report_time'] = unix_now
         report_contents['start_ts'] = unix_now - self.interval
         report_contents['end_ts'] = unix_now
-        report_contents['status'] = PortalStatus().get_status()
+        report_contents['status'] = self._get_status()
         return report_contents
 
     def _get_status(self):
-        return PortalStatus().get_status()
+        """ Make a urllib2 call to headnode for status """
+        try:
+            response = urllib2.urlopen('http://lg-head/cgi-bin/portal_status.py')
+            data = json.load(response)
+            return data['status']
+        except Exception, e:
+            rospy.loginfo("Could not retrieve status for statistics because %s" % e)
+            rospy.loginfo("Please check 'http://lg-head/cgi-bin/portal_status.py'")
+            return "on"
+
+    def _session_is_legit(self, session):
+        """ Return True if the session is longer than 1 s"""
+        if session['end_ts'] - session['start_ts'] > 1:
+            return True
+        else:
+            return False
 
     def _render_glink_stats(self, report_template, sessions):
         for session in sessions:
             session = self._get_session_attributes(session, self.glink_session_keys)
-            report_template['sessions'].append(session)
+            if self._session_is_legit(session):
+                report_template['sessions'].append(session)
 
         report_contents = self._finalize_report_data(report_template)
         self._write_glink_file(report_contents)
@@ -97,7 +113,8 @@ class FileWriter:
         - convert sessions list to json
         - finalize report and write the file
         """
-        report_template = {"report_time": 0,
+        report_template = {
+                           "report_time": 0,
                            "start_ts": 0,
                            "status": self._get_status(),
                            "experience_type": "portal",
@@ -152,7 +169,6 @@ class FileWriter:
             self._spin()
             pass
         pass
-
 
 if __name__ == '__main__':
     try:

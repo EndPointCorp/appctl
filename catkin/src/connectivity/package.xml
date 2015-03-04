@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package>
+  <name>connectivity</name>
+  <version>0.0.1</version>
+  <description>Detecting internet accessibility</description>
+
+  <maintainer email="lg@endpoint.com">End Point Corp</maintainer>
+
+  <license>Apache 2.0</license>
+
+  <author email="wojtek@endpoint.com">Wojciech Ziniewicz</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>appctl</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <run_depend>message_runtime</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>appctl</run_depend>
+  <run_depend>std_msgs</run_depend>
+
+  <export>
+  </export>
+</package>
