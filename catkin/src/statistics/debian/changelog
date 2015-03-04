@@ -1,3 +1,9 @@
+ros-indigo-statistics (1.1.6-0trusty) trusty; urgency=high
+
+  * Portal status comes from 'http://lg-head/portal_status.py now
+
+ -- Wojciech Ziniewicz <wojtek@endpoint.com>  Sun, 4 Mar 2015 19:21:27 +0100
+
 ros-indigo-statistics (1.1.5-0trusty) trusty; urgency=high
 
   * Ignore the list of provided modes when going to ambient mode

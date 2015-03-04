@@ -5,9 +5,9 @@ import rospy
 import json
 import time
 import copy
+import urllib2
 from statistics.srv import SessionQuery
 from statistics.msg import Session
-from portal_statistics.portal_status import PortalStatus
 
 
 class GeolocationDataException(Exception):
@@ -68,11 +68,20 @@ class FileWriter:
         report_contents['report_time'] = unix_now
         report_contents['start_ts'] = unix_now - self.interval
         report_contents['end_ts'] = unix_now
-        report_contents['status'] = PortalStatus().get_status()
+        report_contents['status'] = self._get_status()
         return report_contents
 
     def _get_status(self):
-        return PortalStatus().get_status()
+        """ Make a urllib2 call to headnode for status """
+        try:
+            response = urllib2.urlopen('http://lg-head/portal_status.py')
+            data = json.load(response)
+            return data['status']
+        except Exception, e:
+            rospy.loginfo("Could not retrieve status for statistics because %s" % e)
+            rospy.loginfo("Please check 'http://lg-head/portal_status.py'")
+            return "on"
+
 
     def _render_glink_stats(self, report_template, sessions):
         for session in sessions:
