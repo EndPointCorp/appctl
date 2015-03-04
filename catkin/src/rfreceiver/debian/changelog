@@ -1,4 +1,4 @@
-ros-indigo-rfreceiver (1.0.5-0trusty) trusty; urgency=high
+ros-indigo-rfreceiver (1.0.6-0trusty) trusty; urgency=high
 
   * Rfreceiver now publishes a mode change on buttondown (default: tactile)
 

@@ -74,23 +74,29 @@ class FileWriter:
     def _get_status(self):
         """ Make a urllib2 call to headnode for status """
         try:
-            response = urllib2.urlopen('http://lg-head/portal_status.py')
+            response = urllib2.urlopen('http://lg-head/cgi-bin/portal_status.py')
             data = json.load(response)
             return data['status']
         except Exception, e:
             rospy.loginfo("Could not retrieve status for statistics because %s" % e)
-            rospy.loginfo("Please check 'http://lg-head/portal_status.py'")
+            rospy.loginfo("Please check 'http://lg-head/cgi-bin/portal_status.py'")
             return "on"
 
+    def _session_is_legit(self, session):
+        """ Return True if the session is longer than 1 s"""
+        if session['end_ts'] - session['start_ts'] > 1:
+            return True
+        else:
+            return False
 
     def _render_glink_stats(self, report_template, sessions):
         for session in sessions:
             session = self._get_session_attributes(session, self.glink_session_keys)
-            report_template['sessions'].append(session)
+            if self._session_is_legit(session):
+                report_template['sessions'].append(session)
 
         report_contents = self._finalize_report_data(report_template)
-        if report_contents['sessions']:
-            self._write_glink_file(report_contents)
+        self._write_glink_file(report_contents)
         pass
 
     def _render_endpoint_stats(self, report_template, sessions):
@@ -99,8 +105,7 @@ class FileWriter:
             report_template['sessions'].append(session)
 
         report_contents = self._finalize_report_data(report_template)
-        if report_contents['sessions']:
-            self._write_endpoint_file(report_contents)
+        self._write_endpoint_file(report_contents)
         pass
 
     def _compose_and_write_json(self, sessions):
