@@ -18,7 +18,7 @@ class Blah:
             Mode,
             queue_size=1
         )
-        
+
     def handle_button_msg(self, msg):
         if msg.data == CLEAR_BUTTON:
             subprocess.call(
