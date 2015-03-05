@@ -1,3 +1,9 @@
+ros-indigo-statistics (1.2.0-0trusty) trusty; urgency=high
+
+  * Fixed a bug with 0s sessions
+
+ -- Wojciech Ziniewicz <wojtek@endpoint.com>  Sun, 5 Mar 2015 10:40:27 +0100
+
 ros-indigo-statistics (1.1.7-0trusty) trusty; urgency=high
 
   * Not logging 0 and 1s long sessions
