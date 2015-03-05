@@ -102,7 +102,8 @@ class FileWriter:
     def _render_endpoint_stats(self, report_template, sessions):
         for session in sessions:
             session = self._get_session_attributes(session, self.ep_session_keys)
-            report_template['sessions'].append(session)
+            if self._session_is_legit(session):
+                report_template['sessions'].append(session)
 
         report_contents = self._finalize_report_data(report_template)
         self._write_endpoint_file(report_contents)
