@@ -38,6 +38,7 @@ class SessionAggregator:
         self.mode = self._get_initial_mode()
         self.session_service = self._init_session_service()
         self.session_subscriber = self._init_session_subscriber()
+        self._erase_sessions()
 
     def _init_node(self):
         rospy.init_node('statistics_session_aggregator')
@@ -48,7 +49,6 @@ class SessionAggregator:
         rospy.wait_for_service('appctl/query')
         service_call = rospy.ServiceProxy('appctl/query', Query)
         mode = service_call().mode
-        self._route_event(Session(start_ts=int(time.time()), mode=mode))
         return mode
 
     def _init_session_subscriber(self):
@@ -82,7 +82,6 @@ class SessionAggregator:
         """ For now - check some limits, handle flags and
             forward the event for appending
             """
-        self._handle_erase_flag(event)
         if self._filter_redundant_event(event):
             return
 
@@ -119,7 +118,7 @@ class SessionAggregator:
 
         event = self._handle_current_mode(event)
 
-        if not event.start_ts == 0:
+        if event.start_ts != 0:
             """ If there's "start_ts" set then we end the session and start new one"""
             self._end_previous_session(end_ts=event.start_ts)
             session = self._assemble_session(event)
@@ -151,7 +150,7 @@ class SessionAggregator:
         end previous one using the start time of new one.
         - if "end_ts" is set, that means that no more sessions should be kept in session store
         """
-        if len(self.sessions) >= 1:
+        if len(self.sessions) >= 1 and self.sessions[-1]['end_ts'] == 0:
             rospy.loginfo("Ending previous session with time = %s" % end_ts)
             self.sessions[-1]['end_ts'] = end_ts
 
