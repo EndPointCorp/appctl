@@ -38,7 +38,6 @@ class SessionAggregator:
         self.mode = self._get_initial_mode()
         self.session_service = self._init_session_service()
         self.session_subscriber = self._init_session_subscriber()
-        pass
 
     def _init_node(self):
         rospy.init_node('statistics_session_aggregator')
@@ -62,7 +61,6 @@ class SessionAggregator:
         rospy.logdebug("Waiting for the /appctl/query service to become available")
         rospy.wait_for_service('appctl/query')
         rospy.logdebug("appctl/query has become available")
-        pass
 
     def _filter_redundant_event(self, event):
         """ See if this event is redundantly starting a session with the same
@@ -95,7 +93,6 @@ class SessionAggregator:
     def _check_max_memory(self):
         if sys.getsizeof(self.max_memory) > self.max_memory:
             raise OutOfMemoryException
-        pass
 
     def _check_max_events(self):
         if self.max_events and len(self.sessions) > self.max_events:
@@ -132,7 +129,6 @@ class SessionAggregator:
             self._end_previous_session(end_ts=event.end_ts)
             self.session_mode = None
             self.session_application = None
-        pass
 
     def _assemble_session(self, event):
         """ First assemble session dict from what we've received,
@@ -146,7 +142,6 @@ class SessionAggregator:
                 session[attribute] = event.__getattribute__(attribute)
             except Exception, e:
                 rospy.logdebug("Session attributes dont match: %s" % e)
-                pass
 
         return session
 
@@ -159,7 +154,6 @@ class SessionAggregator:
         if len(self.sessions) >= 1:
             rospy.loginfo("Ending previous session with time = %s" % end_ts)
             self.sessions[-1]['end_ts'] = end_ts
-        pass
 
     def _erase_sessions(self):
         """
@@ -186,7 +180,6 @@ class SessionAggregator:
             else:
                 self.sessions.append(current_session)
         self.erase_flag = 0
-        pass
 
     def _handle_erase_flag(self, event):
         if self.erase_flag == 1:
@@ -254,10 +247,7 @@ class SessionAggregator:
 
     def run(self):
         rospy.logdebug("Starting session statistics service")
-        while not rospy.is_shutdown():
-            rospy.spin()
-            pass
-        pass
+        rospy.spin()
 
 if __name__ == '__main__':
     try:
