@@ -39,7 +39,7 @@ class SessionAggregator:
         pass
 
     def _init_node(self):
-        rospy.init_node('statistics')
+        rospy.init_node('statistics_session_aggregator')
 
     def _get_initial_mode(self):
         """ Sets initial mode (self.mode ivar) and starts first session """
