@@ -32,6 +32,8 @@ class SessionAggregator:
         self.max_events = rospy.get_param('~max_events', None)
         self.max_memory = rospy.get_param('~max_memory', '32000000')
         self.session_fields = Session.__slots__
+        self.session_mode = None
+        self.session_application = None
         self.node = self._init_node()
         self.mode = self._get_initial_mode()
         self.session_service = self._init_session_service()
@@ -62,11 +64,30 @@ class SessionAggregator:
         rospy.logdebug("appctl/query has become available")
         pass
 
+    def _filter_redundant_event(self, event):
+        """ See if this event is redundantly starting a session with the same
+            mode/app.
+            """
+        if event.start_ts != 0:
+            if event.mode == self.session_mode and event.application == self.session_application:
+                rospy.logdebug("Filtering out redundant {}/{} event at {}".format(event.mode, event.application, event.start_ts))
+                rospy.logdebug("My session is {}/{}".format(self.session_mode, self.session_application))
+                return True
+            rospy.logdebug("Not filtering out {}/{} event at {}".format(event.mode, event.application, event.start_ts))
+            rospy.logdebug("My session is {}/{}".format(self.session_mode, self.session_application))
+            self.session_mode = event.mode
+            self.session_application = event.application
+
+        return False
+
     def _route_event(self, event):
         """ For now - check some limits, handle flags and
             forward the event for appending
             """
         self._handle_erase_flag(event)
+        if self._filter_redundant_event(event):
+            return
+
         self._check_max_memory()
         self._check_max_events()
         self._append_event(event)
@@ -107,8 +128,10 @@ class SessionAggregator:
             session = self._assemble_session(event)
             self.sessions.append(session)
         else:
-            """ Otherwise we end the last session """
+            """ Otherwise we end the last session and clear state"""
             self._end_previous_session(end_ts=event.end_ts)
+            self.session_mode = None
+            self.session_application = None
         pass
 
     def _assemble_session(self, event):
