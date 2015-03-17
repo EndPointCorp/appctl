@@ -10,6 +10,7 @@ from portal_statistics import session_aggregator
 from portal_statistics.session_aggregator import SessionAggregator
 from statistics.msg import Session
 from statistics.srv import SessionQuery, SessionQueryResponse
+from appctl.msg import Mode
 from appctl.srv import Query, QueryResponse
 
 TEST_MAX_EVENTS = session_aggregator.DEFAULT_MAX_EVENTS
@@ -91,6 +92,8 @@ class TestSessionAggregator(unittest.TestCase):
             'Session must have correct start_ts')
         self.assertEqual(session.end_ts, test_end_ts,
             'Session must have correct end_ts')
+        self.assertFalse(session.occupancy_triggered,
+            'Session must not have occupancy_triggered flag')
 
     def test_occupancy_trigger(self):
         test_start_ts = 9000
@@ -142,8 +145,10 @@ class TestSessionAggregator(unittest.TestCase):
         self.submit_session(start_ts=1000)
         self.submit_session(end_ts=2000)
 
-        self.get_sessions(erase=True)
+        sessions = self.get_sessions(erase=True)
 
+        self.assertTrue(len(sessions) == 1,
+            'Must return the session from erase request')
         self.assertFalse(self.has_finished_session(),
             'Must not have a finished session after erase')
 
@@ -154,8 +159,10 @@ class TestSessionAggregator(unittest.TestCase):
         self.submit_session(end_ts=2000)
         self.submit_session(start_ts=final_start_ts)
 
-        self.get_sessions(erase=True)
+        sessions = self.get_sessions(erase=True)
 
+        self.assertTrue(len(sessions) == 1,
+            'Must return the session from erase request')
         self.assertTrue(self.has_current_session(),
             'Must have a current session after erase')
         self.assertFalse(self.has_finished_session(),
@@ -210,6 +217,13 @@ class TestSessionAggregator(unittest.TestCase):
         self.submit_session(end_ts=1500)
         self.assertEqual(len(self.get_sessions()), 1,
             'Must have only one session after redundant app start and finish')
+
+    def test_mode_handler(self):
+        test_mode = 'asdf'
+        mode_msg = Mode(test_mode)
+        self.aggregator.handle_mode_change(mode_msg)
+        self.assertEqual(self.aggregator.mode, test_mode,
+            'Mode must be updated by handler')
 
     def test_max_events(self):
         max_events = 5

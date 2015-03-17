@@ -1,3 +1,9 @@
+ros-indigo-appctl (1.0.6-0trusty) trusty; urgency=high
+
+  * Remove Session publishing
+
+ -- Matt Vollrath <matt@endpoint.com>  Tue, 17 Mar 2015 13:12:42 -0400
+
 ros-indigo-appctl (1.0.5-0trusty) trusty; urgency=high
 
   * Bumped version for session changes

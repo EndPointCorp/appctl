@@ -3,9 +3,11 @@
 
 import rospy
 import sys
+import threading
 from statistics.msg import Session
 from statistics.srv import SessionQuery
 from statistics.srv import SessionQueryResponse
+from appctl.msg import Mode
 from appctl.srv import Query
 
 DEFAULT_MAX_EVENTS = None
@@ -32,8 +34,8 @@ class SessionAggregator:
         self.max_memory = max_memory
         self.mode = initial_mode
 
+        self.session_lock = threading.RLock()
         self.sessions = []
-        self.erase_flag = 0
         self.session_fields = Session.__slots__
         self.session_mode = None
         self.session_application = None
@@ -55,6 +57,9 @@ class SessionAggregator:
 
         return False
 
+    def handle_mode_change(self, msg):
+        self.mode = msg.mode
+
     def route_event(self, event):
         """ For now - check some limits, handle flags and
             forward the event for appending
@@ -62,7 +67,8 @@ class SessionAggregator:
         if self._filter_redundant_event(event):
             return
 
-        self._append_event(event)
+        with self.session_lock:
+            self._append_event(event)
 
     def _check_max_memory(self):
         if self.max_memory is not None and sys.getsizeof(self.sessions) > self.max_memory:
@@ -136,51 +142,34 @@ class SessionAggregator:
         """
         Erase sessions - leave only open ones (those withoud "end_ts")
         """
-
-        assert isinstance(self.sessions, list)
-
-        if self.sessions:
-            current_session = self.sessions[-1]
-            self.sessions = []
-            assert isinstance(current_session, dict)
-            rospy.logdebug("Purging session events but leaving the current one intact")
+        if len(self.sessions) > 0 and self.sessions[-1]['end_ts'] == 0:
+            self.sessions = [self.sessions[-1]]
         else:
-            rospy.logdebug("No session is running - keeping the session store intact")
-            current_session = {}
             self.sessions = []
-
-        rospy.logdebug("Leaving session %s of type %s in session store" % (current_session, type(current_session)))
-        assert isinstance(current_session, dict)
-        if current_session:
-            if current_session['end_ts']:
-                pass
-            else:
-                self.sessions.append(current_session)
-        self.erase_flag = 0
 
     def _handle_erase_flag(self, event):
-        if self.erase_flag == 1:
+        if event.erase:
+            rospy.loginfo("Erasing sessions")
             self._erase_sessions()
-        if hasattr(event, 'erase'):
-            if event.erase == 1:
-                rospy.logdebug("Received `erase` flag. Session store will be purged upon next request")
-                self.erase_flag = 1
 
     def process_service_request(self, req):
         """
         Callback for service requests. We always return all sessions and
         check the `erase` flag
         """
-        self._handle_erase_flag(req)
+        with self.session_lock:
+            if req.current_only:
+                current_session = self._get_current_session(self.sessions)
+                rospy.loginfo("Currently open session: %s" % current_session)
+                session_list = self._rewrite_response_to_ros(current_session)
+            else:
+                finished_sessions = self._get_finished_sessions(self.sessions)
+                rospy.loginfo("Finished session(s) stored in memory: %s" % finished_sessions)
+                session_list = self._rewrite_response_to_ros(finished_sessions)
 
-        if req.current_only:
-            current_session = self._get_current_session(self.sessions)
-            rospy.loginfo("Currently open session: %s" % current_session)
-            return self._rewrite_response_to_ros(current_session)
+            self._handle_erase_flag(req)
 
-        finished_sessions = self._get_finished_sessions(self.sessions)
-        rospy.loginfo("Finished session(s) stored in memory: %s" % finished_sessions)
-        return self._rewrite_response_to_ros(finished_sessions)
+        return session_list
 
     def _rewrite_response_to_ros(self, sessions):
         """ Accepts list of dicts, returns SessionQueryResponse containing Sessions"""
@@ -220,7 +209,7 @@ class SessionAggregator:
 def get_initial_mode():
     """ Sets initial mode (self.mode ivar) and starts first session """
     rospy.logdebug("Waiting for the /appctl/query service to become available")
-    rospy.wait_for_service('appctl/query')
+    rospy.wait_for_service('/appctl/query')
     rospy.logdebug("appctl/query has become available")
     service_call = rospy.ServiceProxy('appctl/query', Query)
     mode = service_call().mode
@@ -240,12 +229,16 @@ def main():
         initial_mode=initial_mode
     )
 
-    subscriber = rospy.Subscriber('/statistics/session',
-                                  Session,
-                                  aggregator.route_event)
+    rospy.Subscriber('/appctl/mode',
+                     Mode,
+                     aggregator.handle_mode_change)
 
-    service = rospy.Service('statistics/session',
-                            SessionQuery,
-                            aggregator.process_service_request)
+    rospy.Subscriber('/statistics/session',
+                     Session,
+                     aggregator.route_event)
+
+    rospy.Service('/statistics/session',
+                  SessionQuery,
+                  aggregator.process_service_request)
 
     rospy.spin()
