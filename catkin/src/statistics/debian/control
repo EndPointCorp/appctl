@@ -8,7 +8,7 @@ Standards-Version: 3.9.2
 
 Package: ros-indigo-statistics
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-rospy
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-rospy, ros-indigo-appctl
 Description: ROS interface to statistics sinks.
 Replaces: __REPLACES__
 Conflicts: __REPLACES__
