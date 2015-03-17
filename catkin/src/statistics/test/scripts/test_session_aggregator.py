@@ -171,6 +171,22 @@ class TestSessionAggregator(unittest.TestCase):
         self.assertEqual(session.end_ts, final_end_ts,
             'Final Session must have correct end_ts')
 
+    def test_back_to_back_sessions(self):
+        self.submit_session(start_ts=1000, mode='qwerty')
+        self.submit_session(start_ts=1200, mode='asdf')
+        self.submit_session(start_ts=1400, mode='hjkl')
+        self.submit_session(end_ts=1500)
+
+        sessions = self.get_sessions()
+        self.assertEqual(len(sessions), 3,
+            'Must have three sessions after back to back tests')
+        self.assertEqual(sessions[0].start_ts, 1000)
+        self.assertEqual(sessions[0].end_ts, 1200)
+        self.assertEqual(sessions[1].start_ts, 1200)
+        self.assertEqual(sessions[1].end_ts, 1400)
+        self.assertEqual(sessions[2].start_ts, 1400)
+        self.assertEqual(sessions[2].end_ts, 1500)
+
     def test_filter_redundant_mode(self):
         test_mode = 'asdf'
         self.submit_session(start_ts=1000, mode=test_mode)
