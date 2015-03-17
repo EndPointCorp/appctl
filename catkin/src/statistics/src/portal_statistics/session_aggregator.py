@@ -7,6 +7,7 @@ import threading
 from statistics.msg import Session
 from statistics.srv import SessionQuery
 from statistics.srv import SessionQueryResponse
+from appctl.msg import Mode
 from appctl.srv import Query
 
 DEFAULT_MAX_EVENTS = None
