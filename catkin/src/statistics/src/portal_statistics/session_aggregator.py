@@ -230,8 +230,8 @@ def get_initial_mode():
 def main():
     rospy.init_node('statistics_session_aggregator')
 
-    max_events = int(rospy.get_param('~max_events', DEFAULT_MAX_EVENTS))
-    max_memory = int(rospy.get_param('~max_memory', DEFAULT_MAX_MEMORY))
+    max_events = rospy.get_param('~max_events', DEFAULT_MAX_EVENTS)
+    max_memory = rospy.get_param('~max_memory', DEFAULT_MAX_MEMORY)
     initial_mode = get_initial_mode()
 
     aggregator = SessionAggregator(
