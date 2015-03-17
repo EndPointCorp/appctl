@@ -56,6 +56,9 @@ class SessionAggregator:
 
         return False
 
+    def handle_mode_change(self, msg):
+        self.mode = msg.mode
+
     def route_event(self, event):
         """ For now - check some limits, handle flags and
             forward the event for appending
@@ -225,12 +228,16 @@ def main():
         initial_mode=initial_mode
     )
 
-    subscriber = rospy.Subscriber('/statistics/session',
-                                  Session,
-                                  aggregator.route_event)
+    rospy.Subscriber('/appctl/mode',
+                     Mode,
+                     aggregator.handle_mode_change)
 
-    service = rospy.Service('statistics/session',
-                            SessionQuery,
-                            aggregator.process_service_request)
+    rospy.Subscriber('/statistics/session',
+                     Session,
+                     aggregator.route_event)
+
+    rospy.Service('/statistics/session',
+                  SessionQuery,
+                  aggregator.process_service_request)
 
     rospy.spin()
