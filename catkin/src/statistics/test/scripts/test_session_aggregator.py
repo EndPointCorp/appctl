@@ -91,6 +91,8 @@ class TestSessionAggregator(unittest.TestCase):
             'Session must have correct start_ts')
         self.assertEqual(session.end_ts, test_end_ts,
             'Session must have correct end_ts')
+        self.assertFalse(session.occupancy_triggered,
+            'Session must not have occupancy_triggered flag')
 
     def test_occupancy_trigger(self):
         test_start_ts = 9000
