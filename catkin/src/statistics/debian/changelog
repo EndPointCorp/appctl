@@ -1,3 +1,12 @@
+ros-indigo-statistics (1.2.2-0trusty) trusty; urgency=high
+
+  * Track mode changes in SessionAggregator
+  * Lock SessionAggregator session list access
+  * Erase sessions on demand
+  * More tests
+
+ -- Matt Vollrath <matt@endpoint.com>  Tue, 17 Mar 2015 13:32:00 -0400
+
 ros-indigo-statistics (1.2.1-0trusty) trusty; urgency=high
 
   * Refactor, test and fix SessionAggregator logic
