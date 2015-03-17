@@ -94,7 +94,7 @@ class SessionBreaker:
 
 
 def main():
-    rospy.init_node('session_ender')
+    rospy.init_node('statistics_session_tracker')
 
     inactivity_timeout_s = rospy.get_param(
         '~inactivity_timeout',

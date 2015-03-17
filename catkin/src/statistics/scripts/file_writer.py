@@ -56,7 +56,7 @@ class FileWriter:
         pass
 
     def _init_node(self):
-        rospy.init_node('statistics')
+        rospy.init_node('statistics_file_writer')
         pass
 
     def _finalize_report_data(self, report_contents):

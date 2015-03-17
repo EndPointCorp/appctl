@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>statistics</name>
-  <version>0.0.1</version>
+  <version>1.2.1</version>
   <description>statsd bridge and google retail store session aggregator</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
@@ -45,9 +45,11 @@
   <build_depend>message_generation</build_depend>
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
+  <build_depend>appctl</build_depend>
   <run_depend>message_runtime</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>std_msgs</run_depend>
+  <run_depend>appctl</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
