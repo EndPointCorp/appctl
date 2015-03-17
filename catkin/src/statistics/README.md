@@ -7,11 +7,13 @@ ROS bridge for statsd and google retail store statistics provider
 
 * `statistics/StatsD` - A single statsd metric report.
 
+* `statistics/Session` - A session start and/or end event.
+
 ## Scripts
 
 ### session\_tracker.py
 
-A node that listens for portal_occupancy "occupied" messages and breaks
+A node that listens for portal\_occupancy "occupied" messages and breaks
 the current session. It caches current session so when portal becomes
 occupied again it emits Session start with mode and application that was
 used before portal went to ambient mode.
@@ -38,7 +40,7 @@ Requires portal\_occupancy::aggregate.py to operate effectively.
 * `session_publisher` - publisher object for sending session start/end
 * `fallback_publisher` - publisher object for switching between modes
 
-### statsd_listener.py
+### statsd\_listener.py
 
 A node the listens for statistics messages, converts them to statsd strings, and sends the datagrams to the statsd server.
 
@@ -144,7 +146,7 @@ current_only: true"
 ```
 
 - Straight after launch, a session should be cached and continued after
-  a prox_sensor break.
+  a prox\_sensor break.
 
 ```shell
 rostopic pub /portal_occupancy/interaction/inactive_duration std_msgs/Duration "data:
