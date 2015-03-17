@@ -144,8 +144,10 @@ class TestSessionAggregator(unittest.TestCase):
         self.submit_session(start_ts=1000)
         self.submit_session(end_ts=2000)
 
-        self.get_sessions(erase=True)
+        sessions = self.get_sessions(erase=True)
 
+        self.assertTrue(len(sessions) == 1,
+            'Must return the session from erase request')
         self.assertFalse(self.has_finished_session(),
             'Must not have a finished session after erase')
 
@@ -156,8 +158,10 @@ class TestSessionAggregator(unittest.TestCase):
         self.submit_session(end_ts=2000)
         self.submit_session(start_ts=final_start_ts)
 
-        self.get_sessions(erase=True)
+        sessions = self.get_sessions(erase=True)
 
+        self.assertTrue(len(sessions) == 1,
+            'Must return the session from erase request')
         self.assertTrue(self.has_current_session(),
             'Must have a current session after erase')
         self.assertFalse(self.has_finished_session(),
