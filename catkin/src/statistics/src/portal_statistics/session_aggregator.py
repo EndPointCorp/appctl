@@ -208,7 +208,7 @@ class SessionAggregator:
 def get_initial_mode():
     """ Sets initial mode (self.mode ivar) and starts first session """
     rospy.logdebug("Waiting for the /appctl/query service to become available")
-    rospy.wait_for_service('appctl/query')
+    rospy.wait_for_service('/appctl/query')
     rospy.logdebug("appctl/query has become available")
     service_call = rospy.ServiceProxy('appctl/query', Query)
     mode = service_call().mode
