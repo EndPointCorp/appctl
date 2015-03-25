@@ -9,7 +9,7 @@ In the `attended` mode the onboard is shown only on the 42-a.
 
 In the `tactile` mode the onboard is shown only on the 42-b.
 
-On both nodes we have have the onboard/listener.py and onboard/launcher.py. The listener converts the ROS show/hide messages to dbus ones. The launcher launches/kills the onboard process on the display nodes depending on the mode. We should have only one onboard running.
+On both nodes we have have the `onboard/listener.py` and `onboard/launcher.py`. The listener converts the ROS show/hide messages to dbus ones. The launcher launches/kills the onboard process on the display nodes depending on the mode. We should have only one onboard running.
 
 This way on the dbus messages are run on both display nodes, but there is only one onboard process which listens to them.
 
