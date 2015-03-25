@@ -17,19 +17,19 @@ Launches a browser during specified appctl modes.  Presently this is a wrapper a
 
 * `app` : The app name, defaults to appctl.
 
-* `disable_extensions` : If true, disable all browser extensions.
+* `disable_extensions` : If true, disable all browser extensions. Defaults to false.
 
-* `disable_kiosk` : If true, disable kiosk mode.
+* `disable_kiosk` : If true, disable kiosk mode. Defaults to false.
 
 * `debug_port` : Use a specific debug port.  This is normally auto-detected ephemerally in lg-browser.
 
 * `browser_bin` : The binary to use.  lg-browser controls the default.
 
-* `scale_factor` : Scale the browser content by this factor.
+* `scale_factor` : Scale the browser content by this factor. Defaults to none.
 
-* `user_agent` : Spoof a UserAgent.
+* `user_agent` : Spoof a UserAgent. Defaults to none.
 
-* `extensions` : Comma-separated list of paths to unpacked extensions to be loaded.
+* `extensions` : Comma-separated list of paths to unpacked extensions to be loaded. Defaults to none.
 
 ### monitor.py
 
@@ -37,9 +37,7 @@ Launches a browser monitor during specified appctl modes.  Presently this launch
 
 ##### Parameters
 
-* `modes` : Comma-separated list of modes to run the monitor in
-
-* `window` : The window name, defaults to lgS0.
+* `modes` : Comma-separated list of modes to run the monitor in.
 
 * `app` : The app name, defaults to appctl.
 

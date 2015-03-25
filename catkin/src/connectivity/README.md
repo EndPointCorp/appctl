@@ -31,8 +31,8 @@ To emulate offline mode just touch a `/tmp/test_offline_mode` file
 * `timeout` : how long to wait for http HEAD response - deafult = `1`
   second
 * `offline_mode_name`: the mode name that should be set after detecting
-  problems with internet
+  problems with internet, default = `offline_video`
 * `online_mode_name`: mode name that should be enabled after internet is
-  recovered
+  recovered, default = `tactile`
 * `sites_to_check` : comma delimited list of sites to check e.g.
-  `http://google.com,https://youtube.com`
+  `http://google.com,https://youtube.com`, default = `https://google.com`

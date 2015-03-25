@@ -93,7 +93,7 @@ This node is intended as a state manager for appctl mode selection.  Since Mode 
 
 ##### Parameters
 
-* `~initial_mode` : string : Initial Mode.
+* `initial_mode` : `string` : Initial Mode.
 
 ##### Routes
 
