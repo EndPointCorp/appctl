@@ -1,3 +1,0 @@
-<launch>
-  <include file="$(find appctl)/test/appctl_support/test_appctl_support.test" />
-</launch>
