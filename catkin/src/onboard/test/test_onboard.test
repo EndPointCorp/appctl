@@ -1,3 +1,0 @@
-<launch>
-  <include file="$(find onboard)/test/onboard_support/test_onboard.test" />
-</launch>
