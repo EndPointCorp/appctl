@@ -1,4 +1,0 @@
-Header header
-geometry_msgs/Pose current_pose
-geometry_msgs/Pose pose_minimums
-geometry_msgs/Pose pose_maximums

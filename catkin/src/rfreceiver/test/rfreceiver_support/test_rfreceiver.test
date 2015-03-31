@@ -1,3 +1,0 @@
-<launch>
-  <test test-name="test_rfreceiver" pkg="rfreceiver" type="test_rfreceiver.py" />
-</launch>
