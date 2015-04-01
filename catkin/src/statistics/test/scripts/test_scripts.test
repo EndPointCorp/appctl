@@ -1,3 +1,0 @@
-<launch>
-  <test test-name="test_session_tracker" pkg="statistics" type="test_session_tracker.py" />
-</launch>

@@ -1,5 +1,0 @@
-<launch>
-  <test test-name="test_proc_runner" pkg="appctl" type="test_proc_runner.py" />
-  <test test-name="test_proc_controller" pkg="appctl" type="test_proc_controller.py" />
-  <test test-name="test_mode_handler" pkg="appctl" type="test_mode_handler.py" />
-</launch>
