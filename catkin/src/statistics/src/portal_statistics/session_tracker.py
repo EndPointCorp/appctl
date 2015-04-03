@@ -4,6 +4,7 @@ import rospy
 import time
 from statistics.msg import Session
 from std_msgs.msg import Duration
+from std_msgs.msg import String
 from appctl.msg import Mode
 from appctl.srv import Query
 
@@ -25,6 +26,7 @@ class SessionBreaker:
                  inactivity_timeout,
                  fallback_mode,
                  fallback_publisher,
+                 kiosk_switcher_publisher,
                  offline_mode,
                  mode_service,
                  ignore_modes,
@@ -34,6 +36,7 @@ class SessionBreaker:
         self.mode_service = mode_service
         self.fallback_mode = fallback_mode
         self.fallback_publisher = fallback_publisher
+        self.kiosk_switcher_publisher = kiosk_switcher_publisher
         self.offline_mode = offline_mode
         self.ignore_modes = ignore_modes.split(',')
         self.ended = False
@@ -88,6 +91,7 @@ class SessionBreaker:
             """ Dont fallback to ambient mode if we're in offline mode or e.g. attended mode"""
             fallback_mode = Mode(mode=self.fallback_mode)
             self.fallback_publisher.publish(fallback_mode)
+            self.kiosk_switcher_publisher.publish(String('http://lg-head/portal-loader.html'))
         else:
             rospy.loginfo("Not switching to %s because we're in %s" % (self.fallback_mode, self.offline_mode))
         self.session_publisher.publish(end_msg)
@@ -120,6 +124,12 @@ def main():
         queue_size=2
     )
 
+    kiosk_switcher_publisher = rospy.Publisher(
+        '/kiosk/switch',
+        String,
+        queue_size=2
+    )
+
     offline_mode = rospy.get_param(
         '~offline_mode',
         OFFLINE_MODE
@@ -135,6 +145,7 @@ def main():
     ender = SessionBreaker(inactivity_timeout=inactivity_timeout,
                            fallback_mode=fallback_mode,
                            fallback_publisher=fallback_publisher,
+                           kiosk_switcher_publisher=fallback_publisher,
                            offline_mode=offline_mode,
                            session_publisher=session_publisher,
                            ignore_modes=ignore_modes,
