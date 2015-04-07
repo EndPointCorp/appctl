@@ -146,7 +146,7 @@ def main():
     ender = SessionBreaker(inactivity_timeout=inactivity_timeout,
                            fallback_mode=fallback_mode,
                            fallback_publisher=fallback_publisher,
-                           kiosk_switcher_publisher=fallback_publisher,
+                           kiosk_switcher_publisher=kiosk_switcher_publisher,
                            offline_mode=offline_mode,
                            session_publisher=session_publisher,
                            ignore_modes=ignore_modes,
