@@ -12,6 +12,7 @@ DEFAULT_SESSION_TIMEOUT = 20.0 # seconds
 FALLBACK_MODE = 'tactile'
 OFFLINE_MODE = 'offline_video'
 IGNORE_MODES = 'offline_video,attended'
+PORTAL_LOADER_URL = 'http://lg-head/portal-loader.html'
 
 
 class SessionBreaker:
@@ -91,7 +92,7 @@ class SessionBreaker:
             """ Dont fallback to ambient mode if we're in offline mode or e.g. attended mode"""
             fallback_mode = Mode(mode=self.fallback_mode)
             self.fallback_publisher.publish(fallback_mode)
-            self.kiosk_switcher_publisher.publish(String('http://lg-head/portal-loader.html'))
+            self.kiosk_switcher_publisher.publish(String(PORTAL_LOADER_URL))
         else:
             rospy.loginfo("Not switching to %s because we're in %s" % (self.fallback_mode, self.offline_mode))
         self.session_publisher.publish(end_msg)
