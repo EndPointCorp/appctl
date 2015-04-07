@@ -28,6 +28,7 @@ class SessionBreaker:
                  fallback_mode,
                  fallback_publisher,
                  kiosk_switcher_publisher,
+                 display_switcher_publisher,
                  offline_mode,
                  mode_service,
                  ignore_modes,
@@ -38,6 +39,7 @@ class SessionBreaker:
         self.fallback_mode = fallback_mode
         self.fallback_publisher = fallback_publisher
         self.kiosk_switcher_publisher = kiosk_switcher_publisher
+        self.display_switcher_publisher = display_switcher_publisher
         self.offline_mode = offline_mode
         self.ignore_modes = ignore_modes.split(',')
         self.ended = False
@@ -93,6 +95,7 @@ class SessionBreaker:
             fallback_mode = Mode(mode=self.fallback_mode)
             self.fallback_publisher.publish(fallback_mode)
             self.kiosk_switcher_publisher.publish(String(PORTAL_LOADER_URL))
+            self.display_switcher_publisher.publish(String(PORTAL_LOADER_URL))
         else:
             rospy.loginfo("Not switching to %s because we're in %s" % (self.fallback_mode, self.offline_mode))
         self.session_publisher.publish(end_msg)
@@ -131,6 +134,12 @@ def main():
         queue_size=2
     )
 
+    display_switcher_publisher = rospy.Publisher(
+        '/display/switch',
+        String,
+        queue_size=2
+    )
+
     offline_mode = rospy.get_param(
         '~offline_mode',
         OFFLINE_MODE
@@ -147,6 +156,7 @@ def main():
                            fallback_mode=fallback_mode,
                            fallback_publisher=fallback_publisher,
                            kiosk_switcher_publisher=kiosk_switcher_publisher,
+                           display_switcher_publisher=display_switcher_publisher,
                            offline_mode=offline_mode,
                            session_publisher=session_publisher,
                            ignore_modes=ignore_modes,
