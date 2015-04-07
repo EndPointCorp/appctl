@@ -1,3 +1,0 @@
-<launch>
-  <include file="$(find statistics)/test/scripts/test_scripts.test" />
-</launch>
