@@ -14,6 +14,7 @@ docs/
 # Eclipse
 .project
 .settings
+.pydevproject
 
 # PyCharm
 .idea
