@@ -19,21 +19,4 @@ rosdep update
 sudo rosdep install -y --from-paths $SRCDIR --ignore-src \
     --rosdistro=indigo --os=ubuntu:trusty
 
-if [ -e $SRCDIR/appctl ]; then
-    $BUILD $SRCDIR/appctl
-    sudo dpkg --force-overwrite -i ros-indigo-appctl_*.deb
-fi
-$BUILD $SRCDIR/interactivespaces_msgs
-sudo dpkg --force-overwrite -i ros-indigo-interactivespaces-msgs_*.deb
-$BUILD $SRCDIR/lg_common
-sudo dpkg -i ros-indigo-lg-common_*.deb
-$BUILD $SRCDIR/lg_activity
-$BUILD $SRCDIR/lg_attract_loop
-$BUILD $SRCDIR/lg_builder
-$BUILD $SRCDIR/lg_cms_director
-$BUILD $SRCDIR/lg_earth
-$BUILD $SRCDIR/lg_media
-$BUILD $SRCDIR/lg_nav_to_device
-$BUILD $SRCDIR/lg_replay
-$BUILD $SRCDIR/lg_sv
-$BUILD $SRCDIR/liquidgalaxy
+$BUILD $SRCDIR/appctl
