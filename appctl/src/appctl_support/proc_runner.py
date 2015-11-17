@@ -106,8 +106,7 @@ class ProcRunner(threading.Thread):
             if proc.status == 'zombie':
                 return True
         except NoSuchProcess:
-            return True # process is actually dead
-        # not a zombie
+            return True
         return False
 
     def _proc_has_zombie_children(self):
@@ -121,8 +120,7 @@ class ProcRunner(threading.Thread):
                 if child.status == 'zombie':
                     return True
         except NoSuchProcess:
-            return True # parent process actually dead
-        # No zombie found
+            return True
         return False
 
     def run(self):

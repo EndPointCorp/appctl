@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-PKG = 'appctl'
-NAME = 'test_proc_runner'
-
 import os
 import unittest
 
 import rospy
 from appctl_support import ProcRunner
+
+PKG = 'appctl'
+NAME = 'test_proc_runner'
 
 TEST_CMD = ['/usr/bin/python']
 GRACE_DELAY = 0.1  # seconds

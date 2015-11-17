@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-PKG = 'appctl'
-NAME = 'test_proc_controller'
-
 import unittest
 import time
 
 from appctl_support import ProcController
+
+PKG = 'appctl'
+NAME = 'test_proc_controller'
 
 TEST_CMD = ['/usr/bin/python']
 
