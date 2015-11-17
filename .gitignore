@@ -34,6 +34,8 @@ config.json
 # product of running test suite (log files, screenshots)
 tests_results/
 
+catkin/
+
 # untracked external repositories
 catkin/geographic_info
 catkin/src/geographic_msgs
