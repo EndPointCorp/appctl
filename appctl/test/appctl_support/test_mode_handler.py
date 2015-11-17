@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-PKG = 'appctl'
-NAME = 'test_mode_handler'
-
 import unittest
 
 from appctl_support import ModeHandler
 from appctl_support.controller import BaseController
 from appctl.msg import Mode
+
+PKG = 'appctl'
+NAME = 'test_mode_handler'
 
 TEST_MODES = ["_test_foo", "_test_bar"]
 
