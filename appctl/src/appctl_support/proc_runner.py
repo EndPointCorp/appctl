@@ -35,15 +35,15 @@ class ProcRunner(threading.Thread):
         """
         Returns True if the process is alive and running.
         """
-        if self.proc is not None:
-            try:
-                os.kill(self.proc.pid, 0)
-            except OSError:
-                return False
-            else:
-                return True
-        else:
+        if self.proc is None:
             return False
+
+        try:
+            os.kill(self.proc.pid, 0)
+        except OSError:
+            return False
+        else:
+            return True
 
     def _kill_proc(self):
         """
