@@ -60,6 +60,8 @@ class ProcRunner(threading.Thread):
             os.killpg(pid, signal.SIGTERM)
         except OSError:
             rospy.logwarn('process group {} did not exist'.format(pid))
+        else:
+            self.proc.wait()
 
     def _start_proc(self):
         """
