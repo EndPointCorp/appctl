@@ -144,7 +144,11 @@ class ProcRunner(threading.Thread):
                 self._start_proc()
 
             rospy.sleep(self.respawn_delay)
-            self.proc.wait()
+            try:
+                self.proc.wait()
+            except AttributeError:
+                # in this case, we have already shutdown and cleared self.proc
+                return
 
     def shutdown(self, *args, **kwargs):
         """
@@ -152,6 +156,7 @@ class ProcRunner(threading.Thread):
         """
         self.done = True
         self._kill_proc()
+        self.proc = None
 
     def add_spawn_hook(self, spawn_hook):
         """

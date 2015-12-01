@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import os
 import unittest
+import gc
+import weakref
 
 import rospy
 from appctl_support import ProcRunner
@@ -51,6 +53,8 @@ class TestProcRunner(unittest.TestCase):
 
     def tearDown(self):
         self.runner.shutdown()
+        if self.runner.is_alive():
+            self.runner.join()
 
     def test_proc_is_alive(self):
         self.assertFalse(self.runner._proc_is_alive(),
@@ -150,8 +154,30 @@ class TestProcRunner(unittest.TestCase):
             self.runner.add_spawn_hook(invalid_hook)
 
 
+class TestProcRunnerCleanup(unittest.TestCase):
+    def test_cleanup(self):
+        runner = ProcRunner(TEST_CMD)
+        runner.start()
+        rospy.sleep(GRACE_DELAY)
+
+        runner_ref = weakref.ref(runner)
+        proc_ref = weakref.ref(runner.proc)
+
+        runner.shutdown()
+        gc.collect()
+        self.assertIsNone(proc_ref(),
+                          'proc must be freed on shutdown')
+
+        runner.join()
+        runner = None
+        self.assertIsNone(runner_ref(),
+                          'runner must be freed post-join')
+
+
+
 if __name__ == '__main__':
     import rostest
     rostest.rosrun(PKG, NAME, TestProcRunner)
+    rostest.rosrun(PKG, NAME, TestProcRunnerCleanup)
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
