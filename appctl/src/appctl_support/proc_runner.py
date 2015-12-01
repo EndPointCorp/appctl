@@ -84,11 +84,11 @@ class ProcRunner(threading.Thread):
             shell=self.shell,
             close_fds=True
         )
-        self._spawn()
+        self._run_spawn_hooks()
         self.spawn_count += 1
         rospy.loginfo('started process {}'.format(self.proc.pid))
 
-    def _spawn(self):
+    def _run_spawn_hooks(self):
         """
         Calls all _spawn_hooks if any exist
         """
