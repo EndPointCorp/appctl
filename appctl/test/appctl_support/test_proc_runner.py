@@ -96,7 +96,6 @@ class TestProcRunner(unittest.TestCase):
                         'Must have a pid to start with')
 
         self.runner._kill_proc()
-        self.runner.proc.wait()
 
         self.assertFalse(check_pid(pid),
                          'Process must be dead')
