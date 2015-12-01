@@ -67,6 +67,9 @@ class ProcRunner(threading.Thread):
         """
         Starts or restarts the process.
         """
+        if self.done:
+            return
+
         if self.spawn_count > 0:
             rospy.logwarn('respawn #{} for process: {}'.format(
                 self.spawn_count, self.cmd_str))
