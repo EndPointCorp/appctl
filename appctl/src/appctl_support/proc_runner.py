@@ -26,6 +26,11 @@ class ProcRunner(threading.Thread):
             self.cmd_str = ' '.join(cmd)
         self.done = False
         self.proc = None
+
+        # https://github.com/EndPointCorp/lg_sv_nonfree/issues/6#issuecomment-165166855
+        self.respawn_upon_zombie = rospy.getparam("/appctl/respawn_upon_zombie", False)
+        self.respawn_upon_zombie_children = rospy.getparam("/appctl/respawn_upon_zombie_children", False)
+
         self._spawn_hooks = []
         # add all spawn hooks passed
         for spawn_hook in spawn_hooks:
@@ -139,9 +144,16 @@ class ProcRunner(threading.Thread):
         while not self.done:
             if not self._proc_is_alive():
                 self._start_proc()
-            elif self._proc_is_zombie() or self._proc_has_zombie_children():
-                self._kill_proc()
-                self._start_proc()
+            elif self._proc_is_zombie():
+                rospy.loginfo("Zombie Process Detected.")
+                if self.respawn_upon_zombie:
+                    self._kill_proc()
+                    self._start_proc()
+            elif self._proc_has_zombie_children():
+                rospy.loginfo("Zombie Child Process Detected.")
+                if self.respawn_upon_zombie_children:
+                    self._kill_proc()
+                    self._start_proc()
 
             rospy.sleep(self.respawn_delay)
             try:
