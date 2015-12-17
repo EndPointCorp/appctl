@@ -2,8 +2,8 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.8 (2015-12-17)
+------------------
 * proc_runner logic
   - added logging of zombie children and zombification of main process
   - added respawn limits with default of -1
