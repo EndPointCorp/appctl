@@ -16,7 +16,8 @@ class ProcRunner(threading.Thread):
     A Thread that launches and manages a subprocess.
     """
     def __init__(self, cmd, respawn_delay=DEFAULT_RESPAWN_DELAY, shell=False,
-                 spawn_hooks=[]):
+                 spawn_hooks=[], respawn_on_zombie=False, respawn_on_zombie_children=False,
+                 respawn_limit=-1):
         super(self.__class__, self).__init__()
         self.cmd = cmd
         self.shell = shell
@@ -26,12 +27,10 @@ class ProcRunner(threading.Thread):
             self.cmd_str = ' '.join(cmd)
         self.done = False
         self.proc = None
-
-        # https://github.com/EndPointCorp/lg_sv_nonfree/issues/6#issuecomment-165166855
-        self.respawn_upon_zombie = rospy.getparam("/appctl/respawn_upon_zombie", False)
-        self.respawn_upon_zombie_children = rospy.getparam("/appctl/respawn_upon_zombie_children", False)
-
         self._spawn_hooks = []
+        self.respawn_limit = respawn_limit
+        self.respawn_on_zombie_children = respawn_on_zombie_children
+        self.respawn_on_zombie = respawn_on_zombie
         # add all spawn hooks passed
         for spawn_hook in spawn_hooks:
             self.add_spawn_hook(spawn_hook)
@@ -40,15 +39,15 @@ class ProcRunner(threading.Thread):
         """
         Returns True if the process is alive and running.
         """
-        if self.proc is None:
-            return False
-
-        try:
-            os.kill(self.proc.pid, 0)
-        except OSError:
-            return False
+        if self.proc is not None:
+            try:
+                os.kill(self.proc.pid, 0)
+            except OSError:
+                return False
+            else:
+                return True
         else:
-            return True
+            return False
 
     def _kill_proc(self):
         """
@@ -65,18 +64,26 @@ class ProcRunner(threading.Thread):
             os.killpg(pid, signal.SIGTERM)
         except OSError:
             rospy.logwarn('process group {} did not exist'.format(pid))
-        else:
-            self.proc.wait()
+
+    def _reached_respawn_limit(self):
+        """
+        Introduces possibility to give up on respawning of a process
+        """
+        if (self.respawn_limit == -1):
+            rospy.logdebug("Respawn limit set to infinity")
+            return False
+        elif (self.respawn_limit > 0) and (self.spawn_count >= self.respawn_limit):
+            rospy.logwarn("Respawn limit of %s reached - not launching application %s" % (self.respawn_limit, self.cmd_str))
+            return True
 
     def _start_proc(self):
         """
-        Starts or restarts the process.
+        Starts or restarts the process and checks whether respawn limit was reached
         """
-        if self.done:
-            return
-
+        if self._reached_respawn_limit():
+           return False
         if self.spawn_count > 0:
-            rospy.logwarn('respawn #{} for process: {}'.format(
+            rospy.logwarn('Respawn #{} for process: {}'.format(
                 self.spawn_count, self.cmd_str))
 
         rospy.loginfo("Launching command '%s' with shell='%s'" % (self.cmd, self.shell))
@@ -89,11 +96,11 @@ class ProcRunner(threading.Thread):
             shell=self.shell,
             close_fds=True
         )
-        self._run_spawn_hooks()
+        self._spawn()
         self.spawn_count += 1
         rospy.loginfo('started process {}'.format(self.proc.pid))
 
-    def _run_spawn_hooks(self):
+    def _spawn(self):
         """
         Calls all _spawn_hooks if any exist
         """
@@ -116,7 +123,10 @@ class ProcRunner(threading.Thread):
             if proc.status == 'zombie':
                 return True
         except NoSuchProcess:
-            return True
+            return True # process is actually dead
+        except AttributeError:
+            return False # proc didnt start yet
+        # not a zombie
         return False
 
     def _proc_has_zombie_children(self):
@@ -128,39 +138,51 @@ class ProcRunner(threading.Thread):
             proc = Process(self.proc.pid)
             for child in proc.get_children():
                 if child.status == 'zombie':
-                    return True
+                    return child
         except NoSuchProcess:
-            return True
+            return True # parent process actually dead
+        except AttributeError:
+            return False # proc didnt start yet
+        # No zombie found
         return False
 
     def run(self):
         """
         Begin managing the process.
+        - start process if it's not running
+        - if it's a zombie or has zombie children - check the spawn limit and respawn
+         - if limit is reached - just finish
+         - if limit not reached - wait for process to finish 
         """
         if self.done:
             rospy.logwarn('tried to run a finished ProcRunner')
             return
 
         while not self.done:
-            if not self._proc_is_alive():
+            is_zombie = self._proc_is_zombie()
+            is_alive = self._proc_is_alive()
+            has_zombie_children = self._proc_has_zombie_children()
+            if not is_alive:
                 self._start_proc()
-            elif self._proc_is_zombie():
-                rospy.loginfo("Zombie Process Detected.")
-                if self.respawn_upon_zombie:
-                    self._kill_proc()
-                    self._start_proc()
-            elif self._proc_has_zombie_children():
-                rospy.loginfo("Zombie Child Process Detected.")
-                if self.respawn_upon_zombie_children:
+            elif is_zombie:
+                rospy.loginfo("%s became zombie" % self.proc)
+                if self.respawn_on_zombie:
+                    if self._reached_respawn_limit():
+                        return False
+                    rospy.loginfo("Respawning %s because it became zombie" % self.proc)
+		    self._kill_proc()
+		    self._start_proc()
+            elif has_zombie_children:
+                rospy.loginfo("Children of %s has became zombie: %s" % (self.proc, has_zombie_children))
+                if self.respawn_on_zombie_children:
+                    if self._reached_respawn_limit():
+                        return False
+                    rospy.loginfo("Respawning %s because of zombie children %s" % (self.proc, has_zombie_children))
                     self._kill_proc()
                     self._start_proc()
 
             rospy.sleep(self.respawn_delay)
-            try:
-                self.proc.wait()
-            except AttributeError:
-                # in this case, we have already shutdown and cleared self.proc
-                return
+            self.proc.wait()
 
     def shutdown(self, *args, **kwargs):
         """
@@ -168,7 +190,6 @@ class ProcRunner(threading.Thread):
         """
         self.done = True
         self._kill_proc()
-        self.proc = None
 
     def add_spawn_hook(self, spawn_hook):
         """
