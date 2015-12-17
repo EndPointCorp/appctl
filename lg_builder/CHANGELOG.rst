@@ -7,6 +7,7 @@ Changelog for package lg_builder
 
 Forthcoming
 -----------
+
 * 1.1.23
 * Generated changelogs
 * Contributors: Wojciech Ziniewicz

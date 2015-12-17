@@ -2,6 +2,15 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* proc_runner logic
+  - added logging of zombie children and zombification of main process
+  - added respawn limits with default of -1
+* Don't kill zombie processes by default.
+  https://github.com/EndPointCorp/lg_sv_nonfree/issues/6#issuecomment-165166855
+* Contributors: Adam Vollrath, Matt Vollrath, Wojciech Ziniewicz
+
 1.0.7 (2015-12-01)
 ------------------
 * Improve+test ProcRunner cleanup
