@@ -81,7 +81,7 @@ class ProcRunner(threading.Thread):
         Starts or restarts the process and checks whether respawn limit was reached
         """
         if self._reached_respawn_limit():
-           return False
+            return False
         if self.spawn_count > 0:
             rospy.logwarn('Respawn #{} for process: {}'.format(
                 self.spawn_count, self.cmd_str))
@@ -123,9 +123,9 @@ class ProcRunner(threading.Thread):
             if proc.status == 'zombie':
                 return True
         except NoSuchProcess:
-            return True # process is actually dead
+            return True  # process is actually dead
         except AttributeError:
-            return False # proc didnt start yet
+            return False  # proc didnt start yet
         # not a zombie
         return False
 
@@ -140,9 +140,9 @@ class ProcRunner(threading.Thread):
                 if child.status == 'zombie':
                     return child
         except NoSuchProcess:
-            return True # parent process actually dead
+            return True  # parent process actually dead
         except AttributeError:
-            return False # proc didnt start yet
+            return False  # proc didnt start yet
         # No zombie found
         return False
 
@@ -152,7 +152,7 @@ class ProcRunner(threading.Thread):
         - start process if it's not running
         - if it's a zombie or has zombie children - check the spawn limit and respawn
          - if limit is reached - just finish
-         - if limit not reached - wait for process to finish 
+         - if limit not reached - wait for process to finish
         """
         if self.done:
             rospy.logwarn('tried to run a finished ProcRunner')
@@ -170,8 +170,8 @@ class ProcRunner(threading.Thread):
                     if self._reached_respawn_limit():
                         return False
                     rospy.loginfo("Respawning %s because it became zombie" % self.proc)
-		    self._kill_proc()
-		    self._start_proc()
+                    self._kill_proc()
+                    self._start_proc()
             elif has_zombie_children:
                 rospy.loginfo("Children of %s has became zombie: %s" % (self.proc, has_zombie_children))
                 if self.respawn_on_zombie_children:

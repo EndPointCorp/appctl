@@ -173,8 +173,6 @@ class TestProcRunnerCleanup(unittest.TestCase):
         self.assertIsNone(runner_ref(),
                           'runner must be freed post-join')
 
-
-
 if __name__ == '__main__':
     import rostest
     rostest.rosrun(PKG, NAME, TestProcRunner)
