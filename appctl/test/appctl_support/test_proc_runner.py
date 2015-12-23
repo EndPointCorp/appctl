@@ -10,8 +10,8 @@ from appctl_support import ProcRunner
 PKG = 'appctl'
 NAME = 'test_proc_runner'
 
-TEST_CMD = ['/usr/bin/python']
-GRACE_DELAY = 0.1  # seconds
+TEST_CMD = ['sleep', '5']
+GRACE_DELAY = 0.5  # seconds
 
 
 # http://stackoverflow.com/questions/568271/
