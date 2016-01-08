@@ -116,10 +116,6 @@ class ProcRunner(threading.Thread):
     def run(self):
         """
         Begin managing the process.
-        - start process if it's not running
-        - if it's a zombie or has zombie children - check the spawn limit and respawn
-         - if limit is reached - just finish
-         - if limit not reached - wait for process to finish
         """
         if self.done:
             rospy.logwarn('tried to run a finished ProcRunner')
@@ -130,6 +126,7 @@ class ProcRunner(threading.Thread):
             try:
                 self.proc.wait()
             except AttributeError:
+                # in this case, self.proc has been dereferenced by _kill_proc()
                 pass
             if not self.done:
                 rospy.sleep(self.respawn_delay)
