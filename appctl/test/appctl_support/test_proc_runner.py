@@ -164,6 +164,7 @@ class TestProcRunnerCleanup(unittest.TestCase):
         proc_ref = weakref.ref(runner.proc)
 
         runner.shutdown()
+        rospy.sleep(GRACE_DELAY)
         gc.collect()
         self.assertIsNone(proc_ref(),
                           'proc must be freed on shutdown')

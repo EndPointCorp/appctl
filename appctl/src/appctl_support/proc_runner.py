@@ -4,7 +4,6 @@ import os
 import signal
 import subprocess
 import sys
-from psutil import Process, NoSuchProcess
 
 DEVNULL = open(os.devnull, 'rw')
 
@@ -16,8 +15,7 @@ class ProcRunner(threading.Thread):
     A Thread that launches and manages a subprocess.
     """
     def __init__(self, cmd, respawn_delay=DEFAULT_RESPAWN_DELAY, shell=False,
-                 spawn_hooks=[], respawn_on_zombie=False, respawn_on_zombie_children=False,
-                 respawn_limit=-1):
+                 spawn_hooks=[], respawn_limit=-1):
         super(self.__class__, self).__init__()
         self.cmd = cmd
         self.shell = shell
@@ -29,8 +27,6 @@ class ProcRunner(threading.Thread):
         self.proc = None
         self._spawn_hooks = []
         self.respawn_limit = respawn_limit
-        self.respawn_on_zombie_children = respawn_on_zombie_children
-        self.respawn_on_zombie = respawn_on_zombie
         # add all spawn hooks passed
         for spawn_hook in spawn_hooks:
             self.add_spawn_hook(spawn_hook)
@@ -64,6 +60,9 @@ class ProcRunner(threading.Thread):
             os.killpg(pid, signal.SIGTERM)
         except OSError:
             rospy.logwarn('process group {} did not exist'.format(pid))
+        finally:
+            self.proc.wait()
+            self.proc = None
 
     def _reached_respawn_limit(self):
         """
@@ -114,38 +113,6 @@ class ProcRunner(threading.Thread):
 
         map(run_spawn_hook, self._spawn_hooks)
 
-    def _proc_is_zombie(self):
-        """
-        Use psutil to check status of current process to see if it's a zombie
-        """
-        try:
-            proc = Process(self.proc.pid)
-            if proc.status == 'zombie':
-                return True
-        except NoSuchProcess:
-            return True  # process is actually dead
-        except AttributeError:
-            return False  # proc didnt start yet
-        # not a zombie
-        return False
-
-    def _proc_has_zombie_children(self):
-        """
-        Use psutil to get_children() and check to make sure that none
-        of their statuses are 'zombie'
-        """
-        try:
-            proc = Process(self.proc.pid)
-            for child in proc.get_children():
-                if child.status == 'zombie':
-                    return child
-        except NoSuchProcess:
-            return True  # parent process actually dead
-        except AttributeError:
-            return False  # proc didnt start yet
-        # No zombie found
-        return False
-
     def run(self):
         """
         Begin managing the process.
@@ -159,30 +126,13 @@ class ProcRunner(threading.Thread):
             return
 
         while not self.done:
-            is_zombie = self._proc_is_zombie()
-            is_alive = self._proc_is_alive()
-            has_zombie_children = self._proc_has_zombie_children()
-            if not is_alive:
-                self._start_proc()
-            elif is_zombie:
-                rospy.loginfo("%s became zombie" % self.proc)
-                if self.respawn_on_zombie:
-                    if self._reached_respawn_limit():
-                        return False
-                    rospy.loginfo("Respawning %s because it became zombie" % self.proc)
-                    self._kill_proc()
-                    self._start_proc()
-            elif has_zombie_children:
-                rospy.loginfo("Children of %s has became zombie: %s" % (self.proc, has_zombie_children))
-                if self.respawn_on_zombie_children:
-                    if self._reached_respawn_limit():
-                        return False
-                    rospy.loginfo("Respawning %s because of zombie children %s" % (self.proc, has_zombie_children))
-                    self._kill_proc()
-                    self._start_proc()
-
-            rospy.sleep(self.respawn_delay)
-            self.proc.wait()
+            self._start_proc()
+            try:
+                self.proc.wait()
+            except AttributeError:
+                pass
+            if not self.done:
+                rospy.sleep(self.respawn_delay)
 
     def shutdown(self, *args, **kwargs):
         """
