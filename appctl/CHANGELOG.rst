@@ -2,8 +2,8 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.9 (2016-01-08)
+------------------
 * Comment cleanup in ProcRunner
 * Remove psutil dependency
 * Simplify ProcRunner
