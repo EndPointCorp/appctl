@@ -2,6 +2,21 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Comment cleanup in ProcRunner
+* Remove psutil dependency
+* Simplify ProcRunner
+  * Grace delay in cleanup test
+  * Remove zombie detection, always wait()
+* tests: increase delay and change default test_cmd
+  The grace delay of 0.1 was not long enough for some machines, especially
+  when testing within a docker container. After increasing the delay > 1
+  second I realized that using '/usr/bin/python' as the test command was
+  not working as desired. It would respawn every second.
+* pep8 fixes
+* Contributors: Jacob Minshall, Matt Vollrath
+
 1.0.8 (2015-12-17)
 ------------------
 * proc_runner logic
