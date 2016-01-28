@@ -2,8 +2,8 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.10 (2016-01-28)
+-------------------
 * Rename ProcRunner._spawn() to _run_spawn_hooks()
 * One less logging statement in ProcRunner
 * Lock critical sections of ProcRunner
