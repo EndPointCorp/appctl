@@ -2,6 +2,18 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Rename ProcRunner._spawn() to _run_spawn_hooks()
+* One less logging statement in ProcRunner
+* Lock critical sections of ProcRunner
+* Remove unneeded DEVNULL from ProcRunner
+* Remove ProcRunner._proc_is_alive()
+* Lock critical sections of ProcController
+  Also remove some logging.
+* Add Mode Spin test to repro race condition
+* Contributors: Matt Vollrath
+
 1.0.9 (2016-01-08)
 ------------------
 * Comment cleanup in ProcRunner
