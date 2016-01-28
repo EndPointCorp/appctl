@@ -31,20 +31,6 @@ class ProcRunner(threading.Thread):
         for spawn_hook in spawn_hooks:
             self.add_spawn_hook(spawn_hook)
 
-    def _proc_is_alive(self):
-        """
-        Returns True if the process is alive and running.
-        """
-        if self.proc is not None:
-            try:
-                os.kill(self.proc.pid, 0)
-            except OSError:
-                return False
-            else:
-                return True
-        else:
-            return False
-
     def _kill_proc(self):
         """
         Attempts to kill the process group with SIGTERM.
