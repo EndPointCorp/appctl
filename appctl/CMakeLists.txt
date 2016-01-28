@@ -38,7 +38,9 @@ install(PROGRAMS
 )
 
 if (CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
   catkin_add_nosetests(test/appctl_support/test_mode_handler.py)
   catkin_add_nosetests(test/appctl_support/test_proc_controller.py)
   catkin_add_nosetests(test/appctl_support/test_proc_runner.py)
+  add_rostest(test/mode_spin.test)
 endif()

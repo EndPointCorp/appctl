@@ -5,8 +5,6 @@ import signal
 import subprocess
 import sys
 
-DEVNULL = open(os.devnull, 'rw')
-
 DEFAULT_RESPAWN_DELAY = 1.0
 
 
@@ -20,6 +18,7 @@ class ProcRunner(threading.Thread):
         self.cmd = cmd
         self.shell = shell
         self.respawn_delay = respawn_delay
+        self.lock = threading.Lock()
         self.spawn_count = 0
         if not shell:
             self.cmd_str = ' '.join(cmd)
@@ -30,20 +29,6 @@ class ProcRunner(threading.Thread):
         # add all spawn hooks passed
         for spawn_hook in spawn_hooks:
             self.add_spawn_hook(spawn_hook)
-
-    def _proc_is_alive(self):
-        """
-        Returns True if the process is alive and running.
-        """
-        if self.proc is not None:
-            try:
-                os.kill(self.proc.pid, 0)
-            except OSError:
-                return False
-            else:
-                return True
-        else:
-            return False
 
     def _kill_proc(self):
         """
@@ -85,19 +70,17 @@ class ProcRunner(threading.Thread):
             rospy.logwarn('Respawn #{} for process: {}'.format(
                 self.spawn_count, self.cmd_str))
 
-        rospy.loginfo("Launching command '%s' with shell='%s'" % (self.cmd, self.shell))
         self.proc = subprocess.Popen(
             self.cmd,
-            stdin=DEVNULL,
-            stdout=DEVNULL,
-            stderr=DEVNULL,
             preexec_fn=os.setsid,
             shell=self.shell,
             close_fds=True
         )
         self._spawn()
         self.spawn_count += 1
-        rospy.loginfo('started process {}'.format(self.proc.pid))
+        rospy.loginfo(
+            "Launched '{}' with pid {}".format(self.cmd, self.proc.pid)
+        )
 
     def _spawn(self):
         """
@@ -117,12 +100,11 @@ class ProcRunner(threading.Thread):
         """
         Begin managing the process.
         """
-        if self.done:
-            rospy.logwarn('tried to run a finished ProcRunner')
-            return
-
-        while not self.done:
-            self._start_proc()
+        while True:
+            with self.lock:
+                if self.done:
+                    return
+                self._start_proc()
             try:
                 self.proc.wait()
             except AttributeError:
@@ -135,8 +117,9 @@ class ProcRunner(threading.Thread):
         """
         Finish this Thread by killing the process and marking completion.
         """
-        self.done = True
-        self._kill_proc()
+        with self.lock:
+            self.done = True
+            self._kill_proc()
 
     def add_spawn_hook(self, spawn_hook):
         """

@@ -24,22 +24,18 @@ class ProcController(BaseController):
             if self.started:
                 return
             self.started = True
-
-        rospy.logdebug('starting ProcRunner')
-
-        self.watcher = ProcRunner(self.cmd, shell=self.shell,
-                                  spawn_hooks=self.spawn_hooks)
-        self.watcher.start()
+            self.watcher = ProcRunner(self.cmd, shell=self.shell,
+                                      spawn_hooks=self.spawn_hooks)
+            self.watcher.daemon = False
+            self.watcher.start()
 
     def stop(self, *args, **kwargs):
         with self.status_lock:
             if not self.started:
                 return
             self.started = False
-
-        rospy.logdebug('stopping ProcRunner')
-
-        self.watcher.shutdown()
+            self.watcher.shutdown()
+            self.watcher = None
 
     def add_spawn_hook(self, spawn_hook):
         """

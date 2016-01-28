@@ -56,21 +56,6 @@ class TestProcRunner(unittest.TestCase):
         if self.runner.is_alive():
             self.runner.join()
 
-    def test_proc_is_alive(self):
-        self.assertFalse(self.runner._proc_is_alive(),
-                         'Process must not be alive before start()')
-
-        self.runner.start()
-
-        rospy.sleep(GRACE_DELAY)
-        self.assertTrue(self.runner._proc_is_alive(),
-                        'Process must be alive after start()')
-
-        self.runner.shutdown()
-        self.runner.join()
-        self.assertFalse(self.runner._proc_is_alive(),
-                         'Process must not be alive after shutdown()')
-
     def test_startup(self):
         self.runner.start()
         self.assertTrue(self.runner.is_alive(),
@@ -114,12 +99,11 @@ class TestProcRunner(unittest.TestCase):
 
         rospy.sleep(self.runner.respawn_delay + GRACE_DELAY)
 
-        self.assertTrue(self.runner._proc_is_alive(),
-                        'Process must respawn after death')
-
         second_pid = self.runner.proc.pid
         self.assertNotEqual(first_pid, second_pid,
                             'Must have a different pid after respawn')
+        self.assertTrue(check_pid(second_pid),
+                        'Must be alive after respawn')
 
     def test_spawn_handler(self):
         """Spawn handlers must be run on each spawn."""
