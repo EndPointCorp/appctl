@@ -5,8 +5,6 @@ import signal
 import subprocess
 import sys
 
-DEVNULL = open(os.devnull, 'rw')
-
 DEFAULT_RESPAWN_DELAY = 1.0
 
 
@@ -74,9 +72,6 @@ class ProcRunner(threading.Thread):
         rospy.loginfo("Launching command '%s' with shell='%s'" % (self.cmd, self.shell))
         self.proc = subprocess.Popen(
             self.cmd,
-            stdin=DEVNULL,
-            stdout=DEVNULL,
-            stderr=DEVNULL,
             preexec_fn=os.setsid,
             shell=self.shell,
             close_fds=True
