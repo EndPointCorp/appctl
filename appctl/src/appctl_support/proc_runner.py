@@ -70,7 +70,6 @@ class ProcRunner(threading.Thread):
             rospy.logwarn('Respawn #{} for process: {}'.format(
                 self.spawn_count, self.cmd_str))
 
-        rospy.loginfo("Launching command '%s' with shell='%s'" % (self.cmd, self.shell))
         self.proc = subprocess.Popen(
             self.cmd,
             preexec_fn=os.setsid,
@@ -79,7 +78,9 @@ class ProcRunner(threading.Thread):
         )
         self._spawn()
         self.spawn_count += 1
-        rospy.loginfo('started process {}'.format(self.proc.pid))
+        rospy.loginfo(
+            "Launched '{}' with pid {}".format(self.cmd, self.proc.pid)
+        )
 
     def _spawn(self):
         """
