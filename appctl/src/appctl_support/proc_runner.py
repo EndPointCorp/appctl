@@ -131,4 +131,12 @@ class ProcRunner(threading.Thread):
             raise TypeError("Passed a non-callable object as a spawn hook")
         self._spawn_hooks.append(spawn_hook)
 
+    def get_pid(self):
+        """
+        Return process id, or 0 to signify error
+        """
+        if self.proc:
+            return self.proc.pid
+        return None
+
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4

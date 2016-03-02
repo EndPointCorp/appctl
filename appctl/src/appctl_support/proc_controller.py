@@ -48,4 +48,11 @@ class ProcController(BaseController):
         if self.watcher:
             self.watcher.add_spawn_hook(spawn_hook)
 
+    def get_pid(self):
+        """
+        Return process id, or 0 to signify error
+        """
+        if self.watcher:
+            return self.watcher.get_pid()
+        return None
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
