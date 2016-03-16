@@ -1,15 +1,11 @@
 # Liquid Galaxy
 
-Appctl is a ROS node that lets you run processes on your system on the
-basis of "Modes". It manages processes running on [Liquid
-Galaxy](https://github.com/EndPointCorp/lg_ros_nodes).
+`appctl` is rospy library for running processes while the graph is in a particular state. It is intended to be a distributed init system for the [Liquid Galaxy](https://github.com/EndPointCorp/lg_ros_nodes) project.
+
+See the README.md in `appctl/` for details.
 
 # General requirements
 
-NOTE: all requirements specific to ros_nodes are in their respective
-README.md files
-
-- [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/)
 - [ros-indigo](http://wiki.ros.org/indigo)
 
 ## Development
