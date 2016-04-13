@@ -139,4 +139,7 @@ class ProcRunner(threading.Thread):
             return self.proc.pid
         return None
 
+    def handle_soft_relaunch(self, *args, **kwargs):
+        self._kill_proc()
+
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4

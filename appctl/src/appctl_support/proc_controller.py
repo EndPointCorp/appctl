@@ -55,4 +55,8 @@ class ProcController(BaseController):
         if self.watcher:
             return self.watcher.get_pid()
         return None
+
+    def handle_soft_relaunch(self, *args, **kwargs):
+        self.watcher.handle_soft_relaunch()
+
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
