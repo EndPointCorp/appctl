@@ -2,6 +2,13 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* soft relaunch support for appctl
+  Processes will be killed on soft relaunches.
+* get_pid function to grab proc_runner's pid
+* Contributors: Jacob Minshall
+
 1.0.10 (2016-01-28)
 -------------------
 * Rename ProcRunner._spawn() to _run_spawn_hooks()
