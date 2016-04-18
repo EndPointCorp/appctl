@@ -2,8 +2,8 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.11 (2016-04-18)
+-------------------
 * soft relaunch support for appctl
   Processes will be killed on soft relaunches.
 * get_pid function to grab proc_runner's pid
