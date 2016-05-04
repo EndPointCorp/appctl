@@ -16,6 +16,7 @@ add_message_files(
 add_service_files(
   FILES
   Query.srv
+  NodeQuery.srv
 )
 
 generate_messages(

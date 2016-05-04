@@ -2,6 +2,8 @@ import rospy
 import threading
 from controller import BaseController
 from proc_runner import ProcRunner
+from std_msgs.msg import String
+from appctl.srv import NodeQuery
 
 
 class ProcController(BaseController):
@@ -15,6 +17,15 @@ class ProcController(BaseController):
         self.watcher = None
         self.spawn_hooks = spawn_hooks
         self.status_lock = threading.Lock()
+        self.request_lock = threading.Lock()
+        root = '/appctl' + rospy.get_name()
+        self.ros_control = rospy.Subscriber(
+            '%s/control' % root,
+            String,
+            self.handle_request
+        )
+        self.node_query = rospy.Service('%s/query' % root, NodeQuery,
+                                        self.handle_query)
 
         # Always stop on rospy shutdown.
         rospy.on_shutdown(self.stop)
@@ -52,7 +63,26 @@ class ProcController(BaseController):
         """
         Return process id, or 0 to signify error
         """
-        if self.watcher:
-            return self.watcher.get_pid()
-        return None
+        with self.status_lock:
+            if self.watcher:
+                return self.watcher.get_pid()
+            return None
+
+    def handle_request(self, msg):
+        # lock so we don't run into race conditions by sending start
+        # and stop messages around the same time...
+        with self.request_lock:
+            request = msg.data
+            if request == 'start':
+                self.start()
+            elif request == 'stop':
+                self.stop()
+            elif request =='restart':
+                self.stop()
+                self.start()
+
+    def handle_query(self, req):
+        request = req.req
+        if request == 'get_pid':
+            return str(self.get_pid() or 0)
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
