@@ -10,7 +10,9 @@ class ProcController(BaseController):
     """
     Controls startup and shutdown of a ProcRunner.
     """
-    def __init__(self, cmd, shell=False, spawn_hooks=[]):
+    def __init__(self, cmd, shell=False, spawn_hooks=None):
+        if spawn_hooks is None:
+            spawn_hooks = []
         self.cmd = cmd
         self.shell = shell
         self.started = False
