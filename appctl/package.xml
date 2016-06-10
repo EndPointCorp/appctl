@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>appctl</name>
-  <version>1.0.11</version>
+  <version>1.0.12</version>
   <description>Support software for mode switching</description>
 
   <maintainer email="lg@endpoint.com">End Point Corp</maintainer>
