@@ -2,6 +2,12 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* lg_media respawn mplayer behaviour to control,
+   touch: `EndPointCorp/lg_ros_nodes#193 <https://github.com/EndPointCorp/lg_ros_nodes/issues/193>`_
+* Contributors: Zdenek Maxa
+
 1.0.11 (2016-04-18)
 -------------------
 * soft relaunch support for appctl
