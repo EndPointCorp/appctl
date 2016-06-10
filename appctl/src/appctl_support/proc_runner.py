@@ -11,13 +11,25 @@ DEFAULT_RESPAWN_DELAY = 1.0
 class ProcRunner(threading.Thread):
     """
     A Thread that launches and manages a subprocess.
+
     """
-    def __init__(self, cmd, respawn_delay=DEFAULT_RESPAWN_DELAY, shell=False,
-                 spawn_hooks=[], respawn_limit=-1):
+    def __init__(self,
+                 cmd,
+                 respawn_delay=DEFAULT_RESPAWN_DELAY,
+                 shell=False,
+                 spawn_hooks=[],
+                 respawn_limit=-1,
+                 respawn=True):
+        """
+        respawn handles whether or not the application shall be automatically
+                respawned at all, default is True.
+
+        """
         super(self.__class__, self).__init__()
         self.cmd = cmd
         self.shell = shell
         self.respawn_delay = respawn_delay
+        self.respawn = respawn
         self.lock = threading.Lock()
         self.spawn_count = 0
         if not shell:
@@ -70,17 +82,13 @@ class ProcRunner(threading.Thread):
             rospy.logwarn('Respawn #{} for process: {}'.format(
                 self.spawn_count, self.cmd_str))
 
-        self.proc = subprocess.Popen(
-            self.cmd,
-            preexec_fn=os.setsid,
-            shell=self.shell,
-            close_fds=True
-        )
+        self.proc = subprocess.Popen(self.cmd,
+                                     preexec_fn=os.setsid,
+                                     shell=self.shell,
+                                     close_fds=True)
         self._run_spawn_hooks()
         self.spawn_count += 1
-        rospy.loginfo(
-            "Launched '{}' with pid {}".format(self.cmd, self.proc.pid)
-        )
+        rospy.loginfo("Launched '{}' with pid {}".format(self.cmd, self.proc.pid))
 
     def _run_spawn_hooks(self):
         """
@@ -110,6 +118,8 @@ class ProcRunner(threading.Thread):
             except AttributeError:
                 # in this case, self.proc has been dereferenced by _kill_proc()
                 pass
+            if not self.respawn:
+                return
             if not self.done:
                 rospy.sleep(self.respawn_delay)
 

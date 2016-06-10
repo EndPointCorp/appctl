@@ -8,14 +8,19 @@ class ProcController(BaseController):
     """
     Controls startup and shutdown of a ProcRunner.
     """
-    def __init__(self, cmd, shell=False, spawn_hooks=[]):
+    def __init__(self, cmd, shell=False, spawn_hooks=[], respawn=True):
+        """
+        respawn handles whether or not the application shall be automatically
+                respawned at all, default is True.
+
+        """
         self.cmd = cmd
         self.shell = shell
         self.started = False
         self.watcher = None
         self.spawn_hooks = spawn_hooks
+        self.respawn = respawn
         self.status_lock = threading.Lock()
-
         # Always stop on rospy shutdown.
         rospy.on_shutdown(self.stop)
 
@@ -24,8 +29,10 @@ class ProcController(BaseController):
             if self.started:
                 return
             self.started = True
-            self.watcher = ProcRunner(self.cmd, shell=self.shell,
-                                      spawn_hooks=self.spawn_hooks)
+            self.watcher = ProcRunner(self.cmd,
+                                      shell=self.shell,
+                                      spawn_hooks=self.spawn_hooks,
+                                      respawn=self.respawn)
             self.watcher.daemon = False
             self.watcher.start()
 
