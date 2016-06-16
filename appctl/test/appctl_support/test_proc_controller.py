@@ -7,7 +7,7 @@ from appctl_support import ProcController
 PKG = 'appctl'
 NAME = 'test_proc_controller'
 
-TEST_CMD = ['/usr/bin/python']
+TEST_CMD = ['sleep', '5']
 
 
 class TestProcController(unittest.TestCase):
@@ -47,6 +47,25 @@ class TestProcController(unittest.TestCase):
 
         self.assertIs(watcher, self.controller.watcher,
                       'Stray process watcher on redundant start')
+
+    def test_respawn_flag_forward_to_runner(self):
+        """
+        Test forwarding of the respawn flag setting and associated
+        behaviour. Both for True (default value) and False from the
+        higher-lever proc_controller POV.
+
+        """
+        self.assertTrue(self.controller.respawn, "The 'respawn' flag is by default True.")
+        self.controller.start()
+        self.assertTrue(self.controller.watcher.respawn, "The 'respawn' flag is by default True.")
+        self.controller.stop()
+        time.sleep(0.1)
+        self.controller = ProcController(TEST_CMD, respawn=False)
+        self.assertFalse(self.controller.respawn, "The 'respawn' flag is False now.")
+        self.controller.start()
+        self.assertFalse(self.controller.watcher.respawn, "The 'respawn' flag is False now.")
+        self.controller.stop()
+        time.sleep(0.1)
 
     def tearDown(self):
         self.controller.stop()
