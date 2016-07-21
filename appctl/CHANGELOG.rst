@@ -2,6 +2,12 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* remove lock from proc controller
+* respawn flag tests, related to lg_media mplayer work
+* Contributors: Wojciech Zieniewicz, Zdenek Maxa
+
 1.0.12 (2016-06-10)
 -------------------
 * lg_media respawn mplayer behaviour to control,
