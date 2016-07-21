@@ -20,29 +20,27 @@ class ProcController(BaseController):
         self.watcher = None
         self.spawn_hooks = spawn_hooks
         self.respawn = respawn
-        self.status_lock = threading.Lock()
         # Always stop on rospy shutdown.
         rospy.on_shutdown(self.stop)
 
     def start(self, *args, **kwargs):
-        with self.status_lock:
-            if self.started:
-                return
-            self.started = True
-            self.watcher = ProcRunner(self.cmd,
-                                      shell=self.shell,
-                                      spawn_hooks=self.spawn_hooks,
-                                      respawn=self.respawn)
-            self.watcher.daemon = False
-            self.watcher.start()
+        if self.started:
+            return
+        self.started = True
+        self.watcher = ProcRunner(self.cmd,
+                                  shell=self.shell,
+                                  spawn_hooks=self.spawn_hooks,
+                                  respawn=self.respawn)
+        self.watcher.daemon = False
+        self.watcher.start()
 
     def stop(self, *args, **kwargs):
-        with self.status_lock:
-            if not self.started:
-                return
-            self.started = False
-            self.watcher.shutdown()
-            self.watcher = None
+        if not self.started:
+            rospy.loginfo("ProcController wasnt started, cannot stop")
+            return
+        self.started = False
+        self.watcher.shutdown()
+        self.watcher = None
 
     def add_spawn_hook(self, spawn_hook):
         """
