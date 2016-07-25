@@ -2,8 +2,8 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.14 (2016-07-25)
+-------------------
 * Revert "Disable appctl mode abuse test"
   This reverts commit 0f041a80cfc289f6b158eaf15ec7dfc219e7d3b5.
   We actually want this.
