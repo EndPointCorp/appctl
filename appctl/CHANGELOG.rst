@@ -2,6 +2,24 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Revert "Disable appctl mode abuse test"
+  This reverts commit 0f041a80cfc289f6b158eaf15ec7dfc219e7d3b5.
+  We actually want this.
+* Revert "Remove unnecessary locking from ProcRunner"
+  This reverts commit 44f3ede3fa2af64df2d217717affa8d16833ddc4.
+  We actually need this.
+* Disable appctl mode abuse test
+  Gremlins are preventing messages from being received.
+* Remove unnecessary locking from ProcRunner
+  Prevent deadlock on concurrent ProcController operations.
+* Re-introduce ProcController locking
+* Add ProcController concurrency test
+* Add start/stop validation to ProcController
+* Revise ProcController docstring
+* Contributors: Matt Vollrath
+
 1.0.13 (2016-07-21)
 -------------------
 * remove lock from proc controller
