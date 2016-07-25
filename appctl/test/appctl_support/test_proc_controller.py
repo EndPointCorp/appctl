@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import unittest
 import time
+import threading
 
 from appctl_support import ProcController
 
@@ -8,6 +9,27 @@ PKG = 'appctl'
 NAME = 'test_proc_controller'
 
 TEST_CMD = ['sleep', '5']
+NUM_THREADS_TO_TEST = 8
+
+
+class StateFlipper(threading.Thread):
+    """Rapidly flips a controller between start() and stop() states"""
+    def __init__(self, controller, iterations=100):
+        super(StateFlipper, self).__init__()
+        self.daemon = False
+        self.controller = controller
+        self.iterations = iterations
+        self.failed = False
+
+    def run(self):
+        methods = [self.controller.start, self.controller.stop]
+        for i in range(self.iterations):
+            method = methods[i % 2]
+            try:
+                method()
+            except:
+                self.failed = True
+                break
 
 
 class TestProcController(unittest.TestCase):
@@ -37,6 +59,12 @@ class TestProcController(unittest.TestCase):
         watcher.join()
         self.assertFalse(watcher.is_alive(),
                          'Process watcher must not be alive after joined')
+
+    def test_concurrency(self):
+        flippers = [StateFlipper(self.controller) for i in range(NUM_THREADS_TO_TEST)]
+        map(lambda f: f.start(), flippers)
+        map(lambda f: f.join(), flippers)
+        self.assertFalse(any([f.failed for f in flippers]))
 
     def test_redundant_start(self):
         self.controller.start()
