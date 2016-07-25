@@ -30,6 +30,7 @@ class ProcRunner(threading.Thread):
         self.shell = shell
         self.respawn_delay = respawn_delay
         self.respawn = respawn
+        self.lock = threading.Lock()
         self.spawn_count = 0
         if not shell:
             self.cmd_str = ' '.join(cmd)
@@ -108,9 +109,10 @@ class ProcRunner(threading.Thread):
         Begin managing the process.
         """
         while True:
-            if self.done:
-                return
-            self._start_proc()
+            with self.lock:
+                if self.done:
+                    return
+                self._start_proc()
             try:
                 self.proc.wait()
             except AttributeError:
@@ -125,8 +127,9 @@ class ProcRunner(threading.Thread):
         """
         Finish this Thread by killing the process and marking completion.
         """
-        self.done = True
-        self._kill_proc()
+        with self.lock:
+            self.done = True
+            self._kill_proc()
 
     def add_spawn_hook(self, spawn_hook):
         """
