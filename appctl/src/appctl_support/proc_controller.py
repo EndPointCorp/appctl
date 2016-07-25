@@ -6,7 +6,8 @@ from proc_runner import ProcRunner
 
 class ProcController(BaseController):
     """
-    Controls startup and shutdown of a ProcRunner.
+    The purpose of ProcController is to start and stop ProcRunners with
+    guarantees of thread safety and no waifs.
     """
     def __init__(self, cmd, shell=False, spawn_hooks=[], respawn=True):
         """
