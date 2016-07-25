@@ -15,6 +15,7 @@ class ProcController(BaseController):
                 respawned at all, default is True.
 
         """
+        self.lock = threading.Lock()
         self.cmd = cmd
         self.shell = shell
         self.started = False
@@ -27,29 +28,30 @@ class ProcController(BaseController):
         rospy.on_shutdown(self.stop)
 
     def start(self, *args, **kwargs):
-        if self.started:
-            return
-        self.started = True
-        self.start_count += 1
-        if self.start_count != self.stop_count + 1:
-            raise AssertionError('Start/stop count mismatch during start()')
-        self.watcher = ProcRunner(self.cmd,
-                                  shell=self.shell,
-                                  spawn_hooks=self.spawn_hooks,
-                                  respawn=self.respawn)
-        self.watcher.daemon = False
-        self.watcher.start()
+        with self.lock:
+            if self.started:
+                return
+            self.started = True
+            self.start_count += 1
+            if self.start_count != self.stop_count + 1:
+                raise AssertionError('Start/stop count mismatch during start()')
+            self.watcher = ProcRunner(self.cmd,
+                                      shell=self.shell,
+                                      spawn_hooks=self.spawn_hooks,
+                                      respawn=self.respawn)
+            self.watcher.daemon = False
+            self.watcher.start()
 
     def stop(self, *args, **kwargs):
-        if not self.started:
-            rospy.loginfo("ProcController wasnt started, cannot stop")
-            return
-        self.started = False
-        self.stop_count += 1
-        if self.stop_count != self.start_count:
-            raise AssertionError('Start/stop count mismatch during stop()')
-        self.watcher.shutdown()
-        self.watcher = None
+        with self.lock:
+            if not self.started:
+                return
+            self.started = False
+            self.stop_count += 1
+            if self.stop_count != self.start_count:
+                raise AssertionError('Start/stop count mismatch during stop()')
+            self.watcher.shutdown()
+            self.watcher = None
 
     def add_spawn_hook(self, spawn_hook):
         """
