@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 import unittest
+import gc
 import time
 import threading
+import weakref
 
 from appctl_support import ProcController
 
@@ -33,9 +35,11 @@ class StateFlipper(threading.Thread):
 
 
 class TestProcController(unittest.TestCase):
-
     def setUp(self):
         self.controller = ProcController(TEST_CMD)
+
+    def tearDown(self):
+        self.controller.stop()
 
     def test_start_and_stop(self):
         self.assertFalse(self.controller.started,
@@ -95,12 +99,29 @@ class TestProcController(unittest.TestCase):
         self.controller.stop()
         time.sleep(0.1)
 
-    def tearDown(self):
+
+class TestCleanup(unittest.TestCase):
+    def setUp(self):
+        self.controller = ProcController(TEST_CMD)
+
+    def test_cleanup_started(self):
+        c_ref = weakref.ref(self.controller)
+        self.controller.start()
+        self.controller = None
+        gc.collect()
+        self.assertIsNone(c_ref())
+
+    def test_cleanup_stopped(self):
+        c_ref = weakref.ref(self.controller)
         self.controller.stop()
+        self.controller = None
+        gc.collect()
+        self.assertIsNone(c_ref())
 
 
 if __name__ == '__main__':
     import rostest
     rostest.rosrun(PKG, NAME, TestProcController)
+    rostest.rosrun(PKG, NAME, TestCleanup)
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
