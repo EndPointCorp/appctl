@@ -153,9 +153,9 @@ class TestProcRunnerCleanup(unittest.TestCase):
         gc.collect()
         self.assertIsNone(proc_ref(), 'proc must be freed on shutdown')
 
-        runner.join()
         runner = None
-        self.assertIsNone(runner_ref(), 'runner must be freed post-join')
+        gc.collect()
+        self.assertIsNone(runner_ref(), 'runner must be freed post-delete')
 
 if __name__ == '__main__':
     import rostest

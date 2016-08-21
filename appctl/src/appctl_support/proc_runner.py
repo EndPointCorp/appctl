@@ -42,6 +42,9 @@ class ProcRunner(threading.Thread):
         for spawn_hook in spawn_hooks:
             self.add_spawn_hook(spawn_hook)
 
+    def __del__(self):
+        self.shutdown()
+
     def _kill_proc(self):
         """
         Attempts to kill the process group with SIGTERM.
