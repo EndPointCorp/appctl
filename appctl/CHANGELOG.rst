@@ -2,8 +2,8 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.0 (2016-08-23)
+------------------
 * Fix ProcController gc behavior
   * Do not register a shutdown hook.
   * Add close() method which is called from __del_\_().
