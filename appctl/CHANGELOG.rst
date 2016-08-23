@@ -2,6 +2,15 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix ProcController gc behavior
+  * Do not register a shutdown hook.
+  * Add close() method which is called from __del_\_().
+  * Add cleanup tests.
+* Add destructor to ProcRunner, refine gc test
+* Contributors: Matt Vollrath
+
 1.0.14 (2016-07-25)
 -------------------
 * Revert "Disable appctl mode abuse test"
