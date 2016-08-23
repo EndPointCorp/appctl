@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -e
+
+THIS_PROJECT='appctl'
+
+IMAGE_NAME="${THIS_PROJECT}_test"
+
+cd `dirname ${BASH_SOURCE[0]}`
+
+docker build --pull -t "${IMAGE_NAME}" .
+
+TEST_SCRIPT="
+pep8 --count src
+catkin_lint src
+catkin_make run_tests
+catkin_test_results
+"
+
+docker run -it --rm --name "${IMAGE_NAME}" \
+  "${IMAGE_NAME}" /bin/sh -ec "${TEST_SCRIPT}"
+RET=$?
+
+echo "exiting $RET"

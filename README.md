@@ -14,6 +14,16 @@ LINT is configured, run `pep8` in the root of this repo to check Python
 and use `catkin_lint` to check for errors in `package.xml` and
 `CMakeLists.txt`.
 
+### Running tests
+
+Use the `dev_tests` script to run the tests quickly.
+
+Use the `ci_tests` script to run the tests cleanly.
+
+### Building the package
+
+Use the `ci_build` script to run the tests and produce a debian package in the `.build/` directory.
+
 ## Making new release
 
 - To make new release you need to:
