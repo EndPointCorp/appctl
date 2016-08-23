@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -e
+
+THIS_PROJECT='appctl'
+
+RET=1
+UUID="$( base64 /dev/urandom | tr -d '/+[A-Z]' | dd bs=16 count=1 2>/dev/null )"
+IMAGE_NAME="${THIS_PROJECT}_test_${UUID}"
+
+function cleanup() {
+  set +e
+
+  echo "cleaning up"
+  docker rm -f "${IMAGE_NAME}"
+  docker rmi "${IMAGE_NAME}"
+
+  echo "exiting $RET"
+  exit $RET
+}
+
+cd `dirname ${BASH_SOURCE[0]}`
+
+trap cleanup EXIT
+
+docker build --pull --rm=true --force-rm --no-cache -t "${IMAGE_NAME}" .
+
+TEST_SCRIPT="
+pep8 --count src
+catkin_lint src
+catkin_make run_tests_${THIS_PROJECT}
+catkin_test_results
+"
+
+docker run --rm --name "${IMAGE_NAME}" \
+  "${IMAGE_NAME}" /bin/sh -ec "${TEST_SCRIPT}"
+RET=$?

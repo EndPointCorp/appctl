@@ -1,0 +1,46 @@
+#!/bin/bash
+
+set -e
+
+THIS_PROJECT='appctl'
+
+RET=1
+UUID="$( base64 /dev/urandom | tr -d '/+[A-Z]' | dd bs=16 count=1 2>/dev/null )"
+IMAGE_NAME="${THIS_PROJECT}_build_${UUID}"
+
+function cleanup() {
+  set +e
+
+  echo "cleaning up"
+  docker rm -f "${IMAGE_NAME}"
+  docker rmi "${IMAGE_NAME}"
+
+  echo "exiting $RET"
+  exit $RET
+}
+
+cd `dirname ${BASH_SOURCE[0]}`
+BUILD_DIR="`pwd`/.build"
+
+trap cleanup EXIT
+
+mkdir -p "$BUILD_DIR"
+
+docker build --build-arg="BUILD_DEBS=true" \
+  --pull --rm=true --force-rm --no-cache -t "${IMAGE_NAME}" .
+
+BUILD_SCRIPT="
+pep8 --count src
+catkin_lint src
+catkin_make run_tests_${THIS_PROJECT}
+catkin_test_results
+lg-ros-build src/${THIS_PROJECT}
+mv *.deb /output/
+"
+
+docker run --rm --name "${IMAGE_NAME}" \
+  --volume="${BUILD_DIR}:/output" \
+  "${IMAGE_NAME}" /bin/sh -ec "${BUILD_SCRIPT}"
+RET=$?
+
+echo "Finished. Packages should be in ${BUILD_DIR}/" >&2
