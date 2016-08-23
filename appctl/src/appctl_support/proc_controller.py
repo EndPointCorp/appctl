@@ -24,8 +24,6 @@ class ProcController(BaseController):
         self.respawn = respawn
         self.start_count = 0
         self.stop_count = 0
-        # Always stop on rospy shutdown.
-        rospy.on_shutdown(self.stop)
 
     def start(self, *args, **kwargs):
         with self.lock:
@@ -52,6 +50,17 @@ class ProcController(BaseController):
                 raise AssertionError('Start/stop count mismatch during stop()')
             self.watcher.shutdown()
             self.watcher = None
+
+    def close(self):
+        try:
+            self.watcher.shutdown()
+        except AttributeError:
+            pass
+        finally:
+            self.spawn_hooks = self.watcher = None
+
+    def __del__(self):
+        self.close()
 
     def add_spawn_hook(self, spawn_hook):
         """
