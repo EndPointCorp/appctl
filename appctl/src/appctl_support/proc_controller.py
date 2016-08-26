@@ -37,7 +37,6 @@ class ProcController(BaseController):
                                       shell=self.shell,
                                       spawn_hooks=self.spawn_hooks,
                                       respawn=self.respawn)
-            self.watcher.daemon = False
             self.watcher.start()
 
     def stop(self, *args, **kwargs):

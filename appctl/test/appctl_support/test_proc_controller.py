@@ -107,9 +107,13 @@ class TestCleanup(unittest.TestCase):
     def test_cleanup_started(self):
         c_ref = weakref.ref(self.controller)
         self.controller.start()
+        w_ref = weakref.ref(self.controller.watcher)
         self.controller = None
         gc.collect()
         self.assertIsNone(c_ref())
+        # It may take some time to cleanup the thread.
+        time.sleep(0.5)
+        self.assertIsNone(w_ref())
 
     def test_cleanup_stopped(self):
         c_ref = weakref.ref(self.controller)

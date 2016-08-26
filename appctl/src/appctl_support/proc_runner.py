@@ -1,11 +1,43 @@
 import rospy
+from functools import partial
+import atexit
 import threading
 import os
 import signal
 import subprocess
 import sys
+import weakref
 
 DEFAULT_RESPAWN_DELAY = 1.0
+
+_refs = []
+
+
+def _get_runner_refs():
+    global _refs
+    return _refs
+
+
+def _add_cleanup_ref(runner):
+    refs = _get_runner_refs()
+    ref = weakref.ref(runner)
+    refs.append(ref)
+
+
+def _cleanup_all_runners():
+    refs = _get_runner_refs()
+    map(_cleanup_ref, refs)
+    del refs[:]
+
+
+def _cleanup_ref(ref):
+    runner = ref()
+    if runner is None:
+        return
+    runner._shutdown()
+
+
+atexit.register(_cleanup_all_runners)
 
 
 class ProcRunner(threading.Thread):
@@ -42,8 +74,14 @@ class ProcRunner(threading.Thread):
         for spawn_hook in spawn_hooks:
             self.add_spawn_hook(spawn_hook)
 
+        # Must be a daemon thread to ensure clean shutdown.
+        self.daemon = True
+
+        # Register for cleanup.
+        _add_cleanup_ref(self)
+
     def __del__(self):
-        self.shutdown()
+        self._shutdown()
 
     def _kill_proc(self):
         """
@@ -126,13 +164,22 @@ class ProcRunner(threading.Thread):
             if not self.done:
                 rospy.sleep(self.respawn_delay)
 
+    def _shutdown(self):
+        """
+        Internal, unlocked shutdown procedure.
+
+        This should only be used upon destruction.
+        """
+        self.done = True
+        self._kill_proc()
+        self._spawn_hooks = []
+
     def shutdown(self, *args, **kwargs):
         """
         Finish this Thread by killing the process and marking completion.
         """
         with self.lock:
-            self.done = True
-            self._kill_proc()
+            self._shutdown()
 
     def add_spawn_hook(self, spawn_hook):
         """
