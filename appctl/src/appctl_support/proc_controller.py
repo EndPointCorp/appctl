@@ -26,6 +26,10 @@ class ProcController(BaseController):
         self.stop_count = 0
 
     def start(self, *args, **kwargs):
+        """
+        Start the process.  This method is thread-safe and can be called
+        redundantly without error or effect.
+        """
         with self.lock:
             if self.started:
                 return
@@ -37,10 +41,13 @@ class ProcController(BaseController):
                                       shell=self.shell,
                                       spawn_hooks=self.spawn_hooks,
                                       respawn=self.respawn)
-            self.watcher.daemon = False
             self.watcher.start()
 
     def stop(self, *args, **kwargs):
+        """
+        Stop the process.  This method is thread-safe and can be called
+        redundantly without error or effect.
+        """
         with self.lock:
             if not self.started:
                 return
@@ -52,6 +59,9 @@ class ProcController(BaseController):
             self.watcher = None
 
     def close(self):
+        """
+        End the process immediately without blocking.
+        """
         try:
             self.watcher.shutdown()
         except AttributeError:

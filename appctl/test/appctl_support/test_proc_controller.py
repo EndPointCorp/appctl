@@ -107,16 +107,44 @@ class TestCleanup(unittest.TestCase):
     def test_cleanup_started(self):
         c_ref = weakref.ref(self.controller)
         self.controller.start()
+        w_ref = weakref.ref(self.controller.watcher)
         self.controller = None
         gc.collect()
         self.assertIsNone(c_ref())
+        time.sleep(0.5)
+        self.assertIsNone(w_ref())
 
     def test_cleanup_stopped(self):
         c_ref = weakref.ref(self.controller)
+        self.controller.start()
+        w_ref = weakref.ref(self.controller.watcher)
+        time.sleep(0.5)
         self.controller.stop()
         self.controller = None
         gc.collect()
         self.assertIsNone(c_ref())
+        time.sleep(0.5)
+        self.assertIsNone(w_ref())
+
+    def test_close_started(self):
+        c_ref = weakref.ref(self.controller)
+        self.controller.start()
+        w_ref = weakref.ref(self.controller.watcher)
+        self.controller.close()
+        gc.collect()
+        time.sleep(0.5)
+        self.assertIsNone(w_ref())
+
+    def test_close_stopped(self):
+        c_ref = weakref.ref(self.controller)
+        self.controller.start()
+        w_ref = weakref.ref(self.controller.watcher)
+        time.sleep(0.5)
+        self.controller.stop()
+        self.controller.close()
+        gc.collect()
+        time.sleep(0.5)
+        self.assertIsNone(w_ref())
 
 
 if __name__ == '__main__':
