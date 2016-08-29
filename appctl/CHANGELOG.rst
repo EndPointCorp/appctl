@@ -2,6 +2,13 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Expand ProcController docstrings and tests
+* Add atexit hooks to guarantee ProcRunner closure
+  Switch to daemon thread to facilitate this.
+* Contributors: Matt Vollrath
+
 1.1.0 (2016-08-23)
 ------------------
 * Fix ProcController gc behavior
