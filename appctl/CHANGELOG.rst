@@ -2,8 +2,8 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.0 (2017-08-17)
+------------------
 * Add env arg to ProcController and ProcRunner
 * Contributors: Matt Vollrath
 
