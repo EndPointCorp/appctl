@@ -51,7 +51,8 @@ class ProcRunner(threading.Thread):
                  shell=False,
                  spawn_hooks=[],
                  respawn_limit=-1,
-                 respawn=True):
+                 respawn=True,
+                 env=None):
         """
         respawn handles whether or not the application shall be automatically
                 respawned at all, default is True.
@@ -62,6 +63,7 @@ class ProcRunner(threading.Thread):
         self.shell = shell
         self.respawn_delay = respawn_delay
         self.respawn = respawn
+        self.env = env
         self.lock = threading.Lock()
         self.spawn_count = 0
         if not shell:
@@ -126,7 +128,8 @@ class ProcRunner(threading.Thread):
         self.proc = subprocess.Popen(self.cmd,
                                      preexec_fn=os.setsid,
                                      shell=self.shell,
-                                     close_fds=True)
+                                     close_fds=True,
+                                     env=self.env)
         self._run_spawn_hooks()
         self.spawn_count += 1
         rospy.loginfo("Launched '{}' with pid {}".format(self.cmd, self.proc.pid))
