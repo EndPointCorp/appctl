@@ -2,6 +2,11 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* some applications in the stopped state don't have a watcher
+* Contributors: Jacob Minshall
+
 1.2.0 (2017-08-17)
 ------------------
 * Add env arg to ProcController and ProcRunner
