@@ -2,8 +2,8 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.1 (2017-10-10)
+------------------
 * some applications in the stopped state don't have a watcher
 * Contributors: Jacob Minshall
 
