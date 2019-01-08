@@ -17,6 +17,7 @@ and use `catkin_lint` to check for errors in `package.xml` and
 ### Running tests
 
 Use the `dev_tests` script to run the tests quickly.
+
 Use the `ci_tests` script to run the tests cleanly.
 
 ### Building the package
