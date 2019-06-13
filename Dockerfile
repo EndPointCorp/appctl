@@ -1,4 +1,4 @@
-FROM ros:indigo
+FROM ros:melodic
 MAINTAINER Matt Vollrath <matt@endpoint.com>
 ARG BUILD_DEBS='false'
 
@@ -15,7 +15,7 @@ ENV CATKIN_WS /catkin_ws
 ENV DEP_WS /dep_ws
 
 RUN mkdir -p $CATKIN_WS/src \
- && . /opt/ros/indigo/setup.sh \
+ && . /opt/ros/melodic/setup.sh \
  && catkin_init_workspace $CATKIN_WS/src \
  && echo '#!/bin/bash' > /ros_entrypoint.sh \
  && echo 'source $CATKIN_WS/devel/setup.bash' >> /ros_entrypoint.sh \
@@ -23,7 +23,7 @@ RUN mkdir -p $CATKIN_WS/src \
 
 # Install lg-ros-build, only if we are building debs
 RUN if [ "$BUILD_DEBS" = "true" ]; then \
- . /opt/ros/indigo/setup.sh \
+ . /opt/ros/melodic/setup.sh \
  && mkdir -p $DEP_WS/src \
  && catkin_init_workspace $DEP_WS/src \
  && cd $DEP_WS \
@@ -32,9 +32,9 @@ RUN if [ "$BUILD_DEBS" = "true" ]; then \
  && apt-get update \
  && apt-get -y install debhelper \
  && rosdep update \
- && rosdep install -y --from-paths $DEP_WS/src --ignore-src --rosdistro=indigo \
+ && rosdep install -y --from-paths $DEP_WS/src --ignore-src --rosdistro=melodic \
  && catkin_make \
- && catkin_make install -DCMAKE_INSTALL_PREFIX=/opt/ros/indigo \
+ && catkin_make install -DCMAKE_INSTALL_PREFIX=/opt/ros/melodic \
  && rm -rf /tmp/lg_ros_nodes \
  && rm -rf $DEP_WS \
  && mkdir /output \
@@ -45,5 +45,5 @@ RUN if [ "$BUILD_DEBS" = "true" ]; then \
 WORKDIR $CATKIN_WS
 COPY appctl $CATKIN_WS/src/appctl
 COPY setup.cfg $CATKIN_WS/setup.cfg
-RUN . /opt/ros/indigo/setup.sh \
+RUN . /opt/ros/melodic/setup.sh \
  && catkin_make
