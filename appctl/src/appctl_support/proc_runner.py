@@ -141,7 +141,7 @@ class ProcRunner(threading.Thread):
         def run_spawn_hook(hook):
             try:
                 hook()
-            except:
+            except Exception:
                 rospy.logerr("Caught an Exception while running a spawn hook!")
                 # Log the traceback.
                 rospy.logerr(sys.exc_info()[2])

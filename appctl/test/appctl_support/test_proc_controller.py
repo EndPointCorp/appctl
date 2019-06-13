@@ -29,7 +29,7 @@ class StateFlipper(threading.Thread):
             method = methods[i % 2]
             try:
                 method()
-            except:
+            except Exception:
                 self.failed = True
                 break
 

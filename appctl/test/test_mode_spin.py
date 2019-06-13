@@ -76,6 +76,7 @@ class TestAppctlModeSpin(unittest.TestCase):
         rospy.sleep(3)
         self.assertEquals(0, count_test_procs())
 
+
 if __name__ == '__main__':
     import rostest
     rostest.rosrun('appctl', 'test_mode_spin', TestAppctlModeSpin)
