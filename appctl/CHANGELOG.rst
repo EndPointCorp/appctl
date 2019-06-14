@@ -2,6 +2,12 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* skipping test
+* pycodestyle'd
+* Contributors: Jacob Minshall
+
 1.2.2 (2019-06-13)
 ------------------
 
