@@ -40,3 +40,6 @@ create `CHANGELOG.rst` for a new package.
 ```shell
 $ catkin_prepare_release
 ```
+
+### ignore
+touch
