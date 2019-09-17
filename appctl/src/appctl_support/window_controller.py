@@ -1,6 +1,6 @@
 import rospy
-from awesome import WindowManager
-from controller import BaseController
+from .awesome import WindowManager
+from .controller import BaseController
 
 
 class WindowController(BaseController):

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 This node listens for appctl/Mode changes and toggles an evdev_teleport

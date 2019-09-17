@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 This node listens for keyfob button presses and changes the mode accordingly.

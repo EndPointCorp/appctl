@@ -32,13 +32,11 @@ class WindowManager:
 
     def _get_rule_pattern(self):
         return ', '.join(
-            filter(
-                lambda w: w is not None, [
+            [w for w in [
                     self._get_window_name_pattern(),
                     self._get_window_class_pattern(),
                     self._get_window_instance_pattern()
-                ]
-            )
+                ] if w is not None]
         )
 
     def _get_properties(self, visible):
@@ -73,11 +71,11 @@ class WindowManager:
             else:
                 return None
 
-        comparison = ' and '.join(filter(lambda c: c is not None, [
+        comparison = ' and '.join([c for c in [
             make_comparison('name', self.w_name),
             make_comparison('class', self.w_class),
             make_comparison('instance', self.w_instance)
-        ]))
+        ] if c is not None])
         return 'for key,rule in pairs(awful.rules.rules) do if {comparison} then table.remove(awful.rules.rules, key) end end'.format(
             comparison=comparison
         )

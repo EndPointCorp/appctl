@@ -27,7 +27,7 @@ def count_test_procs():
         # ps returns non-zero when no results are found
         return 0
     else:
-        return len(filter(filter_args, pso.strip().split('\n')))
+        return len(list(filter(filter_args, pso.strip().split('\n'))))
 
 
 class TestAppctlModeSpin(unittest.TestCase):

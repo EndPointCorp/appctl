@@ -1,7 +1,7 @@
 import rospy
 import threading
-from controller import BaseController
-from proc_runner import ProcRunner
+from .controller import BaseController
+from .proc_runner import ProcRunner
 
 
 class ProcController(BaseController):

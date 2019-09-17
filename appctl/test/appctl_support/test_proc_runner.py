@@ -6,6 +6,7 @@ import weakref
 
 import rospy
 from appctl_support import ProcRunner
+import collections
 
 
 PKG = 'appctl'
@@ -44,7 +45,7 @@ class MockBrokenSpawnHandler(object):
 
 class MockInvalidSpawnHandler(object):
     def __init__(self):
-        assert not callable(self)
+        assert not isinstance(self, collections.Callable)
 
 
 class TestProcRunner(unittest.TestCase):

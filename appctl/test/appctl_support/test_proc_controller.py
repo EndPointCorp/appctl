@@ -66,8 +66,8 @@ class TestProcController(unittest.TestCase):
 
     def test_concurrency(self):
         flippers = [StateFlipper(self.controller) for i in range(NUM_THREADS_TO_TEST)]
-        map(lambda f: f.start(), flippers)
-        map(lambda f: f.join(), flippers)
+        list([f.start() for f in flippers])
+        list([f.join() for f in flippers])
         self.assertFalse(any([f.failed for f in flippers]))
 
     def test_redundant_start(self):

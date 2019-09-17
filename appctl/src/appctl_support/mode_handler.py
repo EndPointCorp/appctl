@@ -1,5 +1,5 @@
 import rospy
-from controller import BaseController
+from .controller import BaseController
 from appctl.msg import Mode
 from appctl.srv import Query
 from rospy import ServiceException

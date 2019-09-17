@@ -7,6 +7,7 @@ import signal
 import subprocess
 import sys
 import weakref
+import collections
 
 DEFAULT_RESPAWN_DELAY = 1.0
 
@@ -26,7 +27,7 @@ def _add_cleanup_ref(runner):
 
 def _cleanup_all_runners():
     refs = _get_runner_refs()
-    map(_cleanup_ref, refs)
+    list(map(_cleanup_ref, refs))
     del refs[:]
 
 
@@ -146,7 +147,7 @@ class ProcRunner(threading.Thread):
                 # Log the traceback.
                 rospy.logerr(sys.exc_info()[2])
 
-        map(run_spawn_hook, self._spawn_hooks)
+        list(map(run_spawn_hook, self._spawn_hooks))
 
     def run(self):
         """
@@ -190,7 +191,7 @@ class ProcRunner(threading.Thread):
 
         spawn_hook must be callable
         """
-        if not callable(spawn_hook):
+        if not isinstance(spawn_hook, collections.Callable):
             raise TypeError("Passed a non-callable object as a spawn hook")
         self._spawn_hooks.append(spawn_hook)
 
