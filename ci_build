@@ -30,7 +30,7 @@ docker build --build-arg="BUILD_DEBS=true" \
   --pull --rm=true --force-rm --no-cache -t "${IMAGE_NAME}" .
 
 BUILD_SCRIPT="
-pep8 --count src
+pycodestyle --count src
 catkin_lint src
 catkin_make run_tests_${THIS_PROJECT}
 catkin_test_results
