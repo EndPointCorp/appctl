@@ -28,7 +28,7 @@ docker build --pull --rm=true --force-rm --no-cache -t "${IMAGE_NAME}" .
 TEST_SCRIPT="
 pycodestyle --count src
 catkin_lint src
-catkin_make run_tests_${THIS_PROJECT}
+catkin_make run_tests_${THIS_PROJECT} -DNOSETESTS=/usr/bin/nosetests3
 catkin_test_results
 "
 
