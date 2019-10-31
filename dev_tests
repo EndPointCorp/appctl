@@ -13,7 +13,7 @@ docker build --pull -t "${IMAGE_NAME}" .
 TEST_SCRIPT="
 pycodestyle --count src
 catkin_lint src
-catkin_make run_tests
+catkin_make run_tests -DNOSETESTS=/usr/bin/nosetests3
 catkin_test_results
 "
 

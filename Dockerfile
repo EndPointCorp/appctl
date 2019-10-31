@@ -9,6 +9,10 @@ RUN apt-get update \
       g++ \
       pep8 \
       python-catkin-lint \
+      python3-pip \
+      python3-nose \
+ && pip3 install setuptools \
+ && pip3 install wheel pyyaml rospkg catkin_pkg evdev tornado bson pyinotify catkin_tools empy pycrypto gnupg \
  && rm -rf /var/lib/apt/lists/*
 
 ENV CATKIN_WS /catkin_ws
