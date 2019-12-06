@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import rospy
 import subprocess
@@ -22,7 +22,7 @@ def count_test_procs():
     try:
         pso = subprocess.check_output(
             ['ps', '--no-headers', '-o', '%a', '-C', 'sh']
-        )
+        ).decode('utf-8')
     except subprocess.CalledProcessError:
         # ps returns non-zero when no results are found
         return 0
