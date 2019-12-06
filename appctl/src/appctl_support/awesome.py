@@ -33,9 +33,9 @@ class WindowManager:
     def _get_rule_pattern(self):
         return ', '.join(
             [w for w in [
-                self._get_window_name_pattern(),
-                self._get_window_class_pattern(),
-                self._get_window_instance_pattern()
+               self._get_window_name_pattern(),
+               self._get_window_class_pattern(),
+               self._get_window_instance_pattern()
             ] if w is not None]
         )
 
