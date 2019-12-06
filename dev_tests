@@ -11,9 +11,9 @@ cd `dirname ${BASH_SOURCE[0]}`
 docker build --pull -t "${IMAGE_NAME}" .
 
 TEST_SCRIPT="
-pep8 --count src
+pycodestyle --count src
 catkin_lint src
-catkin_make run_tests
+catkin_make run_tests -DNOSETESTS=/usr/bin/nosetests3
 catkin_test_results
 "
 
