@@ -3,27 +3,13 @@ project(appctl)
 
 find_package(catkin REQUIRED COMPONENTS
   rospy
-  message_generation
+  appctl_msg_defs
 )
 
 catkin_python_setup()
 
-add_message_files(
-  FILES
-  Mode.msg
-)
-
-add_service_files(
-  FILES
-  Query.srv
-)
-
-generate_messages(
-  DEPENDENCIES
-)
-
 catkin_package(
-  CATKIN_DEPENDS message_runtime std_msgs
+  CATKIN_DEPENDS message_runtime std_msgs appctl_msg_defs
 )
 
 include_directories(
