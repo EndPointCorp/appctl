@@ -5,7 +5,7 @@ This node listens for keyfob button presses and changes the mode accordingly.
 """
 
 import rospy
-from appctl.msg import Mode
+from appctl_msg_defs.msg import Mode
 from std_msgs.msg import Byte
 
 

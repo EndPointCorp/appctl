@@ -3,7 +3,7 @@ import unittest
 
 from appctl_support import ModeHandler
 from appctl_support.controller import BaseController
-from appctl.msg import Mode
+from appctl_msg_defs.msg import Mode
 
 PKG = 'appctl'
 NAME = 'test_mode_handler'
