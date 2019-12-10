@@ -2,22 +2,19 @@
 <package>
   <name>appctl_msg_defs</name>
   <version>0.0.1</version>
-  <description>Support software for mode switching</description>
+  <description>Msg and service defs for appctl pkg</description>
 
   <maintainer email="lg@endpoint.com">End Point Corp</maintainer>
 
-  <author email="wojtek@endpoint.com">Wojciech Ziniewicz</author>
+  <author email="matt@endpoint.com">Matt Vollrath</author>
 
   <url type="website">https://liquidgalaxy.endpoint.com/</url>
 
   <license>Apache 2.0</license>
 
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>rospy</build_depend>
   <build_depend>message_generation</build_depend>
   <run_depend>rospy</run_depend>
-  <run_depend>std_msgs</run_depend>
   <run_depend>message_runtime</run_depend>
-  <test_depend>rostest</test_depend>
 </package>
 
