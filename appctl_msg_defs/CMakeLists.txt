@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 2.8.3)
 project(appctl_msg_defs)
 
 find_package(catkin REQUIRED COMPONENTS
-  rospy
   message_generation
 )
 
@@ -21,7 +20,7 @@ generate_messages(
 )
 
 catkin_package(
-  CATKIN_DEPENDS message_runtime std_msgs
+  CATKIN_DEPENDS message_runtime
 )
 
 include_directories(
