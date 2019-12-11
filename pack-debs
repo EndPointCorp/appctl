@@ -20,5 +20,5 @@ sudo rosdep install -y --from-paths $SRCDIR --ignore-src \
     --rosdistro=indigo --os=ubuntu:bionic
 
 $BUILD $SRCDIR/appctl_msg_defs
-sudo dpkg --force-overwrite -i ros-meloidc-appctl_msg_defs_*bionic_*.deb
+sudo dpkg --force-overwrite -i ros-melodic-appctl_msg_defs_*bionic_*.deb
 $BUILD $SRCDIR/appctl
