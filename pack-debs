@@ -7,8 +7,8 @@ cd $DIR
 DIR=`pwd`
 
 BUILD=lg-ros-build
-SRCDIR=$DIR/catkin/src
-DEBDIR=$DIR/catkin/debs
+SRCDIR=$DIR/src
+DEBDIR=$DIR/debs
 
 rm -rf $DEBDIR
 mkdir -p $DEBDIR
