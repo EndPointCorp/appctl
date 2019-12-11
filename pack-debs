@@ -6,7 +6,7 @@ DIR=$( dirname "${BASH_SOURCE[0]}" )
 cd $DIR
 DIR=`pwd`
 
-BUILD=$DIR/lg_builder/scripts/lg-ros-build
+BUILD=lg-ros-build
 SRCDIR=$DIR/catkin/src
 DEBDIR=$DIR/catkin/debs
 
