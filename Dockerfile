@@ -49,6 +49,7 @@ RUN if [ "$BUILD_DEBS" = "true" ]; then \
 WORKDIR $CATKIN_WS
 COPY appctl $CATKIN_WS/src/appctl
 COPY setup.cfg $CATKIN_WS/setup.cfg
+COPY pack-debs $CATKIN_WS/pack-debs
 COPY appctl_msg_defs $CATKIN_WS/src/appctl_msg_defs
 RUN . /opt/ros/melodic/setup.sh \
  && catkin_make
