@@ -2,3 +2,4 @@
 !appctl/
 !appctl_msg_defs/
 !setup.cfg
+!pack-debs
