@@ -3,7 +3,7 @@
 import rospy
 import subprocess
 import unittest
-from appctl.msg import Mode
+from appctl_msg_defs.msg import Mode
 
 # this must match the number of nodes in the .test file
 NUM_INSTANCES = 100

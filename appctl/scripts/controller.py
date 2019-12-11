@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import rospy
-from appctl.srv import Query
-from appctl.msg import Mode
+from appctl_msg_defs.srv import Query
+from appctl_msg_defs.msg import Mode
 import time
 
 

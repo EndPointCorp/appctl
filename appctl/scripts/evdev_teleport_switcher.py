@@ -6,7 +6,7 @@ receiver accordingly.
 """
 
 import rospy
-from appctl.msg import Mode
+from appctl_msg_defs.msg import Mode
 from std_msgs.msg import Bool
 
 

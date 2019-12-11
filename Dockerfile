@@ -12,7 +12,7 @@ RUN apt-get update \
       python3-pip \
       python3-nose \
  && pip3 install setuptools \
- && pip3 install wheel pyyaml rospkg catkin_pkg evdev tornado bson pyinotify catkin_tools empy pycrypto gnupg \
+ && pip3 install wheel pyyaml rospkg \
  && rm -rf /var/lib/apt/lists/*
 
 ENV CATKIN_WS /catkin_ws
@@ -49,5 +49,6 @@ RUN if [ "$BUILD_DEBS" = "true" ]; then \
 WORKDIR $CATKIN_WS
 COPY appctl $CATKIN_WS/src/appctl
 COPY setup.cfg $CATKIN_WS/setup.cfg
+COPY appctl_msg_defs $CATKIN_WS/src/appctl_msg_defs
 RUN . /opt/ros/melodic/setup.sh \
  && catkin_make
