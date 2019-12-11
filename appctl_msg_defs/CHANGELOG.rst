@@ -2,8 +2,8 @@
 Changelog for package appctl_msg_defs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.0.1 (2019-12-11)
+------------------
 * Bump changelogs
 * Merge pull request `#11 <https://github.com/EndPointCorp/appctl/issues/11>`_ from EndPointCorp/python3_change
   Python3 msg/srv changes
