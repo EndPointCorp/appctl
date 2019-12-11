@@ -2,6 +2,21 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#11 <https://github.com/EndPointCorp/appctl/issues/11>`_ from EndPointCorp/python3_change
+  Python3 msg/srv changes
+* package.xml dep fixes and remove some files
+* Merge branch 'master' of github.com:EndPointCorp/appctl into python3_change
+  Conflicts:
+  Dockerfile
+  appctl/src/appctl_support/awesome.py
+* Merge branch 'python3_change' of github.com:EndPointCorp/appctl into python3_change
+* appctl_msg_defs: update msg/srv imports
+* make seperate appctl_msg_defs
+* pep8 > pycodestyle
+* Contributors: Will Plaut
+
 3.0.0 (2019-10-31)
 ------------------
 

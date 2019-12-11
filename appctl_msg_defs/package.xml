@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>appctl_msg_defs</name>
-  <version>0.0.1</version>
+  <version>3.0.0</version>
   <description>Msg and service defs for appctl pkg</description>
 
   <maintainer email="lg@endpoint.com">End Point Corp</maintainer>
