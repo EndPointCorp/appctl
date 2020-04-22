@@ -8,6 +8,7 @@ RUN apt-get update \
       git \
       g++ \
       pep8 \
+      openssh-client \
       python-catkin-lint \
       python3-pip \
       python3-nose \
