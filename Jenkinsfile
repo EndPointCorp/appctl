@@ -11,7 +11,7 @@ pipeline {
   stages {
     stage('Test') {
       steps {
-        sh "./scripts/run_tests.sh"
+        sh "./scripts/test.sh"
       }
     }
     stage('Build') {
@@ -19,7 +19,7 @@ pipeline {
         branch 'master'
       }
       steps {
-        sh "./pack-debs"
+        sh "./scripts/build.sh"
       }
     }
     stage('Deploy') {
