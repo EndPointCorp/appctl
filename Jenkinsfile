@@ -6,6 +6,7 @@ pipeline {
   }
   environment {
     APTLY_SERVER = credentials('aptly-server-url')
+    BUILD_DEBS = "${env.BRANCH_NAME == "master" ? "true" : "false"}"
   }
   stages {
     stage('Test') {
