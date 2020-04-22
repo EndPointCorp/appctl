@@ -19,7 +19,6 @@ pipeline {
         branch 'master'
       }
       steps {
-        input('debug this step')
         sh "./pack-debs"
       }
     }
