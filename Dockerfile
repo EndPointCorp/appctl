@@ -13,7 +13,8 @@ RUN apt-get update \
       python3-nose \
  && pip3 install setuptools \
  && pip3 install wheel pyyaml rospkg \
- && rm -rf /var/lib/apt/lists/* ENV CATKIN_WS /catkin_ws
+ && rm -rf /var/lib/apt/lists/* 
+ENV CATKIN_WS /catkin_ws
 ENV DEP_WS /dep_ws
 
 RUN mkdir -p $CATKIN_WS/src \
