@@ -13,4 +13,4 @@ ssh -o StrictHostKeychecking=no aptly@${APTLY_SERVER} mkdir -p incoming/appctl/m
 cd /catkin_ws
 scp -o StrictHostKeychecking=no ./debs/*.deb aptly@${APTLY_SERVER}:incoming/appctl/master/
 ssh -o StrictHostKeychecking=no  aptly@${APTLY_SERVER} bash /home/aptly/bin/publish-incoming.sh --project appctl --branch origin/master --rosrel "melodic" --distro "bionic"
-ssh -o StrictHostKeychecking=no aptly@${APTLY_SERVER} bash /home/aptly/bin/publish-incoming-seperate-repos.sh --project appctl --branch origin/master --rosrel "melodic" --distro "bionic"
+ssh -o StrictHostKeychecking=no aptly@${APTLY_SERVER} bash /home/aptly/bin/publish-incoming-separate-repos.sh --project appctl --branch origin/master --rosrel "melodic" --distro "bionic"
