@@ -5,7 +5,8 @@ pipeline {
   }
   agent {
     dockerfile {
-      args "-u 0 -v /var/lib/jenkins/.ssh:/root/ssh --build-arg ${env.BUILD_DEBS}"
+      args "-u 0 -v /var/lib/jenkins/.ssh:/root/ssh"
+      additionalBuildArgs "--build-arg BUILD_DEBS=${env.BUILD_DEBS}"
     }
   }
   stages {
