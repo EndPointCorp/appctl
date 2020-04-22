@@ -13,9 +13,7 @@ RUN apt-get update \
       python3-nose \
  && pip3 install setuptools \
  && pip3 install wheel pyyaml rospkg \
- && rm -rf /var/lib/apt/lists/*
-
-ENV CATKIN_WS /catkin_ws
+ && rm -rf /var/lib/apt/lists/* ENV CATKIN_WS /catkin_ws
 ENV DEP_WS /dep_ws
 
 RUN mkdir -p $CATKIN_WS/src \
@@ -25,7 +23,7 @@ RUN mkdir -p $CATKIN_WS/src \
  && echo 'source $CATKIN_WS/devel/setup.bash' >> /ros_entrypoint.sh \
  && echo 'exec "$@"' >> /ros_entrypoint.sh
 
-# Install lg-ros-build, only if we are building debs
+# Install lg-ros-build, only if we are building debs or we are running on CI
 RUN if [ "$BUILD_DEBS" = "true" ]; then \
  . /opt/ros/melodic/setup.sh \
  && mkdir -p $DEP_WS/src \
