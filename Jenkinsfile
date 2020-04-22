@@ -24,7 +24,7 @@ pipeline {
     }
     stage('Deploy') {
       when {
-        branch 'mater'
+        branch 'master'
       }
       steps {
         sh "./scripts/deploy.sh"
