@@ -9,8 +9,8 @@ chown -R root:root /root/.ssh
 chmod 0600 /root/.ssh/id_rsa
 eval $(ssh-agent -s)
 
-ssh aptly@${APTLY_SERVER} mkdir -p incoming/appctl/master/
+ssh -o StrictHostKeychecking=no aptly@${APTLY_SERVER} mkdir -p incoming/appctl/master/
 cd /catkin_ws
-scp *.deb aptly@${APTLY_SERVER}:incoming/appctl/master/
-ssh aptly@${APTLY_SERVER} bash /home/aptly/bin/publish-incoming.sh --project appctl --branch master --rosrel "melodic" --distro "bionic"
-ssh aptly@${APTLY_SERVER} bash /home/aptly/bin/publish-incoming-seperate-repos.sh --project appctl --branch master --rosrel "melodic" --distro "bionic"
+scp -o StrictHostKeychecking=no *.deb aptly@${APTLY_SERVER}:incoming/appctl/master/
+ssh -o StrictHostKeychecking=no  aptly@${APTLY_SERVER} bash /home/aptly/bin/publish-incoming.sh --project appctl --branch master --rosrel "melodic" --distro "bionic"
+ssh -o StrictHostKeychecking=no aptly@${APTLY_SERVER} bash /home/aptly/bin/publish-incoming-seperate-repos.sh --project appctl --branch master --rosrel "melodic" --distro "bionic"
