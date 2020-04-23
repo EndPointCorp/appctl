@@ -17,11 +17,11 @@ and use `catkin_lint` to check for errors in `package.xml` and
 ### Running tests
 
 Use the `dev_tests` script to run the tests quickly.
-Use the `ci_tests` script to run the tests cleanly.
+Use the `scripts/test.sh` script to run the tests cleanly.
 
 ### Building the package
 
-Use the `ci_build` script to run the tests and produce a debian package in the `.build/` directory.
+Our CI uses the `scripts/build.sh` to build the deb inside of a docker.
 
 ## Making new release
 
