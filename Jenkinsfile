@@ -27,6 +27,7 @@ pipeline {
         branch 'master'
       }
       steps {
+        input('wait for input')
         sh "./scripts/deploy.sh"
       }
     }
