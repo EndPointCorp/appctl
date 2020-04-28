@@ -12,6 +12,7 @@ pipeline {
     stage('Test') {
       steps {
         sh "./scripts/test.sh"
+        input('wait for input')
       }
     }
     stage('Build') {
@@ -27,7 +28,6 @@ pipeline {
         branch 'master'
       }
       steps {
-        input('wait for input')
         sh "./scripts/deploy.sh"
       }
     }
