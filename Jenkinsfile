@@ -1,6 +1,6 @@
 pipeline {
   environment {
-    APTLY_SERVER = credentials('aptly-server-url-ln139')
+    APTLY_SERVER = credentials('aptly-server-url')
   }
   agent {
     dockerfile {
