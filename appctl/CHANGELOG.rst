@@ -2,6 +2,9 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.2 (2020-04-23)
+------------------
+
 3.0.1 (2019-12-11)
 ------------------
 * Merge pull request `#11 <https://github.com/EndPointCorp/appctl/issues/11>`_ from EndPointCorp/python3_change
