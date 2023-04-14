@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -e
+
+RET=1
+UUID="$( base64 /dev/urandom | tr -d '/+[A-Z]' | dd bs=16 count=1 2>/dev/null )"
+IMAGE_NAME="appctl_${UUID}"
+
+function cleanup() {
+  set +e
+
+  echo "cleaning up"
+  docker rm -f "${IMAGE_NAME}"
+  docker rmi "${IMAGE_NAME}"
+
+  exit $RET
+}
+
+cd `dirname ${BASH_SOURCE[0]}`
+
+trap cleanup EXIT
+
+docker build --pull --rm=true --force-rm --no-cache -t "${IMAGE_NAME}" .
+
+docker run --rm --name "${IMAGE_NAME}" \
+  --volume ./scripts:/catkin_ws/scripts:ro /catkin_ws/scripts/test.sh \
+  "${IMAGE_NAME}" 
+RET=$?
