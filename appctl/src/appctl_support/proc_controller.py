@@ -9,7 +9,8 @@ class ProcController(BaseController):
     The purpose of ProcController is to start and stop ProcRunners with
     guarantees of thread safety and no waifs.
     """
-    def __init__(self, cmd, shell=False, spawn_hooks=[], respawn=True, env=None):
+    def __init__(self, cmd, shell=False, spawn_hooks=[], respawn=True, env=None,
+                 stdout=None, stderr=None):
         """
         respawn handles whether or not the application shall be automatically
                 respawned at all, default is True.
@@ -23,6 +24,8 @@ class ProcController(BaseController):
         self.spawn_hooks = spawn_hooks
         self.respawn = respawn
         self.env = env
+        self.stdout = stdout
+        self.stderr = stderr
         self.start_count = 0
         self.stop_count = 0
 
@@ -42,7 +45,9 @@ class ProcController(BaseController):
                                       shell=self.shell,
                                       spawn_hooks=self.spawn_hooks,
                                       respawn=self.respawn,
-                                      env=self.env)
+                                      env=self.env,
+                                      stdout=self.stdout,
+                                      stderr=self.stderr)
             self.watcher.start()
 
     def stop(self, *args, **kwargs):
