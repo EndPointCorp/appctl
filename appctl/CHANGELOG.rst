@@ -2,6 +2,14 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#12 <https://github.com/endpointcorp/appctl/issues/12>`_ from EndPointCorp/std_redirect
+  adding stdout/stderr as options for appctl
+* Merge branch 'master' of github.com:endpointcorp/appctl into std_redirect
+* adding stdout/stderr as options for appctl
+* Contributors: Jacob Minshall
+
 3.0.2 (2020-04-23)
 ------------------
 
