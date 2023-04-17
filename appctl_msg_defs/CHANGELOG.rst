@@ -2,8 +2,8 @@
 Changelog for package appctl_msg_defs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.1.0 (2023-04-17)
+------------------
 * Merge branch 'master' of github.com:endpointcorp/appctl into std_redirect
 * Contributors: Jacob Minshall
 
