@@ -2,8 +2,8 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.1.1 (2025-01-24)
+------------------
 * Fix Callable Python 3.10 compatibility
 * Contributors: Matt Vollrath
 
