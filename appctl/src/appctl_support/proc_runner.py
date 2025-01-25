@@ -7,7 +7,7 @@ import signal
 import subprocess
 import sys
 import weakref
-import collections
+from collections.abc import Callable
 
 DEFAULT_RESPAWN_DELAY = 1.0
 
@@ -197,7 +197,7 @@ class ProcRunner(threading.Thread):
 
         spawn_hook must be callable
         """
-        if not isinstance(spawn_hook, collections.Callable):
+        if not isinstance(spawn_hook, Callable):
             raise TypeError("Passed a non-callable object as a spawn hook")
         self._spawn_hooks.append(spawn_hook)
 
