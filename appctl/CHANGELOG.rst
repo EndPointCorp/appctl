@@ -2,6 +2,11 @@
 Changelog for package appctl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix Callable Python 3.10 compatibility
+* Contributors: Matt Vollrath
+
 3.1.0 (2023-04-17)
 ------------------
 * Merge pull request `#12 <https://github.com/endpointcorp/appctl/issues/12>`_ from EndPointCorp/std_redirect
